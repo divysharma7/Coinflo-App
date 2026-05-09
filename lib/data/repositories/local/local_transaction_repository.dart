@@ -3,14 +3,14 @@ import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/data/repositories/transaction_repository.dart';
 
 class LocalTransactionRepository implements TransactionRepository {
-  final PaisaDatabase db;
+  final SpendlerDatabase db;
 
   LocalTransactionRepository(this.db);
 
   @override
-  Stream<List<PaisaTransaction>> watchTransactionsForWeek(DateTime weekStart) {
+  Stream<List<SpendlerTransaction>> watchTransactionsForWeek(DateTime weekStart) {
     final weekEnd = weekStart.add(const Duration(days: 7));
-    return (db.select(db.paisaTransactions)
+    return (db.select(db.spendlerTransactions)
           ..where((t) => t.happenedAt.isBiggerOrEqualValue(weekStart) &
               t.happenedAt.isSmallerThanValue(weekEnd))
           ..orderBy([(t) => OrderingTerm.desc(t.happenedAt)]))
@@ -18,25 +18,25 @@ class LocalTransactionRepository implements TransactionRepository {
   }
 
   @override
-  Stream<List<PaisaTransaction>> watchUnconfirmed() {
-    return (db.select(db.paisaTransactions)
+  Stream<List<SpendlerTransaction>> watchUnconfirmed() {
+    return (db.select(db.spendlerTransactions)
           ..where((t) => t.status.equals('unconfirmed'))
           ..orderBy([(t) => OrderingTerm.desc(t.happenedAt)]))
         .watch();
   }
 
   @override
-  Stream<List<PaisaTransaction>> watchAll() {
-    return (db.select(db.paisaTransactions)
+  Stream<List<SpendlerTransaction>> watchAll() {
+    return (db.select(db.spendlerTransactions)
           ..orderBy([(t) => OrderingTerm.desc(t.happenedAt)]))
         .watch();
   }
 
   @override
-  Future<List<PaisaTransaction>> getTransactionsForDay(DateTime day) {
+  Future<List<SpendlerTransaction>> getTransactionsForDay(DateTime day) {
     final dayStart = DateTime(day.year, day.month, day.day);
     final dayEnd = dayStart.add(const Duration(days: 1));
-    return (db.select(db.paisaTransactions)
+    return (db.select(db.spendlerTransactions)
           ..where((t) => t.happenedAt.isBiggerOrEqualValue(dayStart) &
               t.happenedAt.isSmallerThanValue(dayEnd))
           ..orderBy([(t) => OrderingTerm.desc(t.happenedAt)]))
@@ -44,10 +44,10 @@ class LocalTransactionRepository implements TransactionRepository {
   }
 
   @override
-  Future<List<PaisaTransaction>> getTransactionsForMonth(DateTime month) {
+  Future<List<SpendlerTransaction>> getTransactionsForMonth(DateTime month) {
     final monthStart = DateTime(month.year, month.month);
     final monthEnd = DateTime(month.year, month.month + 1);
-    return (db.select(db.paisaTransactions)
+    return (db.select(db.spendlerTransactions)
           ..where((t) => t.happenedAt.isBiggerOrEqualValue(monthStart) &
               t.happenedAt.isSmallerThanValue(monthEnd))
           ..orderBy([(t) => OrderingTerm.desc(t.happenedAt)]))
@@ -56,39 +56,39 @@ class LocalTransactionRepository implements TransactionRepository {
 
   @override
   Future<int> getUnconfirmedCount() async {
-    final result = await (db.select(db.paisaTransactions)
+    final result = await (db.select(db.spendlerTransactions)
           ..where((t) => t.status.equals('unconfirmed')))
         .get();
     return result.length;
   }
 
   @override
-  Future<int> insertTransaction(PaisaTransactionsCompanion entry) {
-    return db.into(db.paisaTransactions).insert(entry);
+  Future<int> insertTransaction(SpendlerTransactionsCompanion entry) {
+    return db.into(db.spendlerTransactions).insert(entry);
   }
 
   @override
   Future<void> confirmTransaction(int id) {
-    return (db.update(db.paisaTransactions)..where((t) => t.id.equals(id)))
-        .write(const PaisaTransactionsCompanion(status: Value('confirmed')));
+    return (db.update(db.spendlerTransactions)..where((t) => t.id.equals(id)))
+        .write(const SpendlerTransactionsCompanion(status: Value('confirmed')));
   }
 
   @override
-  Future<void> updateTransaction(int id, PaisaTransactionsCompanion entry) {
-    return (db.update(db.paisaTransactions)..where((t) => t.id.equals(id)))
+  Future<void> updateTransaction(int id, SpendlerTransactionsCompanion entry) {
+    return (db.update(db.spendlerTransactions)..where((t) => t.id.equals(id)))
         .write(entry);
   }
 
   @override
   Future<void> deleteTransaction(int id) {
-    return (db.delete(db.paisaTransactions)..where((t) => t.id.equals(id)))
+    return (db.delete(db.spendlerTransactions)..where((t) => t.id.equals(id)))
         .go();
   }
 
   @override
   Future<void> markSplit(int id, int splitCount, double myShare, double pendingAmount) {
-    return (db.update(db.paisaTransactions)..where((t) => t.id.equals(id)))
-        .write(PaisaTransactionsCompanion(
+    return (db.update(db.spendlerTransactions)..where((t) => t.id.equals(id)))
+        .write(SpendlerTransactionsCompanion(
       isSplit: const Value(true),
       splitCount: Value(splitCount),
       splitMyShare: Value(myShare),
@@ -99,16 +99,16 @@ class LocalTransactionRepository implements TransactionRepository {
 
   @override
   Future<void> settleSplit(int id) {
-    return (db.update(db.paisaTransactions)..where((t) => t.id.equals(id)))
-        .write(const PaisaTransactionsCompanion(
+    return (db.update(db.spendlerTransactions)..where((t) => t.id.equals(id)))
+        .write(const SpendlerTransactionsCompanion(
       splitSettled: Value(true),
       splitPendingAmount: Value(0),
     ));
   }
 
   @override
-  Future<List<PaisaTransaction>> getUnsettledSplits() {
-    return (db.select(db.paisaTransactions)
+  Future<List<SpendlerTransaction>> getUnsettledSplits() {
+    return (db.select(db.spendlerTransactions)
           ..where((t) =>
               t.isSplit.equals(true) & t.splitSettled.equals(false)))
         .get();
@@ -118,7 +118,7 @@ class LocalTransactionRepository implements TransactionRepository {
   Future<Map<String, double>> getCategoryTotalsForMonth(DateTime month) async {
     final monthStart = DateTime(month.year, month.month);
     final monthEnd = DateTime(month.year, month.month + 1);
-    final txns = await (db.select(db.paisaTransactions)
+    final txns = await (db.select(db.spendlerTransactions)
           ..where((t) =>
               t.happenedAt.isBiggerOrEqualValue(monthStart) &
               t.happenedAt.isSmallerThanValue(monthEnd) &
@@ -143,7 +143,7 @@ class LocalTransactionRepository implements TransactionRepository {
     final rangeEnd = thisMonday.add(const Duration(days: 7));
 
     // Single query for all expense transactions in the full date range
-    final txns = await (db.select(db.paisaTransactions)
+    final txns = await (db.select(db.spendlerTransactions)
           ..where((t) =>
               t.happenedAt.isBiggerOrEqualValue(rangeStart) &
               t.happenedAt.isSmallerThanValue(rangeEnd) &
@@ -164,9 +164,9 @@ class LocalTransactionRepository implements TransactionRepository {
 
   @override
   Future<void> confirmAllUnconfirmed() async {
-    await (db.update(db.paisaTransactions)
+    await (db.update(db.spendlerTransactions)
           ..where((t) => t.status.equals('unconfirmed')))
-        .write(const PaisaTransactionsCompanion(status: Value('confirmed')));
+        .write(const SpendlerTransactionsCompanion(status: Value('confirmed')));
   }
 
   @override
@@ -177,7 +177,7 @@ class LocalTransactionRepository implements TransactionRepository {
     final currentWeekday = today.weekday;
     final thisMonday = today.subtract(Duration(days: currentWeekday - 1));
 
-    final txns = await (db.select(db.paisaTransactions)
+    final txns = await (db.select(db.spendlerTransactions)
           ..where((t) =>
               t.happenedAt.isBiggerOrEqualValue(fourWeeksAgo) &
               t.happenedAt.isSmallerThanValue(today.add(const Duration(days: 1))) &
@@ -187,7 +187,7 @@ class LocalTransactionRepository implements TransactionRepository {
 
     // Group by category → week index (0=oldest, 3=this week)
     final result = <String, List<double>>{};
-    final categories = ['rent', 'transport', 'food', 'family', 'social', 'other'];
+    final categories = ['housing', 'transport', 'food', 'shopping', 'entertainment', 'health', 'education', 'utilities', 'other'];
     for (final cat in categories) {
       result[cat] = List.filled(4, 0.0);
     }
@@ -215,7 +215,7 @@ class LocalTransactionRepository implements TransactionRepository {
   @override
   Future<double> getTotalSpentForWeek(DateTime weekStart) async {
     final weekEnd = weekStart.add(const Duration(days: 7));
-    final txns = await (db.select(db.paisaTransactions)
+    final txns = await (db.select(db.spendlerTransactions)
           ..where((t) =>
               t.happenedAt.isBiggerOrEqualValue(weekStart) &
               t.happenedAt.isSmallerThanValue(weekEnd) &
@@ -229,7 +229,7 @@ class LocalTransactionRepository implements TransactionRepository {
     final now = DateTime.now();
     final dayStart = DateTime(now.year, now.month, now.day);
     final dayEnd = dayStart.add(const Duration(days: 1));
-    final txns = await (db.select(db.paisaTransactions)
+    final txns = await (db.select(db.spendlerTransactions)
           ..where((t) =>
               t.happenedAt.isBiggerOrEqualValue(dayStart) &
               t.happenedAt.isSmallerThanValue(dayEnd) &
@@ -243,7 +243,7 @@ class LocalTransactionRepository implements TransactionRepository {
     final now = DateTime.now();
     final dayStart = DateTime(now.year, now.month, now.day);
     final dayEnd = dayStart.add(const Duration(days: 1));
-    final txns = await (db.select(db.paisaTransactions)
+    final txns = await (db.select(db.spendlerTransactions)
           ..where((t) =>
               t.happenedAt.isBiggerOrEqualValue(dayStart) &
               t.happenedAt.isSmallerThanValue(dayEnd) &
@@ -274,7 +274,7 @@ class LocalTransactionRepository implements TransactionRepository {
   @override
   Future<Map<String, int>> getTopMerchantCountsForWeek(DateTime weekStart) async {
     final weekEnd = weekStart.add(const Duration(days: 7));
-    final txns = await (db.select(db.paisaTransactions)
+    final txns = await (db.select(db.spendlerTransactions)
           ..where((t) =>
               t.happenedAt.isBiggerOrEqualValue(weekStart) &
               t.happenedAt.isSmallerThanValue(weekEnd) &
@@ -294,7 +294,7 @@ class LocalTransactionRepository implements TransactionRepository {
     final monthEnd = DateTime(month.year, month.month + 1);
     final daysInMonth = monthEnd.difference(monthStart).inDays;
 
-    final txns = await (db.select(db.paisaTransactions)
+    final txns = await (db.select(db.spendlerTransactions)
           ..where((t) =>
               t.happenedAt.isBiggerOrEqualValue(monthStart) &
               t.happenedAt.isSmallerThanValue(monthEnd) &
@@ -326,7 +326,7 @@ class LocalTransactionRepository implements TransactionRepository {
     final today = DateTime(now.year, now.month, now.day);
     final rangeStart = today.subtract(Duration(days: weekCount * 7));
 
-    final txns = await (db.select(db.paisaTransactions)
+    final txns = await (db.select(db.spendlerTransactions)
           ..where((t) =>
               t.happenedAt.isBiggerOrEqualValue(rangeStart) &
               t.happenedAt.isSmallerThanValue(today.add(const Duration(days: 1))) &
@@ -354,7 +354,7 @@ class LocalTransactionRepository implements TransactionRepository {
   Future<List<MerchantStat>> getTopMerchants(int limit) async {
     final now = DateTime.now();
     final monthStart = DateTime(now.year, now.month);
-    final txns = await (db.select(db.paisaTransactions)
+    final txns = await (db.select(db.spendlerTransactions)
           ..where((t) =>
               t.happenedAt.isBiggerOrEqualValue(monthStart) &
               t.amount.isSmallerThanValue(0)))
@@ -384,14 +384,14 @@ class LocalTransactionRepository implements TransactionRepository {
     final lastMonthStart = DateTime(now.year, now.month - 1);
     final thisMonthEnd = DateTime(now.year, now.month + 1);
 
-    final txns = await (db.select(db.paisaTransactions)
+    final txns = await (db.select(db.spendlerTransactions)
           ..where((t) =>
               t.happenedAt.isBiggerOrEqualValue(lastMonthStart) &
               t.happenedAt.isSmallerThanValue(thisMonthEnd) &
               t.amount.isSmallerThanValue(0)))
         .get();
 
-    final categories = ['rent', 'transport', 'food', 'family', 'social', 'other'];
+    final categories = ['housing', 'transport', 'food', 'shopping', 'entertainment', 'health', 'education', 'utilities', 'other'];
     final result = <String, List<double>>{};
     for (final cat in categories) {
       result[cat] = [0, 0]; // [thisMonth, lastMonth]
@@ -434,7 +434,7 @@ class LocalTransactionRepository implements TransactionRepository {
     final nextMonday = thisMonday.add(const Duration(days: 7));
 
     // Get this week's expense transactions
-    final thisWeekTxns = await (db.select(db.paisaTransactions)
+    final thisWeekTxns = await (db.select(db.spendlerTransactions)
           ..where((t) =>
               t.happenedAt.isBiggerOrEqualValue(thisMonday) &
               t.happenedAt.isSmallerThanValue(nextMonday) &
@@ -450,7 +450,7 @@ class LocalTransactionRepository implements TransactionRepository {
 
     // Get last 4 weeks of transactions (excluding this week)
     final fourWeeksAgo = thisMonday.subtract(const Duration(days: 28));
-    final pastTxns = await (db.select(db.paisaTransactions)
+    final pastTxns = await (db.select(db.spendlerTransactions)
           ..where((t) =>
               t.happenedAt.isBiggerOrEqualValue(fourWeeksAgo) &
               t.happenedAt.isSmallerThanValue(thisMonday) &

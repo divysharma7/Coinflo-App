@@ -3,7 +3,7 @@ import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/data/repositories/metrics_repository.dart';
 
 class LocalMetricsRepository implements MetricsRepository {
-  final PaisaDatabase db;
+  final SpendlerDatabase db;
 
   LocalMetricsRepository(this.db);
 

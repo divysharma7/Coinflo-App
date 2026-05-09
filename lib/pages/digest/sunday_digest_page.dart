@@ -34,7 +34,7 @@ class _SundayDigestPageState extends ConsumerState<SundayDigestPage> {
     final weeklyTxns = ref.watch(weeklyTransactionsProvider);
 
     return Scaffold(
-      backgroundColor: PaisaColors.scaffold,
+      backgroundColor: SpendlerColors.scaffold,
       body: SafeArea(
         child: weeklyTxns.when(
           data: (txns) {
@@ -46,7 +46,7 @@ class _SundayDigestPageState extends ConsumerState<SundayDigestPage> {
             for (final t in expenses) {
               final cat = TransactionCategory.values.firstWhere(
                 (c) => c.name == t.category,
-                orElse: () => TransactionCategory.other,
+                orElse: () => TransactionCategory.food,
               );
               catTotals[cat] = (catTotals[cat] ?? 0) + t.amount.abs();
             }
@@ -64,19 +64,19 @@ class _SundayDigestPageState extends ConsumerState<SundayDigestPage> {
               children: [
                 // Dot indicators
                 Padding(
-                  padding: const EdgeInsets.all(PaisaSpacing.md),
+                  padding: const EdgeInsets.all(SpendlerSpacing.md),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(4, (i) {
                       return AnimatedContainer(
-                        duration: PaisaMotion.transition,
+                        duration: SpendlerMotion.transition,
                         margin: const EdgeInsets.symmetric(horizontal: 4),
                         width: i == _currentPage ? 24 : 8,
                         height: 8,
                         decoration: BoxDecoration(
                           color: i == _currentPage
-                              ? PaisaColors.yellow
-                              : PaisaColors.textTertiary,
+                              ? SpendlerColors.yellow
+                              : SpendlerColors.textTertiary,
                           borderRadius: BorderRadius.circular(4),
                         ),
                       );
@@ -113,10 +113,10 @@ class _SundayDigestPageState extends ConsumerState<SundayDigestPage> {
             );
           },
           loading: () => const Center(
-            child: CircularProgressIndicator(color: PaisaColors.yellow),
+            child: CircularProgressIndicator(color: SpendlerColors.yellow),
           ),
           error: (_, _) => const Center(
-            child: Text('Error', style: TextStyle(color: PaisaColors.expense)),
+            child: Text('Error', style: TextStyle(color: SpendlerColors.expense)),
           ),
         ),
       ),
@@ -138,26 +138,26 @@ class _Card1TheNumber extends StatelessWidget {
     final range = '${weekStart.day}/${weekStart.month} — ${weekEnd.day}/${weekEnd.month}';
 
     return Padding(
-      padding: const EdgeInsets.all(PaisaSpacing.lg),
+      padding: const EdgeInsets.all(SpendlerSpacing.lg),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('THIS WEEK', style: PaisaTextStyles.sectionLabel),
+          const Text('THIS WEEK', style: SpendlerTextStyles.sectionLabel),
           const SizedBox(height: 4),
-          Text(range, style: const TextStyle(color: PaisaColors.textTertiary, fontSize: 14)),
-          const SizedBox(height: PaisaSpacing.lg),
+          Text(range, style: const TextStyle(color: SpendlerColors.textTertiary, fontSize: 14)),
+          const SizedBox(height: SpendlerSpacing.lg),
           AnimatedAmount(
             value: totalSpent,
-            prefix: '₹',
-            style: PaisaTextStyles.heroAmount,
-            duration: PaisaMotion.dramatic,
-            curve: PaisaMotion.numberCurve,
+            prefix: '\$',
+            style: SpendlerTextStyles.heroAmount,
+            duration: SpendlerMotion.dramatic,
+            curve: SpendlerMotion.numberCurve,
           ),
-          const SizedBox(height: PaisaSpacing.md),
+          const SizedBox(height: SpendlerSpacing.md),
           const Text(
             'Swipe to see more →',
-            style: TextStyle(color: PaisaColors.textTertiary, fontSize: 13),
+            style: TextStyle(color: SpendlerColors.textTertiary, fontSize: 13),
           ),
         ],
       ),
@@ -198,20 +198,20 @@ class _Card2State extends State<_Card2ThePattern>
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(PaisaSpacing.lg),
+      padding: const EdgeInsets.all(SpendlerSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('WHERE IT WENT', style: PaisaTextStyles.sectionLabel),
-          const SizedBox(height: PaisaSpacing.lg),
+          const Text('WHERE IT WENT', style: SpendlerTextStyles.sectionLabel),
+          const SizedBox(height: SpendlerSpacing.lg),
           ...widget.sortedCats.asMap().entries.map((entry) {
             final i = entry.key;
             final cat = entry.value.key;
             final amount = entry.value.value;
             final pct = widget.totalSpent > 0 ? amount / widget.totalSpent : 0.0;
             final isDominant = i == 0;
-            final catColor = PaisaColors.categoryColor(cat);
+            final catColor = SpendlerColors.categoryColor(cat);
 
             return SlideTransition(
               position: Tween<Offset>(
@@ -226,11 +226,11 @@ class _Card2State extends State<_Card2ThePattern>
                 ),
               )),
               child: Padding(
-                padding: const EdgeInsets.only(bottom: PaisaSpacing.cardGap),
+                padding: const EdgeInsets.only(bottom: SpendlerSpacing.cardGap),
                 child: Row(
                   children: [
-                    Icon(cat.iconFill, size: 20, color: isDominant ? catColor : PaisaColors.textTertiary),
-                    const SizedBox(width: PaisaSpacing.cardGap),
+                    Icon(cat.iconFill, size: 20, color: isDominant ? catColor : SpendlerColors.textTertiary),
+                    const SizedBox(width: SpendlerSpacing.cardGap),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -238,7 +238,7 @@ class _Card2State extends State<_Card2ThePattern>
                           Text(
                             cat.label,
                             style: TextStyle(
-                              color: isDominant ? PaisaColors.textPrimary : PaisaColors.textSecondary,
+                              color: isDominant ? SpendlerColors.textPrimary : SpendlerColors.textSecondary,
                               fontSize: 15,
                               fontWeight: isDominant ? FontWeight.w600 : FontWeight.w400,
                             ),
@@ -249,9 +249,9 @@ class _Card2State extends State<_Card2ThePattern>
                             borderRadius: BorderRadius.circular(2),
                             child: LinearProgressIndicator(
                               value: pct,
-                              backgroundColor: PaisaColors.border,
+                              backgroundColor: SpendlerColors.border,
                               valueColor: AlwaysStoppedAnimation(
-                                isDominant ? catColor : PaisaColors.textTertiary,
+                                isDominant ? catColor : SpendlerColors.textTertiary,
                               ),
                               minHeight: 4,
                             ),
@@ -259,11 +259,11 @@ class _Card2State extends State<_Card2ThePattern>
                         ],
                       ),
                     ),
-                    const SizedBox(width: PaisaSpacing.cardGap),
+                    const SizedBox(width: SpendlerSpacing.cardGap),
                     Text(
-                      '₹${amount.toStringAsFixed(0)}',
+                      '\$${amount.toStringAsFixed(0)}',
                       style: TextStyle(
-                        color: isDominant ? PaisaColors.textPrimary : PaisaColors.textTertiary,
+                        color: isDominant ? SpendlerColors.textPrimary : SpendlerColors.textTertiary,
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                       ),
@@ -312,13 +312,13 @@ class _Card3State extends State<_Card3TheInsight> {
     final words = widget.insight.split(' ');
 
     return Padding(
-      padding: const EdgeInsets.all(PaisaSpacing.lg),
+      padding: const EdgeInsets.all(SpendlerSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('YOUR WEEK IN WORDS', style: PaisaTextStyles.sectionLabel),
-          const SizedBox(height: PaisaSpacing.xl),
+          const Text('YOUR WEEK IN WORDS', style: SpendlerTextStyles.sectionLabel),
+          const SizedBox(height: SpendlerSpacing.xl),
           Wrap(
             spacing: 5,
             runSpacing: 6,
@@ -337,7 +337,7 @@ class _Card3State extends State<_Card3TheInsight> {
                       child: Text(
                         p,
                         style: const TextStyle(
-                          color: PaisaColors.textPrimary,
+                          color: SpendlerColors.textPrimary,
                           fontSize: 24,
                           fontWeight: FontWeight.w500,
                           height: 1.5,
@@ -353,7 +353,7 @@ class _Card3State extends State<_Card3TheInsight> {
                 child: Text(
                   word,
                   style: const TextStyle(
-                    color: PaisaColors.textPrimary,
+                    color: SpendlerColors.textPrimary,
                     fontSize: 24,
                     fontWeight: FontWeight.w500,
                     height: 1.5,
@@ -384,7 +384,7 @@ class _Card4ThePoster extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
-      padding: const EdgeInsets.all(PaisaSpacing.lg),
+      padding: const EdgeInsets.all(SpendlerSpacing.lg),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -396,7 +396,7 @@ class _Card4ThePoster extends ConsumerWidget {
               dailyTotals: const [],
             ),
           ),
-          const SizedBox(height: PaisaSpacing.lg),
+          const SizedBox(height: SpendlerSpacing.lg),
           NeoPOPButton(
             label: 'Share This Week',
             onTap: () async {

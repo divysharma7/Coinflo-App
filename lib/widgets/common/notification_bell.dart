@@ -18,10 +18,10 @@ class NotificationBell extends ConsumerWidget {
         showModalBottomSheet<void>(
           context: context,
           isScrollControlled: true,
-          backgroundColor: PaisaColors.surfaceHigh,
+          backgroundColor: SpendlerColors.surfaceHigh,
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(
-              top: Radius.circular(PaisaRadii.sheet),
+              top: Radius.circular(SpendlerRadii.sheet),
             ),
           ),
           showDragHandle: true,
@@ -39,8 +39,8 @@ class NotificationBell extends ConsumerWidget {
                   ? PhosphorIconsFill.bellRinging
                   : PhosphorIcons.bell(),
               color: hasUnread
-                  ? PaisaColors.yellow
-                  : PaisaColors.textSecondary,
+                  ? SpendlerColors.yellow
+                  : SpendlerColors.textSecondary,
               size: 24,
             ),
             if (hasUnread)
@@ -51,7 +51,7 @@ class NotificationBell extends ConsumerWidget {
                   width: 8,
                   height: 8,
                   decoration: const BoxDecoration(
-                    color: PaisaColors.yellow,
+                    color: SpendlerColors.yellow,
                     shape: BoxShape.circle,
                   ),
                 ),

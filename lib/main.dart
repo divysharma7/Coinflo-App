@@ -28,7 +28,7 @@ Future<void> main() async {
   await NotificationService().initialize();
 
   // Seed dummy data on first launch
-  final db = PaisaDatabase();
+  final db = SpendlerDatabase();
   await SeedData.seedIfNeeded(db);
 
   // Purge notifications older than 30 days
@@ -40,7 +40,7 @@ Future<void> main() async {
   // Run the app inside a guarded zone to catch async errors
   runZonedGuarded(
     () {
-      runApp(const PaisaBoltaApp());
+      runApp(const SpendlerApp());
     },
     (Object error, StackTrace stack) {
       debugPrint('Unhandled async error: $error');

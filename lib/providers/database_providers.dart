@@ -3,8 +3,8 @@ import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/data/repositories/base_repository.dart';
 import 'package:finance_buddy_app/data/repositories/local/local_repository.dart';
 
-final databaseProvider = Provider<PaisaDatabase>((ref) {
-  final db = PaisaDatabase();
+final databaseProvider = Provider<SpendlerDatabase>((ref) {
+  final db = SpendlerDatabase();
   ref.onDispose(() => db.close());
   return db;
 });

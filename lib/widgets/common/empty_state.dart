@@ -17,23 +17,23 @@ class EmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(PaisaSpacing.xl),
+        padding: const EdgeInsets.all(SpendlerSpacing.xl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 64, color: PaisaColors.textTertiary),
-            const SizedBox(height: PaisaSpacing.md),
+            Icon(icon, size: 64, color: SpendlerColors.textTertiary),
+            const SizedBox(height: SpendlerSpacing.md),
             Text(
               message,
-              style: PaisaTextStyles.emptyState,
+              style: SpendlerTextStyles.emptyState,
               textAlign: TextAlign.center,
             ),
             if (subtitle != null) ...[
-              const SizedBox(height: PaisaSpacing.sm),
+              const SizedBox(height: SpendlerSpacing.sm),
               Text(
                 subtitle!,
                 style: const TextStyle(
-                  color: PaisaColors.textTertiary,
+                  color: SpendlerColors.textTertiary,
                   fontSize: 12,
                 ),
                 textAlign: TextAlign.center,

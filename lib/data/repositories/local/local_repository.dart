@@ -2,15 +2,18 @@ import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/data/repositories/base_repository.dart';
 import 'package:finance_buddy_app/data/repositories/friend_split_repository.dart';
 import 'package:finance_buddy_app/data/repositories/transaction_repository.dart';
+import 'package:finance_buddy_app/data/repositories/local/local_budget_repository.dart';
 import 'package:finance_buddy_app/data/repositories/local/local_family_repository.dart';
 import 'package:finance_buddy_app/data/repositories/local/local_friend_split_repository.dart';
+import 'package:finance_buddy_app/data/repositories/local/local_goal_repository.dart';
 import 'package:finance_buddy_app/data/repositories/local/local_metrics_repository.dart';
 import 'package:finance_buddy_app/data/repositories/local/local_notification_repository.dart';
 import 'package:finance_buddy_app/data/repositories/local/local_reflection_repository.dart';
+import 'package:finance_buddy_app/data/repositories/local/local_subscription_repository.dart';
 import 'package:finance_buddy_app/data/repositories/local/local_transaction_repository.dart';
 
 class LocalRepository extends BaseRepository {
-  final PaisaDatabase db;
+  final SpendlerDatabase db;
 
   late final LocalTransactionRepository _txnRepo;
   late final LocalFamilyRepository _familyRepo;
@@ -18,6 +21,9 @@ class LocalRepository extends BaseRepository {
   late final LocalMetricsRepository _metricsRepo;
   late final LocalNotificationRepository _notifRepo;
   late final LocalFriendSplitRepository _friendSplitRepo;
+  late final LocalSubscriptionRepository _subscriptionRepo;
+  late final LocalBudgetRepository _budgetRepo;
+  late final LocalGoalRepository _goalRepo;
 
   LocalRepository(this.db) {
     _txnRepo = LocalTransactionRepository(db);
@@ -26,40 +32,43 @@ class LocalRepository extends BaseRepository {
     _metricsRepo = LocalMetricsRepository(db);
     _notifRepo = LocalNotificationRepository(db);
     _friendSplitRepo = LocalFriendSplitRepository(db);
+    _subscriptionRepo = LocalSubscriptionRepository(db);
+    _budgetRepo = LocalBudgetRepository(db);
+    _goalRepo = LocalGoalRepository(db);
   }
 
   // ─── Transaction delegates ──────────────────────────
 
   @override
-  Stream<List<PaisaTransaction>> watchTransactionsForWeek(DateTime weekStart) =>
+  Stream<List<SpendlerTransaction>> watchTransactionsForWeek(DateTime weekStart) =>
       _txnRepo.watchTransactionsForWeek(weekStart);
 
   @override
-  Stream<List<PaisaTransaction>> watchUnconfirmed() => _txnRepo.watchUnconfirmed();
+  Stream<List<SpendlerTransaction>> watchUnconfirmed() => _txnRepo.watchUnconfirmed();
 
   @override
-  Stream<List<PaisaTransaction>> watchAll() => _txnRepo.watchAll();
+  Stream<List<SpendlerTransaction>> watchAll() => _txnRepo.watchAll();
 
   @override
-  Future<List<PaisaTransaction>> getTransactionsForDay(DateTime day) =>
+  Future<List<SpendlerTransaction>> getTransactionsForDay(DateTime day) =>
       _txnRepo.getTransactionsForDay(day);
 
   @override
-  Future<List<PaisaTransaction>> getTransactionsForMonth(DateTime month) =>
+  Future<List<SpendlerTransaction>> getTransactionsForMonth(DateTime month) =>
       _txnRepo.getTransactionsForMonth(month);
 
   @override
   Future<int> getUnconfirmedCount() => _txnRepo.getUnconfirmedCount();
 
   @override
-  Future<int> insertTransaction(PaisaTransactionsCompanion entry) =>
+  Future<int> insertTransaction(SpendlerTransactionsCompanion entry) =>
       _txnRepo.insertTransaction(entry);
 
   @override
   Future<void> confirmTransaction(int id) => _txnRepo.confirmTransaction(id);
 
   @override
-  Future<void> updateTransaction(int id, PaisaTransactionsCompanion entry) =>
+  Future<void> updateTransaction(int id, SpendlerTransactionsCompanion entry) =>
       _txnRepo.updateTransaction(id, entry);
 
   @override
@@ -73,7 +82,7 @@ class LocalRepository extends BaseRepository {
   Future<void> settleSplit(int id) => _txnRepo.settleSplit(id);
 
   @override
-  Future<List<PaisaTransaction>> getUnsettledSplits() => _txnRepo.getUnsettledSplits();
+  Future<List<SpendlerTransaction>> getUnsettledSplits() => _txnRepo.getUnsettledSplits();
 
   @override
   Future<Map<String, double>> getCategoryTotalsForMonth(DateTime month) =>
@@ -243,4 +252,82 @@ class LocalRepository extends BaseRepository {
   @override
   Future<int> createSplit(FriendSplitsCompanion entry) =>
       _friendSplitRepo.createSplit(entry);
+
+  // ─── Subscription delegates ────────────────────────────
+
+  @override
+  Stream<List<Subscription>> watchAllSubscriptions() =>
+      _subscriptionRepo.watchAllSubscriptions();
+
+  @override
+  Stream<List<Subscription>> watchActiveSubscriptions() =>
+      _subscriptionRepo.watchActiveSubscriptions();
+
+  @override
+  Future<Subscription?> getSubscriptionById(int id) =>
+      _subscriptionRepo.getSubscriptionById(id);
+
+  @override
+  Future<int> insertSubscription(SubscriptionsCompanion entry) =>
+      _subscriptionRepo.insertSubscription(entry);
+
+  @override
+  Future<void> updateSubscription(int id, SubscriptionsCompanion entry) =>
+      _subscriptionRepo.updateSubscription(id, entry);
+
+  @override
+  Future<void> toggleSubscriptionActive(int id, bool isActive) =>
+      _subscriptionRepo.toggleSubscriptionActive(id, isActive);
+
+  @override
+  Future<void> deleteSubscription(int id) =>
+      _subscriptionRepo.deleteSubscription(id);
+
+  @override
+  Future<double> getSubscriptionMonthlyTotal() =>
+      _subscriptionRepo.getSubscriptionMonthlyTotal();
+
+  // ─── Budget delegates ──────────────────────────────
+
+  @override
+  Stream<List<CategoryBudget>> watchAllBudgets() =>
+      _budgetRepo.watchAllBudgets();
+
+  @override
+  Future<CategoryBudget?> getBudgetForCategory(String category) =>
+      _budgetRepo.getBudgetForCategory(category);
+
+  @override
+  Future<int> insertBudget(CategoryBudgetsCompanion entry) =>
+      _budgetRepo.insertBudget(entry);
+
+  @override
+  Future<void> updateBudget(int id, CategoryBudgetsCompanion entry) =>
+      _budgetRepo.updateBudget(id, entry);
+
+  @override
+  Future<void> deleteBudget(int id) => _budgetRepo.deleteBudget(id);
+
+  // ─── Goal delegates ────────────────────────────────
+
+  @override
+  Stream<List<SavingsGoal>> watchAllGoals() => _goalRepo.watchAllGoals();
+
+  @override
+  Future<SavingsGoal?> getGoal(int id) => _goalRepo.getGoal(id);
+
+  @override
+  Future<int> insertGoal(SavingsGoalsCompanion entry) =>
+      _goalRepo.insertGoal(entry);
+
+  @override
+  Future<void> updateGoal(int id, SavingsGoalsCompanion entry) =>
+      _goalRepo.updateGoal(id, entry);
+
+  @override
+  Future<void> addMoney(int id, double amount) =>
+      _goalRepo.addMoney(id, amount);
+
+  @override
+  Future<void> deleteGoal(int id) => _goalRepo.deleteGoal(id);
 }

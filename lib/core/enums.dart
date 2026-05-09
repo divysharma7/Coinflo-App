@@ -2,25 +2,34 @@ import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 enum TransactionCategory {
-  rent,
+  housing,
   transport,
   food,
-  family,
-  social,
+  shopping,
+  entertainment,
+  health,
+  education,
+  utilities,
   other;
 
   String get label {
     switch (this) {
-      case rent:
-        return 'Rent';
+      case housing:
+        return 'Housing';
       case transport:
         return 'Transport';
       case food:
         return 'Food';
-      case family:
-        return 'Family';
-      case social:
-        return 'Social';
+      case shopping:
+        return 'Shopping';
+      case entertainment:
+        return 'Entertainment';
+      case health:
+        return 'Health';
+      case education:
+        return 'Education';
+      case utilities:
+        return 'Utilities';
       case other:
         return 'Other';
     }
@@ -29,16 +38,22 @@ enum TransactionCategory {
   /// Regular weight — for lists, unselected states.
   IconData get icon {
     switch (this) {
-      case rent:
+      case housing:
         return PhosphorIcons.house();
       case transport:
         return PhosphorIcons.car();
       case food:
         return PhosphorIcons.bowlFood();
-      case family:
+      case shopping:
+        return PhosphorIcons.shoppingCart();
+      case entertainment:
+        return PhosphorIcons.filmSlate();
+      case health:
         return PhosphorIcons.heartbeat();
-      case social:
-        return PhosphorIcons.usersThree();
+      case education:
+        return PhosphorIcons.graduationCap();
+      case utilities:
+        return PhosphorIcons.lightning();
       case other:
         return PhosphorIcons.dotsThreeCircle();
     }
@@ -47,16 +62,22 @@ enum TransactionCategory {
   /// Fill weight — for selected states, category avatars.
   IconData get iconFill {
     switch (this) {
-      case rent:
+      case housing:
         return PhosphorIconsFill.house;
       case transport:
         return PhosphorIconsFill.car;
       case food:
         return PhosphorIconsFill.bowlFood;
-      case family:
+      case shopping:
+        return PhosphorIconsFill.shoppingCart;
+      case entertainment:
+        return PhosphorIconsFill.filmSlate;
+      case health:
         return PhosphorIconsFill.heartbeat;
-      case social:
-        return PhosphorIconsFill.usersThree;
+      case education:
+        return PhosphorIconsFill.graduationCap;
+      case utilities:
+        return PhosphorIconsFill.lightning;
       case other:
         return PhosphorIconsFill.dotsThreeCircle;
     }
@@ -72,3 +93,31 @@ enum LedgerType { personal, family }
 enum FamilyEntryType { inflow, investment }
 
 enum InvestmentType { mf, stocks, fd, other }
+
+enum BillingCycle {
+  weekly,
+  monthly,
+  yearly;
+
+  String get label {
+    switch (this) {
+      case weekly:
+        return 'Weekly';
+      case monthly:
+        return 'Monthly';
+      case yearly:
+        return 'Yearly';
+    }
+  }
+
+  String get shortLabel {
+    switch (this) {
+      case weekly:
+        return '/wk';
+      case monthly:
+        return '/mo';
+      case yearly:
+        return '/yr';
+    }
+  }
+}

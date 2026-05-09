@@ -12,8 +12,8 @@ class NeoPOPButton extends StatefulWidget {
     super.key,
     required this.label,
     required this.onTap,
-    this.color = PaisaColors.accentYellow,
-    this.shadowColor = PaisaColors.neoPopShadow,
+    this.color = SpendlerColors.accentYellow,
+    this.shadowColor = SpendlerColors.neoPopShadow,
     this.textColor = Colors.black,
     this.offset = 4.0,
   });
@@ -39,10 +39,10 @@ class _NeoPOPButtonState extends State<NeoPOPButton>
     super.initState();
     _ctrl = AnimationController(
       vsync: this,
-      duration: PaisaMotion.neoPopPress,
+      duration: SpendlerMotion.neoPopPress,
     );
     _anim = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _ctrl, curve: PaisaMotion.neoPopCurve),
+      CurvedAnimation(parent: _ctrl, curve: SpendlerMotion.neoPopCurve),
     );
   }
 
@@ -85,7 +85,7 @@ class _NeoPOPButtonState extends State<NeoPOPButton>
                   child: Container(
                     decoration: BoxDecoration(
                       color: widget.shadowColor,
-                      borderRadius: BorderRadius.circular(PaisaRadii.button),
+                      borderRadius: BorderRadius.circular(SpendlerRadii.button),
                     ),
                   ),
                 ),
@@ -99,7 +99,7 @@ class _NeoPOPButtonState extends State<NeoPOPButton>
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color: widget.color,
-                      borderRadius: BorderRadius.circular(PaisaRadii.button),
+                      borderRadius: BorderRadius.circular(SpendlerRadii.button),
                     ),
                     child: Text(
                       widget.label.toUpperCase(),

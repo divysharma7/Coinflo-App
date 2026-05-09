@@ -86,19 +86,19 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
   InputDecoration _inputDecor(String label, {String? prefix}) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(color: PaisaColors.textSecondary),
+      labelStyle: const TextStyle(color: SpendlerColors.textSecondary),
       prefixText: prefix,
-      prefixStyle: const TextStyle(color: PaisaColors.textSecondary),
+      prefixStyle: const TextStyle(color: SpendlerColors.textSecondary),
       filled: true,
-      fillColor: PaisaColors.surface,
+      fillColor: SpendlerColors.surface,
       border: const UnderlineInputBorder(
-        borderSide: BorderSide(color: PaisaColors.border),
+        borderSide: BorderSide(color: SpendlerColors.border),
       ),
       enabledBorder: const UnderlineInputBorder(
-        borderSide: BorderSide(color: PaisaColors.border),
+        borderSide: BorderSide(color: SpendlerColors.border),
       ),
       focusedBorder: UnderlineInputBorder(
-        borderSide: BorderSide(color: PaisaColors.yellow.withValues(alpha: 0.8)),
+        borderSide: BorderSide(color: SpendlerColors.yellow.withValues(alpha: 0.8)),
       ),
     );
   }
@@ -109,12 +109,12 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('SPLIT THIS', style: PaisaTextStyles.sectionLabel),
-        const SizedBox(height: PaisaSpacing.md),
+        const Text('SPLIT THIS', style: SpendlerTextStyles.sectionLabel),
+        const SizedBox(height: SpendlerSpacing.md),
 
         // ── Mode selection tiles ──
         _buildModeTiles(),
-        const SizedBox(height: PaisaSpacing.lg),
+        const SizedBox(height: SpendlerSpacing.lg),
 
         // ── Mode content ──
         if (_mode == _SplitMode.equal) _buildEqualMode(),
@@ -135,11 +135,11 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
             icon: PhosphorIcons.divide(),
             label: 'Equal Split',
             sublabel: _mode != null
-                ? '₹${(_equalMyShare).toStringAsFixed(0)} each'
+                ? '\$${(_equalMyShare).toStringAsFixed(0)} each'
                 : null,
           ),
         ),
-        const SizedBox(width: PaisaSpacing.cardGap),
+        const SizedBox(width: SpendlerSpacing.cardGap),
         Expanded(
           child: _modeTile(
             mode: _SplitMode.custom,
@@ -165,18 +165,18 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
         setState(() => _mode = mode);
       },
       child: AnimatedContainer(
-        duration: PaisaMotion.micro,
+        duration: SpendlerMotion.micro,
         padding: const EdgeInsets.symmetric(
-          vertical: PaisaSpacing.md,
-          horizontal: PaisaSpacing.sm,
+          vertical: SpendlerSpacing.md,
+          horizontal: SpendlerSpacing.sm,
         ),
         decoration: BoxDecoration(
           color: selected
-              ? PaisaColors.yellow.withValues(alpha: 0.1)
-              : PaisaColors.surface,
-          borderRadius: BorderRadius.circular(PaisaRadii.card),
+              ? SpendlerColors.yellow.withValues(alpha: 0.1)
+              : SpendlerColors.surface,
+          borderRadius: BorderRadius.circular(SpendlerRadii.card),
           border: Border.all(
-            color: selected ? PaisaColors.yellow : PaisaColors.border,
+            color: selected ? SpendlerColors.yellow : SpendlerColors.border,
             width: selected ? 1.5 : 1,
           ),
         ),
@@ -185,15 +185,15 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
             PhosphorIcon(
               icon,
               size: 28,
-              color: selected ? PaisaColors.yellow : PaisaColors.textSecondary,
+              color: selected ? SpendlerColors.yellow : SpendlerColors.textSecondary,
             ),
-            const SizedBox(height: PaisaSpacing.sm),
+            const SizedBox(height: SpendlerSpacing.sm),
             Text(
               label,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color:
-                    selected ? PaisaColors.yellow : PaisaColors.textPrimary,
+                    selected ? SpendlerColors.yellow : SpendlerColors.textPrimary,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
@@ -205,8 +205,8 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: selected
-                      ? PaisaColors.yellow.withValues(alpha: 0.7)
-                      : PaisaColors.textTertiary,
+                      ? SpendlerColors.yellow.withValues(alpha: 0.7)
+                      : SpendlerColors.textTertiary,
                   fontSize: 11,
                 ),
               ),
@@ -226,10 +226,10 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
       children: [
         // Headcount selector on dark surface
         Container(
-          padding: const EdgeInsets.symmetric(vertical: PaisaSpacing.md),
+          padding: const EdgeInsets.symmetric(vertical: SpendlerSpacing.md),
           decoration: BoxDecoration(
-            color: PaisaColors.surface,
-            borderRadius: BorderRadius.circular(PaisaRadii.card),
+            color: SpendlerColors.surface,
+            borderRadius: BorderRadius.circular(SpendlerRadii.card),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -244,9 +244,9 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
                       }
                     : null,
               ),
-              const SizedBox(width: PaisaSpacing.lg),
+              const SizedBox(width: SpendlerSpacing.lg),
               AnimatedSwitcher(
-                duration: PaisaMotion.micro,
+                duration: SpendlerMotion.micro,
                 transitionBuilder: (child, anim) => ScaleTransition(
                   scale: anim,
                   child: FadeTransition(opacity: anim, child: child),
@@ -254,10 +254,10 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
                 child: Text(
                   '$_splitCount',
                   key: ValueKey(_splitCount),
-                  style: PaisaTextStyles.heroAmount.copyWith(fontSize: 48),
+                  style: SpendlerTextStyles.heroAmount.copyWith(fontSize: 48),
                 ),
               ),
-              const SizedBox(width: PaisaSpacing.lg),
+              const SizedBox(width: SpendlerSpacing.lg),
               _circleButton(
                 icon: Icons.add,
                 filled: true,
@@ -271,31 +271,31 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
             ],
           ),
         ),
-        const SizedBox(height: PaisaSpacing.md),
+        const SizedBox(height: SpendlerSpacing.md),
 
         // Summary card
         Container(
-          padding: const EdgeInsets.all(PaisaSpacing.cardPadding),
+          padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Color(0xFF1E1E1E), PaisaColors.surface],
+              colors: [Color(0xFF1E1E1E), SpendlerColors.surface],
             ),
-            borderRadius: BorderRadius.circular(PaisaRadii.card),
-            boxShadow: PaisaShadows.card,
+            borderRadius: BorderRadius.circular(SpendlerRadii.card),
+            boxShadow: SpendlerShadows.card,
           ),
           child: Column(
             children: [
               _summaryRow(
-                  'Your share', '₹${_equalMyShare.toStringAsFixed(0)}'),
-              const SizedBox(height: PaisaSpacing.sm),
+                  'Your share', '\$${_equalMyShare.toStringAsFixed(0)}'),
+              const SizedBox(height: SpendlerSpacing.sm),
               _summaryRow(
-                  'Others owe you', '₹${_equalOthersOwe.toStringAsFixed(0)}'),
+                  'Others owe you', '\$${_equalOthersOwe.toStringAsFixed(0)}'),
             ],
           ),
         ),
-        const SizedBox(height: PaisaSpacing.lg),
+        const SizedBox(height: SpendlerSpacing.lg),
 
         NeoPOPButton(
           label: 'Confirm Split',
@@ -318,12 +318,12 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
       children: [
         // My share row
         _buildMyShareRow(),
-        const SizedBox(height: PaisaSpacing.cardGap),
+        const SizedBox(height: SpendlerSpacing.cardGap),
 
         // Other person rows
         for (int i = 0; i < _customRows.length; i++) ...[
           _buildPersonRow(i),
-          const SizedBox(height: PaisaSpacing.cardGap),
+          const SizedBox(height: SpendlerSpacing.cardGap),
         ],
 
         // Add person button
@@ -333,20 +333,20 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
             _addCustomRow();
           },
           child: Container(
-            padding: const EdgeInsets.symmetric(vertical: PaisaSpacing.sm),
+            padding: const EdgeInsets.symmetric(vertical: SpendlerSpacing.sm),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 PhosphorIcon(
                   PhosphorIcons.plusCircle(),
                   size: 18,
-                  color: PaisaColors.yellow,
+                  color: SpendlerColors.yellow,
                 ),
-                const SizedBox(width: PaisaSpacing.xs),
+                const SizedBox(width: SpendlerSpacing.xs),
                 const Text(
                   'Add person',
                   style: TextStyle(
-                    color: PaisaColors.yellow,
+                    color: SpendlerColors.yellow,
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
@@ -355,18 +355,18 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
             ),
           ),
         ),
-        const SizedBox(height: PaisaSpacing.md),
+        const SizedBox(height: SpendlerSpacing.md),
 
         // Running total footer
         _buildTotalFooter(remaining, isBalanced, isOver),
-        const SizedBox(height: PaisaSpacing.lg),
+        const SizedBox(height: SpendlerSpacing.lg),
 
         // Confirm button
         NeoPOPButton(
           label: 'Confirm Split',
-          color: isBalanced ? PaisaColors.yellow : PaisaColors.textTertiary,
+          color: isBalanced ? SpendlerColors.yellow : SpendlerColors.textTertiary,
           shadowColor:
-              isBalanced ? PaisaColors.yellowShadow : PaisaColors.border,
+              isBalanced ? SpendlerColors.yellowShadow : SpendlerColors.border,
           onTap: isBalanced
               ? () => _confirmCustomSplit()
               : () => _showUnallocatedToast(remaining),
@@ -413,9 +413,9 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            '₹${remaining.toStringAsFixed(0)} still unallocated',
+            '\$${remaining.toStringAsFixed(0)} still unallocated',
           ),
-          backgroundColor: PaisaColors.amber,
+          backgroundColor: SpendlerColors.amber,
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 2),
         ),
@@ -425,11 +425,11 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
 
   Widget _buildMyShareRow() {
     return Container(
-      padding: const EdgeInsets.all(PaisaSpacing.cardPadding),
+      padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
       decoration: BoxDecoration(
-        color: PaisaColors.surface,
-        borderRadius: BorderRadius.circular(PaisaRadii.card),
-        border: Border.all(color: PaisaColors.border),
+        color: SpendlerColors.surface,
+        borderRadius: BorderRadius.circular(SpendlerRadii.card),
+        border: Border.all(color: SpendlerColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -437,23 +437,23 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
           const Text(
             'My share',
             style: TextStyle(
-              color: PaisaColors.textSecondary,
+              color: SpendlerColors.textSecondary,
               fontSize: 12,
               fontWeight: FontWeight.w600,
               letterSpacing: 0.5,
             ),
           ),
-          const SizedBox(height: PaisaSpacing.xs),
+          const SizedBox(height: SpendlerSpacing.xs),
           TextField(
             controller: _myShareController,
             keyboardType:
                 const TextInputType.numberWithOptions(decimal: true),
             style: const TextStyle(
-              color: PaisaColors.textPrimary,
+              color: SpendlerColors.textPrimary,
               fontSize: 18,
               fontWeight: FontWeight.w600,
             ),
-            decoration: _inputDecor('Amount', prefix: '₹ '),
+            decoration: _inputDecor('Amount', prefix: '\$ '),
           ),
         ],
       ),
@@ -463,13 +463,13 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
   Widget _buildPersonRow(int index) {
     final row = _customRows[index];
     return AnimatedContainer(
-      duration: PaisaMotion.micro,
-      curve: PaisaMotion.surfaceCurve,
-      padding: const EdgeInsets.all(PaisaSpacing.cardPadding),
+      duration: SpendlerMotion.micro,
+      curve: SpendlerMotion.surfaceCurve,
+      padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
       decoration: BoxDecoration(
-        color: PaisaColors.surface,
-        borderRadius: BorderRadius.circular(PaisaRadii.card),
-        border: Border.all(color: PaisaColors.border),
+        color: SpendlerColors.surface,
+        borderRadius: BorderRadius.circular(SpendlerRadii.card),
+        border: Border.all(color: SpendlerColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -479,7 +479,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
               Text(
                 'Person ${index + 2}',
                 style: const TextStyle(
-                  color: PaisaColors.textSecondary,
+                  color: SpendlerColors.textSecondary,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 0.5,
@@ -495,32 +495,32 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
                   child: PhosphorIcon(
                     PhosphorIcons.xCircle(),
                     size: 20,
-                    color: PaisaColors.textTertiary,
+                    color: SpendlerColors.textTertiary,
                   ),
                 ),
             ],
           ),
-          const SizedBox(height: PaisaSpacing.xs),
+          const SizedBox(height: SpendlerSpacing.xs),
           TextField(
             controller: row.nameController,
             textCapitalization: TextCapitalization.words,
             style: const TextStyle(
-              color: PaisaColors.textPrimary,
+              color: SpendlerColors.textPrimary,
               fontSize: 15,
             ),
             decoration: _inputDecor('Name (optional)'),
           ),
-          const SizedBox(height: PaisaSpacing.sm),
+          const SizedBox(height: SpendlerSpacing.sm),
           TextField(
             controller: row.amountController,
             keyboardType:
                 const TextInputType.numberWithOptions(decimal: true),
             style: const TextStyle(
-              color: PaisaColors.textPrimary,
+              color: SpendlerColors.textPrimary,
               fontSize: 18,
               fontWeight: FontWeight.w600,
             ),
-            decoration: _inputDecor('Amount', prefix: '₹ '),
+            decoration: _inputDecor('Amount', prefix: '\$ '),
           ),
         ],
       ),
@@ -532,64 +532,64 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
     final Color statusColor;
     final IconData? statusIcon;
     if (isBalanced) {
-      statusColor = PaisaColors.income;
+      statusColor = SpendlerColors.income;
       statusIcon = PhosphorIcons.checkCircle();
     } else if (isOver) {
-      statusColor = PaisaColors.expense;
+      statusColor = SpendlerColors.expense;
       statusIcon = null;
     } else {
-      statusColor = PaisaColors.amber;
+      statusColor = SpendlerColors.amber;
       statusIcon = null;
     }
 
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: PaisaSpacing.cardPadding,
-        vertical: PaisaSpacing.sm + 2,
+        horizontal: SpendlerSpacing.cardPadding,
+        vertical: SpendlerSpacing.sm + 2,
       ),
       decoration: BoxDecoration(
-        color: PaisaColors.surface,
-        borderRadius: BorderRadius.circular(PaisaRadii.card),
-        border: Border.all(color: PaisaColors.border),
+        color: SpendlerColors.surface,
+        borderRadius: BorderRadius.circular(SpendlerRadii.card),
+        border: Border.all(color: SpendlerColors.border),
       ),
       child: Row(
         children: [
           // Total
           Text(
-            '₹${widget.totalAmount.toStringAsFixed(0)} total',
+            '\$${widget.totalAmount.toStringAsFixed(0)} total',
             style: const TextStyle(
-              color: PaisaColors.textSecondary,
+              color: SpendlerColors.textSecondary,
               fontSize: 13,
             ),
           ),
-          const SizedBox(width: PaisaSpacing.sm),
+          const SizedBox(width: SpendlerSpacing.sm),
           Container(
             width: 1,
             height: 16,
-            color: PaisaColors.border,
+            color: SpendlerColors.border,
           ),
-          const SizedBox(width: PaisaSpacing.sm),
+          const SizedBox(width: SpendlerSpacing.sm),
           // Allocated
           Text(
-            'Allocated: ₹${_customAllocated.toStringAsFixed(0)}',
+            'Allocated: \$${_customAllocated.toStringAsFixed(0)}',
             style: const TextStyle(
-              color: PaisaColors.textSecondary,
+              color: SpendlerColors.textSecondary,
               fontSize: 13,
             ),
           ),
-          const SizedBox(width: PaisaSpacing.sm),
+          const SizedBox(width: SpendlerSpacing.sm),
           Container(
             width: 1,
             height: 16,
-            color: PaisaColors.border,
+            color: SpendlerColors.border,
           ),
-          const SizedBox(width: PaisaSpacing.sm),
+          const SizedBox(width: SpendlerSpacing.sm),
           // Remaining
           Expanded(
             child: Row(
               children: [
                 Text(
-                  'Remaining: ₹${remaining.toStringAsFixed(0)}',
+                  'Remaining: \$${remaining.toStringAsFixed(0)}',
                   style: TextStyle(
                     color: statusColor,
                     fontSize: 13,
@@ -624,9 +624,9 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
         height: 44,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: filled && enabled ? PaisaColors.yellow : Colors.transparent,
+          color: filled && enabled ? SpendlerColors.yellow : Colors.transparent,
           border: Border.all(
-            color: enabled ? PaisaColors.yellow : PaisaColors.border,
+            color: enabled ? SpendlerColors.yellow : SpendlerColors.border,
             width: 1.5,
           ),
         ),
@@ -634,7 +634,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
           icon,
           color: filled && enabled
               ? Colors.black
-              : (enabled ? PaisaColors.yellow : PaisaColors.textTertiary),
+              : (enabled ? SpendlerColors.yellow : SpendlerColors.textTertiary),
           size: 20,
         ),
       ),
@@ -648,12 +648,12 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
         Text(
           label,
           style:
-              const TextStyle(color: PaisaColors.textSecondary, fontSize: 15),
+              const TextStyle(color: SpendlerColors.textSecondary, fontSize: 15),
         ),
         Text(
           value,
           style: const TextStyle(
-            color: PaisaColors.textPrimary,
+            color: SpendlerColors.textPrimary,
             fontSize: 20,
             fontWeight: FontWeight.w700,
           ),

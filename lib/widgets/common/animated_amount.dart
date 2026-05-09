@@ -9,10 +9,10 @@ class AnimatedAmount extends StatelessWidget {
   const AnimatedAmount({
     super.key,
     required this.value,
-    this.prefix = 'Rs ',
+    this.prefix = '\$ ',
     this.style,
-    this.duration = PaisaMotion.numberRoll,
-    this.curve = PaisaMotion.numberRollCurve,
+    this.duration = SpendlerMotion.numberRoll,
+    this.curve = SpendlerMotion.numberRollCurve,
   });
 
   final double value;
@@ -31,9 +31,9 @@ class AnimatedAmount extends StatelessWidget {
         final formatted = _format(v);
         final effectiveStyle = style ??
             const TextStyle(
-              fontSize: PaisaTypo.heroSize,
-              fontWeight: PaisaTypo.heroWeight,
-              color: PaisaColors.textPrimary,
+              fontSize: SpendlerTypo.heroSize,
+              fontWeight: SpendlerTypo.heroWeight,
+              color: SpendlerColors.textPrimary,
               height: 1,
             );
         return Text('$prefix$formatted', style: effectiveStyle);

@@ -35,8 +35,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
   void _next() {
     if (_currentPage < _pageCount - 1) {
       _pageController.nextPage(
-        duration: PaisaMotion.transition,
-        curve: PaisaMotion.surfaceCurve,
+        duration: SpendlerMotion.transition,
+        curve: SpendlerMotion.surfaceCurve,
       );
     }
   }
@@ -65,7 +65,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 context,
                 PageRouteBuilder<void>(
                   pageBuilder: (ctx, anim, secAnim) => const ShellPage(),
-                  transitionDuration: PaisaMotion.transition,
+                  transitionDuration: SpendlerMotion.transition,
                   transitionsBuilder: (ctx, anim, secAnim, child) =>
                       FadeTransition(opacity: anim, child: child),
                 ),
@@ -80,7 +80,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
         PageRouteBuilder<void>(
           pageBuilder: (context, animation, secondaryAnimation) =>
               const ShellPage(),
-          transitionDuration: PaisaMotion.transition,
+          transitionDuration: SpendlerMotion.transition,
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },
@@ -92,25 +92,25 @@ class _OnboardingPageState extends State<OnboardingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: PaisaColors.scaffold,
+      backgroundColor: SpendlerColors.scaffold,
       body: SafeArea(
         child: Column(
           children: [
             // Dot indicators
             Padding(
-              padding: const EdgeInsets.all(PaisaSpacing.lg),
+              padding: const EdgeInsets.all(SpendlerSpacing.lg),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(_pageCount, (i) {
                   return AnimatedContainer(
-                    duration: PaisaMotion.transition,
+                    duration: SpendlerMotion.transition,
                     margin: const EdgeInsets.symmetric(horizontal: 4),
                     width: i == _currentPage ? 24 : 8,
                     height: 8,
                     decoration: BoxDecoration(
                       color: i == _currentPage
-                          ? PaisaColors.yellow
-                          : PaisaColors.textTertiary,
+                          ? SpendlerColors.yellow
+                          : SpendlerColors.textTertiary,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   );
@@ -157,29 +157,29 @@ class _ScreenIdentity extends StatelessWidget {
     return GestureDetector(
       onTap: onNext,
       child: Padding(
-        padding: const EdgeInsets.all(PaisaSpacing.xl),
+        padding: const EdgeInsets.all(SpendlerSpacing.xl),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              '₹',
-              style: PaisaTextStyles.heroAmount.copyWith(
+              '\$',
+              style: SpendlerTextStyles.heroAmount.copyWith(
                 fontSize: 80,
-                color: PaisaColors.yellow,
+                color: SpendlerColors.yellow,
               ),
             ),
-            const SizedBox(height: PaisaSpacing.lg),
+            const SizedBox(height: SpendlerSpacing.lg),
             Text(
-              'PULSE',
-              style: PaisaTextStyles.sectionLabel.copyWith(
+              'SPENDLER',
+              style: SpendlerTextStyles.sectionLabel.copyWith(
                 letterSpacing: 3.0,
                 fontSize: 14,
               ),
             ),
-            const SizedBox(height: PaisaSpacing.md),
+            const SizedBox(height: SpendlerSpacing.md),
             const Text(
-              'Feel your financial rhythm.',
-              style: PaisaTextStyles.onboardingBody,
+              'Track your spending habits.',
+              style: SpendlerTextStyles.onboardingBody,
               textAlign: TextAlign.center,
             ),
           ],
@@ -199,60 +199,60 @@ class _ScreenName extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(PaisaSpacing.xl),
+      padding: const EdgeInsets.all(SpendlerSpacing.xl),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           PhosphorIcon(
             PhosphorIcons.user(),
-            color: PaisaColors.yellow,
+            color: SpendlerColors.yellow,
             size: 48,
           ),
-          const SizedBox(height: PaisaSpacing.lg),
+          const SizedBox(height: SpendlerSpacing.lg),
           const Text(
             'What should we\ncall you?',
-            style: PaisaTextStyles.onboardingHeadline,
+            style: SpendlerTextStyles.onboardingHeadline,
           ),
-          const SizedBox(height: PaisaSpacing.lg),
+          const SizedBox(height: SpendlerSpacing.lg),
           TextField(
             controller: controller,
             autofocus: true,
-            style: PaisaTextStyles.greeting,
-            cursorColor: PaisaColors.yellow,
+            style: SpendlerTextStyles.greeting,
+            cursorColor: SpendlerColors.yellow,
             decoration: const InputDecoration(
               hintText: 'Your first name',
               hintStyle: TextStyle(
-                color: PaisaColors.textTertiary,
+                color: SpendlerColors.textTertiary,
                 fontSize: 24,
                 fontWeight: FontWeight.w600,
               ),
               border: UnderlineInputBorder(
-                borderSide: BorderSide(color: PaisaColors.border),
+                borderSide: BorderSide(color: SpendlerColors.border),
               ),
               enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: PaisaColors.border),
+                borderSide: BorderSide(color: SpendlerColors.border),
               ),
               focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: PaisaColors.yellow),
+                borderSide: BorderSide(color: SpendlerColors.yellow),
               ),
             ),
             textCapitalization: TextCapitalization.words,
             onSubmitted: (_) => onNext(),
           ),
-          const SizedBox(height: PaisaSpacing.xl),
+          const SizedBox(height: SpendlerSpacing.xl),
           Align(
             alignment: Alignment.centerRight,
             child: GestureDetector(
               onTap: onNext,
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: PaisaSpacing.md,
-                  vertical: PaisaSpacing.sm,
+                  horizontal: SpendlerSpacing.md,
+                  vertical: SpendlerSpacing.sm,
                 ),
                 decoration: BoxDecoration(
-                  color: PaisaColors.yellow,
-                  borderRadius: BorderRadius.circular(PaisaRadii.pill),
+                  color: SpendlerColors.yellow,
+                  borderRadius: BorderRadius.circular(SpendlerRadii.pill),
                 ),
                 child: const Text(
                   'Next →',
@@ -282,25 +282,25 @@ class _ScreenPromise extends StatelessWidget {
     return GestureDetector(
       onTap: onNext,
       child: Padding(
-        padding: const EdgeInsets.all(PaisaSpacing.xl),
+        padding: const EdgeInsets.all(SpendlerSpacing.xl),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             PhosphorIcon(
               PhosphorIcons.chatText(),
-              color: PaisaColors.yellow,
+              color: SpendlerColors.yellow,
               size: 48,
             ),
-            const SizedBox(height: PaisaSpacing.lg),
+            const SizedBox(height: SpendlerSpacing.lg),
             const Text(
               'Your spending,\nautomatically tracked.',
-              style: PaisaTextStyles.onboardingHeadline,
+              style: SpendlerTextStyles.onboardingHeadline,
             ),
-            const SizedBox(height: PaisaSpacing.md),
+            const SizedBox(height: SpendlerSpacing.md),
             const Text(
               'Every bank SMS gets parsed instantly.\nYou just confirm.',
-              style: PaisaTextStyles.onboardingBody,
+              style: SpendlerTextStyles.onboardingBody,
             ),
           ],
         ),
@@ -320,25 +320,25 @@ class _ScreenMirror extends StatelessWidget {
     return GestureDetector(
       onTap: onNext,
       child: Padding(
-        padding: const EdgeInsets.all(PaisaSpacing.xl),
+        padding: const EdgeInsets.all(SpendlerSpacing.xl),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             PhosphorIcon(
               PhosphorIcons.calendarCheck(),
-              color: PaisaColors.yellow,
+              color: SpendlerColors.yellow,
               size: 48,
             ),
-            const SizedBox(height: PaisaSpacing.lg),
+            const SizedBox(height: SpendlerSpacing.lg),
             const Text(
               'A weekly mirror\nfor your money.',
-              style: PaisaTextStyles.onboardingHeadline,
+              style: SpendlerTextStyles.onboardingHeadline,
             ),
-            const SizedBox(height: PaisaSpacing.md),
+            const SizedBox(height: SpendlerSpacing.md),
             const Text(
               'No budgets. No guilt.\nJust clear, honest awareness.',
-              style: PaisaTextStyles.onboardingBody,
+              style: SpendlerTextStyles.onboardingBody,
             ),
           ],
         ),
@@ -357,7 +357,7 @@ class _ScreenStart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(PaisaSpacing.xl),
+      padding: const EdgeInsets.all(SpendlerSpacing.xl),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -366,22 +366,22 @@ class _ScreenStart extends StatelessWidget {
             isGuideMode
                 ? PhosphorIcons.checkCircle()
                 : PhosphorIcons.rocketLaunch(),
-            color: PaisaColors.yellow,
+            color: SpendlerColors.yellow,
             size: 48,
           ),
-          const SizedBox(height: PaisaSpacing.lg),
+          const SizedBox(height: SpendlerSpacing.lg),
           Text(
             isGuideMode ? 'That\'s the whole idea.' : 'Let\'s get started.',
-            style: PaisaTextStyles.onboardingHeadline,
+            style: SpendlerTextStyles.onboardingHeadline,
           ),
-          const SizedBox(height: PaisaSpacing.md),
+          const SizedBox(height: SpendlerSpacing.md),
           Text(
             isGuideMode
                 ? 'SMS gets parsed, you confirm,\nand your weekly rhythm appears.'
                 : 'Allow SMS access and we\'ll\nhandle the rest.',
-            style: PaisaTextStyles.onboardingBody,
+            style: SpendlerTextStyles.onboardingBody,
           ),
-          const SizedBox(height: PaisaSpacing.xxl),
+          const SizedBox(height: SpendlerSpacing.xxl),
           if (isGuideMode)
             NeoPOPButton(
               label: 'Got it',
@@ -395,14 +395,14 @@ class _ScreenStart extends StatelessWidget {
                 onFinish(requestSms: true);
               },
             ),
-            const SizedBox(height: PaisaSpacing.md),
+            const SizedBox(height: SpendlerSpacing.md),
             Center(
               child: TextButton(
                 onPressed: () => onFinish(requestSms: false),
                 child: const Text(
                   'I\'ll add manually',
                   style: TextStyle(
-                    color: PaisaColors.textSecondary,
+                    color: SpendlerColors.textSecondary,
                     fontSize: 14,
                   ),
                 ),

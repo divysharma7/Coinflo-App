@@ -49,19 +49,19 @@ class _FriendCreationSheetState extends ConsumerState<FriendCreationSheet> {
     return InputDecoration(
       labelText: label,
       hintText: hint,
-      labelStyle: const TextStyle(color: PaisaColors.textSecondary),
-      hintStyle: const TextStyle(color: PaisaColors.textTertiary, fontSize: 13),
+      labelStyle: const TextStyle(color: SpendlerColors.textSecondary),
+      hintStyle: const TextStyle(color: SpendlerColors.textTertiary, fontSize: 13),
       filled: true,
-      fillColor: PaisaColors.surface,
+      fillColor: SpendlerColors.surface,
       border: const UnderlineInputBorder(
-        borderSide: BorderSide(color: PaisaColors.border),
+        borderSide: BorderSide(color: SpendlerColors.border),
       ),
       enabledBorder: const UnderlineInputBorder(
-        borderSide: BorderSide(color: PaisaColors.border),
+        borderSide: BorderSide(color: SpendlerColors.border),
       ),
       focusedBorder: UnderlineInputBorder(
         borderSide:
-            BorderSide(color: PaisaColors.accentYellow.withValues(alpha: 0.8)),
+            BorderSide(color: SpendlerColors.accentYellow.withValues(alpha: 0.8)),
       ),
     );
   }
@@ -73,8 +73,8 @@ class _FriendCreationSheetState extends ConsumerState<FriendCreationSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('ADD A FRIEND', style: PaisaTextStyles.sectionLabel),
-          const SizedBox(height: PaisaSpacing.md),
+          const Text('ADD A FRIEND', style: SpendlerTextStyles.sectionLabel),
+          const SizedBox(height: SpendlerSpacing.md),
 
           // Name field
           TextField(
@@ -82,19 +82,19 @@ class _FriendCreationSheetState extends ConsumerState<FriendCreationSheet> {
             textCapitalization: TextCapitalization.words,
             maxLength: 30,
             style: const TextStyle(
-              color: PaisaColors.textPrimary,
+              color: SpendlerColors.textPrimary,
               fontSize: 16,
             ),
             decoration: _inputDecor('Name'),
             onChanged: (_) => setState(() {}),
           ),
-          const SizedBox(height: PaisaSpacing.cardGap),
+          const SizedBox(height: SpendlerSpacing.cardGap),
 
           // Note field
           TextField(
             controller: _noteController,
             style: const TextStyle(
-              color: PaisaColors.textPrimary,
+              color: SpendlerColors.textPrimary,
               fontSize: 14,
             ),
             decoration: _inputDecor(
@@ -102,13 +102,13 @@ class _FriendCreationSheetState extends ConsumerState<FriendCreationSheet> {
               hint: 'roommate, college friend, etc',
             ),
           ),
-          const SizedBox(height: PaisaSpacing.lg),
+          const SizedBox(height: SpendlerSpacing.lg),
 
           // Add Friend button
           NeoPOPButton(
             label: 'Add Friend',
-            color: PaisaColors.accentYellow,
-            shadowColor: PaisaColors.yellowShadow,
+            color: SpendlerColors.accentYellow,
+            shadowColor: SpendlerColors.yellowShadow,
             onTap: _nameController.text.trim().isEmpty ? null : _save,
           ),
         ],

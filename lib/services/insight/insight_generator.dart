@@ -29,7 +29,7 @@ String generateWeeklyInsight({
   // Merchant frequency insight (3+ times)
   if (topMerchant != null && topMerchantCount >= 3) {
     if (topMerchant.toLowerCase().contains('uber')) {
-      return 'Uber ${topMerchantCount}x this week. You\'re a regular — ₹${topAmount.toStringAsFixed(0)} on transport.';
+      return 'Uber ${topMerchantCount}x this week. You\'re a regular — \$${topAmount.toStringAsFixed(0)} on transport.';
     }
     if (topMerchant.toLowerCase().contains('swiggy')) {
       return 'Swiggy ${topMerchantCount}x this week. Your kitchen is getting jealous.';
@@ -42,23 +42,23 @@ String generateWeeklyInsight({
 
   // Category-based insights
   if (topCat == TransactionCategory.food && topAmount > 500) {
-    return 'Food led the week at ₹${topAmount.toStringAsFixed(0)}. You ate well.';
+    return 'Food led the week at \$${topAmount.toStringAsFixed(0)}. You ate well.';
   }
   if (topCat == TransactionCategory.transport && topAmount > 500) {
-    return '₹${topAmount.toStringAsFixed(0)} on transport. You were moving this week.';
+    return '\$${topAmount.toStringAsFixed(0)} on transport. You were moving this week.';
   }
-  if (topCat == TransactionCategory.social && topAmount > 2000) {
-    return 'Social spending hit ₹${topAmount.toStringAsFixed(0)}. Good times aren\'t free.';
+  if (topCat == TransactionCategory.entertainment && topAmount > 2000) {
+    return 'Entertainment spending hit \$${topAmount.toStringAsFixed(0)}. Good times aren\'t free.';
   }
-  if (topCat == TransactionCategory.rent) {
-    return 'Rent came through — ₹${topAmount.toStringAsFixed(0)}. The essentials are covered.';
+  if (topCat == TransactionCategory.housing) {
+    return 'Housing came through — \$${topAmount.toStringAsFixed(0)}. The essentials are covered.';
   }
 
   // Low spend
   if (totalSpent < 500) {
-    return 'Light week. Just ₹${totalSpent.toStringAsFixed(0)} total. Quiet and steady.';
+    return 'Light week. Just \$${totalSpent.toStringAsFixed(0)} total. Quiet and steady.';
   }
 
   // Default
-  return '₹${totalSpent.toStringAsFixed(0)} this week — all tracked, all logged.';
+  return '\$${totalSpent.toStringAsFixed(0)} this week — all tracked, all logged.';
 }

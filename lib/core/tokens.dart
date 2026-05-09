@@ -2,85 +2,122 @@ import 'package:flutter/material.dart';
 import 'package:finance_buddy_app/core/enums.dart';
 
 // ---------------------------------------------------------------------------
-// Pulse Design Tokens v1.2
-// Dark-first, OLED-friendly, Cred-inspired.
+// Spendler Design Tokens v1.0
+// Light-first, clean, modern finance tracker.
 // ---------------------------------------------------------------------------
 
 /// Colour palette.
-abstract final class PaisaColors {
-  // -- Backgrounds --
-  static const Color scaffold = Color(0xFF000000);
-  static const Color surface = Color(0xFF141414);
-  static const Color surfaceHigh = Color(0xFF1E1E1E);
-
-  // Legacy aliases (widgets still referencing these)
-  static const Color surfaceElevated = surfaceHigh;
-  static const Color surfaceSecondary = surface;
+abstract final class SpendlerColors {
+  // -- Backgrounds (light theme) --
+  static const Color scaffold = Color(0xFFF5F5F7);
+  static const Color surface = Color(0xFFFFFFFF);
+  static const Color surfaceHigh = Color(0xFFFFFFFF);
+  static const Color surfaceElevated = Color(0xFFFFFFFF);
+  static const Color surfaceSecondary = Color(0xFFF0F1F3);
 
   // -- Borders --
-  static const Color border = Color(0xFF2A2A2A);
+  static const Color border = Color(0xFFE5E7EB);
 
   // -- Text --
-  static const Color textPrimary = Color(0xFFFFFFFF);
-  static const Color textSecondary = Color(0xFF9999A3);
-  static const Color textTertiary = Color(0xFF606060);
+  static const Color textPrimary = Color(0xFF000000);
+  static const Color textSecondary = Color(0xFF6B7280);
+  static const Color textTertiary = Color(0xFF9CA3AF);
 
-  // -- Primary accents --
-  static const Color yellow = Color(0xFFFFD60A);
-  static const Color yellowShadow = Color(0xFFB8A000);
-  static const Color gold = Color(0xFFC9A84C);
-  static const Color amber = Color(0xFFF5A623);
+  // -- Primary accent --
+  static const Color primary = Color(0xFF6366F1);
+  static const Color primaryLight = Color(0xFFEEF2FF);
 
   // -- Semantic --
-  static const Color income = Color(0xFF4CAF50);
-  static const Color expense = Color(0xFFFF5252);
-  static const Color splitPending = Color(0xFFFF9800);
+  static const Color income = Color(0xFF22C55E);
+  static const Color expense = Color(0xFFEF4444);
+  static const Color splitPending = Color(0xFFF59E0B);
 
-  // -- Legacy aliases --
-  static const Color accentYellow = yellow;
-  static const Color accentGold = gold;
-  static const Color accentAmber = amber;
-  static const Color accentBlue = Color(0xFF4DA8FF);
-  static const Color accentGreen = income;
-  static const Color accentRed = expense;
-  static const Color accentPurple = Color(0xFF8E7AAF);
-  static const Color neoPopShadow = yellowShadow;
+  // -- Accent palette --
+  static const Color accentIndigo = Color(0xFF6366F1);
+  static const Color accentBlue = Color(0xFF3B82F6);
+  static const Color accentGreen = Color(0xFF22C55E);
+  static const Color accentRed = Color(0xFFEF4444);
+  static const Color accentAmber = Color(0xFFF59E0B);
+  static const Color accentPurple = Color(0xFF8B5CF6);
+  static const Color accentPink = Color(0xFFEC4899);
+  static const Color accentTeal = Color(0xFF14B8A6);
+  static const Color accentOrange = Color(0xFFF97316);
 
-  // -- Category accents (muted, never full saturation) --
-  static const Map<TransactionCategory, Color> categoryActive = {
-    TransactionCategory.rent: Color(0xFF7B8FA1),
-    TransactionCategory.transport: Color(0xFF6B8F71),
-    TransactionCategory.food: Color(0xFFA0785A),
-    TransactionCategory.family: Color(0xFFC9A84C),
-    TransactionCategory.social: Color(0xFF8E7AAF),
-    TransactionCategory.other: Color(0xFF7A7A7A),
-  };
-
-  static const Color categoryMuted = Color(0xFF3A3A3A);
-
-  static Color categoryColor(TransactionCategory cat) =>
-      categoryActive[cat] ?? const Color(0xFF7A7A7A);
-
-  // -- Semantic (legacy) --
+  // -- Semantic aliases --
+  static const Color destructive = expense;
   static const Color success = income;
-  static const Color warning = amber;
+  static const Color warning = Color(0xFFF59E0B);
   static const Color error = expense;
   static const Color info = accentBlue;
+  static const Color paused = textTertiary;
+
+  // -- Additional surface aliases --
+  static const Color card = surface;
+  static const Color heroBackground = Color(0xFF1C1C1E);
+  static const Color heroText = Color(0xFFFFFFFF);
+  static const Color heroTextSecondary = Color(0xFF9999A3);
+  static const Color overBudget = expense;
+  static const Color onTrack = income;
+  static const Color accent = primary;
+  static const Color progressTrack = Color(0xFFE5E5EA);
+  static const Color separator = border;
+  static const Color cardBorder = border;
+
+  // Legacy aliases for migration compatibility
+  static const Color yellow = primary;
+  static const Color yellowShadow = Color(0xFF4F46E5);
+  static const Color gold = Color(0xFFF59E0B);
+  static const Color amber = Color(0xFFF59E0B);
+  static const Color accentYellow = primary;
+  static const Color accentGold = Color(0xFFF59E0B);
+  static const Color neoPopShadow = yellowShadow;
+
+  // -- Category colours: hue (accent) / tint (background) pairs --
+  static const Map<TransactionCategory, Color> categoryHue = {
+    TransactionCategory.housing: Color(0xFF6366F1),
+    TransactionCategory.transport: Color(0xFF3B82F6),
+    TransactionCategory.food: Color(0xFFF97316),
+    TransactionCategory.shopping: Color(0xFFEC4899),
+    TransactionCategory.entertainment: Color(0xFF8B5CF6),
+    TransactionCategory.health: Color(0xFFEF4444),
+    TransactionCategory.education: Color(0xFF14B8A6),
+    TransactionCategory.utilities: Color(0xFFF59E0B),
+    TransactionCategory.other: Color(0xFF6B7280),
+  };
+
+  static const Map<TransactionCategory, Color> categoryTint = {
+    TransactionCategory.housing: Color(0xFFEEF2FF),
+    TransactionCategory.transport: Color(0xFFEFF6FF),
+    TransactionCategory.food: Color(0xFFFFF7ED),
+    TransactionCategory.shopping: Color(0xFFFDF2F8),
+    TransactionCategory.entertainment: Color(0xFFF5F3FF),
+    TransactionCategory.health: Color(0xFFFEF2F2),
+    TransactionCategory.education: Color(0xFFF0FDFA),
+    TransactionCategory.utilities: Color(0xFFFFFBEB),
+    TransactionCategory.other: Color(0xFFF9FAFB),
+  };
+
+  // Legacy aliases
+  static const Map<TransactionCategory, Color> categoryActive = categoryHue;
+  static const Color categoryMuted = Color(0xFFE5E7EB);
+
+  static Color categoryColor(TransactionCategory cat) =>
+      categoryHue[cat] ?? const Color(0xFF6B7280);
 }
 
-/// Typography styles.
-abstract final class PaisaTextStyles {
+/// Typography styles (system font).
+abstract final class SpendlerTextStyles {
   static const TextStyle heroSymbol = TextStyle(
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: FontWeight.w300,
-    color: PaisaColors.textSecondary,
+    color: SpendlerColors.textSecondary,
     fontFeatures: [FontFeature.tabularFigures()],
   );
 
   static const TextStyle heroAmount = TextStyle(
-    fontSize: 64,
+    fontSize: 56,
     fontWeight: FontWeight.w700,
-    color: PaisaColors.textPrimary,
+    color: SpendlerColors.textPrimary,
     fontFeatures: [FontFeature.tabularFigures()],
     letterSpacing: -2.0,
     height: 1,
@@ -89,14 +126,14 @@ abstract final class PaisaTextStyles {
   static const TextStyle sectionLabel = TextStyle(
     fontSize: 11,
     fontWeight: FontWeight.w600,
-    color: PaisaColors.textTertiary,
+    color: SpendlerColors.textTertiary,
     letterSpacing: 1.5,
   );
 
   static const TextStyle merchantName = TextStyle(
     fontSize: 15,
     fontWeight: FontWeight.w500,
-    color: PaisaColors.textPrimary,
+    color: SpendlerColors.textPrimary,
   );
 
   static const TextStyle pillLabel = TextStyle(
@@ -108,41 +145,41 @@ abstract final class PaisaTextStyles {
   static const TextStyle emptyState = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w400,
-    color: PaisaColors.textSecondary,
+    color: SpendlerColors.textSecondary,
     height: 1.6,
   );
 
   static const TextStyle greeting = TextStyle(
     fontSize: 24,
     fontWeight: FontWeight.w600,
-    color: PaisaColors.textPrimary,
+    color: SpendlerColors.textPrimary,
     height: 1.3,
   );
 
   static const TextStyle insightBody = TextStyle(
     fontSize: 20,
     fontWeight: FontWeight.w500,
-    color: PaisaColors.textPrimary,
+    color: SpendlerColors.textPrimary,
     height: 1.5,
   );
 
   static const TextStyle onboardingHeadline = TextStyle(
     fontSize: 28,
     fontWeight: FontWeight.w700,
-    color: PaisaColors.textPrimary,
+    color: SpendlerColors.textPrimary,
     height: 1.2,
   );
 
   static const TextStyle onboardingBody = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w400,
-    color: PaisaColors.textSecondary,
+    color: SpendlerColors.textSecondary,
     height: 1.6,
   );
 }
 
 /// Spacing scale (8-pt grid).
-abstract final class PaisaSpacing {
+abstract final class SpendlerSpacing {
   static const double xs = 4;
   static const double sm = 8;
   static const double md = 16;
@@ -154,23 +191,26 @@ abstract final class PaisaSpacing {
   static const double screenH = 16;
   static const double screenTop = 24;
   static const double cardGap = 12;
+  static const double sectionGap = 32;
 }
 
 /// Corner radii.
-abstract final class PaisaRadii {
+abstract final class SpendlerRadii {
   static const double card = 16;
   static const double sheet = 24;
   static const double pill = 100;
   static const double button = 12;
   static const double barTop = 6;
   static const double fab = 28;
+  static const double progressBar = 3;
+  static const double ring = 40;
 }
 
 /// Typography sizes (kept for widgets using raw sizes).
-abstract final class PaisaTypo {
-  static const double heroSize = 64;
+abstract final class SpendlerTypo {
+  static const double heroSize = 56;
   static const FontWeight heroWeight = FontWeight.w700;
-  static const double symbolSize = 28;
+  static const double symbolSize = 24;
   static const FontWeight symbolWeight = FontWeight.w300;
   static const double titleSize = 20;
   static const FontWeight titleWeight = FontWeight.w600;
@@ -186,14 +226,10 @@ abstract final class PaisaTypo {
 }
 
 /// Animation durations & curves.
-abstract final class PaisaMotion {
-  // Micro-interactions (button press, toggle)
+abstract final class SpendlerMotion {
   static const Duration micro = Duration(milliseconds: 150);
-  // Transitions (sheet open, screen change)
   static const Duration transition = Duration(milliseconds: 300);
-  // Numbers
   static const Duration number = Duration(milliseconds: 600);
-  // Dramatic (sunday digest hero)
   static const Duration dramatic = Duration(milliseconds: 800);
 
   static const Curve neoPopCurve = Curves.easeOut;
@@ -201,7 +237,6 @@ abstract final class PaisaMotion {
   static const Curve surfaceCurve = Curves.easeOutCubic;
   static const Curve sheetCurve = Cubic(0.4, 0, 0.2, 1);
 
-  // Legacy aliases
   static const Duration neoPopPress = micro;
   static const Duration numberRoll = number;
   static const Curve numberRollCurve = numberCurve;
@@ -213,13 +248,15 @@ abstract final class PaisaMotion {
   static const Curve tabCurve = Curves.easeInOut;
 }
 
-/// Shadow presets.
-abstract final class PaisaShadows {
+/// Shadow presets (subtle for light theme).
+abstract final class SpendlerShadows {
   static List<BoxShadow> card = const [
-    BoxShadow(color: Color(0x66000000), offset: Offset(0, 2), blurRadius: 8),
+    BoxShadow(color: Color(0x0A000000), offset: Offset(0, 1), blurRadius: 3),
+    BoxShadow(color: Color(0x0F000000), offset: Offset(0, 2), blurRadius: 8),
   ];
 
   static List<BoxShadow> fab = const [
-    BoxShadow(color: Color(0x66000000), offset: Offset(0, 4), blurRadius: 12),
+    BoxShadow(color: Color(0x1A000000), offset: Offset(0, 4), blurRadius: 12),
   ];
 }
+

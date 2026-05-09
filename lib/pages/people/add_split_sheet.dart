@@ -46,14 +46,14 @@ class _AddSplitSheetState extends ConsumerState<AddSplitSheet> {
   InputDecoration _inputDecor(String label, {String? prefix}) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(color: PaisaColors.textSecondary),
+      labelStyle: const TextStyle(color: SpendlerColors.textSecondary),
       prefixText: prefix,
-      prefixStyle: const TextStyle(color: PaisaColors.textSecondary),
+      prefixStyle: const TextStyle(color: SpendlerColors.textSecondary),
       filled: true,
-      fillColor: PaisaColors.surface,
-      border: const UnderlineInputBorder(borderSide: BorderSide(color: PaisaColors.border)),
-      enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: PaisaColors.border)),
-      focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: PaisaColors.yellow.withValues(alpha: 0.8))),
+      fillColor: SpendlerColors.surface,
+      border: const UnderlineInputBorder(borderSide: BorderSide(color: SpendlerColors.border)),
+      enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: SpendlerColors.border)),
+      focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: SpendlerColors.yellow.withValues(alpha: 0.8))),
     );
   }
 
@@ -66,42 +66,42 @@ class _AddSplitSheetState extends ConsumerState<AddSplitSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('ADD A SPLIT', style: PaisaTextStyles.sectionLabel),
-          const SizedBox(height: PaisaSpacing.lg),
+          const Text('ADD A SPLIT', style: SpendlerTextStyles.sectionLabel),
+          const SizedBox(height: SpendlerSpacing.lg),
 
           // ── Step 1: Who paid? ──
-          const Text('Who paid?', style: TextStyle(color: PaisaColors.textSecondary, fontSize: 13)),
-          const SizedBox(height: PaisaSpacing.sm),
+          const Text('Who paid?', style: TextStyle(color: SpendlerColors.textSecondary, fontSize: 13)),
+          const SizedBox(height: SpendlerSpacing.sm),
           Row(
             children: [
               Expanded(child: _DirectionTile(
                 label: 'I paid',
                 sublabel: 'They owe me',
                 icon: PhosphorIcons.arrowUpRight(),
-                color: PaisaColors.income,
+                color: SpendlerColors.income,
                 selected: _whoPaid == 'i_paid',
                 onTap: () => setState(() => _whoPaid = 'i_paid'),
               )),
-              const SizedBox(width: PaisaSpacing.sm),
+              const SizedBox(width: SpendlerSpacing.sm),
               Expanded(child: _DirectionTile(
                 label: 'They paid',
                 sublabel: 'I owe them',
                 icon: PhosphorIcons.arrowDownLeft(),
-                color: PaisaColors.amber,
+                color: SpendlerColors.amber,
                 selected: _whoPaid == 'they_paid',
                 onTap: () => setState(() => _whoPaid = 'they_paid'),
               )),
             ],
           ),
-          const SizedBox(height: PaisaSpacing.lg),
+          const SizedBox(height: SpendlerSpacing.lg),
 
           // ── Step 2: Which friend? ──
-          const Text('With who?', style: TextStyle(color: PaisaColors.textSecondary, fontSize: 13)),
-          const SizedBox(height: PaisaSpacing.sm),
+          const Text('With who?', style: TextStyle(color: SpendlerColors.textSecondary, fontSize: 13)),
+          const SizedBox(height: SpendlerSpacing.sm),
           contacts.when(
             data: (list) {
               if (list.isEmpty) {
-                return const Text('Add a friend first.', style: TextStyle(color: PaisaColors.textTertiary, fontSize: 13));
+                return const Text('Add a friend first.', style: TextStyle(color: SpendlerColors.textTertiary, fontSize: 13));
               }
               return Wrap(
                 spacing: 8,
@@ -112,16 +112,16 @@ class _AddSplitSheetState extends ConsumerState<AddSplitSheet> {
                   try {
                     chipColor = Color(int.parse('FF${c.avatarColour.replaceFirst('#', '')}', radix: 16));
                   } on FormatException {
-                    chipColor = PaisaColors.textTertiary;
+                    chipColor = SpendlerColors.textTertiary;
                   }
                   return GestureDetector(
                     onTap: () => setState(() => _selectedFriend = c),
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
-                        color: selected ? PaisaColors.yellow.withValues(alpha: 0.12) : PaisaColors.surface,
-                        borderRadius: BorderRadius.circular(PaisaRadii.pill),
-                        border: Border.all(color: selected ? PaisaColors.yellow : PaisaColors.border),
+                        color: selected ? SpendlerColors.yellow.withValues(alpha: 0.12) : SpendlerColors.surface,
+                        borderRadius: BorderRadius.circular(SpendlerRadii.pill),
+                        border: Border.all(color: selected ? SpendlerColors.yellow : SpendlerColors.border),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -132,10 +132,10 @@ class _AddSplitSheetState extends ConsumerState<AddSplitSheet> {
                             child: Text(c.name[0].toUpperCase(), style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600)),
                           ),
                           const SizedBox(width: 6),
-                          Text(c.name, style: TextStyle(color: selected ? PaisaColors.yellow : PaisaColors.textPrimary, fontSize: 13, fontWeight: selected ? FontWeight.w600 : FontWeight.w400)),
+                          Text(c.name, style: TextStyle(color: selected ? SpendlerColors.yellow : SpendlerColors.textPrimary, fontSize: 13, fontWeight: selected ? FontWeight.w600 : FontWeight.w400)),
                           if (selected) ...[
                             const SizedBox(width: 4),
-                            const Icon(Icons.check, color: PaisaColors.yellow, size: 14),
+                            const Icon(Icons.check, color: SpendlerColors.yellow, size: 14),
                           ],
                         ],
                       ),
@@ -147,24 +147,24 @@ class _AddSplitSheetState extends ConsumerState<AddSplitSheet> {
             loading: () => const SizedBox.shrink(),
             error: (_, _) => const SizedBox.shrink(),
           ),
-          const SizedBox(height: PaisaSpacing.lg),
+          const SizedBox(height: SpendlerSpacing.lg),
 
           // ── Step 3: Amount ──
           TextField(
             controller: _amountCtrl,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            style: const TextStyle(color: PaisaColors.textPrimary, fontSize: 20, fontWeight: FontWeight.w600),
-            cursorColor: PaisaColors.yellow,
-            decoration: _inputDecor('Amount', prefix: '₹ '),
+            style: const TextStyle(color: SpendlerColors.textPrimary, fontSize: 20, fontWeight: FontWeight.w600),
+            cursorColor: SpendlerColors.yellow,
+            decoration: _inputDecor('Amount', prefix: '\$ '),
           ),
-          const SizedBox(height: PaisaSpacing.cardGap),
+          const SizedBox(height: SpendlerSpacing.cardGap),
           TextField(
             controller: _noteCtrl,
-            style: const TextStyle(color: PaisaColors.textPrimary),
-            cursorColor: PaisaColors.yellow,
+            style: const TextStyle(color: SpendlerColors.textPrimary),
+            cursorColor: SpendlerColors.yellow,
             decoration: _inputDecor('What for? (optional)'),
           ),
-          const SizedBox(height: PaisaSpacing.xl),
+          const SizedBox(height: SpendlerSpacing.xl),
 
           // ── Confirm ──
           NeoPOPButton(
@@ -222,22 +222,22 @@ class _DirectionTile extends StatelessWidget {
         onTap();
       },
       child: AnimatedContainer(
-        duration: PaisaMotion.micro,
-        padding: const EdgeInsets.all(PaisaSpacing.cardPadding),
+        duration: SpendlerMotion.micro,
+        padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
         decoration: BoxDecoration(
-          color: selected ? color.withValues(alpha: 0.1) : PaisaColors.surface,
-          borderRadius: BorderRadius.circular(PaisaRadii.card),
+          color: selected ? color.withValues(alpha: 0.1) : SpendlerColors.surface,
+          borderRadius: BorderRadius.circular(SpendlerRadii.card),
           border: Border.all(
-            color: selected ? color : PaisaColors.border,
+            color: selected ? color : SpendlerColors.border,
             width: selected ? 1.5 : 1,
           ),
         ),
         child: Column(
           children: [
-            PhosphorIcon(icon, size: 24, color: selected ? color : PaisaColors.textSecondary),
-            const SizedBox(height: PaisaSpacing.sm),
-            Text(label, style: TextStyle(color: selected ? color : PaisaColors.textPrimary, fontSize: 14, fontWeight: FontWeight.w600)),
-            Text(sublabel, style: TextStyle(color: selected ? color.withValues(alpha: 0.7) : PaisaColors.textTertiary, fontSize: 11)),
+            PhosphorIcon(icon, size: 24, color: selected ? color : SpendlerColors.textSecondary),
+            const SizedBox(height: SpendlerSpacing.sm),
+            Text(label, style: TextStyle(color: selected ? color : SpendlerColors.textPrimary, fontSize: 14, fontWeight: FontWeight.w600)),
+            Text(sublabel, style: TextStyle(color: selected ? color.withValues(alpha: 0.7) : SpendlerColors.textTertiary, fontSize: 11)),
           ],
         ),
       ),

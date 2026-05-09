@@ -3,7 +3,7 @@ import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/data/repositories/notification_repository.dart';
 
 class LocalNotificationRepository implements NotificationRepository {
-  final PaisaDatabase db;
+  final SpendlerDatabase db;
 
   LocalNotificationRepository(this.db);
 

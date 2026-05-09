@@ -17,15 +17,15 @@ class SmsCategorizer {
     'dominos': TransactionCategory.food,
     'mcdonald': TransactionCategory.food,
     'starbucks': TransactionCategory.food,
-    'bookmyshow': TransactionCategory.social,
-    'pvr': TransactionCategory.social,
-    'inox': TransactionCategory.social,
+    'bookmyshow': TransactionCategory.entertainment,
+    'pvr': TransactionCategory.entertainment,
+    'inox': TransactionCategory.entertainment,
   };
 
   static TransactionCategory categorize(ParsedSms sms) {
     // Credit from someone → likely family
     if (!sms.isDebit) {
-      return TransactionCategory.family;
+      return TransactionCategory.other;
     }
 
     // Merchant keyword matching
@@ -41,7 +41,7 @@ class SmsCategorizer {
     // Amount-based heuristics
     final day = sms.receivedAt.day;
     if (sms.amount >= 15000 && sms.amount <= 50000 && day <= 5) {
-      return TransactionCategory.rent;
+      return TransactionCategory.housing;
     }
 
     return TransactionCategory.other;

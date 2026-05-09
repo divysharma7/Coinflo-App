@@ -18,7 +18,7 @@ class DayOfWeekChart extends StatelessWidget {
         child: Center(
           child: Text(
             'Two weeks of data needed.',
-            style: TextStyle(color: PaisaColors.textTertiary),
+            style: TextStyle(color: SpendlerColors.textTertiary),
           ),
         ),
       );
@@ -38,9 +38,9 @@ class DayOfWeekChart extends StatelessWidget {
             touchTooltipData: BarTouchTooltipData(
               getTooltipItem: (group, groupIndex, rod, rodIndex) {
                 return BarTooltipItem(
-                  '₹${rod.toY.toStringAsFixed(0)}/week',
+                  '\$${rod.toY.toStringAsFixed(0)}/week',
                   const TextStyle(
-                    color: PaisaColors.textPrimary,
+                    color: SpendlerColors.textPrimary,
                     fontWeight: FontWeight.w600,
                     fontSize: 11,
                   ),
@@ -60,11 +60,11 @@ class DayOfWeekChart extends StatelessWidget {
                     child: Text(
                       days[i],
                       style: TextStyle(
-                        fontSize: PaisaTypo.microSize,
+                        fontSize: SpendlerTypo.microSize,
                         fontWeight: isMax ? FontWeight.w700 : FontWeight.w400,
                         color: isMax
-                            ? PaisaColors.yellow
-                            : PaisaColors.textTertiary,
+                            ? SpendlerColors.yellow
+                            : SpendlerColors.textTertiary,
                       ),
                     ),
                   );
@@ -84,10 +84,10 @@ class DayOfWeekChart extends StatelessWidget {
               barRods: [
                 BarChartRodData(
                   toY: averages[i],
-                  color: isMax ? PaisaColors.yellow : PaisaColors.textTertiary,
+                  color: isMax ? SpendlerColors.yellow : SpendlerColors.textTertiary,
                   width: 24,
                   borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(PaisaRadii.barTop),
+                    top: Radius.circular(SpendlerRadii.barTop),
                   ),
                 ),
               ],

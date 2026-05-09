@@ -68,7 +68,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
       context,
       PageRouteBuilder<void>(
         pageBuilder: (context, animation, secondaryAnimation) => destination,
-        transitionDuration: PaisaMotion.transition,
+        transitionDuration: SpendlerMotion.transition,
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(opacity: animation, child: child);
         },
@@ -86,7 +86,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: PaisaColors.scaffold,
+      backgroundColor: SpendlerColors.scaffold,
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -99,7 +99,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
                   width: 120,
                   height: 120,
                   decoration: const BoxDecoration(
-                    color: PaisaColors.yellow,
+                    color: SpendlerColors.primary,
                     shape: BoxShape.circle,
                   ),
                   child: ClipOval(
@@ -111,29 +111,29 @@ class _SplashPageState extends ConsumerState<SplashPage>
                 );
               },
             ),
-            const SizedBox(height: PaisaSpacing.lg),
+            const SizedBox(height: SpendlerSpacing.lg),
 
             // PULSE wordmark
             FadeTransition(
               opacity: _wordmarkFade,
               child: Text(
-                'PULSE',
-                style: PaisaTextStyles.heroAmount.copyWith(
+                'SPENDLER',
+                style: SpendlerTextStyles.heroAmount.copyWith(
                   fontSize: 28,
-                  color: PaisaColors.yellow,
+                  color: SpendlerColors.primary,
                   letterSpacing: 4,
                 ),
               ),
             ),
-            const SizedBox(height: PaisaSpacing.sm),
+            const SizedBox(height: SpendlerSpacing.sm),
 
             // Tagline
             FadeTransition(
               opacity: _taglineFade,
               child: const Text(
-                'Feel your financial rhythm.',
+                'Track your spending habits.',
                 style: TextStyle(
-                  color: PaisaColors.textSecondary,
+                  color: SpendlerColors.textSecondary,
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
                 ),

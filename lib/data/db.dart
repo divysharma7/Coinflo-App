@@ -9,7 +9,7 @@ part 'db.g.dart';
 
 // ─── Tables ───────────────────────────────────────────
 
-class PaisaTransactions extends Table {
+class SpendlerTransactions extends Table {
   IntColumn get id => integer().autoIncrement()();
   RealColumn get amount => real()();
   TextColumn get category => text()(); // enum string: rent/transport/food/family/social/other
@@ -87,22 +87,52 @@ class FriendSplits extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
+class Subscriptions extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text()();
+  RealColumn get amount => real()();
+  TextColumn get billingCycle => text()(); // weekly / monthly / yearly
+  DateTimeColumn get nextBillingDate => dateTime()();
+  TextColumn get category => text()(); // reuses TransactionCategory values
+  BoolColumn get isActive => boolean().withDefault(const Constant(true))();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+class CategoryBudgets extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get category => text()(); // matches TransactionCategory name
+  RealColumn get monthlyLimit => real()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+class SavingsGoals extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text()();
+  RealColumn get targetAmount => real()();
+  RealColumn get currentAmount => real().withDefault(const Constant(0))();
+  TextColumn get iconName => text()(); // Phosphor icon identifier
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
 // ─── Database ─────────────────────────────────────────
 
 @DriftDatabase(tables: [
-  PaisaTransactions,
+  SpendlerTransactions,
   FamilyEntries,
   WeeklyReflections,
   AppMetrics,
   AppNotifications,
   FriendContacts,
   FriendSplits,
+  Subscriptions,
+  CategoryBudgets,
+  SavingsGoals,
 ])
-class PaisaDatabase extends _$PaisaDatabase {
-  PaisaDatabase() : super(_openConnection());
+class SpendlerDatabase extends _$SpendlerDatabase {
+  SpendlerDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -117,6 +147,13 @@ class PaisaDatabase extends _$PaisaDatabase {
             await m.createTable(friendContacts);
             await m.createTable(friendSplits);
           }
+          if (from < 4) {
+            await m.createTable(subscriptions);
+          }
+          if (from < 5) {
+            await m.createTable(categoryBudgets);
+            await m.createTable(savingsGoals);
+          }
         },
       );
 }
@@ -124,7 +161,7 @@ class PaisaDatabase extends _$PaisaDatabase {
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
     final dir = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dir.path, 'paisa_bolta.sqlite'));
+    final file = File(p.join(dir.path, 'spendler.sqlite'));
     return NativeDatabase.createInBackground(file);
   });
 }

@@ -22,7 +22,7 @@ class SpendingVelocityChart extends StatelessWidget {
         child: Center(
           child: Text(
             'Month just started.',
-            style: TextStyle(color: PaisaColors.textTertiary),
+            style: TextStyle(color: SpendlerColors.textTertiary),
           ),
         ),
       );
@@ -49,7 +49,7 @@ class SpendingVelocityChart extends StatelessWidget {
             drawVerticalLine: false,
             horizontalInterval: maxY > 0 ? maxY / 4 : 1000,
             getDrawingHorizontalLine: (value) => const FlLine(
-              color: PaisaColors.border,
+              color: SpendlerColors.border,
               strokeWidth: 0.5,
             ),
           ),
@@ -66,8 +66,8 @@ class SpendingVelocityChart extends StatelessWidget {
                       child: Text(
                         '$day',
                         style: const TextStyle(
-                          fontSize: PaisaTypo.microSize,
-                          color: PaisaColors.textTertiary,
+                          fontSize: SpendlerTypo.microSize,
+                          color: SpendlerColors.textTertiary,
                         ),
                       ),
                     );
@@ -87,8 +87,8 @@ class SpendingVelocityChart extends StatelessWidget {
                   return Text(
                     text,
                     style: const TextStyle(
-                      fontSize: PaisaTypo.microSize,
-                      color: PaisaColors.textTertiary,
+                      fontSize: SpendlerTypo.microSize,
+                      color: SpendlerColors.textTertiary,
                     ),
                   );
                 },
@@ -108,7 +108,7 @@ class SpendingVelocityChart extends StatelessWidget {
                 (i) => FlSpot(i.toDouble(), lastMonth[i]),
               ),
               isCurved: true,
-              color: PaisaColors.textTertiary,
+              color: SpendlerColors.textTertiary,
               barWidth: 1.5,
               dotData: const FlDotData(show: false),
               dashArray: [6, 4],
@@ -120,7 +120,7 @@ class SpendingVelocityChart extends StatelessWidget {
                 (i) => FlSpot(i.toDouble(), thisMonthTrimmed[i]),
               ),
               isCurved: true,
-              color: PaisaColors.yellow,
+              color: SpendlerColors.yellow,
               barWidth: 3,
               dotData: FlDotData(
                 show: true,
@@ -128,14 +128,14 @@ class SpendingVelocityChart extends StatelessWidget {
                     spot.x == thisMonthTrimmed.length - 1, // only last dot
                 getDotPainter: (spot, pct, bar, index) => FlDotCirclePainter(
                   radius: 5,
-                  color: PaisaColors.yellow,
+                  color: SpendlerColors.yellow,
                   strokeWidth: 2,
-                  strokeColor: PaisaColors.scaffold,
+                  strokeColor: SpendlerColors.scaffold,
                 ),
               ),
               belowBarData: BarAreaData(
                 show: true,
-                color: PaisaColors.yellow.withValues(alpha: 0.06),
+                color: SpendlerColors.yellow.withValues(alpha: 0.06),
               ),
             ),
           ],
@@ -145,9 +145,9 @@ class SpendingVelocityChart extends StatelessWidget {
                 return spots.map((spot) {
                   final isThis = spot.barIndex == 1;
                   return LineTooltipItem(
-                    '₹${spot.y.toStringAsFixed(0)}',
+                    '\$${spot.y.toStringAsFixed(0)}',
                     TextStyle(
-                      color: isThis ? PaisaColors.yellow : PaisaColors.textTertiary,
+                      color: isThis ? SpendlerColors.yellow : SpendlerColors.textTertiary,
                       fontWeight: FontWeight.w600,
                       fontSize: 12,
                     ),

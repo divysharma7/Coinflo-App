@@ -4,21 +4,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:finance_buddy_app/core/theme.dart';
 import 'package:finance_buddy_app/pages/splash/splash_page.dart';
 
-class PaisaBoltaApp extends StatelessWidget {
-  const PaisaBoltaApp({super.key});
+class SpendlerApp extends StatelessWidget {
+  const SpendlerApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Force dark status bar / nav bar to match our OLED theme.
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
+    // Light status bar / nav bar to match our light theme.
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
 
     return ProviderScope(
       child: MaterialApp(
-        title: 'Pulse',
+        title: 'Spendler',
         debugShowCheckedModeBanner: false,
-        themeMode: ThemeMode.dark,
-        darkTheme: PaisaTheme.darkTheme,
-        theme: PaisaTheme.darkTheme,
+        themeMode: ThemeMode.light,
+        theme: SpendlerTheme.lightTheme,
+        darkTheme: SpendlerTheme.lightTheme,
         home: const SplashPage(),
       ),
     );
