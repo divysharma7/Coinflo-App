@@ -15,6 +15,7 @@ import 'package:finance_buddy_app/pages/digest/sunday_digest_page.dart';
 import 'package:finance_buddy_app/pages/settings/settings_page.dart';
 import 'package:finance_buddy_app/pages/subscriptions/subscriptions_page.dart';
 import 'package:finance_buddy_app/pages/report/report_page.dart';
+import 'package:finance_buddy_app/pages/penny/penny_page.dart';
 import 'package:finance_buddy_app/widgets/common/animations.dart';
 
 class HomePage extends ConsumerWidget {
@@ -109,6 +110,66 @@ class HomePage extends ConsumerWidget {
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                     ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          FadeSlideIn(
+            delay: const Duration(milliseconds: 395),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: SpendlerSpacing.screenH + 4,
+                vertical: SpendlerSpacing.sm,
+              ),
+              child: GestureDetector(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(builder: (_) => const PennyPage()),
+                ),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: SpendlerSpacing.cardPadding,
+                    vertical: SpendlerSpacing.md,
+                  ),
+                  decoration: BoxDecoration(
+                    color: SpendlerColors.primary.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(SpendlerRadii.card),
+                    border: Border.all(
+                      color: SpendlerColors.primary.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          color: SpendlerColors.primary,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Center(
+                          child: Text(
+                            'P',
+                            style: TextStyle(
+                              color: SpendlerColors.scaffold,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Ask Penny a question \u2192',
+                        style: TextStyle(
+                          color: SpendlerColors.primary,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
