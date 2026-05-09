@@ -230,7 +230,12 @@ class TransactionsPage extends ConsumerWidget {
                   Row(
                     children: [
                       Expanded(
-                        child: Text(t.merchant ?? cat.label, style: SpendlerTextStyles.merchantName),
+                        child: Text(
+                          t.merchant ?? cat.label,
+                          style: SpendlerTextStyles.merchantName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                       PhosphorIcon(
                         isSent ? PhosphorIcons.arrowUpRight() : PhosphorIcons.arrowDownLeft(),

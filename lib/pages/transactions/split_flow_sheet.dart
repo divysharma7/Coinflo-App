@@ -105,21 +105,23 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const Text('SPLIT THIS', style: SpendlerTextStyles.sectionLabel),
-        const SizedBox(height: SpendlerSpacing.md),
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Text('SPLIT THIS', style: SpendlerTextStyles.sectionLabel),
+          const SizedBox(height: SpendlerSpacing.md),
 
-        // ── Mode selection tiles ──
-        _buildModeTiles(),
-        const SizedBox(height: SpendlerSpacing.lg),
+          // ── Mode selection tiles ──
+          _buildModeTiles(),
+          const SizedBox(height: SpendlerSpacing.lg),
 
-        // ── Mode content ──
-        if (_mode == _SplitMode.equal) _buildEqualMode(),
-        if (_mode == _SplitMode.custom) _buildCustomMode(),
-      ],
+          // ── Mode content ──
+          if (_mode == _SplitMode.equal) _buildEqualMode(),
+          if (_mode == _SplitMode.custom) _buildCustomMode(),
+        ],
+      ),
     );
   }
 
@@ -552,9 +554,10 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
         borderRadius: BorderRadius.circular(SpendlerRadii.card),
         border: Border.all(color: SpendlerColors.border),
       ),
-      child: Row(
+      child: Wrap(
+        spacing: SpendlerSpacing.sm,
+        runSpacing: SpendlerSpacing.xs,
         children: [
-          // Total
           Text(
             '\$${widget.totalAmount.toStringAsFixed(0)} total',
             style: const TextStyle(
@@ -562,14 +565,13 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
               fontSize: 13,
             ),
           ),
-          const SizedBox(width: SpendlerSpacing.sm),
-          Container(
-            width: 1,
-            height: 16,
-            color: SpendlerColors.border,
+          Text(
+            '·',
+            style: TextStyle(
+              color: SpendlerColors.border,
+              fontSize: 13,
+            ),
           ),
-          const SizedBox(width: SpendlerSpacing.sm),
-          // Allocated
           Text(
             'Allocated: \$${_customAllocated.toStringAsFixed(0)}',
             style: const TextStyle(
@@ -577,31 +579,29 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
               fontSize: 13,
             ),
           ),
-          const SizedBox(width: SpendlerSpacing.sm),
-          Container(
-            width: 1,
-            height: 16,
-            color: SpendlerColors.border,
-          ),
-          const SizedBox(width: SpendlerSpacing.sm),
-          // Remaining
-          Expanded(
-            child: Row(
-              children: [
-                Text(
-                  'Remaining: \$${remaining.toStringAsFixed(0)}',
-                  style: TextStyle(
-                    color: statusColor,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                if (statusIcon != null) ...[
-                  const SizedBox(width: 4),
-                  PhosphorIcon(statusIcon, size: 16, color: statusColor),
-                ],
-              ],
+          Text(
+            '·',
+            style: TextStyle(
+              color: SpendlerColors.border,
+              fontSize: 13,
             ),
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Remaining: \$${remaining.toStringAsFixed(0)}',
+                style: TextStyle(
+                  color: statusColor,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              if (statusIcon != null) ...[
+                const SizedBox(width: 4),
+                PhosphorIcon(statusIcon, size: 16, color: statusColor),
+              ],
+            ],
           ),
         ],
       ),
