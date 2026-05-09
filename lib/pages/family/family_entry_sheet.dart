@@ -1,10 +1,8 @@
-import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:finance_buddy_app/core/tokens.dart';
-import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/widgets/common/neo_pop_button.dart';
 
@@ -171,14 +169,15 @@ class _FamilyEntrySheetState extends ConsumerState<FamilyEntrySheet> {
     if (amount == null || amount <= 0 || from.isEmpty) return;
 
     await HapticFeedback.mediumImpact();
-    final repo = ref.read(repositoryProvider);
-    await repo.insertEntry(FamilyEntriesCompanion.insert(
+    final note = _noteController.text.trim();
+    await insertFamilyEntry(
+      ref.read(repositoryProvider),
       type: _type.name,
       amount: amount,
       fromPerson: from,
-      note: Value(_noteController.text.trim().isEmpty ? null : _noteController.text.trim()),
-      investmentType: Value(_type == _EntryType.investment ? _investmentType : null),
-    ));
+      note: note.isEmpty ? null : note,
+      investmentType: _type == _EntryType.investment ? _investmentType : null,
+    );
     if (mounted) Navigator.pop(context);
   }
 }

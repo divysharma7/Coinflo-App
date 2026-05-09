@@ -186,13 +186,12 @@ class _AddSplitSheetState extends ConsumerState<AddSplitSheet> {
     if (amount == null || amount <= 0 || _selectedFriend == null || _whoPaid == null) return;
 
     await HapticFeedback.mediumImpact();
-    final repo = ref.read(repositoryProvider);
-    await repo.createSplit(FriendSplitsCompanion.insert(
-      transactionId: 0, // standalone split, not linked to a transaction
+    await insertSplit(
+      ref.read(repositoryProvider),
       friendContactId: _selectedFriend!.id,
       amount: amount,
       direction: _direction,
-    ));
+    );
     if (mounted) Navigator.pop(context);
   }
 }

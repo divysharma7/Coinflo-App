@@ -1,6 +1,8 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:finance_buddy_app/core/enums.dart';
 import 'package:finance_buddy_app/data/db.dart';
+import 'package:finance_buddy_app/data/repositories/base_repository.dart';
 import 'package:finance_buddy_app/providers/database_providers.dart';
 import 'package:finance_buddy_app/providers/navigation_providers.dart';
 
@@ -142,3 +144,58 @@ final weeklyMerchantCountsProvider =
   final weekStart = ref.watch(selectedWeekProvider);
   return repo.getTopMerchantCountsForWeek(weekStart);
 });
+
+// ─── Computed providers ─────────────────────────────
+
+/// Sorted category totals from weekly transactions.
+/// Centralizes category aggregation used in home_page, my_page, sunday_digest.
+final weeklyCategoryTotalsProvider =
+    Provider.autoDispose<AsyncValue<List<MapEntry<TransactionCategory, double>>>>((ref) {
+  final weeklyTxns = ref.watch(weeklyTransactionsProvider);
+  return weeklyTxns.whenData((txns) {
+    final totals = <TransactionCategory, double>{};
+    for (final t in txns) {
+      if (t.amount < 0) {
+        final cat = TransactionCategory.values.firstWhere(
+          (c) => c.name == t.category,
+          orElse: () => TransactionCategory.other,
+        );
+        totals[cat] = (totals[cat] ?? 0) + t.amount.abs();
+      }
+    }
+    final sorted = totals.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    return sorted;
+  });
+});
+
+/// Total weekly expenses (absolute value).
+final weeklyTotalSpentProvider =
+    Provider.autoDispose<AsyncValue<double>>((ref) {
+  final weeklyTxns = ref.watch(weeklyTransactionsProvider);
+  return weeklyTxns.whenData((txns) =>
+      txns.where((t) => t.amount < 0).fold<double>(0, (s, t) => s + t.amount.abs()));
+});
+
+// ─── Mutation helpers ───────────────────────────────
+
+/// Insert a manually entered transaction.
+Future<void> insertManualTransaction(
+  BaseRepository repo, {
+  required double amount,
+  required String category,
+  String? note,
+}) async {
+  await repo.insertTransaction(SpendlerTransactionsCompanion.insert(
+    amount: amount,
+    category: category,
+    note: Value(note),
+    source: const Value('manual'),
+    status: const Value('confirmed'),
+  ));
+}
+
+/// Confirm all unconfirmed transactions.
+Future<void> confirmAllTransactions(BaseRepository repo) async {
+  await repo.confirmAllUnconfirmed();
+}

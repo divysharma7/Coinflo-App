@@ -317,14 +317,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     );
     if (confirmed == true && mounted) {
       await HapticFeedback.heavyImpact();
-      final db = ref.read(databaseProvider);
-      await db.customStatement('DELETE FROM spendler_transactions');
-      await db.customStatement('DELETE FROM family_entries');
-      await db.customStatement('DELETE FROM weekly_reflections');
-      await db.customStatement('DELETE FROM app_metrics');
-      await db.customStatement('DELETE FROM app_notifications');
-      await db.customStatement('DELETE FROM friend_splits');
-      await db.customStatement('DELETE FROM friend_contacts');
+      await ref.read(repositoryProvider).clearAll();
 
       // Invalidate all providers so UI refreshes immediately
       ref.invalidate(weeklyTransactionsProvider);

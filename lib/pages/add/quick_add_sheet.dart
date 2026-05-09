@@ -1,9 +1,7 @@
-import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:finance_buddy_app/core/enums.dart';
 import 'package:finance_buddy_app/core/tokens.dart';
-import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
 
 class QuickAddSheet extends ConsumerStatefulWidget {
@@ -210,14 +208,13 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
     final amount = double.tryParse(_amount);
     if (amount == null || amount <= 0) return;
 
-    final repo = ref.read(repositoryProvider);
-    await repo.insertTransaction(SpendlerTransactionsCompanion.insert(
+    final note = _noteController.text.trim();
+    await insertManualTransaction(
+      ref.read(repositoryProvider),
       amount: _isExpense ? -amount : amount,
       category: _category.name,
-      note: Value(_noteController.text.trim().isEmpty ? null : _noteController.text.trim()),
-      source: const Value('manual'),
-      status: const Value('confirmed'),
-    ));
+      note: note.isEmpty ? null : note,
+    );
     if (mounted) Navigator.pop(context);
   }
 }

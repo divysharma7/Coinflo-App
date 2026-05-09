@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:finance_buddy_app/core/tokens.dart';
-import 'package:finance_buddy_app/core/enums.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/widgets/common/animations.dart';
 import 'package:finance_buddy_app/widgets/common/animated_amount.dart';
@@ -210,22 +209,10 @@ class _WeeklyPulseCard extends ConsumerWidget {
               ),
               const SizedBox(height: SpendlerSpacing.md),
               // One-line insight
-              weeklyTxns.when(
-                data: (txns) {
-                  final expenses = txns.where((t) => t.amount < 0).toList();
-                  if (expenses.isEmpty) return const SizedBox.shrink();
-                  final totalSpent =
-                      expenses.fold<double>(0, (s, t) => s + t.amount.abs());
-                  final catTotals = <TransactionCategory, double>{};
-                  for (final t in expenses) {
-                    final cat = TransactionCategory.values.firstWhere(
-                      (c) => c.name == t.category,
-                      orElse: () => TransactionCategory.other,
-                    );
-                    catTotals[cat] = (catTotals[cat] ?? 0) + t.amount.abs();
-                  }
-                  final sortedCats = catTotals.entries.toList()
-                    ..sort((a, b) => b.value.compareTo(a.value));
+              ref.watch(weeklyCategoryTotalsProvider).when(
+                data: (sortedCats) {
+                  if (sortedCats.isEmpty) return const SizedBox.shrink();
+                  final totalSpent = ref.watch(weeklyTotalSpentProvider).valueOrNull ?? 0.0;
                   final counts = merchantCounts.valueOrNull ?? {};
                   final insight = generateWeeklyInsight(
                     sortedCats: sortedCats,
@@ -328,22 +315,20 @@ class _MonthlyPaceCard extends ConsumerWidget {
                 ),
                 const SizedBox(height: SpendlerSpacing.sm),
                 // Projection text
-                Builder(builder: (context) {
-                  final now = DateTime.now();
-                  final daysInMonth =
-                      DateTime(now.year, now.month + 1, 0).day;
-                  final dayOfMonth = now.day;
-                  final projected = dayOfMonth > 0
-                      ? (spentSoFar / dayOfMonth) * daysInMonth
-                      : 0.0;
-                  return Text(
-                    'At this rate, \u20b9${projected.toStringAsFixed(0)} by month end',
-                    style: const TextStyle(
-                      color: SpendlerColors.textSecondary,
-                      fontSize: 13,
-                    ),
-                  );
-                }),
+                ref.watch(monthEndProjectionProvider).when(
+                  data: (projection) {
+                    if (projection == null) return const SizedBox.shrink();
+                    return Text(
+                      'At this rate, \u20b9${projection.projected.toStringAsFixed(0)} by month end',
+                      style: const TextStyle(
+                        color: SpendlerColors.textSecondary,
+                        fontSize: 13,
+                      ),
+                    );
+                  },
+                  loading: () => const SizedBox.shrink(),
+                  error: (_, _) => const SizedBox.shrink(),
+                ),
               ] else ...[
                 const Text(
                   'Set a monthly target in Settings',
