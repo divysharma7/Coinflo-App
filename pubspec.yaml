@@ -1,0 +1,59 @@
+name: finance_buddy_app
+description: "Pulse — Feel your financial rhythm"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.5
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # Database
+  drift: ^2.22.1
+  sqlite3_flutter_libs: ^0.5.24
+  path_provider: ^2.1.4
+  path: ^1.9.0
+
+  # State Management
+  flutter_riverpod: ^2.6.1
+
+  # Charts
+  fl_chart: ^0.70.2
+
+  # SMS
+  another_telephony: ^0.4.1
+
+  # Notifications
+  flutter_local_notifications: ^18.0.1
+  timezone: ^0.10.0
+
+  # Sharing
+  share_plus: ^10.1.4
+  gal: ^2.3.0
+
+  # Fonts & Icons
+  google_fonts: ^6.2.1
+  phosphor_flutter: ^2.1.0
+
+  # Utils
+  uuid: ^4.5.1
+  shared_preferences: ^2.5.3
+  permission_handler: ^11.4.0
+  intl: ^0.20.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  drift_dev: ^2.22.1
+  build_runner: ^2.4.14
+  flutter_native_splash: ^2.4.0
+
+flutter_native_splash:
+  color: "#000000"
+  android: true
+  ios: false
+
+flutter:
+  uses-material-design: true

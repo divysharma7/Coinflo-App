@@ -1,0 +1,43 @@
+import 'package:flutter/material.dart';
+import 'package:finance_buddy_app/core/tokens.dart';
+
+enum DeltaType { positive, negative, neutral }
+
+/// A tiny rounded-rect pill that shows a contextual delta or status.
+/// e.g. "+10% VS LAST WEEK", "TOP CATEGORY", "ON TRACK".
+class ContextualPill extends StatelessWidget {
+  const ContextualPill({
+    super.key,
+    required this.text,
+    this.type = DeltaType.neutral,
+  });
+
+  final String text;
+  final DeltaType type;
+
+  Color get _foreground => switch (type) {
+        DeltaType.positive => PaisaColors.accentGreen,
+        DeltaType.negative => PaisaColors.accentAmber,
+        DeltaType.neutral => PaisaColors.accentBlue,
+      };
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: _foreground.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(PaisaRadii.pill),
+      ),
+      child: Text(
+        text.toUpperCase(),
+        style: TextStyle(
+          color: _foreground,
+          fontSize: PaisaTypo.captionSize,
+          fontWeight: PaisaTypo.captionWeight,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+}

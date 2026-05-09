@@ -1,0 +1,712 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:finance_buddy_app/core/enums.dart';
+import 'package:finance_buddy_app/core/tokens.dart';
+import 'package:finance_buddy_app/providers/providers.dart';
+import 'package:finance_buddy_app/widgets/charts/weekly_bar_chart.dart';
+import 'package:finance_buddy_app/widgets/common/animated_amount.dart';
+import 'package:finance_buddy_app/widgets/common/contextual_pill.dart';
+import 'package:finance_buddy_app/widgets/common/neo_pop_button.dart';
+import 'package:finance_buddy_app/widgets/common/notification_bell.dart';
+import 'package:finance_buddy_app/services/insight/insight_generator.dart';
+import 'package:finance_buddy_app/pages/home/daily_view_page.dart';
+import 'package:finance_buddy_app/pages/digest/sunday_digest_page.dart';
+import 'package:finance_buddy_app/pages/settings/settings_page.dart';
+import 'package:finance_buddy_app/widgets/common/animations.dart';
+
+class HomePage extends ConsumerWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const FadeSlideIn(delay: Duration.zero, child: _GreetingSection()),
+          const SizedBox(height: PaisaSpacing.xl),
+          const FadeSlideIn(delay: Duration(milliseconds: 80), child: _WeeklyHeroSection()),
+          const SizedBox(height: PaisaSpacing.xl),
+          const FadeSlideIn(delay: Duration(milliseconds: 160), child: _DailyBreakdownSection()),
+          const SizedBox(height: PaisaSpacing.xl),
+          const FadeSlideIn(delay: Duration(milliseconds: 240), child: _CategoryBreakdownSection()),
+          const SizedBox(height: PaisaSpacing.xl),
+          const FadeSlideIn(delay: Duration(milliseconds: 320), child: _ActionNeededSection()),
+          const FadeSlideIn(delay: Duration(milliseconds: 360), child: _FriendsCardSection()),
+          const FadeSlideIn(delay: Duration(milliseconds: 400), child: _WeeklyInsightSection()),
+          // Show a digest entry-point on Sundays
+          if (DateTime.now().weekday == DateTime.sunday)
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: PaisaSpacing.screenH + 4,
+                vertical: PaisaSpacing.lg,
+              ),
+              child: GestureDetector(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (_) => const SundayDigestPage(),
+                  ),
+                ),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: PaisaSpacing.cardPadding,
+                    vertical: PaisaSpacing.md,
+                  ),
+                  decoration: BoxDecoration(
+                    color: PaisaColors.surfaceHigh,
+                    borderRadius: BorderRadius.circular(PaisaRadii.card),
+                    border: Border.all(color: PaisaColors.border),
+                  ),
+                  child: const Text(
+                    'Your weekly rhythm is ready \u2192',
+                    style: TextStyle(
+                      color: PaisaColors.yellow,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          const SizedBox(height: 100),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Section A: Greeting + Today's Pulse ─────────────
+
+class _GreetingSection extends ConsumerWidget {
+  const _GreetingSection();
+
+  String _greeting(String? name) {
+    final hour = DateTime.now().hour;
+    String time;
+    if (hour < 12) {
+      time = 'Good morning';
+    } else if (hour < 17) {
+      time = 'Good afternoon';
+    } else {
+      time = 'Good evening';
+    }
+    if (name != null && name.isNotEmpty) {
+      return '$time, $name.';
+    }
+    return '$time.';
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final todaySpent = ref.watch(todaySpendingProvider);
+    final todayTopCat = ref.watch(todayTopCategoryProvider);
+    final userName = ref.watch(userNameProvider);
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        PaisaSpacing.screenH + 4,
+        MediaQuery.paddingOf(context).top + PaisaSpacing.lg,
+        PaisaSpacing.screenH + 4,
+        0,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Bell + Settings in top-right
+          Align(
+            alignment: Alignment.centerRight,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const NotificationBell(),
+                GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(builder: (_) => const SettingsPage()),
+                  ),
+                  child: const SizedBox(
+                    width: 40,
+                    height: 40,
+                    child: Icon(
+                      Icons.settings_outlined,
+                      color: PaisaColors.textSecondary,
+                      size: 22,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: PaisaSpacing.sm),
+          // Greeting with user's name
+          Text(
+            _greeting(userName.valueOrNull),
+            style: PaisaTextStyles.greeting,
+          ),
+          const SizedBox(height: PaisaSpacing.sm),
+          // Today's pulse
+          todaySpent.when(
+            data: (spent) {
+              if (spent == 0) {
+                return const Text(
+                  'Nothing spent today. A clean start.',
+                  style: TextStyle(
+                    color: PaisaColors.textSecondary,
+                    fontSize: 15,
+                  ),
+                );
+              }
+              final catName = todayTopCat.valueOrNull;
+              final catSuffix = catName != null ? ' Mostly $catName.' : '';
+              return Text(
+                '₹${spent.toStringAsFixed(0)} spent today.$catSuffix',
+                style: const TextStyle(
+                  color: PaisaColors.textSecondary,
+                  fontSize: 15,
+                ),
+              );
+            },
+            loading: () => const Text(
+              '...',
+              style: TextStyle(color: PaisaColors.textTertiary),
+            ),
+            error: (_, _) => const SizedBox.shrink(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Section B: Weekly Hero Number + Context ─────────
+
+class _WeeklyHeroSection extends ConsumerWidget {
+  const _WeeklyHeroSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final weekStart = ref.watch(selectedWeekProvider);
+    final weeklyTxns = ref.watch(weeklyTransactionsProvider);
+    final delta = ref.watch(weekOverWeekDeltaProvider);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: PaisaSpacing.screenH + 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Section label + week nav
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('THIS WEEK', style: PaisaTextStyles.sectionLabel),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  GestureDetector(
+                    onTap: () => ref.read(selectedWeekProvider.notifier).state =
+                        weekStart.subtract(const Duration(days: 7)),
+                    child: const Icon(Icons.chevron_left,
+                        color: PaisaColors.textTertiary, size: 22),
+                  ),
+                  const SizedBox(width: PaisaSpacing.sm),
+                  GestureDetector(
+                    onTap: () {
+                      final next = weekStart.add(const Duration(days: 7));
+                      if (next.isBefore(DateTime.now())) {
+                        ref.read(selectedWeekProvider.notifier).state = next;
+                      }
+                    },
+                    child: const Icon(Icons.chevron_right,
+                        color: PaisaColors.textTertiary, size: 22),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: PaisaSpacing.md),
+          // Hero amount
+          weeklyTxns.when(
+            data: (txns) {
+              final spent = txns
+                  .where((t) => t.amount < 0)
+                  .fold<double>(0, (s, t) => s + t.amount.abs());
+              return AnimatedAmount(
+                value: spent,
+                prefix: '₹',
+                style: PaisaTextStyles.heroAmount,
+                duration: PaisaMotion.number,
+                curve: PaisaMotion.numberCurve,
+              );
+            },
+            loading: () => const AnimatedAmount(
+                value: 0, prefix: '₹', style: PaisaTextStyles.heroAmount),
+            error: (_, _) => const Text('Error',
+                style: TextStyle(color: PaisaColors.expense)),
+          ),
+          const SizedBox(height: PaisaSpacing.sm),
+          // Delta pill
+          delta.when(
+            data: (pct) {
+              if (pct == 0) return const SizedBox.shrink();
+              final sign = pct > 0 ? '↑' : '↓';
+              final label = '$sign${pct.abs().toStringAsFixed(0)}% vs last week';
+              return ContextualPill(
+                text: label,
+                type: pct > 0 ? DeltaType.negative : DeltaType.positive,
+              );
+            },
+            loading: () => const SizedBox.shrink(),
+            error: (_, _) => const SizedBox.shrink(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Section C: Daily Breakdown Chart ────────────────
+
+class _DailyBreakdownSection extends ConsumerWidget {
+  const _DailyBreakdownSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final weekStart = ref.watch(selectedWeekProvider);
+    final weeklyTxns = ref.watch(weeklyTransactionsProvider);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: PaisaSpacing.screenH),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(left: 4, bottom: PaisaSpacing.cardGap),
+            child: Text('DAILY BREAKDOWN', style: PaisaTextStyles.sectionLabel),
+          ),
+          Container(
+            padding: const EdgeInsets.all(PaisaSpacing.cardPadding),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0xFF1E1E1E), PaisaColors.surface],
+              ),
+              borderRadius: BorderRadius.circular(PaisaRadii.card),
+              boxShadow: PaisaShadows.card,
+            ),
+            child: weeklyTxns.when(
+              data: (txns) => WeeklyBarChart(
+                transactions: txns,
+                weekStart: weekStart,
+                onBarTap: (day) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(
+                        builder: (_) => DailyViewPage(date: day)),
+                  );
+                },
+              ),
+              loading: () => const SizedBox(
+                height: 200,
+                child: Center(
+                    child:
+                        CircularProgressIndicator(color: PaisaColors.yellow)),
+              ),
+              error: (_, _) => const SizedBox(
+                height: 200,
+                child: Center(
+                    child: Text('Error',
+                        style: TextStyle(color: PaisaColors.textTertiary))),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Section D: Where It Went (Category Rows) ───────
+
+class _CategoryBreakdownSection extends ConsumerWidget {
+  const _CategoryBreakdownSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final weeklyTxns = ref.watch(weeklyTransactionsProvider);
+    final merchantCounts = ref.watch(weeklyMerchantCountsProvider);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: PaisaSpacing.screenH + 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('WHERE IT WENT', style: PaisaTextStyles.sectionLabel),
+          const SizedBox(height: PaisaSpacing.md),
+          weeklyTxns.when(
+            data: (txns) {
+              final totals = <TransactionCategory, double>{};
+              for (final t in txns) {
+                if (t.amount < 0) {
+                  final cat = TransactionCategory.values.firstWhere(
+                    (c) => c.name == t.category,
+                    orElse: () => TransactionCategory.other,
+                  );
+                  totals[cat] = (totals[cat] ?? 0) + t.amount.abs();
+                }
+              }
+              if (totals.isEmpty) {
+                return const Text(
+                  'No spending yet this week.',
+                  style: PaisaTextStyles.emptyState,
+                );
+              }
+
+              final sorted = totals.entries.toList()
+                ..sort((a, b) => b.value.compareTo(a.value));
+              final totalSpent =
+                  sorted.fold<double>(0, (s, e) => s + e.value);
+
+              // Get top merchant for subline
+              final counts = merchantCounts.valueOrNull ?? {};
+              String? topMerchantLine;
+              if (counts.isNotEmpty) {
+                final topEntry =
+                    counts.entries.reduce((a, b) => a.value > b.value ? a : b);
+                if (topEntry.value >= 2) {
+                  topMerchantLine =
+                      '${topEntry.key} ${topEntry.value}x this week';
+                }
+              }
+
+              return Column(
+                children: sorted.asMap().entries.map((entry) {
+                  final i = entry.key;
+                  final cat = entry.value.key;
+                  final amount = entry.value.value;
+                  final pct =
+                      totalSpent > 0 ? amount / totalSpent : 0.0;
+                  final isDominant = i == 0;
+                  final catColor = PaisaColors.categoryColor(cat);
+
+                  return Padding(
+                    padding:
+                        const EdgeInsets.only(bottom: PaisaSpacing.md),
+                    child: Row(
+                      children: [
+                        Icon(
+                          cat.iconFill,
+                          size: 22,
+                          color: isDominant
+                              ? catColor
+                              : PaisaColors.textTertiary,
+                        ),
+                        const SizedBox(width: PaisaSpacing.cardGap),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    cat.label,
+                                    style: TextStyle(
+                                      color: isDominant
+                                          ? PaisaColors.textPrimary
+                                          : PaisaColors.textSecondary,
+                                      fontSize: 15,
+                                      fontWeight: isDominant
+                                          ? FontWeight.w600
+                                          : FontWeight.w400,
+                                    ),
+                                  ),
+                                  Text(
+                                    '₹${amount.toStringAsFixed(0)}',
+                                    style: TextStyle(
+                                      color: isDominant
+                                          ? PaisaColors.textPrimary
+                                          : PaisaColors.textTertiary,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(2),
+                                child: LinearProgressIndicator(
+                                  value: pct,
+                                  backgroundColor: PaisaColors.border,
+                                  valueColor: AlwaysStoppedAnimation(
+                                    isDominant
+                                        ? catColor
+                                        : PaisaColors.textTertiary,
+                                  ),
+                                  minHeight: 4,
+                                ),
+                              ),
+                              if (isDominant && topMerchantLine != null) ...[
+                                const SizedBox(height: 4),
+                                Text(
+                                  topMerchantLine,
+                                  style: TextStyle(
+                                    color: catColor.withValues(alpha: 0.7),
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              );
+            },
+            loading: () => const SizedBox.shrink(),
+            error: (_, _) => const SizedBox.shrink(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Section E: Action Needed ────────────────────────
+
+class _ActionNeededSection extends ConsumerWidget {
+  const _ActionNeededSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final unconfirmed = ref.watch(unconfirmedQueueProvider);
+
+    return unconfirmed.when(
+      data: (list) {
+        if (list.isEmpty) return const SizedBox.shrink();
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(
+            PaisaSpacing.screenH + 4,
+            0,
+            PaisaSpacing.screenH + 4,
+            PaisaSpacing.xl,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('ACTION NEEDED', style: PaisaTextStyles.sectionLabel),
+              const SizedBox(height: PaisaSpacing.md),
+              Text(
+                '${list.length} transaction${list.length > 1 ? 's' : ''} need a quick look.',
+                style: const TextStyle(
+                  color: PaisaColors.textSecondary,
+                  fontSize: 15,
+                ),
+              ),
+              const SizedBox(height: PaisaSpacing.md),
+              if (list.length >= 2)
+                NeoPOPButton(
+                  label: 'Confirm All (${list.length})',
+                  onTap: () async {
+                    await HapticFeedback.mediumImpact();
+                    final repo = ref.read(repositoryProvider);
+                    await repo.confirmAllUnconfirmed();
+                  },
+                ),
+              const SizedBox(height: PaisaSpacing.sm),
+              Center(
+                child: GestureDetector(
+                  onTap: () =>
+                      ref.read(selectedTabProvider.notifier).state = 1,
+                  child: const Text(
+                    'Review individually →',
+                    style: TextStyle(
+                      color: PaisaColors.textTertiary,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
+    );
+  }
+}
+
+// ─── Section F: Weekly Insight ───────────────────────
+
+class _WeeklyInsightSection extends ConsumerWidget {
+  const _WeeklyInsightSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final weeklyTxns = ref.watch(weeklyTransactionsProvider);
+    final merchantCounts = ref.watch(weeklyMerchantCountsProvider);
+
+    return weeklyTxns.when(
+      data: (txns) {
+        final expenses = txns.where((t) => t.amount < 0).toList();
+        if (expenses.isEmpty) return const SizedBox.shrink();
+
+        final totalSpent =
+            expenses.fold<double>(0, (s, t) => s + t.amount.abs());
+        final catTotals = <TransactionCategory, double>{};
+        for (final t in expenses) {
+          final cat = TransactionCategory.values.firstWhere(
+            (c) => c.name == t.category,
+            orElse: () => TransactionCategory.other,
+          );
+          catTotals[cat] = (catTotals[cat] ?? 0) + t.amount.abs();
+        }
+        final sortedCats = catTotals.entries.toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
+
+        final counts = merchantCounts.valueOrNull ?? {};
+        final insight = generateWeeklyInsight(
+          sortedCats: sortedCats,
+          totalSpent: totalSpent,
+          merchantCounts: counts,
+        );
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(
+              horizontal: PaisaSpacing.screenH + 4),
+          child: Text(insight, style: PaisaTextStyles.insightBody),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
+    );
+  }
+}
+
+// ─── With Friends Card ───────────────────────────────
+
+class _FriendsCardSection extends ConsumerWidget {
+  const _FriendsCardSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final balanceAsync = ref.watch(totalFriendBalanceProvider);
+    final contactsAsync = ref.watch(friendContactsProvider);
+
+    return balanceAsync.when(
+      data: (balance) {
+        if (balance.totalReceivable == 0 && balance.totalPayable == 0) {
+          return const SizedBox.shrink();
+        }
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(
+            PaisaSpacing.screenH, 0, PaisaSpacing.screenH, PaisaSpacing.xl,
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(PaisaSpacing.cardPadding),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0xFF1E1E1E), PaisaColors.surface],
+              ),
+              borderRadius: BorderRadius.circular(PaisaRadii.card),
+              boxShadow: PaisaShadows.card,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('WITH FRIENDS', style: PaisaTextStyles.sectionLabel),
+                    GestureDetector(
+                      onTap: () => ref.read(selectedTabProvider.notifier).state = 3,
+                      child: const Text(
+                        'See all →',
+                        style: TextStyle(color: PaisaColors.yellow, fontSize: 12, fontWeight: FontWeight.w500),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: PaisaSpacing.md),
+                if (balance.totalReceivable > 0)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text(
+                      '↓ ₹${balance.totalReceivable.toStringAsFixed(0)} to collect',
+                      style: const TextStyle(color: PaisaColors.income, fontSize: 14, fontWeight: FontWeight.w500),
+                    ),
+                  ),
+                if (balance.totalPayable > 0)
+                  Text(
+                    '�� ₹${balance.totalPayable.toStringAsFixed(0)} to pay back',
+                    style: const TextStyle(color: PaisaColors.amber, fontSize: 14, fontWeight: FontWeight.w500),
+                  ),
+                contactsAsync.when(
+                  data: (contacts) {
+                    if (contacts.isEmpty) return const SizedBox.shrink();
+                    return Padding(
+                      padding: const EdgeInsets.only(top: PaisaSpacing.md),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: contacts.take(4).map((c) {
+                            Color chipColor;
+                            try {
+                              chipColor = Color(int.parse(c.avatarColour.replaceFirst('#', '0xFF')));
+                            } on FormatException {
+                              chipColor = PaisaColors.textTertiary;
+                            }
+                            return Padding(
+                              padding: const EdgeInsets.only(right: PaisaSpacing.sm),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: PaisaColors.surface,
+                                  borderRadius: BorderRadius.circular(PaisaRadii.pill),
+                                  border: Border.all(color: PaisaColors.border),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 10,
+                                      backgroundColor: chipColor,
+                                      child: Text(
+                                        c.name.isNotEmpty ? c.name[0].toUpperCase() : '?',
+                                        style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(c.name, style: const TextStyle(color: PaisaColors.textSecondary, fontSize: 12)),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    );
+                  },
+                  loading: () => const SizedBox.shrink(),
+                  error: (_, _) => const SizedBox.shrink(),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
+    );
+  }
+}
