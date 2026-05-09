@@ -52,7 +52,7 @@ class PennyChatNotifier extends StateNotifier<List<PennyMessage>> {
     try {
       final reply = await _service.ask(trimmed);
       state = [...state, PennyMessage(text: reply, isUser: false)];
-    } catch (_) {
+    } on Exception catch (_) {
       state = [
         ...state,
         PennyMessage(

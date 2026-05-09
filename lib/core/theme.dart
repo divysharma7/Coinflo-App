@@ -44,7 +44,7 @@ class SpendlerTheme {
         onSurface: SpendlerColors.textPrimary,
       ),
       textTheme: textTheme,
-      appBarTheme: AppBarTheme(
+      appBarTheme: const AppBarTheme(
         backgroundColor: SpendlerColors.scaffold,
         foregroundColor: SpendlerColors.textPrimary,
         elevation: 0,
@@ -96,13 +96,13 @@ class SpendlerTheme {
         }),
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return TextStyle(
+            return const TextStyle(
               fontSize: SpendlerTypo.captionSize,
               fontWeight: SpendlerTypo.captionWeight,
               color: SpendlerColors.primary,
             );
           }
-          return TextStyle(
+          return const TextStyle(
             fontSize: SpendlerTypo.captionSize,
             fontWeight: SpendlerTypo.captionWeight,
             color: SpendlerColors.textTertiary,

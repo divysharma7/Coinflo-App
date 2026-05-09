@@ -5,7 +5,6 @@ import 'package:finance_buddy_app/core/tokens.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/pages/home/home_page.dart';
 import 'package:finance_buddy_app/pages/analytics/analytics_page.dart';
-import 'package:finance_buddy_app/pages/transactions/transactions_page.dart';
 import 'package:finance_buddy_app/pages/people/people_page.dart';
 import 'package:finance_buddy_app/pages/my_page/my_page.dart';
 import 'package:finance_buddy_app/pages/plan/plan_page.dart';
@@ -31,25 +30,6 @@ final _destinations = [
   _Destination(icon: PhosphorIcons.chartPieSlice(), selectedIcon: PhosphorIconsFill.chartPieSlice, label: 'Plan'),
   _Destination(icon: PhosphorIcons.user(), selectedIcon: PhosphorIconsFill.user, label: 'Me'),
 ];
-
-/// Placeholder for the Plan tab until a dedicated page is built.
-class _PlanPlaceholder extends StatelessWidget {
-  const _PlanPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          PhosphorIcon(PhosphorIcons.mapTrifold(), size: 48, color: SpendlerColors.textTertiary),
-          const SizedBox(height: SpendlerSpacing.md),
-          Text('Budget plans coming soon', style: SpendlerTextStyles.emptyState),
-        ],
-      ),
-    );
-  }
-}
 
 class ShellPage extends ConsumerWidget {
   const ShellPage({super.key});

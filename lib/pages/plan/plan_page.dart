@@ -118,11 +118,11 @@ class _HeroHeader extends ConsumerWidget {
                           color: SpendlerColors.heroTextSecondary,
                         ),
                       ),
-                      error: (_, __) => const SizedBox.shrink(),
+                      error: (_, _) => const SizedBox.shrink(),
                     );
                   },
                   loading: () => const SizedBox.shrink(),
-                  error: (_, __) => const SizedBox.shrink(),
+                  error: (_, _) => const SizedBox.shrink(),
                 ),
               ],
             ),
@@ -149,7 +149,7 @@ class _BudgetsSection extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
+            const Text(
               'BUDGETS',
               style: TextStyle(
                 fontSize: 11,
@@ -178,7 +178,7 @@ class _BudgetsSection extends ConsumerWidget {
                       color: SpendlerColors.accent,
                     ),
                     const SizedBox(width: 4),
-                    Text(
+                    const Text(
                       'Add',
                       style: TextStyle(
                         fontSize: 12,
@@ -221,11 +221,11 @@ class _BudgetsSection extends ConsumerWidget {
                 );
               },
               loading: () => const _LoadingCard(),
-              error: (_, __) => const SizedBox.shrink(),
+              error: (_, _) => const SizedBox.shrink(),
             );
           },
           loading: () => const _LoadingCard(),
-          error: (_, __) => const SizedBox.shrink(),
+          error: (_, _) => const SizedBox.shrink(),
         ),
       ],
     );
@@ -415,7 +415,7 @@ class _GoalsSection extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
+            const Text(
               'GOALS',
               style: TextStyle(
                 fontSize: 11,
@@ -444,7 +444,7 @@ class _GoalsSection extends ConsumerWidget {
                       color: SpendlerColors.accent,
                     ),
                     const SizedBox(width: 4),
-                    Text(
+                    const Text(
                       'Add',
                       style: TextStyle(
                         fontSize: 12,
@@ -485,7 +485,7 @@ class _GoalsSection extends ConsumerWidget {
             );
           },
           loading: () => const _LoadingCard(),
-          error: (_, __) => const SizedBox.shrink(),
+          error: (_, _) => const SizedBox.shrink(),
         ),
       ],
     );
@@ -975,7 +975,7 @@ class _AddGoalSheetState extends ConsumerState<_AddGoalSheet> {
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: _iconOptions.length,
-              separatorBuilder: (_, __) =>
+              separatorBuilder: (_, _) =>
                   const SizedBox(width: SpendlerSpacing.sm),
               itemBuilder: (_, i) {
                 final (iconName, label) = _iconOptions[i];

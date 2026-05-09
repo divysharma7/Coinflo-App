@@ -103,7 +103,7 @@ class HomePage extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(SpendlerRadii.card),
                     border: Border.all(color: SpendlerColors.border),
                   ),
-                  child: Text(
+                  child: const Text(
                     'View monthly report \u2192',
                     style: TextStyle(
                       color: SpendlerColors.primary,
@@ -145,7 +145,7 @@ class HomePage extends ConsumerWidget {
                       Container(
                         width: 28,
                         height: 28,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: SpendlerColors.primary,
                           shape: BoxShape.circle,
                         ),
@@ -161,7 +161,7 @@ class HomePage extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      Text(
+                      const Text(
                         'Ask Penny a question \u2192',
                         style: TextStyle(
                           color: SpendlerColors.primary,

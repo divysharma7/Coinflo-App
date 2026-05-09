@@ -51,7 +51,7 @@ class _PennyPageState extends ConsumerState<PennyPage> {
     final isProcessing = ref.watch(pennyProcessingProvider);
 
     // Auto-scroll when new messages arrive
-    ref.listen<List<PennyMessage>>(pennyChatProvider, (_, __) {
+    ref.listen<List<PennyMessage>>(pennyChatProvider, (_, _) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
     });
 
@@ -461,7 +461,7 @@ class _InputBar extends StatelessWidget {
                   color: SpendlerColors.textPrimary,
                   fontSize: 15,
                 ),
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: 'Ask Penny anything...',
                   hintStyle: TextStyle(
                     color: SpendlerColors.textTertiary,
@@ -469,7 +469,7 @@ class _InputBar extends StatelessWidget {
                     fontWeight: FontWeight.w400,
                   ),
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(
+                  contentPadding: EdgeInsets.symmetric(
                     horizontal: SpendlerSpacing.md,
                     vertical: SpendlerSpacing.cardGap,
                   ),

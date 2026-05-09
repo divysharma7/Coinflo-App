@@ -53,7 +53,9 @@ class PennyService {
   Future<String?> _handleTodaySpending(String q) async {
     if (!_matches(q, [
       'today', 'spent today', 'today spend', 'aaj', 'how much today',
-    ])) return null;
+    ])) {
+      return null;
+    }
 
     final amount = await _repo.getTodaySpending();
     final topCat = await _repo.getTodayTopCategory();
@@ -70,7 +72,9 @@ class PennyService {
   Future<String?> _handleThisWeekSpending(String q) async {
     if (!_matches(q, [
       'this week', 'week spend', 'weekly', 'is hafte', 'current week',
-    ])) return null;
+    ])) {
+      return null;
+    }
 
     final now = DateTime.now();
     final monday = DateTime(now.year, now.month, now.day)
@@ -88,7 +92,9 @@ class PennyService {
     if (!_matches(q, [
       'this month', 'month spend', 'monthly total', 'is mahine',
       'current month',
-    ])) return null;
+    ])) {
+      return null;
+    }
 
     final now = DateTime.now();
     final txns = await _repo.getTransactionsForMonth(now);
@@ -119,7 +125,9 @@ class PennyService {
   Future<String?> _handleLastMonthSpending(String q) async {
     if (!_matches(q, [
       'last month', 'previous month', 'pichla mahina',
-    ])) return null;
+    ])) {
+      return null;
+    }
 
     final now = DateTime.now();
     final lastMonth = DateTime(now.year, now.month - 1);
@@ -150,7 +158,9 @@ class PennyService {
     if (!_matches(q, [
       'category breakdown', 'by category', 'categories',
       'where am i spending', 'where do i spend', 'breakdown',
-    ])) return null;
+    ])) {
+      return null;
+    }
 
     final now = DateTime.now();
     final catTotals = await _repo.getCategoryTotalsForMonth(now);
@@ -188,9 +198,13 @@ class PennyService {
     // Also match common aliases
     if (matched == null) {
       if (q.contains('travel') || q.contains('cab') || q.contains('uber') ||
-          q.contains('ola')) matched = 'transport';
+          q.contains('ola')) {
+        matched = 'transport';
+      }
       if (q.contains('grocery') || q.contains('zomato') || q.contains('swiggy') ||
-          q.contains('eat') || q.contains('restaurant')) matched = 'food';
+          q.contains('eat') || q.contains('restaurant')) {
+        matched = 'food';
+      }
       if (q.contains('housing') || q.contains('apartment')) matched = 'rent';
     }
     if (matched == null) return null;
@@ -199,7 +213,9 @@ class PennyService {
     if (!_matches(q, [
       'how much', 'spend', 'spent', 'total', 'kitna', 'expense',
       matched, // allow bare category name as a question
-    ])) return null;
+    ])) {
+      return null;
+    }
 
     final now = DateTime.now();
     final catTotals = await _repo.getCategoryTotalsForMonth(now);
@@ -221,7 +237,9 @@ class PennyService {
     if (!_matches(q, [
       'top merchant', 'where do i shop', 'most frequent', 'top places',
       'favourite', 'favorite', 'frequent merchant',
-    ])) return null;
+    ])) {
+      return null;
+    }
 
     final merchants = await _repo.getTopMerchants(5);
     if (merchants.isEmpty) {
@@ -245,7 +263,9 @@ class PennyService {
     if (!_matches(q, [
       'week over week', 'compared to last week', 'vs last week',
       'week comparison', 'week trend',
-    ])) return null;
+    ])) {
+      return null;
+    }
 
     final delta = await _repo.getWeekOverWeekDelta();
     final now = DateTime.now();
@@ -277,7 +297,9 @@ class PennyService {
     if (!_matches(q, [
       'month over month', 'compared to last month', 'vs last month',
       'month comparison', 'monthly trend',
-    ])) return null;
+    ])) {
+      return null;
+    }
 
     final comparison = await _repo.getMonthlyComparison();
     if (comparison.isEmpty) {
@@ -311,7 +333,9 @@ class PennyService {
     if (!_matches(q, [
       'biggest', 'largest', 'most expensive', 'highest', 'max spend',
       'sabse bada',
-    ])) return null;
+    ])) {
+      return null;
+    }
 
     final now = DateTime.now();
     final txns = await _repo.getTransactionsForMonth(now);
@@ -334,7 +358,9 @@ class PennyService {
     if (!_matches(q, [
       'how many transactions', 'transaction count', 'number of transactions',
       'kitne transactions',
-    ])) return null;
+    ])) {
+      return null;
+    }
 
     final now = DateTime.now();
     final txns = await _repo.getTransactionsForMonth(now);
@@ -349,7 +375,9 @@ class PennyService {
     if (!_matches(q, [
       'daily average', 'average per day', 'per day', 'average spend',
       'avg spend',
-    ])) return null;
+    ])) {
+      return null;
+    }
 
     final now = DateTime.now();
     final txns = await _repo.getTransactionsForMonth(now);
@@ -364,7 +392,9 @@ class PennyService {
   Future<String?> _handleIncome(String q) async {
     if (!_matches(q, [
       'income', 'earned', 'received', 'credit', 'salary',
-    ])) return null;
+    ])) {
+      return null;
+    }
 
     final now = DateTime.now();
     final txns = await _repo.getTransactionsForMonth(now);
@@ -382,7 +412,9 @@ class PennyService {
   Future<String?> _handleSplits(String q) async {
     if (!_matches(q, [
       'split', 'owe', 'pending split', 'unsettled', 'settle',
-    ])) return null;
+    ])) {
+      return null;
+    }
 
     final splits = await _repo.getUnsettledSplits();
     if (splits.isEmpty) {
@@ -399,7 +431,9 @@ class PennyService {
   Future<String?> _handleHelp(String q) async {
     if (!_matches(q, [
       'help', 'what can you', 'can you do', 'commands', 'kya kar sakti',
-    ])) return null;
+    ])) {
+      return null;
+    }
 
     return "I can help you understand your spending! Try asking me:\n\n"
         "- *How much did I spend today?*\n"
