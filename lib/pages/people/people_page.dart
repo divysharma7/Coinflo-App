@@ -25,10 +25,10 @@ class PeoplePage extends ConsumerWidget {
           SizedBox(height: MediaQuery.paddingOf(context).top + 16),
           // Header row
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: PaisaSpacing.screenH),
+            padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH),
             child: Row(
               children: [
-                const Text('PEOPLE', style: PaisaTextStyles.sectionLabel),
+                const Text('PEOPLE', style: SpendlerTextStyles.sectionLabel),
                 const Spacer(),
                 // + button
                 GestureDetector(
@@ -37,12 +37,12 @@ class PeoplePage extends ConsumerWidget {
                     width: 32,
                     height: 32,
                     decoration: BoxDecoration(
-                      color: PaisaColors.yellow.withValues(alpha: 0.12),
+                      color: SpendlerColors.yellow.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: PhosphorIcon(
                       PhosphorIcons.plus(),
-                      color: PaisaColors.yellow,
+                      color: SpendlerColors.yellow,
                       size: 18,
                     ),
                   ),
@@ -50,14 +50,14 @@ class PeoplePage extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: PaisaSpacing.md),
+          const SizedBox(height: SpendlerSpacing.md),
 
           // Tab bar
           const TabBar(
-            indicatorColor: PaisaColors.yellow,
-            labelColor: PaisaColors.yellow,
-            unselectedLabelColor: PaisaColors.textTertiary,
-            dividerColor: PaisaColors.border,
+            indicatorColor: SpendlerColors.yellow,
+            labelColor: SpendlerColors.yellow,
+            unselectedLabelColor: SpendlerColors.textTertiary,
+            dividerColor: SpendlerColors.border,
             tabs: [
               Tab(text: 'Friends'),
               Tab(text: 'Family'),
@@ -79,55 +79,55 @@ class PeoplePage extends ConsumerWidget {
   }
 
   void _showAddOptions(BuildContext context) {
-    showPaisaSheet<void>(
+    showSpendlerSheet<void>(
       context: context,
       builder: (_) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('ADD', style: PaisaTextStyles.sectionLabel),
-          const SizedBox(height: PaisaSpacing.lg),
+          const Text('ADD', style: SpendlerTextStyles.sectionLabel),
+          const SizedBox(height: SpendlerSpacing.lg),
           _AddOptionTile(
             icon: PhosphorIcons.userPlus(),
             label: 'Add a friend',
             subtitle: 'Create a new contact for splits',
-            color: PaisaColors.yellow,
+            color: SpendlerColors.yellow,
             onTap: () {
               Navigator.pop(context);
-              showPaisaSheet<void>(
+              showSpendlerSheet<void>(
                 context: context,
                 builder: (_) => const FriendCreationSheet(),
               );
             },
           ),
-          const SizedBox(height: PaisaSpacing.sm),
+          const SizedBox(height: SpendlerSpacing.sm),
           _AddOptionTile(
             icon: PhosphorIcons.splitVertical(),
             label: 'Add a split',
             subtitle: 'Record money owed or owing',
-            color: PaisaColors.income,
+            color: SpendlerColors.income,
             onTap: () {
               Navigator.pop(context);
-              showPaisaSheet<void>(
+              showSpendlerSheet<void>(
                 context: context,
                 builder: (_) => const AddSplitSheet(),
               );
             },
           ),
-          const SizedBox(height: PaisaSpacing.sm),
+          const SizedBox(height: SpendlerSpacing.sm),
           _AddOptionTile(
             icon: PhosphorIcons.arrowsDownUp(),
             label: 'Family entry',
             subtitle: 'Inflow or outflow',
-            color: PaisaColors.gold,
+            color: SpendlerColors.gold,
             onTap: () {
               Navigator.pop(context);
-              showPaisaSheet<void>(
+              showSpendlerSheet<void>(
                 context: context,
                 builder: (_) => const FamilyEntrySheet(),
               );
             },
           ),
-          const SizedBox(height: PaisaSpacing.md),
+          const SizedBox(height: SpendlerSpacing.md),
         ],
       ),
     );
@@ -154,10 +154,10 @@ class _AddOptionTile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(PaisaSpacing.cardPadding),
+        padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
         decoration: BoxDecoration(
-          color: PaisaColors.surface,
-          borderRadius: BorderRadius.circular(PaisaRadii.button),
+          color: SpendlerColors.surface,
+          borderRadius: BorderRadius.circular(SpendlerRadii.button),
         ),
         child: Row(
           children: [
@@ -175,12 +175,12 @@ class _AddOptionTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label, style: const TextStyle(color: PaisaColors.textPrimary, fontSize: 15, fontWeight: FontWeight.w500)),
-                  Text(subtitle, style: const TextStyle(color: PaisaColors.textTertiary, fontSize: 12)),
+                  Text(label, style: const TextStyle(color: SpendlerColors.textPrimary, fontSize: 15, fontWeight: FontWeight.w500)),
+                  Text(subtitle, style: const TextStyle(color: SpendlerColors.textTertiary, fontSize: 12)),
                 ],
               ),
             ),
-            PhosphorIcon(PhosphorIcons.caretRight(), color: PaisaColors.textTertiary, size: 16),
+            PhosphorIcon(PhosphorIcons.caretRight(), color: SpendlerColors.textTertiary, size: 16),
           ],
         ),
       ),
@@ -201,7 +201,7 @@ class _FriendsTab extends ConsumerWidget {
     final contactsAsync = ref.watch(friendContactsProvider);
 
     return ListView(
-      padding: const EdgeInsets.all(PaisaSpacing.screenH),
+      padding: const EdgeInsets.all(SpendlerSpacing.screenH),
       children: [
         // Summary banner
         balanceAsync.when(
@@ -210,15 +210,15 @@ class _FriendsTab extends ConsumerWidget {
               return const SizedBox.shrink();
             }
             return Container(
-              margin: const EdgeInsets.only(bottom: PaisaSpacing.md),
-              padding: const EdgeInsets.all(PaisaSpacing.cardPadding),
+              margin: const EdgeInsets.only(bottom: SpendlerSpacing.md),
+              padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Color(0xFF1E1E1E), PaisaColors.surface],
+                  colors: [Color(0xFF1E1E1E), SpendlerColors.surface],
                 ),
-                borderRadius: BorderRadius.circular(PaisaRadii.card),
+                borderRadius: BorderRadius.circular(SpendlerRadii.card),
               ),
               child: Row(
                 children: [
@@ -226,29 +226,29 @@ class _FriendsTab extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('TO COLLECT', style: PaisaTextStyles.sectionLabel),
+                        const Text('TO COLLECT', style: SpendlerTextStyles.sectionLabel),
                         const SizedBox(height: 4),
                         AnimatedAmount(
                           value: bal.totalReceivable,
-                          prefix: '₹',
-                          style: const TextStyle(color: PaisaColors.income, fontSize: 22, fontWeight: FontWeight.w700),
+                          prefix: '\$',
+                          style: const TextStyle(color: SpendlerColors.income, fontSize: 22, fontWeight: FontWeight.w700),
                         ),
                       ],
                     ),
                   ),
-                  Container(width: 1, height: 40, color: PaisaColors.border),
+                  Container(width: 1, height: 40, color: SpendlerColors.border),
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.only(left: PaisaSpacing.md),
+                      padding: const EdgeInsets.only(left: SpendlerSpacing.md),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('TO PAY', style: PaisaTextStyles.sectionLabel),
+                          const Text('TO PAY', style: SpendlerTextStyles.sectionLabel),
                           const SizedBox(height: 4),
                           AnimatedAmount(
                             value: bal.totalPayable,
-                            prefix: '₹',
-                            style: const TextStyle(color: PaisaColors.amber, fontSize: 22, fontWeight: FontWeight.w700),
+                            prefix: '\$',
+                            style: const TextStyle(color: SpendlerColors.amber, fontSize: 22, fontWeight: FontWeight.w700),
                           ),
                         ],
                       ),
@@ -267,13 +267,13 @@ class _FriendsTab extends ConsumerWidget {
           data: (contacts) {
             if (contacts.isEmpty) {
               return Padding(
-                padding: const EdgeInsets.symmetric(vertical: PaisaSpacing.xxl),
+                padding: const EdgeInsets.symmetric(vertical: SpendlerSpacing.xxl),
                 child: Center(
                   child: Column(
                     children: [
-                      PhosphorIcon(PhosphorIcons.usersThree(), size: 48, color: PaisaColors.textTertiary),
-                      const SizedBox(height: PaisaSpacing.md),
-                      const Text('Add a friend to start\ntracking splits.', style: PaisaTextStyles.emptyState, textAlign: TextAlign.center),
+                      PhosphorIcon(PhosphorIcons.usersThree(), size: 48, color: SpendlerColors.textTertiary),
+                      const SizedBox(height: SpendlerSpacing.md),
+                      const Text('Add a friend to start\ntracking splits.', style: SpendlerTextStyles.emptyState, textAlign: TextAlign.center),
                     ],
                   ),
                 ),
@@ -282,13 +282,13 @@ class _FriendsTab extends ConsumerWidget {
             return Column(
               children: contacts
                   .map((c) => Padding(
-                        padding: const EdgeInsets.only(bottom: PaisaSpacing.cardGap),
+                        padding: const EdgeInsets.only(bottom: SpendlerSpacing.cardGap),
                         child: _FriendCard(contact: c),
                       ))
                   .toList(),
             );
           },
-          loading: () => const Center(child: Padding(padding: EdgeInsets.all(PaisaSpacing.xl), child: CircularProgressIndicator(color: PaisaColors.yellow, strokeWidth: 2))),
+          loading: () => const Center(child: Padding(padding: EdgeInsets.all(SpendlerSpacing.xl), child: CircularProgressIndicator(color: SpendlerColors.yellow, strokeWidth: 2))),
           error: (_, _) => const SizedBox.shrink(),
         ),
       ],
@@ -308,7 +308,7 @@ class _FriendCard extends ConsumerWidget {
     try {
       return Color(int.parse('FF${hex.replaceFirst('#', '')}', radix: 16));
     } on FormatException {
-      return PaisaColors.textTertiary;
+      return SpendlerColors.textTertiary;
     }
   }
 
@@ -322,10 +322,10 @@ class _FriendCard extends ConsumerWidget {
         gradient: const LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [Color(0xFF1E1E1E), PaisaColors.surface],
+          colors: [Color(0xFF1E1E1E), SpendlerColors.surface],
         ),
-        borderRadius: BorderRadius.circular(PaisaRadii.card),
-        boxShadow: PaisaShadows.card,
+        borderRadius: BorderRadius.circular(SpendlerRadii.card),
+        boxShadow: SpendlerShadows.card,
       ),
       child: Column(
         children: [
@@ -349,9 +349,9 @@ class _FriendCard extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(contact.name, style: const TextStyle(color: PaisaColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w600)),
+                      Text(contact.name, style: const TextStyle(color: SpendlerColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w600)),
                       if (contact.note != null && contact.note!.isNotEmpty)
-                        Text(contact.note!, style: const TextStyle(color: PaisaColors.textTertiary, fontSize: 12)),
+                        Text(contact.note!, style: const TextStyle(color: SpendlerColors.textTertiary, fontSize: 12)),
                     ],
                   ),
                 ),
@@ -370,15 +370,15 @@ class _FriendCard extends ConsumerWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   decoration: BoxDecoration(
-                    color: PaisaColors.income.withValues(alpha: 0.06),
-                    borderRadius: const BorderRadius.vertical(bottom: Radius.circular(PaisaRadii.card)),
+                    color: SpendlerColors.income.withValues(alpha: 0.06),
+                    borderRadius: const BorderRadius.vertical(bottom: Radius.circular(SpendlerRadii.card)),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      PhosphorIcon(PhosphorIcons.checkCircle(), color: PaisaColors.income, size: 16),
+                      PhosphorIcon(PhosphorIcons.checkCircle(), color: SpendlerColors.income, size: 16),
                       const SizedBox(width: 6),
-                      const Text('All settled', style: TextStyle(color: PaisaColors.income, fontSize: 13, fontWeight: FontWeight.w500)),
+                      const Text('All settled', style: TextStyle(color: SpendlerColors.income, fontSize: 13, fontWeight: FontWeight.w500)),
                     ],
                   ),
                 );
@@ -389,11 +389,11 @@ class _FriendCard extends ConsumerWidget {
                 child: Column(
                   children: [
                     if (iOwe > 0)
-                      _BalanceBar(label: 'You owe', amount: iOwe, color: PaisaColors.amber, icon: PhosphorIcons.arrowUpRight()),
+                      _BalanceBar(label: 'You owe', amount: iOwe, color: SpendlerColors.amber, icon: PhosphorIcons.arrowUpRight()),
                     if (iOwe > 0 && theyOwe > 0)
                       const SizedBox(height: 8),
                     if (theyOwe > 0)
-                      _BalanceBar(label: 'Owes you', amount: theyOwe, color: PaisaColors.income, icon: PhosphorIcons.arrowDownLeft()),
+                      _BalanceBar(label: 'Owes you', amount: theyOwe, color: SpendlerColors.income, icon: PhosphorIcons.arrowDownLeft()),
                     const SizedBox(height: 12),
                     // Settlement buttons
                     Row(
@@ -402,7 +402,7 @@ class _FriendCard extends ConsumerWidget {
                           Expanded(
                             child: _ActionBtn(
                               label: 'I Paid',
-                              color: PaisaColors.amber,
+                              color: SpendlerColors.amber,
                               onTap: () => _markSettled(context, ref, contact.id, 'i_owe_them', splits),
                             ),
                           ),
@@ -412,7 +412,7 @@ class _FriendCard extends ConsumerWidget {
                           Expanded(
                             child: _ActionBtn(
                               label: 'They Paid',
-                              color: PaisaColors.income,
+                              color: SpendlerColors.income,
                               onTap: () => _markSettled(context, ref, contact.id, 'they_owe_me', splits),
                             ),
                           ),
@@ -422,7 +422,7 @@ class _FriendCard extends ConsumerWidget {
                 ),
               );
             },
-            loading: () => const Padding(padding: EdgeInsets.all(16), child: Center(child: CircularProgressIndicator(color: PaisaColors.yellow, strokeWidth: 2))),
+            loading: () => const Padding(padding: EdgeInsets.all(16), child: Center(child: CircularProgressIndicator(color: SpendlerColors.yellow, strokeWidth: 2))),
             error: (_, _) => const SizedBox.shrink(),
           ),
         ],
@@ -442,7 +442,7 @@ class _FriendCard extends ConsumerWidget {
     }
 
     // Multiple items — show picker
-    showPaisaSheet<void>(
+    showSpendlerSheet<void>(
       context: context,
       builder: (_) => _SettlementPicker(
         splits: pending,
@@ -485,8 +485,8 @@ class _SettlementPickerState extends ConsumerState<_SettlementPicker> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(title.toUpperCase(), style: PaisaTextStyles.sectionLabel),
-        const SizedBox(height: PaisaSpacing.md),
+        Text(title.toUpperCase(), style: SpendlerTextStyles.sectionLabel),
+        const SizedBox(height: SpendlerSpacing.md),
         ...widget.splits.map((s) {
           final selected = _selected.contains(s.id);
           return GestureDetector(
@@ -498,32 +498,32 @@ class _SettlementPickerState extends ConsumerState<_SettlementPicker> {
               }
             }),
             child: Container(
-              margin: const EdgeInsets.only(bottom: PaisaSpacing.sm),
+              margin: const EdgeInsets.only(bottom: SpendlerSpacing.sm),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: selected ? PaisaColors.yellow.withValues(alpha: 0.08) : PaisaColors.surface,
-                borderRadius: BorderRadius.circular(PaisaRadii.button),
+                color: selected ? SpendlerColors.yellow.withValues(alpha: 0.08) : SpendlerColors.surface,
+                borderRadius: BorderRadius.circular(SpendlerRadii.button),
                 border: Border.all(
-                  color: selected ? PaisaColors.yellow : PaisaColors.border,
+                  color: selected ? SpendlerColors.yellow : SpendlerColors.border,
                 ),
               ),
               child: Row(
                 children: [
                   Icon(
                     selected ? Icons.check_circle : Icons.circle_outlined,
-                    color: selected ? PaisaColors.yellow : PaisaColors.textTertiary,
+                    color: selected ? SpendlerColors.yellow : SpendlerColors.textTertiary,
                     size: 20,
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      '₹${s.amount.toStringAsFixed(0)}',
-                      style: const TextStyle(color: PaisaColors.textPrimary, fontSize: 15, fontWeight: FontWeight.w500),
+                      '\$${s.amount.toStringAsFixed(0)}',
+                      style: const TextStyle(color: SpendlerColors.textPrimary, fontSize: 15, fontWeight: FontWeight.w500),
                     ),
                   ),
                   Text(
                     DateFormat('d MMM').format(s.createdAt),
-                    style: const TextStyle(color: PaisaColors.textTertiary, fontSize: 12),
+                    style: const TextStyle(color: SpendlerColors.textTertiary, fontSize: 12),
                   ),
                 ],
               ),
@@ -540,14 +540,14 @@ class _SettlementPickerState extends ConsumerState<_SettlementPicker> {
             }
           }),
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: PaisaSpacing.sm),
+            padding: const EdgeInsets.symmetric(vertical: SpendlerSpacing.sm),
             child: Text(
               _selected.length == widget.splits.length ? 'Deselect all' : 'Select all',
-              style: const TextStyle(color: PaisaColors.yellow, fontSize: 13, fontWeight: FontWeight.w500),
+              style: const TextStyle(color: SpendlerColors.yellow, fontSize: 13, fontWeight: FontWeight.w500),
             ),
           ),
         ),
-        const SizedBox(height: PaisaSpacing.md),
+        const SizedBox(height: SpendlerSpacing.md),
         NeoPOPButton(
           label: 'Mark Settled (${_selected.length})',
           onTap: _selected.isEmpty
@@ -580,29 +580,29 @@ class _FamilyTab extends ConsumerWidget {
     final outflows = ref.watch(familyOutflowsProvider);
 
     return ListView(
-      padding: const EdgeInsets.all(PaisaSpacing.screenH),
+      padding: const EdgeInsets.all(SpendlerSpacing.screenH),
       children: [
         // Total card
         wealth.when(
           data: (total) => Container(
-            margin: const EdgeInsets.only(bottom: PaisaSpacing.md),
-            padding: const EdgeInsets.all(PaisaSpacing.cardPadding),
+            margin: const EdgeInsets.only(bottom: SpendlerSpacing.md),
+            padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [Color(0xFF1E1E1E), PaisaColors.surface],
+                colors: [Color(0xFF1E1E1E), SpendlerColors.surface],
               ),
-              borderRadius: BorderRadius.circular(PaisaRadii.card),
+              borderRadius: BorderRadius.circular(SpendlerRadii.card),
             ),
             child: Column(
               children: [
-                const Text('NET FAMILY FLOW', style: PaisaTextStyles.sectionLabel),
-                const SizedBox(height: PaisaSpacing.sm),
+                const Text('NET FAMILY FLOW', style: SpendlerTextStyles.sectionLabel),
+                const SizedBox(height: SpendlerSpacing.sm),
                 AnimatedAmount(
                   value: total,
-                  prefix: '₹',
-                  style: const TextStyle(color: PaisaColors.gold, fontSize: 28, fontWeight: FontWeight.w700),
+                  prefix: '\$',
+                  style: const TextStyle(color: SpendlerColors.gold, fontSize: 28, fontWeight: FontWeight.w700),
                 ),
               ],
             ),
@@ -616,19 +616,19 @@ class _FamilyTab extends ConsumerWidget {
           label: 'INFLOWS',
           data: inflows,
           icon: PhosphorIconsFill.arrowCircleDown,
-          color: PaisaColors.income,
-          titleBuilder: (e) => '₹${e.amount.toStringAsFixed(0)} from ${e.fromPerson}',
+          color: SpendlerColors.income,
+          titleBuilder: (e) => '\$${e.amount.toStringAsFixed(0)} from ${e.fromPerson}',
           emptyText: 'No inflows yet.',
         ),
-        const SizedBox(height: PaisaSpacing.lg),
+        const SizedBox(height: SpendlerSpacing.lg),
 
         // Outflows
         _FamilyList(
           label: 'OUTFLOWS',
           data: outflows,
           icon: PhosphorIconsFill.arrowCircleUp,
-          color: PaisaColors.expense,
-          titleBuilder: (e) => '₹${e.amount.toStringAsFixed(0)} to ${e.fromPerson}',
+          color: SpendlerColors.expense,
+          titleBuilder: (e) => '\$${e.amount.toStringAsFixed(0)} to ${e.fromPerson}',
           emptyText: 'No outflows yet.',
         ),
       ],
@@ -658,14 +658,14 @@ class _FamilyList extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: PaisaTextStyles.sectionLabel),
-        const SizedBox(height: PaisaSpacing.sm),
+        Text(label, style: SpendlerTextStyles.sectionLabel),
+        const SizedBox(height: SpendlerSpacing.sm),
         data.when(
           data: (list) {
             if (list.isEmpty) {
               return Padding(
-                padding: const EdgeInsets.symmetric(vertical: PaisaSpacing.sm),
-                child: Text(emptyText, style: const TextStyle(color: PaisaColors.textTertiary, fontSize: 13)),
+                padding: const EdgeInsets.symmetric(vertical: SpendlerSpacing.sm),
+                child: Text(emptyText, style: const TextStyle(color: SpendlerColors.textTertiary, fontSize: 13)),
               );
             }
             return Column(
@@ -673,7 +673,7 @@ class _FamilyList extends StatelessWidget {
                 final sub = '${DateFormat('d MMM yyyy').format(e.happenedAt)}'
                     '${e.note != null && e.note!.isNotEmpty ? " · ${e.note}" : ""}';
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: PaisaSpacing.sm),
+                  padding: const EdgeInsets.only(bottom: SpendlerSpacing.sm),
                   child: Row(
                     children: [
                       Container(
@@ -687,9 +687,9 @@ class _FamilyList extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(titleBuilder(e), style: const TextStyle(color: PaisaColors.textPrimary, fontSize: 14, fontWeight: FontWeight.w500)),
+                            Text(titleBuilder(e), style: const TextStyle(color: SpendlerColors.textPrimary, fontSize: 14, fontWeight: FontWeight.w500)),
                             const SizedBox(height: 2),
-                            Text(sub, style: const TextStyle(color: PaisaColors.textTertiary, fontSize: 12)),
+                            Text(sub, style: const TextStyle(color: SpendlerColors.textTertiary, fontSize: 12)),
                           ],
                         ),
                       ),
@@ -727,7 +727,7 @@ class _BalanceBar extends StatelessWidget {
           const SizedBox(width: 8),
           Text(label, style: TextStyle(color: color, fontSize: 13)),
           const Spacer(),
-          Text('₹${amount.toStringAsFixed(0)}', style: TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.w700)),
+          Text('\$${amount.toStringAsFixed(0)}', style: TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.w700)),
         ],
       ),
     );
@@ -747,7 +747,7 @@ class _ActionBtn extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(PaisaRadii.button),
+          borderRadius: BorderRadius.circular(SpendlerRadii.button),
           border: Border.all(color: color.withValues(alpha: 0.3)),
         ),
         alignment: Alignment.center,

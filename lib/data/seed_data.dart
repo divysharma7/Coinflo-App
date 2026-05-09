@@ -33,7 +33,7 @@ class SeedData {
       // ── April 1 ──
       _t(2026, 4, 1, 9, 0, -56.55, 'transport', 'Uber', 'Bike'),
       _t(2026, 4, 1, 10, 0, -190, 'transport', 'Uber', 'Cab'),
-      _t(2026, 4, 1, 20, 0, -8892, 'social', 'Roast CCX', 'Birthday party'),
+      _t(2026, 4, 1, 20, 0, -8892, 'entertainment', 'Roast CCX', 'Birthday party'),
 
       // ── April 2 ──
       _t(2026, 4, 2, 9, 0, -54.5, 'transport', 'Uber', 'Bike'),
@@ -47,21 +47,21 @@ class SeedData {
       _t(2026, 4, 4, 8, 0, -51.2, 'transport', 'Uber', 'Bike'),
       _t(2026, 4, 4, 8, 30, -34.8, 'transport', 'Uber', 'Bike'),
       _t(2026, 4, 4, 13, 0, -200, 'food', 'Zomato', 'Burrito'),
-      _t(2026, 4, 4, 10, 0, -19136, 'rent', 'Vasu', 'Rent'),
-      _t(2026, 4, 4, 10, 30, -75, 'rent', 'Aryan', 'Maid'),
+      _t(2026, 4, 4, 10, 0, -19136, 'housing', 'Vasu', 'Rent'),
+      _t(2026, 4, 4, 10, 30, -75, 'housing', 'Aryan', 'Maid'),
       _t(2026, 4, 4, 18, 0, -43, 'transport', 'Uber', 'Bike'),
-      _t(2026, 4, 4, 11, 0, -15634, 'rent', 'Sai Dixit', 'Rent + electricity + Maid'),
+      _t(2026, 4, 4, 11, 0, -15634, 'housing', 'Sai Dixit', 'Rent + electricity + Maid'),
 
       // ── April 5 ──
-      _t(2026, 4, 5, 10, 0, -58000, 'rent', 'Owner', 'Rent'),
-      _t(2026, 4, 5, 10, 30, -6461, 'rent', 'Maintenance', 'Rent'),
-      _t(2026, 4, 5, 11, 0, -5284, 'rent', 'Electricity', 'House'),
+      _t(2026, 4, 5, 10, 0, -58000, 'housing', 'Owner', 'Rent'),
+      _t(2026, 4, 5, 10, 30, -6461, 'housing', 'Maintenance', 'Rent'),
+      _t(2026, 4, 5, 11, 0, -5284, 'housing', 'Electricity', 'House'),
       _t(2026, 4, 5, 13, 0, -314, 'food', 'Zomato', 'Lunch (7 Sisters)'),
       _t(2026, 4, 5, 20, 0, -155, 'food', 'Punch Kattu', 'Dinner'),
 
       // ── April 6 ──
       _t(2026, 4, 6, 11, 0, -267, 'other', 'Zepto', 'Washing soap and Harpic'),
-      _t(2026, 4, 6, 10, 0, -3500, 'rent', 'Maid', 'Salary'),
+      _t(2026, 4, 6, 10, 0, -3500, 'housing', 'Maid', 'Salary'),
       _t(2026, 4, 6, 9, 0, -70, 'transport', 'Uber', 'Bike'),
       _t(2026, 4, 6, 18, 0, -44, 'transport', 'Uber', 'Bike'),
 
@@ -77,7 +77,7 @@ class SeedData {
 
       // ── April 9 ──
       _t(2026, 4, 9, 9, 0, -67, 'transport', 'Uber', 'Bike'),
-      _t(2026, 4, 9, 10, 0, -3500, 'family', 'Ram', 'Sent back'),
+      _t(2026, 4, 9, 10, 0, -3500, 'other', 'Ram', 'Sent back'),
       _t(2026, 4, 9, 18, 0, -48, 'transport', 'Uber', 'Bike'),
 
       // ── April 10 ──
@@ -122,7 +122,7 @@ class SeedData {
       // ── April 18 ──
       _t(2026, 4, 18, 9, 0, -48.73, 'transport', 'Uber', 'Bike'),
       _t(2026, 4, 18, 18, 0, -34, 'transport', 'Uber', 'Bike'),
-      _t(2026, 4, 18, 12, 0, -590, 'social', 'Flatmate Split', 'Vasu'),
+      _t(2026, 4, 18, 12, 0, -590, 'entertainment', 'Flatmate Split', 'Vasu'),
 
       // ── April 19 ──
       _t(2026, 4, 19, 9, 0, -286, 'food', 'Swiggy Insta', 'Sunday Morning (Juice)'),
@@ -132,7 +132,7 @@ class SeedData {
 
       // ── April 20 ──
       _t(2026, 4, 20, 13, 0, -242.28, 'food', 'Zomato', 'Lunch'),
-      _t(2026, 4, 20, 7, 0, -1800, 'social', 'NMDC Marathon', 'Running 10K'),
+      _t(2026, 4, 20, 7, 0, -1800, 'entertainment', 'NMDC Marathon', 'Running 10K'),
 
       // ── April 21 ──
       _t(2026, 4, 21, 9, 0, -51.8, 'transport', 'Uber', 'Bike'),

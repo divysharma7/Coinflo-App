@@ -37,11 +37,11 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
           textBaseline: TextBaseline.alphabetic,
           children: [
             Text(
-              '₹',
+              '\$',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w400,
-                color: _isExpense ? PaisaColors.accentRed : PaisaColors.accentGreen,
+                color: _isExpense ? SpendlerColors.accentRed : SpendlerColors.accentGreen,
               ),
             ),
             const SizedBox(width: 4),
@@ -50,7 +50,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
               style: TextStyle(
                 fontSize: 48,
                 fontWeight: FontWeight.bold,
-                color: _isExpense ? PaisaColors.accentRed : PaisaColors.accentGreen,
+                color: _isExpense ? SpendlerColors.accentRed : SpendlerColors.accentGreen,
               ),
             ),
           ],
@@ -66,7 +66,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
           selected: {_isExpense},
           onSelectionChanged: (v) => setState(() => _isExpense = v.first),
         ),
-        const SizedBox(height: PaisaSpacing.cardGap),
+        const SizedBox(height: SpendlerSpacing.cardGap),
 
         // Category grid
         GridView.count(
@@ -78,14 +78,14 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
           crossAxisSpacing: 8,
           children: TransactionCategory.values.map((cat) {
             final selected = _category == cat;
-            final catColor = PaisaColors.categoryColor(cat);
+            final catColor = SpendlerColors.categoryColor(cat);
             return GestureDetector(
               onTap: () => setState(() => _category = cat),
               child: Container(
                 decoration: BoxDecoration(
                   color: selected
                       ? catColor.withValues(alpha: 0.2)
-                      : PaisaColors.surfaceSecondary,
+                      : SpendlerColors.surfaceSecondary,
                   borderRadius: BorderRadius.circular(10),
                   border: selected
                       ? Border.all(color: catColor, width: 2)
@@ -95,14 +95,14 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(cat.icon, size: 16, color: selected ? catColor : PaisaColors.textSecondary),
+                      Icon(cat.icon, size: 16, color: selected ? catColor : SpendlerColors.textSecondary),
                       const SizedBox(width: 4),
                       Text(
                         cat.label,
                         style: TextStyle(
                           fontWeight: selected ? FontWeight.bold : FontWeight.normal,
                           fontSize: 13,
-                          color: selected ? catColor : PaisaColors.textSecondary,
+                          color: selected ? catColor : SpendlerColors.textSecondary,
                         ),
                       ),
                     ],
@@ -112,29 +112,29 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
             );
           }).toList(),
         ),
-        const SizedBox(height: PaisaSpacing.cardGap),
+        const SizedBox(height: SpendlerSpacing.cardGap),
 
         // Note field
         TextField(
           controller: _noteController,
-          style: const TextStyle(color: PaisaColors.textPrimary),
+          style: const TextStyle(color: SpendlerColors.textPrimary),
           decoration: InputDecoration(
             hintText: 'Note (optional)',
-            hintStyle: const TextStyle(color: PaisaColors.textTertiary),
+            hintStyle: const TextStyle(color: SpendlerColors.textTertiary),
             filled: true,
-            fillColor: PaisaColors.surfaceSecondary,
+            fillColor: SpendlerColors.surfaceSecondary,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(PaisaRadii.button),
+              borderRadius: BorderRadius.circular(SpendlerRadii.button),
               borderSide: BorderSide.none,
             ),
             isDense: true,
           ),
         ),
-        const SizedBox(height: PaisaSpacing.cardGap),
+        const SizedBox(height: SpendlerSpacing.cardGap),
 
         // Numpad
         _buildNumpad(),
-        const SizedBox(height: PaisaSpacing.cardGap),
+        const SizedBox(height: SpendlerSpacing.cardGap),
 
         // Save button — full-width bottom CTA style
         SizedBox(
@@ -143,11 +143,11 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
           child: FilledButton(
             onPressed: _amount.isEmpty ? null : _save,
             style: FilledButton.styleFrom(
-              backgroundColor: PaisaColors.accentYellow,
+              backgroundColor: SpendlerColors.accentYellow,
               foregroundColor: Colors.black,
-              disabledBackgroundColor: PaisaColors.surfaceSecondary,
+              disabledBackgroundColor: SpendlerColors.surfaceSecondary,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(PaisaRadii.button),
+                borderRadius: BorderRadius.circular(SpendlerRadii.button),
               ),
             ),
             child: const Text(
@@ -187,7 +187,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
           },
           child: Container(
             decoration: BoxDecoration(
-              color: PaisaColors.surfaceSecondary,
+              color: SpendlerColors.surfaceSecondary,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Center(
@@ -196,7 +196,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                 style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w500,
-                  color: PaisaColors.textPrimary,
+                  color: SpendlerColors.textPrimary,
                 ),
               ),
             ),

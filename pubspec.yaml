@@ -1,5 +1,5 @@
 name: finance_buddy_app
-description: "Pulse — Feel your financial rhythm"
+description: "Spendler — Track your spending habits"
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -32,8 +32,7 @@ dependencies:
   share_plus: ^10.1.4
   gal: ^2.3.0
 
-  # Fonts & Icons
-  google_fonts: ^6.2.1
+  # Icons
   phosphor_flutter: ^2.1.0
 
   # Utils

@@ -22,15 +22,15 @@ class AnalyticsPage extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _HeadlineInsightSection(),
-          SizedBox(height: PaisaSpacing.xl),
+          SizedBox(height: SpendlerSpacing.xl),
           _VelocitySection(),
-          SizedBox(height: PaisaSpacing.xl),
+          SizedBox(height: SpendlerSpacing.xl),
           _MonthlyComparisonSection(),
-          SizedBox(height: PaisaSpacing.xl),
+          SizedBox(height: SpendlerSpacing.xl),
           _DayOfWeekSection(),
-          SizedBox(height: PaisaSpacing.xl),
+          SizedBox(height: SpendlerSpacing.xl),
           _TopMerchantsSection(),
-          SizedBox(height: PaisaSpacing.xl),
+          SizedBox(height: SpendlerSpacing.xl),
           _ShareSection(),
           SizedBox(height: 100),
         ],
@@ -51,22 +51,22 @@ class _HeadlineInsightSection extends ConsumerWidget {
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        PaisaSpacing.screenH + 4,
-        MediaQuery.paddingOf(context).top + PaisaSpacing.lg,
-        PaisaSpacing.screenH + 4,
+        SpendlerSpacing.screenH + 4,
+        MediaQuery.paddingOf(context).top + SpendlerSpacing.lg,
+        SpendlerSpacing.screenH + 4,
         0,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('PATTERNS', style: PaisaTextStyles.sectionLabel),
-          const SizedBox(height: PaisaSpacing.lg),
+          const Text('PATTERNS', style: SpendlerTextStyles.sectionLabel),
+          const SizedBox(height: SpendlerSpacing.lg),
           thisMonth.when(
             data: (thisData) {
               if (thisData.isEmpty) {
                 return const Text(
                   'Month just started.\nYour rhythm will build here.',
-                  style: PaisaTextStyles.insightBody,
+                  style: SpendlerTextStyles.insightBody,
                 );
               }
 
@@ -88,27 +88,27 @@ class _HeadlineInsightSection extends ConsumerWidget {
                     ((projected - lastTotal) / lastTotal * 100).round();
                 if (pctVsLast > 5) {
                   headline =
-                      '₹${spentSoFar.toStringAsFixed(0)} spent in $monthName so far.\n'
-                      'At this pace, you\'ll hit ₹${projected.toStringAsFixed(0)} — '
+                      '\$${spentSoFar.toStringAsFixed(0)} spent in $monthName so far.\n'
+                      'At this pace, you\'ll hit \$${projected.toStringAsFixed(0)} — '
                       '$pctVsLast% more than last month.';
                 } else if (pctVsLast < -5) {
                   headline =
-                      '₹${spentSoFar.toStringAsFixed(0)} in $monthName so far.\n'
+                      '\$${spentSoFar.toStringAsFixed(0)} in $monthName so far.\n'
                       'Running ${pctVsLast.abs()}% lighter than last month.';
                 } else {
                   headline =
-                      '₹${spentSoFar.toStringAsFixed(0)} in $monthName so far.\n'
+                      '\$${spentSoFar.toStringAsFixed(0)} in $monthName so far.\n'
                       'Same rhythm as last month.';
                 }
               } else {
                 headline =
-                    '₹${spentSoFar.toStringAsFixed(0)} in $monthName so far.\n'
+                    '\$${spentSoFar.toStringAsFixed(0)} in $monthName so far.\n'
                     '$daysLeft days left this month.';
               }
 
-              return Text(headline, style: PaisaTextStyles.insightBody);
+              return Text(headline, style: SpendlerTextStyles.insightBody);
             },
-            loading: () => const Text('...', style: TextStyle(color: PaisaColors.textTertiary)),
+            loading: () => const Text('...', style: TextStyle(color: SpendlerColors.textTertiary)),
             error: (_, _) => const SizedBox.shrink(),
           ),
         ],
@@ -128,56 +128,56 @@ class _VelocitySection extends ConsumerWidget {
     final lastMonth = ref.watch(lastMonthCumulativeProvider);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: PaisaSpacing.screenH),
+      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Padding(
             padding: EdgeInsets.only(left: 4, bottom: 4),
-            child: Text('SPENDING PACE', style: PaisaTextStyles.sectionLabel),
+            child: Text('SPENDING PACE', style: SpendlerTextStyles.sectionLabel),
           ),
           const Padding(
-            padding: EdgeInsets.only(left: 4, bottom: PaisaSpacing.md),
+            padding: EdgeInsets.only(left: 4, bottom: SpendlerSpacing.md),
             child: Text(
               'This month vs last month',
-              style: TextStyle(color: PaisaColors.textTertiary, fontSize: 12),
+              style: TextStyle(color: SpendlerColors.textTertiary, fontSize: 12),
             ),
           ),
           // Legend
           Padding(
-            padding: const EdgeInsets.only(left: 4, bottom: PaisaSpacing.sm),
+            padding: const EdgeInsets.only(left: 4, bottom: SpendlerSpacing.sm),
             child: Row(
               children: [
-                Container(width: 16, height: 3, color: PaisaColors.yellow),
+                Container(width: 16, height: 3, color: SpendlerColors.yellow),
                 const SizedBox(width: 6),
                 const Text('This month',
-                    style: TextStyle(color: PaisaColors.textSecondary, fontSize: 11)),
+                    style: TextStyle(color: SpendlerColors.textSecondary, fontSize: 11)),
                 const SizedBox(width: 16),
                 Container(
                   width: 16,
                   height: 1,
                   decoration: const BoxDecoration(
                     border: Border(
-                      bottom: BorderSide(color: PaisaColors.textTertiary, width: 1),
+                      bottom: BorderSide(color: SpendlerColors.textTertiary, width: 1),
                     ),
                   ),
                 ),
                 const SizedBox(width: 6),
                 const Text('Last month',
-                    style: TextStyle(color: PaisaColors.textTertiary, fontSize: 11)),
+                    style: TextStyle(color: SpendlerColors.textTertiary, fontSize: 11)),
               ],
             ),
           ),
           Container(
-            padding: const EdgeInsets.all(PaisaSpacing.cardPadding),
+            padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [Color(0xFF1E1E1E), PaisaColors.surface],
+                colors: [Color(0xFF1E1E1E), SpendlerColors.surface],
               ),
-              borderRadius: BorderRadius.circular(PaisaRadii.card),
-              boxShadow: PaisaShadows.card,
+              borderRadius: BorderRadius.circular(SpendlerRadii.card),
+              boxShadow: SpendlerShadows.card,
             ),
             child: thisMonth.when(
               data: (thisData) {
@@ -189,10 +189,10 @@ class _VelocitySection extends ConsumerWidget {
               },
               loading: () => const SizedBox(
                   height: 220,
-                  child: Center(child: CircularProgressIndicator(color: PaisaColors.yellow))),
+                  child: Center(child: CircularProgressIndicator(color: SpendlerColors.yellow))),
               error: (_, _) => const SizedBox(
                   height: 220,
-                  child: Center(child: Text('Error', style: TextStyle(color: PaisaColors.expense)))),
+                  child: Center(child: Text('Error', style: TextStyle(color: SpendlerColors.expense)))),
             ),
           ),
         ],
@@ -215,18 +215,18 @@ class _MonthlyComparisonSection extends ConsumerWidget {
         DateFormat('MMM').format(DateTime(now.year, now.month - 1));
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: PaisaSpacing.screenH + 4),
+      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH + 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('THIS MONTH VS LAST', style: PaisaTextStyles.sectionLabel),
-          const SizedBox(height: PaisaSpacing.md),
+          const Text('THIS MONTH VS LAST', style: SpendlerTextStyles.sectionLabel),
+          const SizedBox(height: SpendlerSpacing.md),
           comparison.when(
             data: (data) {
               if (data.isEmpty) {
                 return const Text(
                   'Two months of data needed for comparison.',
-                  style: PaisaTextStyles.emptyState,
+                  style: SpendlerTextStyles.emptyState,
                 );
               }
 
@@ -242,32 +242,32 @@ class _MonthlyComparisonSection extends ConsumerWidget {
                   );
                   final thisAmt = entry.value[0];
                   final lastAmt = entry.value[1];
-                  final catColor = PaisaColors.categoryColor(cat);
+                  final catColor = SpendlerColors.categoryColor(cat);
 
                   // Compute change
                   String changeText = '';
-                  Color changeColor = PaisaColors.textTertiary;
+                  Color changeColor = SpendlerColors.textTertiary;
                   if (lastAmt > 0) {
                     final pct = ((thisAmt - lastAmt) / lastAmt * 100).round();
                     if (pct > 0) {
                       changeText = '↑$pct%';
-                      changeColor = PaisaColors.expense;
+                      changeColor = SpendlerColors.expense;
                     } else if (pct < 0) {
                       changeText = '↓${pct.abs()}%';
-                      changeColor = PaisaColors.income;
+                      changeColor = SpendlerColors.income;
                     } else {
                       changeText = '—';
                     }
                   } else if (thisAmt > 0) {
                     changeText = 'NEW';
-                    changeColor = PaisaColors.amber;
+                    changeColor = SpendlerColors.amber;
                   }
 
                   final maxAmt =
                       thisAmt > lastAmt ? thisAmt : (lastAmt > 0 ? lastAmt : 1);
 
                   return Padding(
-                    padding: const EdgeInsets.only(bottom: PaisaSpacing.md),
+                    padding: const EdgeInsets.only(bottom: SpendlerSpacing.md),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -277,7 +277,7 @@ class _MonthlyComparisonSection extends ConsumerWidget {
                             const SizedBox(width: 8),
                             Text(cat.label,
                                 style: const TextStyle(
-                                    color: PaisaColors.textSecondary, fontSize: 13)),
+                                    color: SpendlerColors.textSecondary, fontSize: 13)),
                             const Spacer(),
                             Text(changeText,
                                 style: TextStyle(
@@ -294,14 +294,14 @@ class _MonthlyComparisonSection extends ConsumerWidget {
                               width: 32,
                               child: Text(thisMonthName,
                                   style: const TextStyle(
-                                      color: PaisaColors.textTertiary, fontSize: 10)),
+                                      color: SpendlerColors.textTertiary, fontSize: 10)),
                             ),
                             Expanded(
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(2),
                                 child: LinearProgressIndicator(
                                   value: maxAmt > 0 ? thisAmt / maxAmt : 0,
-                                  backgroundColor: PaisaColors.border,
+                                  backgroundColor: SpendlerColors.border,
                                   valueColor: AlwaysStoppedAnimation(catColor),
                                   minHeight: 6,
                                 ),
@@ -311,9 +311,9 @@ class _MonthlyComparisonSection extends ConsumerWidget {
                             SizedBox(
                               width: 56,
                               child: Text(
-                                '₹${thisAmt.toStringAsFixed(0)}',
+                                '\$${thisAmt.toStringAsFixed(0)}',
                                 style: const TextStyle(
-                                    color: PaisaColors.textPrimary,
+                                    color: SpendlerColors.textPrimary,
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600),
                                 textAlign: TextAlign.right,
@@ -329,14 +329,14 @@ class _MonthlyComparisonSection extends ConsumerWidget {
                               width: 32,
                               child: Text(lastMonthName,
                                   style: const TextStyle(
-                                      color: PaisaColors.textTertiary, fontSize: 10)),
+                                      color: SpendlerColors.textTertiary, fontSize: 10)),
                             ),
                             Expanded(
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(2),
                                 child: LinearProgressIndicator(
                                   value: maxAmt > 0 ? lastAmt / maxAmt : 0,
-                                  backgroundColor: PaisaColors.border,
+                                  backgroundColor: SpendlerColors.border,
                                   valueColor: AlwaysStoppedAnimation(
                                       catColor.withValues(alpha: 0.3)),
                                   minHeight: 6,
@@ -347,9 +347,9 @@ class _MonthlyComparisonSection extends ConsumerWidget {
                             SizedBox(
                               width: 56,
                               child: Text(
-                                '₹${lastAmt.toStringAsFixed(0)}',
+                                '\$${lastAmt.toStringAsFixed(0)}',
                                 style: const TextStyle(
-                                    color: PaisaColors.textTertiary,
+                                    color: SpendlerColors.textTertiary,
                                     fontSize: 12),
                                 textAlign: TextAlign.right,
                               ),
@@ -364,7 +364,7 @@ class _MonthlyComparisonSection extends ConsumerWidget {
             },
             loading: () => const SizedBox(
                 height: 100,
-                child: Center(child: CircularProgressIndicator(color: PaisaColors.yellow))),
+                child: Center(child: CircularProgressIndicator(color: SpendlerColors.yellow))),
             error: (_, _) => const SizedBox.shrink(),
           ),
         ],
@@ -383,31 +383,31 @@ class _DayOfWeekSection extends ConsumerWidget {
     final averages = ref.watch(dayOfWeekAveragesProvider);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: PaisaSpacing.screenH),
+      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Padding(
             padding: EdgeInsets.only(left: 4, bottom: 4),
-            child: Text('YOUR SPENDING DAYS', style: PaisaTextStyles.sectionLabel),
+            child: Text('YOUR SPENDING DAYS', style: SpendlerTextStyles.sectionLabel),
           ),
           const Padding(
-            padding: EdgeInsets.only(left: 4, bottom: PaisaSpacing.cardGap),
+            padding: EdgeInsets.only(left: 4, bottom: SpendlerSpacing.cardGap),
             child: Text(
               'Average per day of week (last 4 weeks)',
-              style: TextStyle(color: PaisaColors.textTertiary, fontSize: 12),
+              style: TextStyle(color: SpendlerColors.textTertiary, fontSize: 12),
             ),
           ),
           Container(
-            padding: const EdgeInsets.all(PaisaSpacing.cardPadding),
+            padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [Color(0xFF1E1E1E), PaisaColors.surface],
+                colors: [Color(0xFF1E1E1E), SpendlerColors.surface],
               ),
-              borderRadius: BorderRadius.circular(PaisaRadii.card),
-              boxShadow: PaisaShadows.card,
+              borderRadius: BorderRadius.circular(SpendlerRadii.card),
+              boxShadow: SpendlerShadows.card,
             ),
             child: averages.when(
               data: (data) {
@@ -421,11 +421,11 @@ class _DayOfWeekSection extends ConsumerWidget {
                   children: [
                     DayOfWeekChart(averages: data),
                     if (maxAmount > 0) ...[
-                      const SizedBox(height: PaisaSpacing.md),
+                      const SizedBox(height: SpendlerSpacing.md),
                       Text(
-                        '$maxDay is your heaviest day — avg ₹${maxAmount.toStringAsFixed(0)}/week.',
+                        '$maxDay is your heaviest day — avg \$${maxAmount.toStringAsFixed(0)}/week.',
                         style: const TextStyle(
-                          color: PaisaColors.textSecondary,
+                          color: SpendlerColors.textSecondary,
                           fontSize: 13,
                         ),
                       ),
@@ -435,10 +435,10 @@ class _DayOfWeekSection extends ConsumerWidget {
               },
               loading: () => const SizedBox(
                   height: 180,
-                  child: Center(child: CircularProgressIndicator(color: PaisaColors.yellow))),
+                  child: Center(child: CircularProgressIndicator(color: SpendlerColors.yellow))),
               error: (_, _) => const SizedBox(
                   height: 180,
-                  child: Center(child: Text('Error', style: TextStyle(color: PaisaColors.expense)))),
+                  child: Center(child: Text('Error', style: TextStyle(color: SpendlerColors.expense)))),
             ),
           ),
         ],
@@ -457,23 +457,23 @@ class _TopMerchantsSection extends ConsumerWidget {
     final merchants = ref.watch(topMerchantsProvider);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: PaisaSpacing.screenH + 4),
+      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH + 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('WHO GETS YOUR MONEY', style: PaisaTextStyles.sectionLabel),
+          const Text('WHO GETS YOUR MONEY', style: SpendlerTextStyles.sectionLabel),
           const SizedBox(height: 4),
           const Text(
             'This month, by frequency',
-            style: TextStyle(color: PaisaColors.textTertiary, fontSize: 12),
+            style: TextStyle(color: SpendlerColors.textTertiary, fontSize: 12),
           ),
-          const SizedBox(height: PaisaSpacing.md),
+          const SizedBox(height: SpendlerSpacing.md),
           merchants.when(
             data: (list) {
               if (list.isEmpty) {
                 return const Text(
                   'No data yet this month.',
-                  style: PaisaTextStyles.emptyState,
+                  style: SpendlerTextStyles.emptyState,
                 );
               }
 
@@ -484,7 +484,7 @@ class _TopMerchantsSection extends ConsumerWidget {
                   final isDominant = i == 0;
 
                   return Padding(
-                    padding: const EdgeInsets.only(bottom: PaisaSpacing.cardGap),
+                    padding: const EdgeInsets.only(bottom: SpendlerSpacing.cardGap),
                     child: Row(
                       children: [
                         // Rank
@@ -494,14 +494,14 @@ class _TopMerchantsSection extends ConsumerWidget {
                             '${i + 1}',
                             style: TextStyle(
                               color: isDominant
-                                  ? PaisaColors.yellow
-                                  : PaisaColors.textTertiary,
+                                  ? SpendlerColors.yellow
+                                  : SpendlerColors.textTertiary,
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
                         ),
-                        const SizedBox(width: PaisaSpacing.sm),
+                        const SizedBox(width: SpendlerSpacing.sm),
                         // Name + count
                         Expanded(
                           child: Column(
@@ -511,8 +511,8 @@ class _TopMerchantsSection extends ConsumerWidget {
                                 m.name,
                                 style: TextStyle(
                                   color: isDominant
-                                      ? PaisaColors.textPrimary
-                                      : PaisaColors.textSecondary,
+                                      ? SpendlerColors.textPrimary
+                                      : SpendlerColors.textSecondary,
                                   fontSize: 15,
                                   fontWeight: isDominant
                                       ? FontWeight.w600
@@ -522,7 +522,7 @@ class _TopMerchantsSection extends ConsumerWidget {
                               Text(
                                 '${m.count} time${m.count > 1 ? 's' : ''} this month',
                                 style: const TextStyle(
-                                  color: PaisaColors.textTertiary,
+                                  color: SpendlerColors.textTertiary,
                                   fontSize: 11,
                                 ),
                               ),
@@ -531,11 +531,11 @@ class _TopMerchantsSection extends ConsumerWidget {
                         ),
                         // Total
                         Text(
-                          '₹${m.total.toStringAsFixed(0)}',
+                          '\$${m.total.toStringAsFixed(0)}',
                           style: TextStyle(
                             color: isDominant
-                                ? PaisaColors.textPrimary
-                                : PaisaColors.textTertiary,
+                                ? SpendlerColors.textPrimary
+                                : SpendlerColors.textTertiary,
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
                           ),
@@ -548,7 +548,7 @@ class _TopMerchantsSection extends ConsumerWidget {
             },
             loading: () => const SizedBox(
                 height: 100,
-                child: Center(child: CircularProgressIndicator(color: PaisaColors.yellow))),
+                child: Center(child: CircularProgressIndicator(color: SpendlerColors.yellow))),
             error: (_, _) => const SizedBox.shrink(),
           ),
         ],
@@ -567,7 +567,7 @@ class _ShareSection extends ConsumerWidget {
     final weekStart = ref.watch(selectedWeekProvider);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: PaisaSpacing.screenH),
+      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH),
       child: NeoPOPButton(
         label: 'Share This Week',
         onTap: () => _share(context, ref, weekStart),

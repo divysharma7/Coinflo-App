@@ -13,8 +13,8 @@ class HealthRing extends StatefulWidget {
     required this.progress,
     this.size = 120,
     this.strokeWidth = 8,
-    this.foregroundColor = PaisaColors.yellow,
-    this.backgroundColor = PaisaColors.border,
+    this.foregroundColor = SpendlerColors.yellow,
+    this.backgroundColor = SpendlerColors.border,
     this.label,
   });
 
@@ -108,7 +108,7 @@ class _HealthRingState extends State<HealthRing>
                     Text(
                       '${(value * 100).round()}%',
                       style: const TextStyle(
-                        color: PaisaColors.textPrimary,
+                        color: SpendlerColors.textPrimary,
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
                       ),
@@ -117,7 +117,7 @@ class _HealthRingState extends State<HealthRing>
                       Text(
                         widget.label!,
                         style: const TextStyle(
-                          color: PaisaColors.textTertiary,
+                          color: SpendlerColors.textTertiary,
                           fontSize: 11,
                         ),
                       ),

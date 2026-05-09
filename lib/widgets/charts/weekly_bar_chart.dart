@@ -29,9 +29,9 @@ class _WeeklyBarChartState extends State<WeeklyBarChart>
     super.initState();
     _growCtrl = AnimationController(
       vsync: this,
-      duration: PaisaMotion.barGrow,
+      duration: SpendlerMotion.barGrow,
     );
-    _growAnim = CurvedAnimation(parent: _growCtrl, curve: PaisaMotion.barGrowCurve);
+    _growAnim = CurvedAnimation(parent: _growCtrl, curve: SpendlerMotion.barGrowCurve);
     _growCtrl.forward();
   }
 
@@ -79,9 +79,9 @@ class _WeeklyBarChartState extends State<WeeklyBarChart>
                 touchTooltipData: BarTouchTooltipData(
                   getTooltipItem: (group, groupIndex, rod, rodIndex) {
                     return BarTooltipItem(
-                      '₹${rod.toY.toStringAsFixed(0)}',
+                      '\$${rod.toY.toStringAsFixed(0)}',
                       const TextStyle(
-                        color: PaisaColors.textPrimary,
+                        color: SpendlerColors.textPrimary,
                         fontWeight: FontWeight.bold,
                         fontSize: 12,
                       ),
@@ -106,12 +106,12 @@ class _WeeklyBarChartState extends State<WeeklyBarChart>
                         child: Text(
                           days[i],
                           style: TextStyle(
-                            fontSize: PaisaTypo.microSize,
+                            fontSize: SpendlerTypo.microSize,
                             fontWeight:
-                                isToday ? FontWeight.bold : PaisaTypo.microWeight,
+                                isToday ? FontWeight.bold : SpendlerTypo.microWeight,
                             color: isHighlight
-                                ? PaisaColors.accentYellow
-                                : PaisaColors.textTertiary,
+                                ? SpendlerColors.accentYellow
+                                : SpendlerColors.textTertiary,
                           ),
                         ),
                       );
@@ -140,11 +140,11 @@ class _WeeklyBarChartState extends State<WeeklyBarChart>
                     BarChartRodData(
                       toY: dailyTotals[i] * _growAnim.value,
                       color: isAccent
-                          ? PaisaColors.accentYellow
-                          : PaisaColors.textTertiary,
+                          ? SpendlerColors.accentYellow
+                          : SpendlerColors.textTertiary,
                       width: 28,
                       borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(PaisaRadii.barTop),
+                        top: Radius.circular(SpendlerRadii.barTop),
                       ),
                     ),
                   ],

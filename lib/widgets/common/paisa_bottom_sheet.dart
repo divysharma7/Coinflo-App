@@ -6,7 +6,7 @@ import 'package:finance_buddy_app/core/tokens.dart';
 ///
 /// Use this for ALL short interactions: mark-as-split, pick-category,
 /// add-family-entry, confirm-settlement, quick-add.
-Future<T?> showPaisaSheet<T>({
+Future<T?> showSpendlerSheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
   bool isScrollControlled = true,
@@ -16,19 +16,19 @@ Future<T?> showPaisaSheet<T>({
     context: context,
     isScrollControlled: isScrollControlled,
     isDismissible: isDismissible,
-    backgroundColor: PaisaColors.surfaceElevated,
+    backgroundColor: SpendlerColors.surfaceElevated,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(
-        top: Radius.circular(PaisaRadii.sheet),
+        top: Radius.circular(SpendlerRadii.sheet),
       ),
     ),
     showDragHandle: true,
     builder: (ctx) {
       return Padding(
         padding: EdgeInsets.only(
-          left: PaisaSpacing.screenH,
-          right: PaisaSpacing.screenH,
-          bottom: MediaQuery.viewInsetsOf(ctx).bottom + PaisaSpacing.md,
+          left: SpendlerSpacing.screenH,
+          right: SpendlerSpacing.screenH,
+          bottom: MediaQuery.viewInsetsOf(ctx).bottom + SpendlerSpacing.md,
         ),
         child: builder(ctx),
       );

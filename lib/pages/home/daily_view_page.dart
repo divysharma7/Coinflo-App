@@ -36,12 +36,12 @@ class DailyViewPage extends ConsumerWidget {
             children: [
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(PaisaSpacing.lg),
-                color: PaisaColors.surface,
+                padding: const EdgeInsets.all(SpendlerSpacing.lg),
+                color: SpendlerColors.surface,
                 child: Column(
                   children: [
-                    const Text('TOTAL SPENT', style: PaisaTextStyles.sectionLabel),
-                    const SizedBox(height: PaisaSpacing.sm),
+                    const Text('TOTAL SPENT', style: SpendlerTextStyles.sectionLabel),
+                    const SizedBox(height: SpendlerSpacing.sm),
                     HeroAmount(amount: total, amountSize: 36, symbolSize: 18),
                   ],
                 ),
@@ -55,7 +55,7 @@ class DailyViewPage extends ConsumerWidget {
                       (c) => c.name == t.category,
                       orElse: () => TransactionCategory.other,
                     );
-                    final catColor = PaisaColors.categoryColor(cat);
+                    final catColor = SpendlerColors.categoryColor(cat);
                     return ListTile(
                       leading: CircleAvatar(
                         backgroundColor: catColor.withValues(alpha: 0.15),
@@ -63,11 +63,11 @@ class DailyViewPage extends ConsumerWidget {
                       ),
                       title: Text(
                         t.merchant ?? cat.label,
-                        style: PaisaTextStyles.merchantName,
+                        style: SpendlerTextStyles.merchantName,
                       ),
                       subtitle: Text(
                         DateFormat('h:mm a').format(t.happenedAt),
-                        style: const TextStyle(color: PaisaColors.textTertiary, fontSize: 12),
+                        style: const TextStyle(color: SpendlerColors.textTertiary, fontSize: 12),
                       ),
                       trailing: AmountText(amount: t.amount),
                     );
@@ -78,10 +78,10 @@ class DailyViewPage extends ConsumerWidget {
           );
         },
         loading: () => const Center(
-          child: CircularProgressIndicator(color: PaisaColors.yellow),
+          child: CircularProgressIndicator(color: SpendlerColors.yellow),
         ),
         error: (_, _) => const Center(
-          child: Text('Error loading', style: TextStyle(color: PaisaColors.expense)),
+          child: Text('Error loading', style: TextStyle(color: SpendlerColors.expense)),
         ),
       ),
     );

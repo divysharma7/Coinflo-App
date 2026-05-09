@@ -35,19 +35,19 @@ class _FamilyEntrySheetState extends ConsumerState<FamilyEntrySheet> {
   InputDecoration _inputDecor(String label, {String? prefix}) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(color: PaisaColors.textSecondary),
+      labelStyle: const TextStyle(color: SpendlerColors.textSecondary),
       prefixText: prefix,
-      prefixStyle: const TextStyle(color: PaisaColors.textSecondary),
+      prefixStyle: const TextStyle(color: SpendlerColors.textSecondary),
       filled: true,
-      fillColor: PaisaColors.surface,
+      fillColor: SpendlerColors.surface,
       border: const UnderlineInputBorder(
-        borderSide: BorderSide(color: PaisaColors.border),
+        borderSide: BorderSide(color: SpendlerColors.border),
       ),
       enabledBorder: const UnderlineInputBorder(
-        borderSide: BorderSide(color: PaisaColors.border),
+        borderSide: BorderSide(color: SpendlerColors.border),
       ),
       focusedBorder: UnderlineInputBorder(
-        borderSide: BorderSide(color: PaisaColors.gold.withValues(alpha: 0.8)),
+        borderSide: BorderSide(color: SpendlerColors.gold.withValues(alpha: 0.8)),
       ),
     );
   }
@@ -59,8 +59,8 @@ class _FamilyEntrySheetState extends ConsumerState<FamilyEntrySheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('FAMILY ENTRY', style: PaisaTextStyles.sectionLabel),
-          const SizedBox(height: PaisaSpacing.md),
+          const Text('FAMILY ENTRY', style: SpendlerTextStyles.sectionLabel),
+          const SizedBox(height: SpendlerSpacing.md),
 
           SegmentedButton<_EntryType>(
             segments: const [
@@ -70,19 +70,19 @@ class _FamilyEntrySheetState extends ConsumerState<FamilyEntrySheet> {
             selected: {_type},
             onSelectionChanged: (v) => setState(() => _type = v.first),
           ),
-          const SizedBox(height: PaisaSpacing.md),
+          const SizedBox(height: SpendlerSpacing.md),
 
           TextField(
             controller: _amountController,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            style: const TextStyle(color: PaisaColors.textPrimary, fontSize: 18),
-            decoration: _inputDecor('Amount', prefix: '₹ '),
+            style: const TextStyle(color: SpendlerColors.textPrimary, fontSize: 18),
+            decoration: _inputDecor('Amount', prefix: '\$ '),
           ),
-          const SizedBox(height: PaisaSpacing.cardGap),
+          const SizedBox(height: SpendlerSpacing.cardGap),
 
           TextField(
             controller: _fromController,
-            style: const TextStyle(color: PaisaColors.textPrimary),
+            style: const TextStyle(color: SpendlerColors.textPrimary),
             decoration: _inputDecor(
               _type == _EntryType.inflow
                   ? 'From (Mom, Dad, etc.)'
@@ -91,12 +91,12 @@ class _FamilyEntrySheetState extends ConsumerState<FamilyEntrySheet> {
                       : 'Managed by',
             ),
           ),
-          const SizedBox(height: PaisaSpacing.cardGap),
+          const SizedBox(height: SpendlerSpacing.cardGap),
 
           if (_type == _EntryType.investment) ...[
             // Investment type as tappable tiles
-            const Text('TYPE', style: PaisaTextStyles.sectionLabel),
-            const SizedBox(height: PaisaSpacing.sm),
+            const Text('TYPE', style: SpendlerTextStyles.sectionLabel),
+            const SizedBox(height: SpendlerSpacing.sm),
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -107,19 +107,19 @@ class _FamilyEntrySheetState extends ConsumerState<FamilyEntrySheet> {
                 _investTile('Other', 'Other', PhosphorIcons.dotsThreeCircle()),
               ],
             ),
-            const SizedBox(height: PaisaSpacing.cardGap),
+            const SizedBox(height: SpendlerSpacing.cardGap),
           ],
 
           TextField(
             controller: _noteController,
-            style: const TextStyle(color: PaisaColors.textPrimary),
+            style: const TextStyle(color: SpendlerColors.textPrimary),
             decoration: _inputDecor('Note (optional)'),
           ),
-          const SizedBox(height: PaisaSpacing.lg),
+          const SizedBox(height: SpendlerSpacing.lg),
 
           NeoPOPButton(
             label: 'Add Entry',
-            color: PaisaColors.gold,
+            color: SpendlerColors.gold,
             shadowColor: const Color(0xFF8A6B2A),
             onTap: _save,
           ),
@@ -139,22 +139,22 @@ class _FamilyEntrySheetState extends ConsumerState<FamilyEntrySheet> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: selected
-              ? PaisaColors.gold.withValues(alpha: 0.15)
-              : PaisaColors.surface,
-          borderRadius: BorderRadius.circular(PaisaRadii.button),
+              ? SpendlerColors.gold.withValues(alpha: 0.15)
+              : SpendlerColors.surface,
+          borderRadius: BorderRadius.circular(SpendlerRadii.button),
           border: selected
-              ? Border.all(color: PaisaColors.gold, width: 1.5)
-              : Border.all(color: PaisaColors.border),
+              ? Border.all(color: SpendlerColors.gold, width: 1.5)
+              : Border.all(color: SpendlerColors.border),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            PhosphorIcon(icon, size: 16, color: selected ? PaisaColors.gold : PaisaColors.textSecondary),
+            PhosphorIcon(icon, size: 16, color: selected ? SpendlerColors.gold : SpendlerColors.textSecondary),
             const SizedBox(width: 6),
             Text(
               label,
               style: TextStyle(
-                color: selected ? PaisaColors.gold : PaisaColors.textSecondary,
+                color: selected ? SpendlerColors.gold : SpendlerColors.textSecondary,
                 fontSize: 13,
                 fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
               ),

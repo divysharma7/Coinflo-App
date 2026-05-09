@@ -22,15 +22,15 @@ class _SmsGapBannerState extends State<SmsGapBanner> {
 
     return Padding(
       padding: const EdgeInsets.symmetric(
-        horizontal: PaisaSpacing.screenH,
-        vertical: PaisaSpacing.sm,
+        horizontal: SpendlerSpacing.screenH,
+        vertical: SpendlerSpacing.sm,
       ),
       child: Container(
-        padding: const EdgeInsets.all(PaisaSpacing.cardPadding),
+        padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
         decoration: BoxDecoration(
-          color: PaisaColors.amber.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(PaisaRadii.button),
-          border: Border.all(color: PaisaColors.amber.withValues(alpha: 0.2)),
+          color: SpendlerColors.amber.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(SpendlerRadii.button),
+          border: Border.all(color: SpendlerColors.amber.withValues(alpha: 0.2)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,10 +40,10 @@ class _SmsGapBannerState extends State<SmsGapBanner> {
               children: [
                 PhosphorIcon(
                   PhosphorIcons.info(),
-                  color: PaisaColors.amber,
+                  color: SpendlerColors.amber,
                   size: 18,
                 ),
-                const SizedBox(width: PaisaSpacing.sm),
+                const SizedBox(width: SpendlerSpacing.sm),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -51,26 +51,26 @@ class _SmsGapBannerState extends State<SmsGapBanner> {
                       const Text(
                         'Some small transactions won\'t appear via SMS.',
                         style: TextStyle(
-                          color: PaisaColors.textPrimary,
+                          color: SpendlerColors.textPrimary,
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
                       const SizedBox(height: 4),
                       const Text(
-                        'Under ₹500? Add it manually — takes 3 taps.',
+                        'Under \$500? Add it manually — takes 3 taps.',
                         style: TextStyle(
-                          color: PaisaColors.textSecondary,
+                          color: SpendlerColors.textSecondary,
                           fontSize: 12,
                         ),
                       ),
-                      const SizedBox(height: PaisaSpacing.sm),
+                      const SizedBox(height: SpendlerSpacing.sm),
                       GestureDetector(
                         onTap: widget.onAddTap,
                         child: const Text(
                           'Add now →',
                           style: TextStyle(
-                            color: PaisaColors.yellow,
+                            color: SpendlerColors.yellow,
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                           ),
@@ -83,7 +83,7 @@ class _SmsGapBannerState extends State<SmsGapBanner> {
                   onTap: () => setState(() => _dismissed = true),
                   child: PhosphorIcon(
                     PhosphorIcons.x(),
-                    color: PaisaColors.textTertiary,
+                    color: SpendlerColors.textTertiary,
                     size: 16,
                   ),
                 ),

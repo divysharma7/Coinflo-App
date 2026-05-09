@@ -19,20 +19,20 @@ class UnconfirmedBadge extends StatelessWidget {
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.symmetric(
-          horizontal: PaisaSpacing.screenH,
-          vertical: PaisaSpacing.sm,
+          horizontal: SpendlerSpacing.screenH,
+          vertical: SpendlerSpacing.sm,
         ),
-        padding: const EdgeInsets.all(PaisaSpacing.cardPadding),
+        padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
         decoration: BoxDecoration(
-          color: PaisaColors.accentAmber.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(PaisaRadii.button),
+          color: SpendlerColors.accentAmber.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(SpendlerRadii.button),
           border: const Border(
-            left: BorderSide(color: PaisaColors.accentAmber, width: 4),
+            left: BorderSide(color: SpendlerColors.accentAmber, width: 4),
           ),
         ),
         child: Row(
           children: [
-            const Icon(Icons.pending_actions, color: PaisaColors.accentAmber),
+            const Icon(Icons.pending_actions, color: SpendlerColors.accentAmber),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -42,20 +42,20 @@ class UnconfirmedBadge extends StatelessWidget {
                     '$count unconfirmed transaction${count > 1 ? 's' : ''}',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: PaisaColors.textPrimary,
+                      color: SpendlerColors.textPrimary,
                     ),
                   ),
                   const Text(
                     'Tap to review & confirm',
                     style: TextStyle(
                       fontSize: 12,
-                      color: PaisaColors.textSecondary,
+                      color: SpendlerColors.textSecondary,
                     ),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: PaisaColors.textTertiary),
+            const Icon(Icons.chevron_right, color: SpendlerColors.textTertiary),
           ],
         ),
       ),

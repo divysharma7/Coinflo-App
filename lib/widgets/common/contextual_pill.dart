@@ -16,9 +16,9 @@ class ContextualPill extends StatelessWidget {
   final DeltaType type;
 
   Color get _foreground => switch (type) {
-        DeltaType.positive => PaisaColors.accentGreen,
-        DeltaType.negative => PaisaColors.accentAmber,
-        DeltaType.neutral => PaisaColors.accentBlue,
+        DeltaType.positive => SpendlerColors.accentGreen,
+        DeltaType.negative => SpendlerColors.accentAmber,
+        DeltaType.neutral => SpendlerColors.accentBlue,
       };
 
   @override
@@ -27,14 +27,14 @@ class ContextualPill extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: _foreground.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(PaisaRadii.pill),
+        borderRadius: BorderRadius.circular(SpendlerRadii.pill),
       ),
       child: Text(
         text.toUpperCase(),
         style: TextStyle(
           color: _foreground,
-          fontSize: PaisaTypo.captionSize,
-          fontWeight: PaisaTypo.captionWeight,
+          fontSize: SpendlerTypo.captionSize,
+          fontWeight: SpendlerTypo.captionWeight,
           letterSpacing: 0.5,
         ),
       ),

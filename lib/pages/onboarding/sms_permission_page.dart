@@ -43,27 +43,27 @@ class _SmsPermissionPageState extends State<SmsPermissionPage> {
   void _showDeniedOnceSheet() {
     showModalBottomSheet<void>(
       context: context,
-      backgroundColor: PaisaColors.surfaceHigh,
+      backgroundColor: SpendlerColors.surfaceHigh,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(PaisaRadii.sheet)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(SpendlerRadii.sheet)),
       ),
       builder: (_) => Padding(
-        padding: const EdgeInsets.all(PaisaSpacing.lg),
+        padding: const EdgeInsets.all(SpendlerSpacing.lg),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'SMS access is needed',
-              style: PaisaTextStyles.onboardingHeadline,
+              style: SpendlerTextStyles.onboardingHeadline,
             ),
-            const SizedBox(height: PaisaSpacing.sm),
+            const SizedBox(height: SpendlerSpacing.sm),
             const Text(
               'Without it, transactions won\'t be captured automatically. '
               'You can still add them manually.',
-              style: PaisaTextStyles.onboardingBody,
+              style: SpendlerTextStyles.onboardingBody,
             ),
-            const SizedBox(height: PaisaSpacing.lg),
+            const SizedBox(height: SpendlerSpacing.lg),
             NeoPOPButton(
               label: 'Try Again',
               onTap: () {
@@ -71,7 +71,7 @@ class _SmsPermissionPageState extends State<SmsPermissionPage> {
                 _requestPermission();
               },
             ),
-            const SizedBox(height: PaisaSpacing.md),
+            const SizedBox(height: SpendlerSpacing.md),
             Center(
               child: TextButton(
                 onPressed: () {
@@ -80,11 +80,11 @@ class _SmsPermissionPageState extends State<SmsPermissionPage> {
                 },
                 child: const Text(
                   'Continue without SMS',
-                  style: TextStyle(color: PaisaColors.textSecondary, fontSize: 14),
+                  style: TextStyle(color: SpendlerColors.textSecondary, fontSize: 14),
                 ),
               ),
             ),
-            const SizedBox(height: PaisaSpacing.md),
+            const SizedBox(height: SpendlerSpacing.md),
           ],
         ),
       ),
@@ -94,56 +94,56 @@ class _SmsPermissionPageState extends State<SmsPermissionPage> {
   void _showPermanentlyDeniedSheet() {
     showModalBottomSheet<void>(
       context: context,
-      backgroundColor: PaisaColors.surfaceHigh,
+      backgroundColor: SpendlerColors.surfaceHigh,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(PaisaRadii.sheet)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(SpendlerRadii.sheet)),
       ),
       builder: (_) => Padding(
-        padding: const EdgeInsets.all(PaisaSpacing.lg),
+        padding: const EdgeInsets.all(SpendlerSpacing.lg),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'SMS access was blocked',
-              style: PaisaTextStyles.onboardingHeadline,
+              style: SpendlerTextStyles.onboardingHeadline,
             ),
-            const SizedBox(height: PaisaSpacing.sm),
+            const SizedBox(height: SpendlerSpacing.sm),
             const Text(
               'You\'ll need to enable it manually in Settings.',
-              style: PaisaTextStyles.onboardingBody,
+              style: SpendlerTextStyles.onboardingBody,
             ),
-            const SizedBox(height: PaisaSpacing.md),
+            const SizedBox(height: SpendlerSpacing.md),
             // Step-by-step instructions.
             // These steps are intentionally generic so they work across all
             // Android OEMs including Samsung (One UI), Xiaomi (MIUI), etc.
             // Samsung path: Settings → Apps → Pulse → Permissions → SMS → Allow
             // which matches the wording below.
             Container(
-              padding: const EdgeInsets.all(PaisaSpacing.cardPadding),
+              padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
               decoration: BoxDecoration(
-                color: PaisaColors.surface,
-                borderRadius: BorderRadius.circular(PaisaRadii.button),
+                color: SpendlerColors.surface,
+                borderRadius: BorderRadius.circular(SpendlerRadii.button),
               ),
               child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('1. Open Settings', style: TextStyle(color: PaisaColors.textPrimary, fontSize: 14)),
+                  Text('1. Open Settings', style: TextStyle(color: SpendlerColors.textPrimary, fontSize: 14)),
                   SizedBox(height: 4),
-                  Text('2. Apps → Pulse → Permissions', style: TextStyle(color: PaisaColors.textPrimary, fontSize: 14)),
+                  Text('2. Apps → Pulse → Permissions', style: TextStyle(color: SpendlerColors.textPrimary, fontSize: 14)),
                   SizedBox(height: 4),
-                  Text('3. SMS → Allow', style: TextStyle(color: PaisaColors.textPrimary, fontSize: 14)),
+                  Text('3. SMS → Allow', style: TextStyle(color: SpendlerColors.textPrimary, fontSize: 14)),
                 ],
               ),
             ),
-            const SizedBox(height: PaisaSpacing.lg),
+            const SizedBox(height: SpendlerSpacing.lg),
             NeoPOPButton(
               label: 'Open Settings',
               onTap: () {
                 openAppSettings();
               },
             ),
-            const SizedBox(height: PaisaSpacing.md),
+            const SizedBox(height: SpendlerSpacing.md),
             Center(
               child: TextButton(
                 onPressed: () {
@@ -152,11 +152,11 @@ class _SmsPermissionPageState extends State<SmsPermissionPage> {
                 },
                 child: const Text(
                   'Continue without SMS',
-                  style: TextStyle(color: PaisaColors.textSecondary, fontSize: 14),
+                  style: TextStyle(color: SpendlerColors.textSecondary, fontSize: 14),
                 ),
               ),
             ),
-            const SizedBox(height: PaisaSpacing.md),
+            const SizedBox(height: SpendlerSpacing.md),
           ],
         ),
       ),
@@ -166,58 +166,58 @@ class _SmsPermissionPageState extends State<SmsPermissionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: PaisaColors.scaffold,
+      backgroundColor: SpendlerColors.scaffold,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(PaisaSpacing.xl),
+          padding: const EdgeInsets.all(SpendlerSpacing.xl),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Spacer(),
 
               // What we read
-              PhosphorIcon(PhosphorIcons.shieldCheck(), color: PaisaColors.yellow, size: 48),
-              const SizedBox(height: PaisaSpacing.lg),
+              PhosphorIcon(PhosphorIcons.shieldCheck(), color: SpendlerColors.yellow, size: 48),
+              const SizedBox(height: SpendlerSpacing.lg),
               const Text(
                 'What Pulse reads\nfrom your SMS',
-                style: PaisaTextStyles.onboardingHeadline,
+                style: SpendlerTextStyles.onboardingHeadline,
               ),
-              const SizedBox(height: PaisaSpacing.lg),
+              const SizedBox(height: SpendlerSpacing.lg),
 
               _BulletRow(
                 icon: PhosphorIcons.check(),
-                color: PaisaColors.income,
+                color: SpendlerColors.income,
                 text: 'SBI bank transaction alerts',
               ),
-              const SizedBox(height: PaisaSpacing.cardGap),
+              const SizedBox(height: SpendlerSpacing.cardGap),
               _BulletRow(
                 icon: PhosphorIcons.check(),
-                color: PaisaColors.income,
+                color: SpendlerColors.income,
                 text: 'UPI payment confirmations',
               ),
-              const SizedBox(height: PaisaSpacing.lg),
+              const SizedBox(height: SpendlerSpacing.lg),
               _BulletRow(
                 icon: PhosphorIcons.x(),
-                color: PaisaColors.expense,
+                color: SpendlerColors.expense,
                 text: 'Personal messages — never read',
               ),
-              const SizedBox(height: PaisaSpacing.cardGap),
+              const SizedBox(height: SpendlerSpacing.cardGap),
               _BulletRow(
                 icon: PhosphorIcons.x(),
-                color: PaisaColors.expense,
+                color: SpendlerColors.expense,
                 text: 'OTPs — ignored completely',
               ),
-              const SizedBox(height: PaisaSpacing.cardGap),
+              const SizedBox(height: SpendlerSpacing.cardGap),
               _BulletRow(
                 icon: PhosphorIcons.x(),
-                color: PaisaColors.expense,
+                color: SpendlerColors.expense,
                 text: 'Non-bank SMS — filtered out',
               ),
 
-              const SizedBox(height: PaisaSpacing.md),
+              const SizedBox(height: SpendlerSpacing.md),
               const Text(
                 'All data stays on your device. Nothing leaves your phone.',
-                style: TextStyle(color: PaisaColors.textTertiary, fontSize: 12),
+                style: TextStyle(color: SpendlerColors.textTertiary, fontSize: 12),
               ),
 
               const Spacer(),
@@ -225,24 +225,24 @@ class _SmsPermissionPageState extends State<SmsPermissionPage> {
               // CTA
               if (_requesting)
                 const Center(
-                  child: CircularProgressIndicator(color: PaisaColors.yellow),
+                  child: CircularProgressIndicator(color: SpendlerColors.yellow),
                 )
               else
                 NeoPOPButton(
                   label: 'Allow SMS Access',
                   onTap: _requestPermission,
                 ),
-              const SizedBox(height: PaisaSpacing.md),
+              const SizedBox(height: SpendlerSpacing.md),
               Center(
                 child: TextButton(
                   onPressed: widget.onComplete,
                   child: const Text(
                     'I\'ll add manually',
-                    style: TextStyle(color: PaisaColors.textSecondary, fontSize: 14),
+                    style: TextStyle(color: SpendlerColors.textSecondary, fontSize: 14),
                   ),
                 ),
               ),
-              const SizedBox(height: PaisaSpacing.md),
+              const SizedBox(height: SpendlerSpacing.md),
             ],
           ),
         ),
@@ -267,11 +267,11 @@ class _BulletRow extends StatelessWidget {
     return Row(
       children: [
         PhosphorIcon(icon, color: color, size: 18),
-        const SizedBox(width: PaisaSpacing.cardGap),
+        const SizedBox(width: SpendlerSpacing.cardGap),
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(color: PaisaColors.textPrimary, fontSize: 15),
+            style: const TextStyle(color: SpendlerColors.textPrimary, fontSize: 15),
           ),
         ),
       ],

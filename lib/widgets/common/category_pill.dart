@@ -19,12 +19,12 @@ class CategoryPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Dominant category gets its active colour; rest stay muted.
-    final activeColor = PaisaColors.categoryColor(category);
-    final color = selected ? activeColor : PaisaColors.categoryMuted;
-    final textColor = selected ? activeColor : PaisaColors.textSecondary;
+    final activeColor = SpendlerColors.categoryColor(category);
+    final color = selected ? activeColor : SpendlerColors.categoryMuted;
+    final textColor = selected ? activeColor : SpendlerColors.textSecondary;
 
     final label = amount != null
-        ? '${category.label} ₹${amount!.toStringAsFixed(0)}'
+        ? '${category.label} \$${amount!.toStringAsFixed(0)}'
         : category.label;
 
     return GestureDetector(
@@ -33,7 +33,7 @@ class CategoryPill extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
           color: color.withValues(alpha: selected ? 0.2 : 0.12),
-          borderRadius: BorderRadius.circular(PaisaRadii.pill),
+          borderRadius: BorderRadius.circular(SpendlerRadii.pill),
           border: selected ? Border.all(color: activeColor, width: 1.5) : null,
         ),
         child: Row(

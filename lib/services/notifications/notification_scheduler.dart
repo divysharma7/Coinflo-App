@@ -16,14 +16,14 @@ class NotificationScheduler {
         'Your day isn\'t done yet — a few transactions need a quick look.';
     await _notifService.scheduleDailyReminder(
       AppConstants.notifEveningCheckin,
-      'Pulse',
+      'Spendler',
       copyText,
       AppConstants.eveningCheckinHour,
       AppConstants.eveningCheckinMinute,
     );
     await _repository.insertNotification(AppNotificationsCompanion.insert(
       type: 'checkin',
-      title: 'Pulse',
+      title: 'Spendler',
       body: copyText,
     ));
   }
@@ -54,12 +54,12 @@ class NotificationScheduler {
       final copyText = NotificationCopy.transactionDetected(count);
       await _notifService.show(
         AppConstants.notifTransactionDetectedBase,
-        'Pulse',
+        'Spendler',
         copyText,
       );
       await _repository.insertNotification(AppNotificationsCompanion.insert(
         type: 'transaction',
-        title: 'Pulse',
+        title: 'Spendler',
         body: copyText,
       ));
     }

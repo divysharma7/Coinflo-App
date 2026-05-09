@@ -187,7 +187,7 @@ class LocalTransactionRepository implements TransactionRepository {
 
     // Group by category → week index (0=oldest, 3=this week)
     final result = <String, List<double>>{};
-    final categories = ['rent', 'transport', 'food', 'family', 'social', 'other'];
+    final categories = ['housing', 'transport', 'food', 'shopping', 'entertainment', 'health', 'education', 'utilities', 'other'];
     for (final cat in categories) {
       result[cat] = List.filled(4, 0.0);
     }
@@ -391,7 +391,7 @@ class LocalTransactionRepository implements TransactionRepository {
               t.amount.isSmallerThanValue(0)))
         .get();
 
-    final categories = ['rent', 'transport', 'food', 'family', 'social', 'other'];
+    final categories = ['housing', 'transport', 'food', 'shopping', 'entertainment', 'health', 'education', 'utilities', 'other'];
     final result = <String, List<double>>{};
     for (final cat in categories) {
       result[cat] = [0, 0]; // [thisMonth, lastMonth]

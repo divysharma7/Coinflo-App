@@ -24,11 +24,11 @@ class WeeklySummaryPoster extends StatelessWidget {
 
     return Container(
       width: 400,
-      padding: const EdgeInsets.all(PaisaSpacing.lg),
+      padding: const EdgeInsets.all(SpendlerSpacing.lg),
       decoration: BoxDecoration(
-        color: PaisaColors.surface,
+        color: SpendlerColors.surface,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: PaisaShadows.card,
+        boxShadow: SpendlerShadows.card,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -36,9 +36,9 @@ class WeeklySummaryPoster extends StatelessWidget {
         children: [
           // Header
           const Text(
-            'PULSE',
+            'SPENDLER',
             style: TextStyle(
-              color: PaisaColors.textTertiary,
+              color: SpendlerColors.textTertiary,
               fontSize: 12,
               letterSpacing: 2,
               fontWeight: FontWeight.w600,
@@ -48,26 +48,26 @@ class WeeklySummaryPoster extends StatelessWidget {
           const Text(
             'Weekly Summary',
             style: TextStyle(
-              color: PaisaColors.textPrimary,
-              fontSize: PaisaTypo.titleSize,
-              fontWeight: PaisaTypo.titleWeight,
+              color: SpendlerColors.textPrimary,
+              fontSize: SpendlerTypo.titleSize,
+              fontWeight: SpendlerTypo.titleWeight,
             ),
           ),
           Text(
             dateRange,
             style: const TextStyle(
-              color: PaisaColors.textSecondary,
-              fontSize: PaisaTypo.bodySize,
+              color: SpendlerColors.textSecondary,
+              fontSize: SpendlerTypo.bodySize,
             ),
           ),
-          const SizedBox(height: PaisaSpacing.lg),
+          const SizedBox(height: SpendlerSpacing.lg),
 
           // Total — hero number style
           Container(
-            padding: const EdgeInsets.all(PaisaSpacing.cardPadding),
+            padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
             decoration: BoxDecoration(
-              color: PaisaColors.surfaceSecondary,
-              borderRadius: BorderRadius.circular(PaisaRadii.button),
+              color: SpendlerColors.surfaceSecondary,
+              borderRadius: BorderRadius.circular(SpendlerRadii.button),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -75,7 +75,7 @@ class WeeklySummaryPoster extends StatelessWidget {
                 const Text(
                   'Total Spent',
                   style: TextStyle(
-                    color: PaisaColors.textSecondary,
+                    color: SpendlerColors.textSecondary,
                     fontSize: 16,
                   ),
                 ),
@@ -84,9 +84,9 @@ class WeeklySummaryPoster extends StatelessWidget {
                   textBaseline: TextBaseline.alphabetic,
                   children: [
                     const Text(
-                      'Rs',
+                      '\$',
                       style: TextStyle(
-                        color: PaisaColors.textSecondary,
+                        color: SpendlerColors.textSecondary,
                         fontSize: 16,
                         fontWeight: FontWeight.w400,
                       ),
@@ -95,7 +95,7 @@ class WeeklySummaryPoster extends StatelessWidget {
                     Text(
                       totalSpent.toStringAsFixed(0),
                       style: const TextStyle(
-                        color: PaisaColors.accentYellow,
+                        color: SpendlerColors.accentYellow,
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
                       ),
@@ -105,7 +105,7 @@ class WeeklySummaryPoster extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: PaisaSpacing.md),
+          const SizedBox(height: SpendlerSpacing.md),
 
           // Category breakdown
           ...categoryTotals.entries.take(4).map((e) {
@@ -118,23 +118,23 @@ class WeeklySummaryPoster extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: Row(
                 children: [
-                  Icon(cat.icon, color: PaisaColors.categoryColor(cat), size: 18),
+                  Icon(cat.icon, color: SpendlerColors.categoryColor(cat), size: 18),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       cat.label,
                       style: const TextStyle(
-                        color: PaisaColors.textPrimary,
-                        fontSize: PaisaTypo.bodySize,
+                        color: SpendlerColors.textPrimary,
+                        fontSize: SpendlerTypo.bodySize,
                       ),
                     ),
                   ),
                   Text(
-                    '₹${e.value.toStringAsFixed(0)} (${pct.toStringAsFixed(0)}%)',
+                    '\$${e.value.toStringAsFixed(0)} (${pct.toStringAsFixed(0)}%)',
                     style: const TextStyle(
-                      color: PaisaColors.textPrimary,
+                      color: SpendlerColors.textPrimary,
                       fontWeight: FontWeight.bold,
-                      fontSize: PaisaTypo.bodySize,
+                      fontSize: SpendlerTypo.bodySize,
                     ),
                   ),
                 ],
@@ -143,12 +143,12 @@ class WeeklySummaryPoster extends StatelessWidget {
           }),
 
           const SizedBox(height: 20),
-          const Divider(color: PaisaColors.surfaceSecondary),
+          const Divider(color: SpendlerColors.surfaceSecondary),
           const SizedBox(height: 8),
           const Text(
-            'Feel your financial rhythm.',
+            'Track your spending habits.',
             style: TextStyle(
-              color: PaisaColors.textTertiary,
+              color: SpendlerColors.textTertiary,
               fontSize: 11,
               fontStyle: FontStyle.italic,
             ),
