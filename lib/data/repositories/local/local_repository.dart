@@ -7,6 +7,7 @@ import 'package:finance_buddy_app/data/repositories/local/local_friend_split_rep
 import 'package:finance_buddy_app/data/repositories/local/local_metrics_repository.dart';
 import 'package:finance_buddy_app/data/repositories/local/local_notification_repository.dart';
 import 'package:finance_buddy_app/data/repositories/local/local_reflection_repository.dart';
+import 'package:finance_buddy_app/data/repositories/local/local_subscription_repository.dart';
 import 'package:finance_buddy_app/data/repositories/local/local_transaction_repository.dart';
 
 class LocalRepository extends BaseRepository {
@@ -18,6 +19,7 @@ class LocalRepository extends BaseRepository {
   late final LocalMetricsRepository _metricsRepo;
   late final LocalNotificationRepository _notifRepo;
   late final LocalFriendSplitRepository _friendSplitRepo;
+  late final LocalSubscriptionRepository _subscriptionRepo;
 
   LocalRepository(this.db) {
     _txnRepo = LocalTransactionRepository(db);
@@ -26,6 +28,7 @@ class LocalRepository extends BaseRepository {
     _metricsRepo = LocalMetricsRepository(db);
     _notifRepo = LocalNotificationRepository(db);
     _friendSplitRepo = LocalFriendSplitRepository(db);
+    _subscriptionRepo = LocalSubscriptionRepository(db);
   }
 
   // ─── Transaction delegates ──────────────────────────
@@ -243,4 +246,38 @@ class LocalRepository extends BaseRepository {
   @override
   Future<int> createSplit(FriendSplitsCompanion entry) =>
       _friendSplitRepo.createSplit(entry);
+
+  // ─── Subscription delegates ────────────────────────────
+
+  @override
+  Stream<List<Subscription>> watchAllSubscriptions() =>
+      _subscriptionRepo.watchAllSubscriptions();
+
+  @override
+  Stream<List<Subscription>> watchActiveSubscriptions() =>
+      _subscriptionRepo.watchActiveSubscriptions();
+
+  @override
+  Future<Subscription?> getSubscriptionById(int id) =>
+      _subscriptionRepo.getSubscriptionById(id);
+
+  @override
+  Future<int> insertSubscription(SubscriptionsCompanion entry) =>
+      _subscriptionRepo.insertSubscription(entry);
+
+  @override
+  Future<void> updateSubscription(int id, SubscriptionsCompanion entry) =>
+      _subscriptionRepo.updateSubscription(id, entry);
+
+  @override
+  Future<void> toggleSubscriptionActive(int id, bool isActive) =>
+      _subscriptionRepo.toggleSubscriptionActive(id, isActive);
+
+  @override
+  Future<void> deleteSubscription(int id) =>
+      _subscriptionRepo.deleteSubscription(id);
+
+  @override
+  Future<double> getSubscriptionMonthlyTotal() =>
+      _subscriptionRepo.getSubscriptionMonthlyTotal();
 }
