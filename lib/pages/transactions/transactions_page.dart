@@ -11,7 +11,7 @@ import 'package:finance_buddy_app/widgets/common/amount_text.dart';
 import 'package:finance_buddy_app/widgets/common/empty_state.dart';
 import 'package:finance_buddy_app/widgets/common/neo_pop_button.dart';
 import 'package:finance_buddy_app/pages/transactions/transaction_detail_page.dart';
-import 'package:finance_buddy_app/widgets/common/paisa_bottom_sheet.dart';
+import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 import 'package:finance_buddy_app/widgets/common/animations.dart';
 
 class TransactionsPage extends ConsumerWidget {
@@ -189,10 +189,10 @@ class TransactionsPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildTile(BuildContext context, PaisaTransaction t, {bool isUnconfirmed = false}) {
+  Widget _buildTile(BuildContext context, SpendlerTransaction t, {bool isUnconfirmed = false}) {
     final cat = TransactionCategory.values.firstWhere(
       (c) => c.name == t.category,
-      orElse: () => TransactionCategory.other,
+      orElse: () => TransactionCategory.foodAndDrink,
     );
     final catColor = SpendlerColors.categoryColor(cat);
     final isSent = t.amount < 0;

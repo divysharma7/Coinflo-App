@@ -111,7 +111,7 @@ class WeeklySummaryPoster extends StatelessWidget {
           ...categoryTotals.entries.take(4).map((e) {
             final cat = TransactionCategory.values.firstWhere(
               (c) => c.name == e.key,
-              orElse: () => TransactionCategory.other,
+              orElse: () => TransactionCategory.foodAndDrink,
             );
             final pct = totalSpent > 0 ? (e.value / totalSpent * 100) : 0;
             return Padding(

@@ -15,7 +15,7 @@ class QuickAddSheet extends ConsumerStatefulWidget {
 
 class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
   String _amount = '';
-  TransactionCategory _category = TransactionCategory.other;
+  TransactionCategory _category = TransactionCategory.foodAndDrink;
   final _noteController = TextEditingController();
   bool _isExpense = true;
 
@@ -211,7 +211,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
     if (amount == null || amount <= 0) return;
 
     final repo = ref.read(repositoryProvider);
-    await repo.insertTransaction(PaisaTransactionsCompanion.insert(
+    await repo.insertTransaction(SpendlerTransactionsCompanion.insert(
       amount: _isExpense ? -amount : amount,
       category: _category.name,
       note: Value(_noteController.text.trim().isEmpty ? null : _noteController.text.trim()),

@@ -3,12 +3,12 @@
 part of 'db.dart';
 
 // ignore_for_file: type=lint
-class $PaisaTransactionsTable extends PaisaTransactions
-    with TableInfo<$PaisaTransactionsTable, PaisaTransaction> {
+class $SpendlerTransactionsTable extends SpendlerTransactions
+    with TableInfo<$SpendlerTransactionsTable, SpendlerTransaction> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $PaisaTransactionsTable(this.attachedDatabase, [this._alias]);
+  $SpendlerTransactionsTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -213,10 +213,10 @@ class $PaisaTransactionsTable extends PaisaTransactions
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'paisa_transactions';
+  static const String $name = 'spendler_transactions';
   @override
   VerificationContext validateIntegrity(
-    Insertable<PaisaTransaction> instance, {
+    Insertable<SpendlerTransaction> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -333,9 +333,9 @@ class $PaisaTransactionsTable extends PaisaTransactions
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  PaisaTransaction map(Map<String, dynamic> data, {String? tablePrefix}) {
+  SpendlerTransaction map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return PaisaTransaction(
+    return SpendlerTransaction(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}id'],
@@ -404,13 +404,13 @@ class $PaisaTransactionsTable extends PaisaTransactions
   }
 
   @override
-  $PaisaTransactionsTable createAlias(String alias) {
-    return $PaisaTransactionsTable(attachedDatabase, alias);
+  $SpendlerTransactionsTable createAlias(String alias) {
+    return $SpendlerTransactionsTable(attachedDatabase, alias);
   }
 }
 
-class PaisaTransaction extends DataClass
-    implements Insertable<PaisaTransaction> {
+class SpendlerTransaction extends DataClass
+    implements Insertable<SpendlerTransaction> {
   final int id;
   final double amount;
   final String category;
@@ -427,7 +427,7 @@ class PaisaTransaction extends DataClass
   final String ledgerType;
   final String? syncId;
   final DateTime createdAt;
-  const PaisaTransaction({
+  const SpendlerTransaction({
     required this.id,
     required this.amount,
     required this.category,
@@ -479,8 +479,8 @@ class PaisaTransaction extends DataClass
     return map;
   }
 
-  PaisaTransactionsCompanion toCompanion(bool nullToAbsent) {
-    return PaisaTransactionsCompanion(
+  SpendlerTransactionsCompanion toCompanion(bool nullToAbsent) {
+    return SpendlerTransactionsCompanion(
       id: Value(id),
       amount: Value(amount),
       category: Value(category),
@@ -510,12 +510,12 @@ class PaisaTransaction extends DataClass
     );
   }
 
-  factory PaisaTransaction.fromJson(
+  factory SpendlerTransaction.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return PaisaTransaction(
+    return SpendlerTransaction(
       id: serializer.fromJson<int>(json['id']),
       amount: serializer.fromJson<double>(json['amount']),
       category: serializer.fromJson<String>(json['category']),
@@ -559,7 +559,7 @@ class PaisaTransaction extends DataClass
     };
   }
 
-  PaisaTransaction copyWith({
+  SpendlerTransaction copyWith({
     int? id,
     double? amount,
     String? category,
@@ -576,7 +576,7 @@ class PaisaTransaction extends DataClass
     String? ledgerType,
     Value<String?> syncId = const Value.absent(),
     DateTime? createdAt,
-  }) => PaisaTransaction(
+  }) => SpendlerTransaction(
     id: id ?? this.id,
     amount: amount ?? this.amount,
     category: category ?? this.category,
@@ -596,8 +596,8 @@ class PaisaTransaction extends DataClass
     syncId: syncId.present ? syncId.value : this.syncId,
     createdAt: createdAt ?? this.createdAt,
   );
-  PaisaTransaction copyWithCompanion(PaisaTransactionsCompanion data) {
-    return PaisaTransaction(
+  SpendlerTransaction copyWithCompanion(SpendlerTransactionsCompanion data) {
+    return SpendlerTransaction(
       id: data.id.present ? data.id.value : this.id,
       amount: data.amount.present ? data.amount.value : this.amount,
       category: data.category.present ? data.category.value : this.category,
@@ -631,7 +631,7 @@ class PaisaTransaction extends DataClass
 
   @override
   String toString() {
-    return (StringBuffer('PaisaTransaction(')
+    return (StringBuffer('SpendlerTransaction(')
           ..write('id: $id, ')
           ..write('amount: $amount, ')
           ..write('category: $category, ')
@@ -674,7 +674,7 @@ class PaisaTransaction extends DataClass
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is PaisaTransaction &&
+      (other is SpendlerTransaction &&
           other.id == this.id &&
           other.amount == this.amount &&
           other.category == this.category &&
@@ -693,7 +693,7 @@ class PaisaTransaction extends DataClass
           other.createdAt == this.createdAt);
 }
 
-class PaisaTransactionsCompanion extends UpdateCompanion<PaisaTransaction> {
+class SpendlerTransactionsCompanion extends UpdateCompanion<SpendlerTransaction> {
   final Value<int> id;
   final Value<double> amount;
   final Value<String> category;
@@ -710,7 +710,7 @@ class PaisaTransactionsCompanion extends UpdateCompanion<PaisaTransaction> {
   final Value<String> ledgerType;
   final Value<String?> syncId;
   final Value<DateTime> createdAt;
-  const PaisaTransactionsCompanion({
+  const SpendlerTransactionsCompanion({
     this.id = const Value.absent(),
     this.amount = const Value.absent(),
     this.category = const Value.absent(),
@@ -728,7 +728,7 @@ class PaisaTransactionsCompanion extends UpdateCompanion<PaisaTransaction> {
     this.syncId = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
-  PaisaTransactionsCompanion.insert({
+  SpendlerTransactionsCompanion.insert({
     this.id = const Value.absent(),
     required double amount,
     required String category,
@@ -747,7 +747,7 @@ class PaisaTransactionsCompanion extends UpdateCompanion<PaisaTransaction> {
     this.createdAt = const Value.absent(),
   }) : amount = Value(amount),
        category = Value(category);
-  static Insertable<PaisaTransaction> custom({
+  static Insertable<SpendlerTransaction> custom({
     Expression<int>? id,
     Expression<double>? amount,
     Expression<String>? category,
@@ -786,7 +786,7 @@ class PaisaTransactionsCompanion extends UpdateCompanion<PaisaTransaction> {
     });
   }
 
-  PaisaTransactionsCompanion copyWith({
+  SpendlerTransactionsCompanion copyWith({
     Value<int>? id,
     Value<double>? amount,
     Value<String>? category,
@@ -804,7 +804,7 @@ class PaisaTransactionsCompanion extends UpdateCompanion<PaisaTransaction> {
     Value<String?>? syncId,
     Value<DateTime>? createdAt,
   }) {
-    return PaisaTransactionsCompanion(
+    return SpendlerTransactionsCompanion(
       id: id ?? this.id,
       amount: amount ?? this.amount,
       category: category ?? this.category,
@@ -880,7 +880,7 @@ class PaisaTransactionsCompanion extends UpdateCompanion<PaisaTransaction> {
 
   @override
   String toString() {
-    return (StringBuffer('PaisaTransactionsCompanion(')
+    return (StringBuffer('SpendlerTransactionsCompanion(')
           ..write('id: $id, ')
           ..write('amount: $amount, ')
           ..write('category: $category, ')
@@ -3589,11 +3589,11 @@ class FriendSplitsCompanion extends UpdateCompanion<FriendSplit> {
   }
 }
 
-abstract class _$PaisaDatabase extends GeneratedDatabase {
-  _$PaisaDatabase(QueryExecutor e) : super(e);
-  $PaisaDatabaseManager get managers => $PaisaDatabaseManager(this);
-  late final $PaisaTransactionsTable paisaTransactions =
-      $PaisaTransactionsTable(this);
+abstract class _$SpendlerDatabase extends GeneratedDatabase {
+  _$SpendlerDatabase(QueryExecutor e) : super(e);
+  $SpendlerDatabaseManager get managers => $SpendlerDatabaseManager(this);
+  late final $SpendlerTransactionsTable spendlerTransactions =
+      $SpendlerTransactionsTable(this);
   late final $FamilyEntriesTable familyEntries = $FamilyEntriesTable(this);
   late final $WeeklyReflectionsTable weeklyReflections =
       $WeeklyReflectionsTable(this);
@@ -3608,7 +3608,7 @@ abstract class _$PaisaDatabase extends GeneratedDatabase {
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
-    paisaTransactions,
+    spendlerTransactions,
     familyEntries,
     weeklyReflections,
     appMetrics,
@@ -3618,8 +3618,8 @@ abstract class _$PaisaDatabase extends GeneratedDatabase {
   ];
 }
 
-typedef $$PaisaTransactionsTableCreateCompanionBuilder =
-    PaisaTransactionsCompanion Function({
+typedef $$SpendlerTransactionsTableCreateCompanionBuilder =
+    SpendlerTransactionsCompanion Function({
       Value<int> id,
       required double amount,
       required String category,
@@ -3637,8 +3637,8 @@ typedef $$PaisaTransactionsTableCreateCompanionBuilder =
       Value<String?> syncId,
       Value<DateTime> createdAt,
     });
-typedef $$PaisaTransactionsTableUpdateCompanionBuilder =
-    PaisaTransactionsCompanion Function({
+typedef $$SpendlerTransactionsTableUpdateCompanionBuilder =
+    SpendlerTransactionsCompanion Function({
       Value<int> id,
       Value<double> amount,
       Value<String> category,
@@ -3657,9 +3657,9 @@ typedef $$PaisaTransactionsTableUpdateCompanionBuilder =
       Value<DateTime> createdAt,
     });
 
-class $$PaisaTransactionsTableFilterComposer
-    extends Composer<_$PaisaDatabase, $PaisaTransactionsTable> {
-  $$PaisaTransactionsTableFilterComposer({
+class $$SpendlerTransactionsTableFilterComposer
+    extends Composer<_$SpendlerDatabase, $SpendlerTransactionsTable> {
+  $$SpendlerTransactionsTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -3747,9 +3747,9 @@ class $$PaisaTransactionsTableFilterComposer
   );
 }
 
-class $$PaisaTransactionsTableOrderingComposer
-    extends Composer<_$PaisaDatabase, $PaisaTransactionsTable> {
-  $$PaisaTransactionsTableOrderingComposer({
+class $$SpendlerTransactionsTableOrderingComposer
+    extends Composer<_$SpendlerDatabase, $SpendlerTransactionsTable> {
+  $$SpendlerTransactionsTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -3837,9 +3837,9 @@ class $$PaisaTransactionsTableOrderingComposer
   );
 }
 
-class $$PaisaTransactionsTableAnnotationComposer
-    extends Composer<_$PaisaDatabase, $PaisaTransactionsTable> {
-  $$PaisaTransactionsTableAnnotationComposer({
+class $$SpendlerTransactionsTableAnnotationComposer
+    extends Composer<_$SpendlerDatabase, $SpendlerTransactionsTable> {
+  $$SpendlerTransactionsTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -3907,41 +3907,41 @@ class $$PaisaTransactionsTableAnnotationComposer
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 }
 
-class $$PaisaTransactionsTableTableManager
+class $$SpendlerTransactionsTableTableManager
     extends
         RootTableManager<
-          _$PaisaDatabase,
-          $PaisaTransactionsTable,
-          PaisaTransaction,
-          $$PaisaTransactionsTableFilterComposer,
-          $$PaisaTransactionsTableOrderingComposer,
-          $$PaisaTransactionsTableAnnotationComposer,
-          $$PaisaTransactionsTableCreateCompanionBuilder,
-          $$PaisaTransactionsTableUpdateCompanionBuilder,
+          _$SpendlerDatabase,
+          $SpendlerTransactionsTable,
+          SpendlerTransaction,
+          $$SpendlerTransactionsTableFilterComposer,
+          $$SpendlerTransactionsTableOrderingComposer,
+          $$SpendlerTransactionsTableAnnotationComposer,
+          $$SpendlerTransactionsTableCreateCompanionBuilder,
+          $$SpendlerTransactionsTableUpdateCompanionBuilder,
           (
-            PaisaTransaction,
+            SpendlerTransaction,
             BaseReferences<
-              _$PaisaDatabase,
-              $PaisaTransactionsTable,
-              PaisaTransaction
+              _$SpendlerDatabase,
+              $SpendlerTransactionsTable,
+              SpendlerTransaction
             >,
           ),
-          PaisaTransaction,
+          SpendlerTransaction,
           PrefetchHooks Function()
         > {
-  $$PaisaTransactionsTableTableManager(
-    _$PaisaDatabase db,
-    $PaisaTransactionsTable table,
+  $$SpendlerTransactionsTableTableManager(
+    _$SpendlerDatabase db,
+    $SpendlerTransactionsTable table,
   ) : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$PaisaTransactionsTableFilterComposer($db: db, $table: table),
+              $$SpendlerTransactionsTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$PaisaTransactionsTableOrderingComposer($db: db, $table: table),
+              $$SpendlerTransactionsTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$PaisaTransactionsTableAnnotationComposer(
+              $$SpendlerTransactionsTableAnnotationComposer(
                 $db: db,
                 $table: table,
               ),
@@ -3963,7 +3963,7 @@ class $$PaisaTransactionsTableTableManager
                 Value<String> ledgerType = const Value.absent(),
                 Value<String?> syncId = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
-              }) => PaisaTransactionsCompanion(
+              }) => SpendlerTransactionsCompanion(
                 id: id,
                 amount: amount,
                 category: category,
@@ -3999,7 +3999,7 @@ class $$PaisaTransactionsTableTableManager
                 Value<String> ledgerType = const Value.absent(),
                 Value<String?> syncId = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
-              }) => PaisaTransactionsCompanion.insert(
+              }) => SpendlerTransactionsCompanion.insert(
                 id: id,
                 amount: amount,
                 category: category,
@@ -4025,25 +4025,25 @@ class $$PaisaTransactionsTableTableManager
       );
 }
 
-typedef $$PaisaTransactionsTableProcessedTableManager =
+typedef $$SpendlerTransactionsTableProcessedTableManager =
     ProcessedTableManager<
-      _$PaisaDatabase,
-      $PaisaTransactionsTable,
-      PaisaTransaction,
-      $$PaisaTransactionsTableFilterComposer,
-      $$PaisaTransactionsTableOrderingComposer,
-      $$PaisaTransactionsTableAnnotationComposer,
-      $$PaisaTransactionsTableCreateCompanionBuilder,
-      $$PaisaTransactionsTableUpdateCompanionBuilder,
+      _$SpendlerDatabase,
+      $SpendlerTransactionsTable,
+      SpendlerTransaction,
+      $$SpendlerTransactionsTableFilterComposer,
+      $$SpendlerTransactionsTableOrderingComposer,
+      $$SpendlerTransactionsTableAnnotationComposer,
+      $$SpendlerTransactionsTableCreateCompanionBuilder,
+      $$SpendlerTransactionsTableUpdateCompanionBuilder,
       (
-        PaisaTransaction,
+        SpendlerTransaction,
         BaseReferences<
-          _$PaisaDatabase,
-          $PaisaTransactionsTable,
-          PaisaTransaction
+          _$SpendlerDatabase,
+          $SpendlerTransactionsTable,
+          SpendlerTransaction
         >,
       ),
-      PaisaTransaction,
+      SpendlerTransaction,
       PrefetchHooks Function()
     >;
 typedef $$FamilyEntriesTableCreateCompanionBuilder =
@@ -4072,7 +4072,7 @@ typedef $$FamilyEntriesTableUpdateCompanionBuilder =
     });
 
 class $$FamilyEntriesTableFilterComposer
-    extends Composer<_$PaisaDatabase, $FamilyEntriesTable> {
+    extends Composer<_$SpendlerDatabase, $FamilyEntriesTable> {
   $$FamilyEntriesTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -4127,7 +4127,7 @@ class $$FamilyEntriesTableFilterComposer
 }
 
 class $$FamilyEntriesTableOrderingComposer
-    extends Composer<_$PaisaDatabase, $FamilyEntriesTable> {
+    extends Composer<_$SpendlerDatabase, $FamilyEntriesTable> {
   $$FamilyEntriesTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -4182,7 +4182,7 @@ class $$FamilyEntriesTableOrderingComposer
 }
 
 class $$FamilyEntriesTableAnnotationComposer
-    extends Composer<_$PaisaDatabase, $FamilyEntriesTable> {
+    extends Composer<_$SpendlerDatabase, $FamilyEntriesTable> {
   $$FamilyEntriesTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -4227,7 +4227,7 @@ class $$FamilyEntriesTableAnnotationComposer
 class $$FamilyEntriesTableTableManager
     extends
         RootTableManager<
-          _$PaisaDatabase,
+          _$SpendlerDatabase,
           $FamilyEntriesTable,
           FamilyEntry,
           $$FamilyEntriesTableFilterComposer,
@@ -4237,13 +4237,13 @@ class $$FamilyEntriesTableTableManager
           $$FamilyEntriesTableUpdateCompanionBuilder,
           (
             FamilyEntry,
-            BaseReferences<_$PaisaDatabase, $FamilyEntriesTable, FamilyEntry>,
+            BaseReferences<_$SpendlerDatabase, $FamilyEntriesTable, FamilyEntry>,
           ),
           FamilyEntry,
           PrefetchHooks Function()
         > {
   $$FamilyEntriesTableTableManager(
-    _$PaisaDatabase db,
+    _$SpendlerDatabase db,
     $FamilyEntriesTable table,
   ) : super(
         TableManagerState(
@@ -4309,7 +4309,7 @@ class $$FamilyEntriesTableTableManager
 
 typedef $$FamilyEntriesTableProcessedTableManager =
     ProcessedTableManager<
-      _$PaisaDatabase,
+      _$SpendlerDatabase,
       $FamilyEntriesTable,
       FamilyEntry,
       $$FamilyEntriesTableFilterComposer,
@@ -4319,7 +4319,7 @@ typedef $$FamilyEntriesTableProcessedTableManager =
       $$FamilyEntriesTableUpdateCompanionBuilder,
       (
         FamilyEntry,
-        BaseReferences<_$PaisaDatabase, $FamilyEntriesTable, FamilyEntry>,
+        BaseReferences<_$SpendlerDatabase, $FamilyEntriesTable, FamilyEntry>,
       ),
       FamilyEntry,
       PrefetchHooks Function()
@@ -4346,7 +4346,7 @@ typedef $$WeeklyReflectionsTableUpdateCompanionBuilder =
     });
 
 class $$WeeklyReflectionsTableFilterComposer
-    extends Composer<_$PaisaDatabase, $WeeklyReflectionsTable> {
+    extends Composer<_$SpendlerDatabase, $WeeklyReflectionsTable> {
   $$WeeklyReflectionsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -4391,7 +4391,7 @@ class $$WeeklyReflectionsTableFilterComposer
 }
 
 class $$WeeklyReflectionsTableOrderingComposer
-    extends Composer<_$PaisaDatabase, $WeeklyReflectionsTable> {
+    extends Composer<_$SpendlerDatabase, $WeeklyReflectionsTable> {
   $$WeeklyReflectionsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -4436,7 +4436,7 @@ class $$WeeklyReflectionsTableOrderingComposer
 }
 
 class $$WeeklyReflectionsTableAnnotationComposer
-    extends Composer<_$PaisaDatabase, $WeeklyReflectionsTable> {
+    extends Composer<_$SpendlerDatabase, $WeeklyReflectionsTable> {
   $$WeeklyReflectionsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -4477,7 +4477,7 @@ class $$WeeklyReflectionsTableAnnotationComposer
 class $$WeeklyReflectionsTableTableManager
     extends
         RootTableManager<
-          _$PaisaDatabase,
+          _$SpendlerDatabase,
           $WeeklyReflectionsTable,
           WeeklyReflection,
           $$WeeklyReflectionsTableFilterComposer,
@@ -4488,7 +4488,7 @@ class $$WeeklyReflectionsTableTableManager
           (
             WeeklyReflection,
             BaseReferences<
-              _$PaisaDatabase,
+              _$SpendlerDatabase,
               $WeeklyReflectionsTable,
               WeeklyReflection
             >,
@@ -4497,7 +4497,7 @@ class $$WeeklyReflectionsTableTableManager
           PrefetchHooks Function()
         > {
   $$WeeklyReflectionsTableTableManager(
-    _$PaisaDatabase db,
+    _$SpendlerDatabase db,
     $WeeklyReflectionsTable table,
   ) : super(
         TableManagerState(
@@ -4558,7 +4558,7 @@ class $$WeeklyReflectionsTableTableManager
 
 typedef $$WeeklyReflectionsTableProcessedTableManager =
     ProcessedTableManager<
-      _$PaisaDatabase,
+      _$SpendlerDatabase,
       $WeeklyReflectionsTable,
       WeeklyReflection,
       $$WeeklyReflectionsTableFilterComposer,
@@ -4569,7 +4569,7 @@ typedef $$WeeklyReflectionsTableProcessedTableManager =
       (
         WeeklyReflection,
         BaseReferences<
-          _$PaisaDatabase,
+          _$SpendlerDatabase,
           $WeeklyReflectionsTable,
           WeeklyReflection
         >,
@@ -4593,7 +4593,7 @@ typedef $$AppMetricsTableUpdateCompanionBuilder =
     });
 
 class $$AppMetricsTableFilterComposer
-    extends Composer<_$PaisaDatabase, $AppMetricsTable> {
+    extends Composer<_$SpendlerDatabase, $AppMetricsTable> {
   $$AppMetricsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -4623,7 +4623,7 @@ class $$AppMetricsTableFilterComposer
 }
 
 class $$AppMetricsTableOrderingComposer
-    extends Composer<_$PaisaDatabase, $AppMetricsTable> {
+    extends Composer<_$SpendlerDatabase, $AppMetricsTable> {
   $$AppMetricsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -4653,7 +4653,7 @@ class $$AppMetricsTableOrderingComposer
 }
 
 class $$AppMetricsTableAnnotationComposer
-    extends Composer<_$PaisaDatabase, $AppMetricsTable> {
+    extends Composer<_$SpendlerDatabase, $AppMetricsTable> {
   $$AppMetricsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -4681,7 +4681,7 @@ class $$AppMetricsTableAnnotationComposer
 class $$AppMetricsTableTableManager
     extends
         RootTableManager<
-          _$PaisaDatabase,
+          _$SpendlerDatabase,
           $AppMetricsTable,
           AppMetric,
           $$AppMetricsTableFilterComposer,
@@ -4691,12 +4691,12 @@ class $$AppMetricsTableTableManager
           $$AppMetricsTableUpdateCompanionBuilder,
           (
             AppMetric,
-            BaseReferences<_$PaisaDatabase, $AppMetricsTable, AppMetric>,
+            BaseReferences<_$SpendlerDatabase, $AppMetricsTable, AppMetric>,
           ),
           AppMetric,
           PrefetchHooks Function()
         > {
-  $$AppMetricsTableTableManager(_$PaisaDatabase db, $AppMetricsTable table)
+  $$AppMetricsTableTableManager(_$SpendlerDatabase db, $AppMetricsTable table)
     : super(
         TableManagerState(
           db: db,
@@ -4741,7 +4741,7 @@ class $$AppMetricsTableTableManager
 
 typedef $$AppMetricsTableProcessedTableManager =
     ProcessedTableManager<
-      _$PaisaDatabase,
+      _$SpendlerDatabase,
       $AppMetricsTable,
       AppMetric,
       $$AppMetricsTableFilterComposer,
@@ -4749,7 +4749,7 @@ typedef $$AppMetricsTableProcessedTableManager =
       $$AppMetricsTableAnnotationComposer,
       $$AppMetricsTableCreateCompanionBuilder,
       $$AppMetricsTableUpdateCompanionBuilder,
-      (AppMetric, BaseReferences<_$PaisaDatabase, $AppMetricsTable, AppMetric>),
+      (AppMetric, BaseReferences<_$SpendlerDatabase, $AppMetricsTable, AppMetric>),
       AppMetric,
       PrefetchHooks Function()
     >;
@@ -4773,7 +4773,7 @@ typedef $$AppNotificationsTableUpdateCompanionBuilder =
     });
 
 class $$AppNotificationsTableFilterComposer
-    extends Composer<_$PaisaDatabase, $AppNotificationsTable> {
+    extends Composer<_$SpendlerDatabase, $AppNotificationsTable> {
   $$AppNotificationsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -4813,7 +4813,7 @@ class $$AppNotificationsTableFilterComposer
 }
 
 class $$AppNotificationsTableOrderingComposer
-    extends Composer<_$PaisaDatabase, $AppNotificationsTable> {
+    extends Composer<_$SpendlerDatabase, $AppNotificationsTable> {
   $$AppNotificationsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -4853,7 +4853,7 @@ class $$AppNotificationsTableOrderingComposer
 }
 
 class $$AppNotificationsTableAnnotationComposer
-    extends Composer<_$PaisaDatabase, $AppNotificationsTable> {
+    extends Composer<_$SpendlerDatabase, $AppNotificationsTable> {
   $$AppNotificationsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -4883,7 +4883,7 @@ class $$AppNotificationsTableAnnotationComposer
 class $$AppNotificationsTableTableManager
     extends
         RootTableManager<
-          _$PaisaDatabase,
+          _$SpendlerDatabase,
           $AppNotificationsTable,
           AppNotification,
           $$AppNotificationsTableFilterComposer,
@@ -4894,7 +4894,7 @@ class $$AppNotificationsTableTableManager
           (
             AppNotification,
             BaseReferences<
-              _$PaisaDatabase,
+              _$SpendlerDatabase,
               $AppNotificationsTable,
               AppNotification
             >,
@@ -4903,7 +4903,7 @@ class $$AppNotificationsTableTableManager
           PrefetchHooks Function()
         > {
   $$AppNotificationsTableTableManager(
-    _$PaisaDatabase db,
+    _$SpendlerDatabase db,
     $AppNotificationsTable table,
   ) : super(
         TableManagerState(
@@ -4957,7 +4957,7 @@ class $$AppNotificationsTableTableManager
 
 typedef $$AppNotificationsTableProcessedTableManager =
     ProcessedTableManager<
-      _$PaisaDatabase,
+      _$SpendlerDatabase,
       $AppNotificationsTable,
       AppNotification,
       $$AppNotificationsTableFilterComposer,
@@ -4968,7 +4968,7 @@ typedef $$AppNotificationsTableProcessedTableManager =
       (
         AppNotification,
         BaseReferences<
-          _$PaisaDatabase,
+          _$SpendlerDatabase,
           $AppNotificationsTable,
           AppNotification
         >,
@@ -4994,7 +4994,7 @@ typedef $$FriendContactsTableUpdateCompanionBuilder =
     });
 
 class $$FriendContactsTableFilterComposer
-    extends Composer<_$PaisaDatabase, $FriendContactsTable> {
+    extends Composer<_$SpendlerDatabase, $FriendContactsTable> {
   $$FriendContactsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -5029,7 +5029,7 @@ class $$FriendContactsTableFilterComposer
 }
 
 class $$FriendContactsTableOrderingComposer
-    extends Composer<_$PaisaDatabase, $FriendContactsTable> {
+    extends Composer<_$SpendlerDatabase, $FriendContactsTable> {
   $$FriendContactsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -5064,7 +5064,7 @@ class $$FriendContactsTableOrderingComposer
 }
 
 class $$FriendContactsTableAnnotationComposer
-    extends Composer<_$PaisaDatabase, $FriendContactsTable> {
+    extends Composer<_$SpendlerDatabase, $FriendContactsTable> {
   $$FriendContactsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -5093,7 +5093,7 @@ class $$FriendContactsTableAnnotationComposer
 class $$FriendContactsTableTableManager
     extends
         RootTableManager<
-          _$PaisaDatabase,
+          _$SpendlerDatabase,
           $FriendContactsTable,
           FriendContact,
           $$FriendContactsTableFilterComposer,
@@ -5104,7 +5104,7 @@ class $$FriendContactsTableTableManager
           (
             FriendContact,
             BaseReferences<
-              _$PaisaDatabase,
+              _$SpendlerDatabase,
               $FriendContactsTable,
               FriendContact
             >,
@@ -5113,7 +5113,7 @@ class $$FriendContactsTableTableManager
           PrefetchHooks Function()
         > {
   $$FriendContactsTableTableManager(
-    _$PaisaDatabase db,
+    _$SpendlerDatabase db,
     $FriendContactsTable table,
   ) : super(
         TableManagerState(
@@ -5163,7 +5163,7 @@ class $$FriendContactsTableTableManager
 
 typedef $$FriendContactsTableProcessedTableManager =
     ProcessedTableManager<
-      _$PaisaDatabase,
+      _$SpendlerDatabase,
       $FriendContactsTable,
       FriendContact,
       $$FriendContactsTableFilterComposer,
@@ -5173,7 +5173,7 @@ typedef $$FriendContactsTableProcessedTableManager =
       $$FriendContactsTableUpdateCompanionBuilder,
       (
         FriendContact,
-        BaseReferences<_$PaisaDatabase, $FriendContactsTable, FriendContact>,
+        BaseReferences<_$SpendlerDatabase, $FriendContactsTable, FriendContact>,
       ),
       FriendContact,
       PrefetchHooks Function()
@@ -5206,7 +5206,7 @@ typedef $$FriendSplitsTableUpdateCompanionBuilder =
     });
 
 class $$FriendSplitsTableFilterComposer
-    extends Composer<_$PaisaDatabase, $FriendSplitsTable> {
+    extends Composer<_$SpendlerDatabase, $FriendSplitsTable> {
   $$FriendSplitsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -5266,7 +5266,7 @@ class $$FriendSplitsTableFilterComposer
 }
 
 class $$FriendSplitsTableOrderingComposer
-    extends Composer<_$PaisaDatabase, $FriendSplitsTable> {
+    extends Composer<_$SpendlerDatabase, $FriendSplitsTable> {
   $$FriendSplitsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -5326,7 +5326,7 @@ class $$FriendSplitsTableOrderingComposer
 }
 
 class $$FriendSplitsTableAnnotationComposer
-    extends Composer<_$PaisaDatabase, $FriendSplitsTable> {
+    extends Composer<_$SpendlerDatabase, $FriendSplitsTable> {
   $$FriendSplitsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -5376,7 +5376,7 @@ class $$FriendSplitsTableAnnotationComposer
 class $$FriendSplitsTableTableManager
     extends
         RootTableManager<
-          _$PaisaDatabase,
+          _$SpendlerDatabase,
           $FriendSplitsTable,
           FriendSplit,
           $$FriendSplitsTableFilterComposer,
@@ -5386,12 +5386,12 @@ class $$FriendSplitsTableTableManager
           $$FriendSplitsTableUpdateCompanionBuilder,
           (
             FriendSplit,
-            BaseReferences<_$PaisaDatabase, $FriendSplitsTable, FriendSplit>,
+            BaseReferences<_$SpendlerDatabase, $FriendSplitsTable, FriendSplit>,
           ),
           FriendSplit,
           PrefetchHooks Function()
         > {
-  $$FriendSplitsTableTableManager(_$PaisaDatabase db, $FriendSplitsTable table)
+  $$FriendSplitsTableTableManager(_$SpendlerDatabase db, $FriendSplitsTable table)
     : super(
         TableManagerState(
           db: db,
@@ -5460,7 +5460,7 @@ class $$FriendSplitsTableTableManager
 
 typedef $$FriendSplitsTableProcessedTableManager =
     ProcessedTableManager<
-      _$PaisaDatabase,
+      _$SpendlerDatabase,
       $FriendSplitsTable,
       FriendSplit,
       $$FriendSplitsTableFilterComposer,
@@ -5470,17 +5470,17 @@ typedef $$FriendSplitsTableProcessedTableManager =
       $$FriendSplitsTableUpdateCompanionBuilder,
       (
         FriendSplit,
-        BaseReferences<_$PaisaDatabase, $FriendSplitsTable, FriendSplit>,
+        BaseReferences<_$SpendlerDatabase, $FriendSplitsTable, FriendSplit>,
       ),
       FriendSplit,
       PrefetchHooks Function()
     >;
 
-class $PaisaDatabaseManager {
-  final _$PaisaDatabase _db;
-  $PaisaDatabaseManager(this._db);
-  $$PaisaTransactionsTableTableManager get paisaTransactions =>
-      $$PaisaTransactionsTableTableManager(_db, _db.paisaTransactions);
+class $SpendlerDatabaseManager {
+  final _$SpendlerDatabase _db;
+  $SpendlerDatabaseManager(this._db);
+  $$SpendlerTransactionsTableTableManager get spendlerTransactions =>
+      $$SpendlerTransactionsTableTableManager(_db, _db.spendlerTransactions);
   $$FamilyEntriesTableTableManager get familyEntries =>
       $$FamilyEntriesTableTableManager(_db, _db.familyEntries);
   $$WeeklyReflectionsTableTableManager get weeklyReflections =>

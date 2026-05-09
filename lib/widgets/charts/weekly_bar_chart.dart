@@ -4,7 +4,7 @@ import 'package:finance_buddy_app/core/tokens.dart';
 import 'package:finance_buddy_app/data/db.dart';
 
 class WeeklyBarChart extends StatefulWidget {
-  final List<PaisaTransaction> transactions;
+  final List<SpendlerTransaction> transactions;
   final DateTime weekStart;
   final void Function(DateTime day)? onBarTap;
 

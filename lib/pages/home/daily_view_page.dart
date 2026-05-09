@@ -25,8 +25,8 @@ class DailyViewPage extends ConsumerWidget {
           if (list.isEmpty) {
             return const EmptyState(
               icon: Icons.check_circle_outline,
-              message: 'Nothing spent this day.',
-              subtitle: 'A zero-spend day. Respect.',
+              message: '\$0 spent this day.',
+              subtitle: 'No transactions recorded.',
             );
           }
           final total = list
@@ -53,7 +53,7 @@ class DailyViewPage extends ConsumerWidget {
                     final t = list[i];
                     final cat = TransactionCategory.values.firstWhere(
                       (c) => c.name == t.category,
-                      orElse: () => TransactionCategory.other,
+                      orElse: () => TransactionCategory.foodAndDrink,
                     );
                     final catColor = SpendlerColors.categoryColor(cat);
                     return ListTile(

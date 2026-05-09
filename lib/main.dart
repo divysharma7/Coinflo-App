@@ -28,7 +28,7 @@ Future<void> main() async {
   await NotificationService().initialize();
 
   // Seed dummy data on first launch
-  final db = PaisaDatabase();
+  final db = SpendlerDatabase();
   await SeedData.seedIfNeeded(db);
 
   // Purge notifications older than 30 days

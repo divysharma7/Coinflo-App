@@ -10,7 +10,7 @@ import 'package:finance_buddy_app/data/repositories/local/local_reflection_repos
 import 'package:finance_buddy_app/data/repositories/local/local_transaction_repository.dart';
 
 class LocalRepository extends BaseRepository {
-  final PaisaDatabase db;
+  final SpendlerDatabase db;
 
   late final LocalTransactionRepository _txnRepo;
   late final LocalFamilyRepository _familyRepo;
@@ -31,35 +31,35 @@ class LocalRepository extends BaseRepository {
   // ─── Transaction delegates ──────────────────────────
 
   @override
-  Stream<List<PaisaTransaction>> watchTransactionsForWeek(DateTime weekStart) =>
+  Stream<List<SpendlerTransaction>> watchTransactionsForWeek(DateTime weekStart) =>
       _txnRepo.watchTransactionsForWeek(weekStart);
 
   @override
-  Stream<List<PaisaTransaction>> watchUnconfirmed() => _txnRepo.watchUnconfirmed();
+  Stream<List<SpendlerTransaction>> watchUnconfirmed() => _txnRepo.watchUnconfirmed();
 
   @override
-  Stream<List<PaisaTransaction>> watchAll() => _txnRepo.watchAll();
+  Stream<List<SpendlerTransaction>> watchAll() => _txnRepo.watchAll();
 
   @override
-  Future<List<PaisaTransaction>> getTransactionsForDay(DateTime day) =>
+  Future<List<SpendlerTransaction>> getTransactionsForDay(DateTime day) =>
       _txnRepo.getTransactionsForDay(day);
 
   @override
-  Future<List<PaisaTransaction>> getTransactionsForMonth(DateTime month) =>
+  Future<List<SpendlerTransaction>> getTransactionsForMonth(DateTime month) =>
       _txnRepo.getTransactionsForMonth(month);
 
   @override
   Future<int> getUnconfirmedCount() => _txnRepo.getUnconfirmedCount();
 
   @override
-  Future<int> insertTransaction(PaisaTransactionsCompanion entry) =>
+  Future<int> insertTransaction(SpendlerTransactionsCompanion entry) =>
       _txnRepo.insertTransaction(entry);
 
   @override
   Future<void> confirmTransaction(int id) => _txnRepo.confirmTransaction(id);
 
   @override
-  Future<void> updateTransaction(int id, PaisaTransactionsCompanion entry) =>
+  Future<void> updateTransaction(int id, SpendlerTransactionsCompanion entry) =>
       _txnRepo.updateTransaction(id, entry);
 
   @override
@@ -73,7 +73,7 @@ class LocalRepository extends BaseRepository {
   Future<void> settleSplit(int id) => _txnRepo.settleSplit(id);
 
   @override
-  Future<List<PaisaTransaction>> getUnsettledSplits() => _txnRepo.getUnsettledSplits();
+  Future<List<SpendlerTransaction>> getUnsettledSplits() => _txnRepo.getUnsettledSplits();
 
   @override
   Future<Map<String, double>> getCategoryTotalsForMonth(DateTime month) =>

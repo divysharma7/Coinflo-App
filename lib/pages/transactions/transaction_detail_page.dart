@@ -10,7 +10,7 @@ import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/pages/transactions/split_flow_sheet.dart';
 import 'package:finance_buddy_app/widgets/common/neo_pop_button.dart';
-import 'package:finance_buddy_app/widgets/common/paisa_bottom_sheet.dart';
+import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 
 class TransactionDetailPage extends ConsumerStatefulWidget {
   final int transactionId;
@@ -30,19 +30,19 @@ class _TransactionDetailPageState
   late TextEditingController _amountCtrl;
   late TextEditingController _merchantCtrl;
   late TextEditingController _noteCtrl;
-  TransactionCategory _category = TransactionCategory.other;
+  TransactionCategory _category = TransactionCategory.foodAndDrink;
   DateTime _date = DateTime.now();
   TimeOfDay _time = TimeOfDay.now();
   bool _isExpense = true;
   bool _hasChanges = false;
 
-  void _enterEditMode(PaisaTransaction t) {
+  void _enterEditMode(SpendlerTransaction t) {
     _amountCtrl = TextEditingController(text: t.amount.abs().toStringAsFixed(0));
     _merchantCtrl = TextEditingController(text: t.merchant ?? '');
     _noteCtrl = TextEditingController(text: t.note ?? '');
     _category = TransactionCategory.values.firstWhere(
       (c) => c.name == t.category,
-      orElse: () => TransactionCategory.other,
+      orElse: () => TransactionCategory.foodAndDrink,
     );
     _date = DateTime(t.happenedAt.year, t.happenedAt.month, t.happenedAt.day);
     _time = TimeOfDay.fromDateTime(t.happenedAt);
@@ -89,7 +89,7 @@ class _TransactionDetailPageState
     final repo = ref.read(repositoryProvider);
     await repo.updateTransaction(
       id,
-      PaisaTransactionsCompanion(
+      SpendlerTransactionsCompanion(
         amount: Value(_isExpense ? -amount : amount),
         merchant: Value(_merchantCtrl.text.trim().isEmpty
             ? null
@@ -173,10 +173,10 @@ class _TransactionDetailPageState
 
   // ─── Read Mode ─────────────────────────────────────
 
-  Widget _buildReadMode(PaisaTransaction t) {
+  Widget _buildReadMode(SpendlerTransaction t) {
     final cat = TransactionCategory.values.firstWhere(
       (c) => c.name == t.category,
-      orElse: () => TransactionCategory.other,
+      orElse: () => TransactionCategory.foodAndDrink,
     );
     final catColor = SpendlerColors.categoryColor(cat);
     final isUnconfirmed = t.status == 'unconfirmed';
@@ -327,7 +327,7 @@ class _TransactionDetailPageState
 
   // ─── Edit Mode ─────────────────────────────────────
 
-  Widget _buildEditMode(PaisaTransaction t) {
+  Widget _buildEditMode(SpendlerTransaction t) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(

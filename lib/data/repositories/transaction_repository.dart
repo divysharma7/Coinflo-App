@@ -8,19 +8,19 @@ class MerchantStat {
 }
 
 abstract class TransactionRepository {
-  Stream<List<PaisaTransaction>> watchTransactionsForWeek(DateTime weekStart);
-  Stream<List<PaisaTransaction>> watchUnconfirmed();
-  Stream<List<PaisaTransaction>> watchAll();
-  Future<List<PaisaTransaction>> getTransactionsForDay(DateTime day);
-  Future<List<PaisaTransaction>> getTransactionsForMonth(DateTime month);
+  Stream<List<SpendlerTransaction>> watchTransactionsForWeek(DateTime weekStart);
+  Stream<List<SpendlerTransaction>> watchUnconfirmed();
+  Stream<List<SpendlerTransaction>> watchAll();
+  Future<List<SpendlerTransaction>> getTransactionsForDay(DateTime day);
+  Future<List<SpendlerTransaction>> getTransactionsForMonth(DateTime month);
   Future<int> getUnconfirmedCount();
-  Future<int> insertTransaction(PaisaTransactionsCompanion entry);
+  Future<int> insertTransaction(SpendlerTransactionsCompanion entry);
   Future<void> confirmTransaction(int id);
-  Future<void> updateTransaction(int id, PaisaTransactionsCompanion entry);
+  Future<void> updateTransaction(int id, SpendlerTransactionsCompanion entry);
   Future<void> deleteTransaction(int id);
   Future<void> markSplit(int id, int splitCount, double myShare, double pendingAmount);
   Future<void> settleSplit(int id);
-  Future<List<PaisaTransaction>> getUnsettledSplits();
+  Future<List<SpendlerTransaction>> getUnsettledSplits();
   Future<Map<String, double>> getCategoryTotalsForMonth(DateTime month);
   Future<List<double>> getWeeklySpendingTrend(int weekCount);
   Future<double> getTotalSpentForWeek(DateTime weekStart);

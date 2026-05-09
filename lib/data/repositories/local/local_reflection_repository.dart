@@ -3,7 +3,7 @@ import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/data/repositories/reflection_repository.dart';
 
 class LocalReflectionRepository implements ReflectionRepository {
-  final PaisaDatabase db;
+  final SpendlerDatabase db;
 
   LocalReflectionRepository(this.db);
 

@@ -11,7 +11,7 @@ import 'package:finance_buddy_app/widgets/common/neo_pop_button.dart';
 import 'package:finance_buddy_app/pages/people/friend_creation_sheet.dart';
 import 'package:finance_buddy_app/pages/people/add_split_sheet.dart';
 import 'package:finance_buddy_app/pages/family/family_entry_sheet.dart';
-import 'package:finance_buddy_app/widgets/common/paisa_bottom_sheet.dart';
+import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 
 class PeoplePage extends ConsumerWidget {
   const PeoplePage({super.key});

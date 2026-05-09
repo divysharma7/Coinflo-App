@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:finance_buddy_app/core/tokens.dart';
 
-/// Shows a consistent Pulse bottom sheet with drag handle, dark surface,
+/// Shows a consistent Spendler bottom sheet with drag handle, dark surface,
 /// and correct animation timing.
 ///
 /// Use this for ALL short interactions: mark-as-split, pick-category,

@@ -3,7 +3,7 @@ import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/data/repositories/family_repository.dart';
 
 class LocalFamilyRepository implements FamilyRepository {
-  final PaisaDatabase db;
+  final SpendlerDatabase db;
 
   LocalFamilyRepository(this.db);
 
