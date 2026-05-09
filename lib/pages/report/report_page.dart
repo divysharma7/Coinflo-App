@@ -247,7 +247,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
               centerValue = '$pct%';
               centerLabel = cat.label;
             } else {
-              centerValue = '₹${_formatCompact(totalSpent)}';
+              centerValue = '\$${_formatCompact(totalSpent)}';
               centerLabel = 'Total Spent';
             }
 
@@ -306,7 +306,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
           loading: () => const SizedBox(
             height: 220,
             child: Center(
-              child: CircularProgressIndicator(color: SpendlerColors.yellow),
+              child: CircularProgressIndicator(color: SpendlerColors.primary),
             ),
           ),
           error: (_, _) => const SizedBox(
@@ -460,7 +460,7 @@ class _TopCategoriesList extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              '₹${entry.value.toStringAsFixed(0)}',
+                              '\$${entry.value.toStringAsFixed(0)}',
                               style: const TextStyle(
                                 color: SpendlerColors.textPrimary,
                                 fontSize: 15,
@@ -486,7 +486,7 @@ class _TopCategoriesList extends ConsumerWidget {
             loading: () => const SizedBox(
               height: 100,
               child: Center(
-                child: CircularProgressIndicator(color: SpendlerColors.yellow),
+                child: CircularProgressIndicator(color: SpendlerColors.primary),
               ),
             ),
             error: (_, _) => const SizedBox.shrink(),
@@ -554,7 +554,7 @@ class _SummaryCards extends ConsumerWidget {
         loading: () => const SizedBox(
           height: 100,
           child: Center(
-            child: CircularProgressIndicator(color: SpendlerColors.yellow),
+            child: CircularProgressIndicator(color: SpendlerColors.primary),
           ),
         ),
         error: (_, _) => const SizedBox.shrink(),
@@ -605,7 +605,7 @@ class _SummaryCard extends StatelessWidget {
           ),
           const SizedBox(height: SpendlerSpacing.sm),
           Text(
-            '₹${_formatCompact(amount.abs())}',
+            '\$${_formatCompact(amount.abs())}',
             style: const TextStyle(
               color: SpendlerColors.textPrimary,
               fontSize: 16,
@@ -681,7 +681,7 @@ class _TransactionList extends ConsumerWidget {
                             ),
                             if (dayTotal > 0)
                               Text(
-                                '₹${dayTotal.toStringAsFixed(0)}',
+                                '\$${dayTotal.toStringAsFixed(0)}',
                                 style: const TextStyle(
                                   color: SpendlerColors.textTertiary,
                                   fontSize: 12,
@@ -748,7 +748,7 @@ class _TransactionList extends ConsumerWidget {
                               ),
                               // Amount
                               Text(
-                                '${isExpense ? '-' : '+'}₹${t.amount.abs().toStringAsFixed(0)}',
+                                '${isExpense ? '-' : '+'}\$${t.amount.abs().toStringAsFixed(0)}',
                                 style: TextStyle(
                                   color: isExpense
                                       ? SpendlerColors.textPrimary
@@ -772,7 +772,7 @@ class _TransactionList extends ConsumerWidget {
             loading: () => const SizedBox(
               height: 100,
               child: Center(
-                child: CircularProgressIndicator(color: SpendlerColors.yellow),
+                child: CircularProgressIndicator(color: SpendlerColors.primary),
               ),
             ),
             error: (_, _) => const SizedBox.shrink(),

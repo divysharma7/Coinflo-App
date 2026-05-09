@@ -47,7 +47,7 @@ class _FamilyEntrySheetState extends ConsumerState<FamilyEntrySheet> {
         borderSide: BorderSide(color: SpendlerColors.border),
       ),
       focusedBorder: UnderlineInputBorder(
-        borderSide: BorderSide(color: SpendlerColors.gold.withValues(alpha: 0.8)),
+        borderSide: BorderSide(color: SpendlerColors.warning.withValues(alpha: 0.8)),
       ),
     );
   }
@@ -119,7 +119,7 @@ class _FamilyEntrySheetState extends ConsumerState<FamilyEntrySheet> {
 
           NeoPOPButton(
             label: 'Add Entry',
-            color: SpendlerColors.gold,
+            color: SpendlerColors.warning,
             shadowColor: const Color(0xFF8A6B2A),
             onTap: _save,
           ),
@@ -139,22 +139,22 @@ class _FamilyEntrySheetState extends ConsumerState<FamilyEntrySheet> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: selected
-              ? SpendlerColors.gold.withValues(alpha: 0.15)
+              ? SpendlerColors.warning.withValues(alpha: 0.15)
               : SpendlerColors.surface,
           borderRadius: BorderRadius.circular(SpendlerRadii.button),
           border: selected
-              ? Border.all(color: SpendlerColors.gold, width: 1.5)
+              ? Border.all(color: SpendlerColors.warning, width: 1.5)
               : Border.all(color: SpendlerColors.border),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            PhosphorIcon(icon, size: 16, color: selected ? SpendlerColors.gold : SpendlerColors.textSecondary),
+            PhosphorIcon(icon, size: 16, color: selected ? SpendlerColors.warning : SpendlerColors.textSecondary),
             const SizedBox(width: 6),
             Text(
               label,
               style: TextStyle(
-                color: selected ? SpendlerColors.gold : SpendlerColors.textSecondary,
+                color: selected ? SpendlerColors.warning : SpendlerColors.textSecondary,
                 fontSize: 13,
                 fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
               ),

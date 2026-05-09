@@ -39,11 +39,11 @@ class TransactionsPage extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
                     color: filters.hasAnyFilter
-                        ? SpendlerColors.yellow.withValues(alpha: 0.12)
+                        ? SpendlerColors.primary.withValues(alpha: 0.12)
                         : SpendlerColors.surface,
                     borderRadius: BorderRadius.circular(SpendlerRadii.pill),
                     border: Border.all(
-                      color: filters.hasAnyFilter ? SpendlerColors.yellow : SpendlerColors.border,
+                      color: filters.hasAnyFilter ? SpendlerColors.primary : SpendlerColors.border,
                     ),
                   ),
                   child: Row(
@@ -52,13 +52,13 @@ class TransactionsPage extends ConsumerWidget {
                       PhosphorIcon(
                         PhosphorIcons.funnel(),
                         size: 14,
-                        color: filters.hasAnyFilter ? SpendlerColors.yellow : SpendlerColors.textSecondary,
+                        color: filters.hasAnyFilter ? SpendlerColors.primary : SpendlerColors.textSecondary,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         filters.hasAnyFilter ? 'Filtered' : 'Filter',
                         style: TextStyle(
-                          color: filters.hasAnyFilter ? SpendlerColors.yellow : SpendlerColors.textSecondary,
+                          color: filters.hasAnyFilter ? SpendlerColors.primary : SpendlerColors.textSecondary,
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                         ),
@@ -115,7 +115,7 @@ class TransactionsPage extends ConsumerWidget {
                   onTap: () => ref.read(transactionFiltersProvider.notifier).state = TransactionFilters.empty,
                   child: const Padding(
                     padding: EdgeInsets.only(left: 8),
-                    child: Text('Clear all', style: TextStyle(color: SpendlerColors.yellow, fontSize: 12, fontWeight: FontWeight.w500)),
+                    child: Text('Clear all', style: TextStyle(color: SpendlerColors.primary, fontSize: 12, fontWeight: FontWeight.w500)),
                   ),
                 ),
               ],
@@ -181,7 +181,7 @@ class TransactionsPage extends ConsumerWidget {
                 itemBuilder: (context, index) => items[index],
               );
             },
-            loading: () => const Center(child: CircularProgressIndicator(color: SpendlerColors.yellow)),
+            loading: () => const Center(child: CircularProgressIndicator(color: SpendlerColors.primary)),
             error: (_, _) => const Center(child: Text('Error loading', style: TextStyle(color: SpendlerColors.expense))),
           ),
         ),
@@ -192,7 +192,7 @@ class TransactionsPage extends ConsumerWidget {
   Widget _buildTile(BuildContext context, SpendlerTransaction t, {bool isUnconfirmed = false}) {
     final cat = TransactionCategory.values.firstWhere(
       (c) => c.name == t.category,
-      orElse: () => TransactionCategory.food,
+      orElse: () => TransactionCategory.foodAndDrink,
     );
     final catColor = SpendlerColors.categoryColor(cat);
     final isSent = t.amount < 0;
@@ -210,9 +210,9 @@ class TransactionsPage extends ConsumerWidget {
         margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: isUnconfirmed ? SpendlerColors.amber.withValues(alpha: 0.06) : null,
+          color: isUnconfirmed ? SpendlerColors.warning.withValues(alpha: 0.06) : null,
           border: isUnconfirmed
-              ? const Border(left: BorderSide(color: SpendlerColors.amber, width: 3))
+              ? const Border(left: BorderSide(color: SpendlerColors.warning, width: 3))
               : null,
           borderRadius: BorderRadius.circular(8),
         ),
@@ -312,7 +312,7 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
               const Text('FILTERS', style: SpendlerTextStyles.sectionLabel),
               GestureDetector(
                 onTap: () => setState(() => _draft = TransactionFilters.empty),
-                child: const Text('Clear all', style: TextStyle(color: SpendlerColors.yellow, fontSize: 12, fontWeight: FontWeight.w500)),
+                child: const Text('Clear all', style: TextStyle(color: SpendlerColors.primary, fontSize: 12, fontWeight: FontWeight.w500)),
               ),
             ],
           ),
@@ -483,16 +483,16 @@ class _ChipOption extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: selected ? SpendlerColors.yellow.withValues(alpha: 0.12) : SpendlerColors.surface,
+          color: selected ? SpendlerColors.primary.withValues(alpha: 0.12) : SpendlerColors.surface,
           borderRadius: BorderRadius.circular(SpendlerRadii.pill),
           border: Border.all(
-            color: selected ? SpendlerColors.yellow : SpendlerColors.border,
+            color: selected ? SpendlerColors.primary : SpendlerColors.border,
           ),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: selected ? SpendlerColors.yellow : SpendlerColors.textSecondary,
+            color: selected ? SpendlerColors.primary : SpendlerColors.textSecondary,
             fontSize: 13,
             fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
           ),
@@ -513,17 +513,17 @@ class _ActiveChip extends StatelessWidget {
       margin: const EdgeInsets.only(right: 6),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: SpendlerColors.yellow.withValues(alpha: 0.12),
+        color: SpendlerColors.primary.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(SpendlerRadii.pill),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(label, style: const TextStyle(color: SpendlerColors.yellow, fontSize: 11, fontWeight: FontWeight.w500)),
+          Text(label, style: const TextStyle(color: SpendlerColors.primary, fontSize: 11, fontWeight: FontWeight.w500)),
           const SizedBox(width: 4),
           GestureDetector(
             onTap: onRemove,
-            child: PhosphorIcon(PhosphorIcons.x(), size: 12, color: SpendlerColors.yellow),
+            child: PhosphorIcon(PhosphorIcons.x(), size: 12, color: SpendlerColors.primary),
           ),
         ],
       ),

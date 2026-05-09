@@ -37,12 +37,12 @@ class PeoplePage extends ConsumerWidget {
                     width: 32,
                     height: 32,
                     decoration: BoxDecoration(
-                      color: SpendlerColors.yellow.withValues(alpha: 0.12),
+                      color: SpendlerColors.primary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: PhosphorIcon(
                       PhosphorIcons.plus(),
-                      color: SpendlerColors.yellow,
+                      color: SpendlerColors.primary,
                       size: 18,
                     ),
                   ),
@@ -54,8 +54,8 @@ class PeoplePage extends ConsumerWidget {
 
           // Tab bar
           const TabBar(
-            indicatorColor: SpendlerColors.yellow,
-            labelColor: SpendlerColors.yellow,
+            indicatorColor: SpendlerColors.primary,
+            labelColor: SpendlerColors.primary,
             unselectedLabelColor: SpendlerColors.textTertiary,
             dividerColor: SpendlerColors.border,
             tabs: [
@@ -90,7 +90,7 @@ class PeoplePage extends ConsumerWidget {
             icon: PhosphorIcons.userPlus(),
             label: 'Add a friend',
             subtitle: 'Create a new contact for splits',
-            color: SpendlerColors.yellow,
+            color: SpendlerColors.primary,
             onTap: () {
               Navigator.pop(context);
               showSpendlerSheet<void>(
@@ -118,7 +118,7 @@ class PeoplePage extends ConsumerWidget {
             icon: PhosphorIcons.arrowsDownUp(),
             label: 'Family entry',
             subtitle: 'Inflow or outflow',
-            color: SpendlerColors.gold,
+            color: SpendlerColors.warning,
             onTap: () {
               Navigator.pop(context);
               showSpendlerSheet<void>(
@@ -248,7 +248,7 @@ class _FriendsTab extends ConsumerWidget {
                           AnimatedAmount(
                             value: bal.totalPayable,
                             prefix: '\$',
-                            style: const TextStyle(color: SpendlerColors.amber, fontSize: 22, fontWeight: FontWeight.w700),
+                            style: const TextStyle(color: SpendlerColors.warning, fontSize: 22, fontWeight: FontWeight.w700),
                           ),
                         ],
                       ),
@@ -288,7 +288,7 @@ class _FriendsTab extends ConsumerWidget {
                   .toList(),
             );
           },
-          loading: () => const Center(child: Padding(padding: EdgeInsets.all(SpendlerSpacing.xl), child: CircularProgressIndicator(color: SpendlerColors.yellow, strokeWidth: 2))),
+          loading: () => const Center(child: Padding(padding: EdgeInsets.all(SpendlerSpacing.xl), child: CircularProgressIndicator(color: SpendlerColors.primary, strokeWidth: 2))),
           error: (_, _) => const SizedBox.shrink(),
         ),
       ],
@@ -389,7 +389,7 @@ class _FriendCard extends ConsumerWidget {
                 child: Column(
                   children: [
                     if (iOwe > 0)
-                      _BalanceBar(label: 'You owe', amount: iOwe, color: SpendlerColors.amber, icon: PhosphorIcons.arrowUpRight()),
+                      _BalanceBar(label: 'You owe', amount: iOwe, color: SpendlerColors.warning, icon: PhosphorIcons.arrowUpRight()),
                     if (iOwe > 0 && theyOwe > 0)
                       const SizedBox(height: 8),
                     if (theyOwe > 0)
@@ -402,7 +402,7 @@ class _FriendCard extends ConsumerWidget {
                           Expanded(
                             child: _ActionBtn(
                               label: 'I Paid',
-                              color: SpendlerColors.amber,
+                              color: SpendlerColors.warning,
                               onTap: () => _markSettled(context, ref, contact.id, 'i_owe_them', splits),
                             ),
                           ),
@@ -422,7 +422,7 @@ class _FriendCard extends ConsumerWidget {
                 ),
               );
             },
-            loading: () => const Padding(padding: EdgeInsets.all(16), child: Center(child: CircularProgressIndicator(color: SpendlerColors.yellow, strokeWidth: 2))),
+            loading: () => const Padding(padding: EdgeInsets.all(16), child: Center(child: CircularProgressIndicator(color: SpendlerColors.primary, strokeWidth: 2))),
             error: (_, _) => const SizedBox.shrink(),
           ),
         ],
@@ -501,17 +501,17 @@ class _SettlementPickerState extends ConsumerState<_SettlementPicker> {
               margin: const EdgeInsets.only(bottom: SpendlerSpacing.sm),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: selected ? SpendlerColors.yellow.withValues(alpha: 0.08) : SpendlerColors.surface,
+                color: selected ? SpendlerColors.primary.withValues(alpha: 0.08) : SpendlerColors.surface,
                 borderRadius: BorderRadius.circular(SpendlerRadii.button),
                 border: Border.all(
-                  color: selected ? SpendlerColors.yellow : SpendlerColors.border,
+                  color: selected ? SpendlerColors.primary : SpendlerColors.border,
                 ),
               ),
               child: Row(
                 children: [
                   Icon(
                     selected ? Icons.check_circle : Icons.circle_outlined,
-                    color: selected ? SpendlerColors.yellow : SpendlerColors.textTertiary,
+                    color: selected ? SpendlerColors.primary : SpendlerColors.textTertiary,
                     size: 20,
                   ),
                   const SizedBox(width: 12),
@@ -543,7 +543,7 @@ class _SettlementPickerState extends ConsumerState<_SettlementPicker> {
             padding: const EdgeInsets.symmetric(vertical: SpendlerSpacing.sm),
             child: Text(
               _selected.length == widget.splits.length ? 'Deselect all' : 'Select all',
-              style: const TextStyle(color: SpendlerColors.yellow, fontSize: 13, fontWeight: FontWeight.w500),
+              style: const TextStyle(color: SpendlerColors.primary, fontSize: 13, fontWeight: FontWeight.w500),
             ),
           ),
         ),
@@ -602,7 +602,7 @@ class _FamilyTab extends ConsumerWidget {
                 AnimatedAmount(
                   value: total,
                   prefix: '\$',
-                  style: const TextStyle(color: SpendlerColors.gold, fontSize: 28, fontWeight: FontWeight.w700),
+                  style: const TextStyle(color: SpendlerColors.warning, fontSize: 28, fontWeight: FontWeight.w700),
                 ),
               ],
             ),

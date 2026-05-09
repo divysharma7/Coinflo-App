@@ -739,7 +739,7 @@ class _AddBudgetSheet extends ConsumerStatefulWidget {
 }
 
 class _AddBudgetSheetState extends ConsumerState<_AddBudgetSheet> {
-  TransactionCategory _selected = TransactionCategory.food;
+  TransactionCategory _selected = TransactionCategory.foodAndDrink;
   final _amountCtrl = TextEditingController();
 
   @override

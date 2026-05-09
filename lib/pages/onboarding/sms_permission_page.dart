@@ -176,7 +176,7 @@ class _SmsPermissionPageState extends State<SmsPermissionPage> {
               const Spacer(),
 
               // What we read
-              PhosphorIcon(PhosphorIcons.shieldCheck(), color: SpendlerColors.yellow, size: 48),
+              PhosphorIcon(PhosphorIcons.shieldCheck(), color: SpendlerColors.primary, size: 48),
               const SizedBox(height: SpendlerSpacing.lg),
               const Text(
                 'What Pulse reads\nfrom your SMS',
@@ -225,7 +225,7 @@ class _SmsPermissionPageState extends State<SmsPermissionPage> {
               // CTA
               if (_requesting)
                 const Center(
-                  child: CircularProgressIndicator(color: SpendlerColors.yellow),
+                  child: CircularProgressIndicator(color: SpendlerColors.primary),
                 )
               else
                 NeoPOPButton(

@@ -31,7 +31,7 @@ class FamilyPage extends ConsumerWidget {
               SpendlerSpacing.screenH,
               SpendlerSpacing.lg,
             ),
-            color: SpendlerColors.gold.withValues(alpha: 0.04),
+            color: SpendlerColors.warning.withValues(alpha: 0.04),
             child: Column(
               children: [
                 const Text('TOTAL FAMILY WEALTH', style: SpendlerTextStyles.sectionLabel),
@@ -47,8 +47,8 @@ class FamilyPage extends ConsumerWidget {
 
           // Tab bar — 3 tabs
           const TabBar(
-            indicatorColor: SpendlerColors.gold,
-            labelColor: SpendlerColors.gold,
+            indicatorColor: SpendlerColors.warning,
+            labelColor: SpendlerColors.warning,
             unselectedLabelColor: SpendlerColors.textTertiary,
             tabs: [
               Tab(text: 'Inflows'),
@@ -85,7 +85,7 @@ class FamilyPage extends ConsumerWidget {
                 _FamilyList(
                   data: investments,
                   icon: PhosphorIcons.trendUp(),
-                  color: SpendlerColors.gold,
+                  color: SpendlerColors.warning,
                   titleBuilder: (e) => '\$${e.amount.toStringAsFixed(0)} — ${e.investmentType ?? "Other"}',
                   subtitleBuilder: (e) => 'Via ${e.fromPerson} · ${DateFormat('d MMM').format(e.happenedAt)}'
                       '${e.note != null && e.note!.isNotEmpty ? " · ${e.note}" : ""}',

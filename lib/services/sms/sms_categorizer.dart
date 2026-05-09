@@ -8,15 +8,15 @@ class SmsCategorizer {
     'rapido': TransactionCategory.transport,
     'metro': TransactionCategory.transport,
     'irctc': TransactionCategory.transport,
-    'swiggy': TransactionCategory.food,
-    'zomato': TransactionCategory.food,
-    'blinkit': TransactionCategory.food,
-    'zepto': TransactionCategory.food,
-    'bigbasket': TransactionCategory.food,
-    'instamart': TransactionCategory.food,
-    'dominos': TransactionCategory.food,
-    'mcdonald': TransactionCategory.food,
-    'starbucks': TransactionCategory.food,
+    'swiggy': TransactionCategory.foodAndDrink,
+    'zomato': TransactionCategory.foodAndDrink,
+    'blinkit': TransactionCategory.foodAndDrink,
+    'zepto': TransactionCategory.foodAndDrink,
+    'bigbasket': TransactionCategory.foodAndDrink,
+    'instamart': TransactionCategory.foodAndDrink,
+    'dominos': TransactionCategory.foodAndDrink,
+    'mcdonald': TransactionCategory.foodAndDrink,
+    'starbucks': TransactionCategory.foodAndDrink,
     'bookmyshow': TransactionCategory.entertainment,
     'pvr': TransactionCategory.entertainment,
     'inox': TransactionCategory.entertainment,
@@ -41,7 +41,7 @@ class SmsCategorizer {
     // Amount-based heuristics
     final day = sms.receivedAt.day;
     if (sms.amount >= 15000 && sms.amount <= 50000 && day <= 5) {
-      return TransactionCategory.housing;
+      return TransactionCategory.personalCare;
     }
 
     return TransactionCategory.other;

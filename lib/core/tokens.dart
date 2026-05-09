@@ -16,20 +16,19 @@ abstract final class SpendlerColors {
   static const Color surfaceSecondary = Color(0xFFF0F1F3);
 
   // -- Borders --
-  static const Color border = Color(0xFFE5E7EB);
+  static const Color border = Color(0xFFE5E5EA);
 
   // -- Text --
   static const Color textPrimary = Color(0xFF000000);
-  static const Color textSecondary = Color(0xFF6B7280);
-  static const Color textTertiary = Color(0xFF9CA3AF);
+  static const Color textSecondary = Color(0xFF6E6E73);
+  static const Color textTertiary = Color(0xFF6E6E73);
 
   // -- Primary accent --
-  static const Color primary = Color(0xFF6366F1);
-  static const Color primaryLight = Color(0xFFEEF2FF);
+  static const Color primary = Color(0xFF000000);
 
   // -- Semantic --
-  static const Color income = Color(0xFF22C55E);
-  static const Color expense = Color(0xFFEF4444);
+  static const Color income = Color(0xFF34C759);
+  static const Color expense = Color(0xFFFF3B30);
   static const Color splitPending = Color(0xFFF59E0B);
 
   // -- Accent palette --
@@ -48,12 +47,12 @@ abstract final class SpendlerColors {
   static const Color success = income;
   static const Color warning = Color(0xFFF59E0B);
   static const Color error = expense;
-  static const Color info = accentBlue;
+  static const Color info = Color(0xFF007AFF);
   static const Color paused = textTertiary;
 
   // -- Additional surface aliases --
   static const Color card = surface;
-  static const Color heroBackground = Color(0xFF1C1C1E);
+  static const Color heroBackground = Color(0xFF000000);
   static const Color heroText = Color(0xFFFFFFFF);
   static const Color heroTextSecondary = Color(0xFF9999A3);
   static const Color overBudget = expense;
@@ -63,38 +62,31 @@ abstract final class SpendlerColors {
   static const Color separator = border;
   static const Color cardBorder = border;
 
-  // Legacy aliases for migration compatibility
-  static const Color yellow = primary;
-  static const Color yellowShadow = Color(0xFF4F46E5);
-  static const Color gold = Color(0xFFF59E0B);
-  static const Color amber = Color(0xFFF59E0B);
-  static const Color accentYellow = primary;
-  static const Color accentGold = Color(0xFFF59E0B);
-  static const Color neoPopShadow = yellowShadow;
-
   // -- Category colours: hue (accent) / tint (background) pairs --
   static const Map<TransactionCategory, Color> categoryHue = {
-    TransactionCategory.housing: Color(0xFF6366F1),
-    TransactionCategory.transport: Color(0xFF3B82F6),
-    TransactionCategory.food: Color(0xFFF97316),
-    TransactionCategory.shopping: Color(0xFFEC4899),
-    TransactionCategory.entertainment: Color(0xFF8B5CF6),
-    TransactionCategory.health: Color(0xFFEF4444),
-    TransactionCategory.education: Color(0xFF14B8A6),
-    TransactionCategory.utilities: Color(0xFFF59E0B),
-    TransactionCategory.other: Color(0xFF6B7280),
+    TransactionCategory.foodAndDrink: Color(0xFFFF8A4C),
+    TransactionCategory.transport: Color(0xFF4A8FE7),
+    TransactionCategory.shopping: Color(0xFFB19CD9),
+    TransactionCategory.entertainment: Color(0xFFE91E63),
+    TransactionCategory.streaming: Color(0xFFEC407A),
+    TransactionCategory.gymFitness: Color(0xFF4CAF50),
+    TransactionCategory.productivityTools: Color(0xFF9575CD),
+    TransactionCategory.personalCare: Color(0xFFF8BBD0),
+    TransactionCategory.education: Color(0xFF5C6BC0),
+    TransactionCategory.other: Color(0xFF6E6E73),
   };
 
   static const Map<TransactionCategory, Color> categoryTint = {
-    TransactionCategory.housing: Color(0xFFEEF2FF),
-    TransactionCategory.transport: Color(0xFFEFF6FF),
-    TransactionCategory.food: Color(0xFFFFF7ED),
-    TransactionCategory.shopping: Color(0xFFFDF2F8),
-    TransactionCategory.entertainment: Color(0xFFF5F3FF),
-    TransactionCategory.health: Color(0xFFFEF2F2),
-    TransactionCategory.education: Color(0xFFF0FDFA),
-    TransactionCategory.utilities: Color(0xFFFFFBEB),
-    TransactionCategory.other: Color(0xFFF9FAFB),
+    TransactionCategory.foodAndDrink: Color(0xFFFFF3E0),
+    TransactionCategory.transport: Color(0xFFE3F2FD),
+    TransactionCategory.shopping: Color(0xFFF3E5F5),
+    TransactionCategory.entertainment: Color(0xFFFCE4EC),
+    TransactionCategory.streaming: Color(0xFFFCE4EC),
+    TransactionCategory.gymFitness: Color(0xFFE8F5E9),
+    TransactionCategory.productivityTools: Color(0xFFEDE7F6),
+    TransactionCategory.personalCare: Color(0xFFFCE4EC),
+    TransactionCategory.education: Color(0xFFE8EAF6),
+    TransactionCategory.other: Color(0xFFF5F5F7),
   };
 
   // Legacy aliases
@@ -102,7 +94,7 @@ abstract final class SpendlerColors {
   static const Color categoryMuted = Color(0xFFE5E7EB);
 
   static Color categoryColor(TransactionCategory cat) =>
-      categoryHue[cat] ?? const Color(0xFF6B7280);
+      categoryHue[cat] ?? const Color(0xFF6E6E73);
 }
 
 /// Typography styles (system font).
@@ -188,7 +180,7 @@ abstract final class SpendlerSpacing {
   static const double xxl = 48;
 
   static const double cardPadding = 16;
-  static const double screenH = 16;
+  static const double screenH = 20;
   static const double screenTop = 24;
   static const double cardGap = 12;
   static const double sectionGap = 32;
@@ -196,7 +188,7 @@ abstract final class SpendlerSpacing {
 
 /// Corner radii.
 abstract final class SpendlerRadii {
-  static const double card = 16;
+  static const double card = 20;
   static const double sheet = 24;
   static const double pill = 100;
   static const double button = 12;
@@ -229,11 +221,11 @@ abstract final class SpendlerTypo {
 abstract final class SpendlerMotion {
   static const Duration micro = Duration(milliseconds: 150);
   static const Duration transition = Duration(milliseconds: 300);
-  static const Duration number = Duration(milliseconds: 600);
+  static const Duration number = Duration(milliseconds: 240);
   static const Duration dramatic = Duration(milliseconds: 800);
 
   static const Curve neoPopCurve = Curves.easeOut;
-  static const Curve numberCurve = Curves.elasticOut;
+  static const Curve numberCurve = Curves.easeOut;
   static const Curve surfaceCurve = Curves.easeOutCubic;
   static const Curve sheetCurve = Cubic(0.4, 0, 0.2, 1);
 
@@ -243,8 +235,8 @@ abstract final class SpendlerMotion {
   static const Duration sheetEnter = transition;
   static const Duration sheetExit = Duration(milliseconds: 250);
   static const Duration barGrow = Duration(milliseconds: 400);
-  static const Curve barGrowCurve = Curves.elasticOut;
-  static const Duration tabTransition = Duration(milliseconds: 200);
+  static const Curve barGrowCurve = Curves.easeOut;
+  static const Duration tabTransition = Duration.zero;
   static const Curve tabCurve = Curves.easeInOut;
 }
 

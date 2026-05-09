@@ -53,7 +53,7 @@ class DailyViewPage extends ConsumerWidget {
                     final t = list[i];
                     final cat = TransactionCategory.values.firstWhere(
                       (c) => c.name == t.category,
-                      orElse: () => TransactionCategory.food,
+                      orElse: () => TransactionCategory.foodAndDrink,
                     );
                     final catColor = SpendlerColors.categoryColor(cat);
                     return ListTile(
@@ -78,7 +78,7 @@ class DailyViewPage extends ConsumerWidget {
           );
         },
         loading: () => const Center(
-          child: CircularProgressIndicator(color: SpendlerColors.yellow),
+          child: CircularProgressIndicator(color: SpendlerColors.primary),
         ),
         error: (_, _) => const Center(
           child: Text('Error loading', style: TextStyle(color: SpendlerColors.expense)),

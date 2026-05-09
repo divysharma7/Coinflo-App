@@ -148,7 +148,7 @@ class _VelocitySection extends ConsumerWidget {
             padding: const EdgeInsets.only(left: 4, bottom: SpendlerSpacing.sm),
             child: Row(
               children: [
-                Container(width: 16, height: 3, color: SpendlerColors.yellow),
+                Container(width: 16, height: 3, color: SpendlerColors.primary),
                 const SizedBox(width: 6),
                 const Text('This month',
                     style: TextStyle(color: SpendlerColors.textSecondary, fontSize: 11)),
@@ -189,7 +189,7 @@ class _VelocitySection extends ConsumerWidget {
               },
               loading: () => const SizedBox(
                   height: 220,
-                  child: Center(child: CircularProgressIndicator(color: SpendlerColors.yellow))),
+                  child: Center(child: CircularProgressIndicator(color: SpendlerColors.primary))),
               error: (_, _) => const SizedBox(
                   height: 220,
                   child: Center(child: Text('Error', style: TextStyle(color: SpendlerColors.expense)))),
@@ -260,7 +260,7 @@ class _MonthlyComparisonSection extends ConsumerWidget {
                     }
                   } else if (thisAmt > 0) {
                     changeText = 'NEW';
-                    changeColor = SpendlerColors.amber;
+                    changeColor = SpendlerColors.warning;
                   }
 
                   final maxAmt =
@@ -364,7 +364,7 @@ class _MonthlyComparisonSection extends ConsumerWidget {
             },
             loading: () => const SizedBox(
                 height: 100,
-                child: Center(child: CircularProgressIndicator(color: SpendlerColors.yellow))),
+                child: Center(child: CircularProgressIndicator(color: SpendlerColors.primary))),
             error: (_, _) => const SizedBox.shrink(),
           ),
         ],
@@ -435,7 +435,7 @@ class _DayOfWeekSection extends ConsumerWidget {
               },
               loading: () => const SizedBox(
                   height: 180,
-                  child: Center(child: CircularProgressIndicator(color: SpendlerColors.yellow))),
+                  child: Center(child: CircularProgressIndicator(color: SpendlerColors.primary))),
               error: (_, _) => const SizedBox(
                   height: 180,
                   child: Center(child: Text('Error', style: TextStyle(color: SpendlerColors.expense)))),
@@ -494,7 +494,7 @@ class _TopMerchantsSection extends ConsumerWidget {
                             '${i + 1}',
                             style: TextStyle(
                               color: isDominant
-                                  ? SpendlerColors.yellow
+                                  ? SpendlerColors.primary
                                   : SpendlerColors.textTertiary,
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
@@ -548,7 +548,7 @@ class _TopMerchantsSection extends ConsumerWidget {
             },
             loading: () => const SizedBox(
                 height: 100,
-                child: Center(child: CircularProgressIndicator(color: SpendlerColors.yellow))),
+                child: Center(child: CircularProgressIndicator(color: SpendlerColors.primary))),
             error: (_, _) => const SizedBox.shrink(),
           ),
         ],

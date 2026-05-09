@@ -64,43 +64,43 @@ void main() {
     });
 
     group('food merchants', () {
-      test('SWIGGY merchant maps to TransactionCategory.food', () {
+      test('SWIGGY merchant maps to TransactionCategory.foodAndDrink', () {
         final sms = _makeSms(merchant: 'SWIGGY INDIA');
         expect(
           SmsCategorizer.categorize(sms),
-          equals(TransactionCategory.food),
+          equals(TransactionCategory.foodAndDrink),
         );
       });
 
-      test('ZOMATO merchant maps to TransactionCategory.food', () {
+      test('ZOMATO merchant maps to TransactionCategory.foodAndDrink', () {
         final sms = _makeSms(merchant: 'ZOMATO LTD');
         expect(
           SmsCategorizer.categorize(sms),
-          equals(TransactionCategory.food),
+          equals(TransactionCategory.foodAndDrink),
         );
       });
 
-      test('BLINKIT merchant maps to TransactionCategory.food', () {
+      test('BLINKIT merchant maps to TransactionCategory.foodAndDrink', () {
         final sms = _makeSms(merchant: 'BLINKIT');
         expect(
           SmsCategorizer.categorize(sms),
-          equals(TransactionCategory.food),
+          equals(TransactionCategory.foodAndDrink),
         );
       });
 
-      test('DOMINOS merchant maps to TransactionCategory.food', () {
+      test('DOMINOS merchant maps to TransactionCategory.foodAndDrink', () {
         final sms = _makeSms(merchant: 'DOMINOS PIZZA');
         expect(
           SmsCategorizer.categorize(sms),
-          equals(TransactionCategory.food),
+          equals(TransactionCategory.foodAndDrink),
         );
       });
 
-      test('STARBUCKS merchant maps to TransactionCategory.food', () {
+      test('STARBUCKS merchant maps to TransactionCategory.foodAndDrink', () {
         final sms = _makeSms(merchant: 'STARBUCKS COFFEE');
         expect(
           SmsCategorizer.categorize(sms),
-          equals(TransactionCategory.food),
+          equals(TransactionCategory.foodAndDrink),
         );
       });
     });
@@ -136,7 +136,7 @@ void main() {
         final sms = _makeSms(merchant: 'Swiggy Delivery');
         expect(
           SmsCategorizer.categorize(sms),
-          equals(TransactionCategory.food),
+          equals(TransactionCategory.foodAndDrink),
         );
       });
 
@@ -144,7 +144,7 @@ void main() {
         final sms = _makeSms(merchant: 'ZOMATO');
         expect(
           SmsCategorizer.categorize(sms),
-          equals(TransactionCategory.food),
+          equals(TransactionCategory.foodAndDrink),
         );
       });
     });
@@ -184,7 +184,7 @@ void main() {
 
     group('housing heuristic', () {
       test(
-        'large amount (21000) on day 1 of month returns TransactionCategory.housing',
+        'large amount (21000) on day 1 of month returns TransactionCategory.personalCare',
         () {
           final sms = _makeSms(
             amount: 21000,
@@ -192,7 +192,7 @@ void main() {
           );
           expect(
             SmsCategorizer.categorize(sms),
-            equals(TransactionCategory.housing),
+            equals(TransactionCategory.personalCare),
           );
         },
       );
@@ -204,7 +204,7 @@ void main() {
         );
         expect(
           SmsCategorizer.categorize(sms),
-          equals(TransactionCategory.housing),
+          equals(TransactionCategory.personalCare),
         );
       });
 
@@ -215,7 +215,7 @@ void main() {
         );
         expect(
           SmsCategorizer.categorize(sms),
-          equals(TransactionCategory.housing),
+          equals(TransactionCategory.personalCare),
         );
       });
 

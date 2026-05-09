@@ -71,7 +71,7 @@ class _PennyPageState extends ConsumerState<PennyPage> {
               width: 32,
               height: 32,
               decoration: const BoxDecoration(
-                color: SpendlerColors.yellow,
+                color: SpendlerColors.primary,
                 shape: BoxShape.circle,
               ),
               child: const Center(

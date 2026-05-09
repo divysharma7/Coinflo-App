@@ -63,7 +63,7 @@ class DayOfWeekChart extends StatelessWidget {
                         fontSize: SpendlerTypo.microSize,
                         fontWeight: isMax ? FontWeight.w700 : FontWeight.w400,
                         color: isMax
-                            ? SpendlerColors.yellow
+                            ? SpendlerColors.primary
                             : SpendlerColors.textTertiary,
                       ),
                     ),
@@ -84,7 +84,7 @@ class DayOfWeekChart extends StatelessWidget {
               barRods: [
                 BarChartRodData(
                   toY: averages[i],
-                  color: isMax ? SpendlerColors.yellow : SpendlerColors.textTertiary,
+                  color: isMax ? SpendlerColors.primary : SpendlerColors.textTertiary,
                   width: 24,
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(SpendlerRadii.barTop),

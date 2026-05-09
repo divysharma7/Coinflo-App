@@ -67,7 +67,7 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
                     child: const Text(
                       'Mark all read',
                       style: TextStyle(
-                        color: SpendlerColors.yellow,
+                        color: SpendlerColors.primary,
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                       ),
@@ -116,7 +116,7 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
                   padding: EdgeInsets.symmetric(vertical: SpendlerSpacing.xl),
                   child: Center(
                     child: CircularProgressIndicator(
-                      color: SpendlerColors.yellow,
+                      color: SpendlerColors.primary,
                       strokeWidth: 2,
                     ),
                   ),
@@ -284,7 +284,7 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
             timePickerTheme: const TimePickerThemeData(
               backgroundColor: SpendlerColors.surfaceHigh,
               hourMinuteTextColor: SpendlerColors.textPrimary,
-              dialHandColor: SpendlerColors.yellow,
+              dialHandColor: SpendlerColors.primary,
               dialBackgroundColor: SpendlerColors.surface,
             ),
           ),
@@ -327,7 +327,7 @@ class _NotificationRow extends StatelessWidget {
           border: notification.isRead
               ? null
               : const Border(
-                  left: BorderSide(color: SpendlerColors.amber, width: 3),
+                  left: BorderSide(color: SpendlerColors.warning, width: 3),
                 ),
         ),
         child: Row(
@@ -396,7 +396,7 @@ class _NotificationRow extends StatelessWidget {
   static Color _colorForType(String type) {
     switch (type) {
       case 'transaction':
-        return SpendlerColors.yellow;
+        return SpendlerColors.primary;
       case 'checkin':
         return SpendlerColors.accentPurple;
       case 'digest':
@@ -476,8 +476,8 @@ class _ToggleRow extends StatelessWidget {
           Switch.adaptive(
             value: value,
             onChanged: onChanged,
-            activeThumbColor: SpendlerColors.yellow,
-            activeTrackColor: SpendlerColors.yellow.withValues(alpha: 0.3),
+            activeThumbColor: SpendlerColors.primary,
+            activeTrackColor: SpendlerColors.primary.withValues(alpha: 0.3),
             inactiveTrackColor: SpendlerColors.border,
             inactiveThumbColor: SpendlerColors.textTertiary,
           ),

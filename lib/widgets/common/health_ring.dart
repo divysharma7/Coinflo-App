@@ -13,7 +13,7 @@ class HealthRing extends StatefulWidget {
     required this.progress,
     this.size = 120,
     this.strokeWidth = 8,
-    this.foregroundColor = SpendlerColors.yellow,
+    this.foregroundColor = SpendlerColors.primary,
     this.backgroundColor = SpendlerColors.border,
     this.label,
   });

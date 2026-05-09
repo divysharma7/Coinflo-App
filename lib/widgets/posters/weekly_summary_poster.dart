@@ -95,7 +95,7 @@ class WeeklySummaryPoster extends StatelessWidget {
                     Text(
                       totalSpent.toStringAsFixed(0),
                       style: const TextStyle(
-                        color: SpendlerColors.accentYellow,
+                        color: SpendlerColors.primary,
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
                       ),
@@ -111,7 +111,7 @@ class WeeklySummaryPoster extends StatelessWidget {
           ...categoryTotals.entries.take(4).map((e) {
             final cat = TransactionCategory.values.firstWhere(
               (c) => c.name == e.key,
-              orElse: () => TransactionCategory.food,
+              orElse: () => TransactionCategory.foodAndDrink,
             );
             final pct = totalSpent > 0 ? (e.value / totalSpent * 100) : 0;
             return Padding(

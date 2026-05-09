@@ -15,7 +15,7 @@ class QuickAddSheet extends ConsumerStatefulWidget {
 
 class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
   String _amount = '';
-  TransactionCategory _category = TransactionCategory.food;
+  TransactionCategory _category = TransactionCategory.foodAndDrink;
   final _noteController = TextEditingController();
   bool _isExpense = true;
 
@@ -143,7 +143,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
           child: FilledButton(
             onPressed: _amount.isEmpty ? null : _save,
             style: FilledButton.styleFrom(
-              backgroundColor: SpendlerColors.accentYellow,
+              backgroundColor: SpendlerColors.primary,
               foregroundColor: Colors.black,
               disabledBackgroundColor: SpendlerColors.surfaceSecondary,
               shape: RoundedRectangleBorder(

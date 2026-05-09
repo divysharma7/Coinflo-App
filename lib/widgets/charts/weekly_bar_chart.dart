@@ -110,7 +110,7 @@ class _WeeklyBarChartState extends State<WeeklyBarChart>
                             fontWeight:
                                 isToday ? FontWeight.bold : SpendlerTypo.microWeight,
                             color: isHighlight
-                                ? SpendlerColors.accentYellow
+                                ? SpendlerColors.primary
                                 : SpendlerColors.textTertiary,
                           ),
                         ),
@@ -140,7 +140,7 @@ class _WeeklyBarChartState extends State<WeeklyBarChart>
                     BarChartRodData(
                       toY: dailyTotals[i] * _growAnim.value,
                       color: isAccent
-                          ? SpendlerColors.accentYellow
+                          ? SpendlerColors.primary
                           : SpendlerColors.textTertiary,
                       width: 28,
                       borderRadius: const BorderRadius.vertical(

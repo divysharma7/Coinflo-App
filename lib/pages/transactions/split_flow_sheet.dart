@@ -98,7 +98,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
         borderSide: BorderSide(color: SpendlerColors.border),
       ),
       focusedBorder: UnderlineInputBorder(
-        borderSide: BorderSide(color: SpendlerColors.yellow.withValues(alpha: 0.8)),
+        borderSide: BorderSide(color: SpendlerColors.primary.withValues(alpha: 0.8)),
       ),
     );
   }
@@ -172,11 +172,11 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
         ),
         decoration: BoxDecoration(
           color: selected
-              ? SpendlerColors.yellow.withValues(alpha: 0.1)
+              ? SpendlerColors.primary.withValues(alpha: 0.1)
               : SpendlerColors.surface,
           borderRadius: BorderRadius.circular(SpendlerRadii.card),
           border: Border.all(
-            color: selected ? SpendlerColors.yellow : SpendlerColors.border,
+            color: selected ? SpendlerColors.primary : SpendlerColors.border,
             width: selected ? 1.5 : 1,
           ),
         ),
@@ -185,7 +185,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
             PhosphorIcon(
               icon,
               size: 28,
-              color: selected ? SpendlerColors.yellow : SpendlerColors.textSecondary,
+              color: selected ? SpendlerColors.primary : SpendlerColors.textSecondary,
             ),
             const SizedBox(height: SpendlerSpacing.sm),
             Text(
@@ -193,7 +193,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 color:
-                    selected ? SpendlerColors.yellow : SpendlerColors.textPrimary,
+                    selected ? SpendlerColors.primary : SpendlerColors.textPrimary,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
@@ -205,7 +205,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: selected
-                      ? SpendlerColors.yellow.withValues(alpha: 0.7)
+                      ? SpendlerColors.primary.withValues(alpha: 0.7)
                       : SpendlerColors.textTertiary,
                   fontSize: 11,
                 ),
@@ -340,13 +340,13 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
                 PhosphorIcon(
                   PhosphorIcons.plusCircle(),
                   size: 18,
-                  color: SpendlerColors.yellow,
+                  color: SpendlerColors.primary,
                 ),
                 const SizedBox(width: SpendlerSpacing.xs),
                 const Text(
                   'Add person',
                   style: TextStyle(
-                    color: SpendlerColors.yellow,
+                    color: SpendlerColors.primary,
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
@@ -364,9 +364,9 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
         // Confirm button
         NeoPOPButton(
           label: 'Confirm Split',
-          color: isBalanced ? SpendlerColors.yellow : SpendlerColors.textTertiary,
+          color: isBalanced ? SpendlerColors.primary : SpendlerColors.textTertiary,
           shadowColor:
-              isBalanced ? SpendlerColors.yellowShadow : SpendlerColors.border,
+              isBalanced ? SpendlerColors.textTertiary : SpendlerColors.border,
           onTap: isBalanced
               ? () => _confirmCustomSplit()
               : () => _showUnallocatedToast(remaining),
@@ -415,7 +415,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
           content: Text(
             '\$${remaining.toStringAsFixed(0)} still unallocated',
           ),
-          backgroundColor: SpendlerColors.amber,
+          backgroundColor: SpendlerColors.warning,
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 2),
         ),
@@ -538,7 +538,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
       statusColor = SpendlerColors.expense;
       statusIcon = null;
     } else {
-      statusColor = SpendlerColors.amber;
+      statusColor = SpendlerColors.warning;
       statusIcon = null;
     }
 
@@ -624,9 +624,9 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
         height: 44,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: filled && enabled ? SpendlerColors.yellow : Colors.transparent,
+          color: filled && enabled ? SpendlerColors.primary : Colors.transparent,
           border: Border.all(
-            color: enabled ? SpendlerColors.yellow : SpendlerColors.border,
+            color: enabled ? SpendlerColors.primary : SpendlerColors.border,
             width: 1.5,
           ),
         ),
@@ -634,7 +634,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
           icon,
           color: filled && enabled
               ? Colors.black
-              : (enabled ? SpendlerColors.yellow : SpendlerColors.textTertiary),
+              : (enabled ? SpendlerColors.primary : SpendlerColors.textTertiary),
           size: 20,
         ),
       ),

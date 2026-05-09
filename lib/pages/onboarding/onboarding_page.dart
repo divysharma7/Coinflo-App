@@ -109,7 +109,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     height: 8,
                     decoration: BoxDecoration(
                       color: i == _currentPage
-                          ? SpendlerColors.yellow
+                          ? SpendlerColors.primary
                           : SpendlerColors.textTertiary,
                       borderRadius: BorderRadius.circular(4),
                     ),
@@ -165,7 +165,7 @@ class _ScreenIdentity extends StatelessWidget {
               '\$',
               style: SpendlerTextStyles.heroAmount.copyWith(
                 fontSize: 80,
-                color: SpendlerColors.yellow,
+                color: SpendlerColors.primary,
               ),
             ),
             const SizedBox(height: SpendlerSpacing.lg),
@@ -206,7 +206,7 @@ class _ScreenName extends StatelessWidget {
         children: [
           PhosphorIcon(
             PhosphorIcons.user(),
-            color: SpendlerColors.yellow,
+            color: SpendlerColors.primary,
             size: 48,
           ),
           const SizedBox(height: SpendlerSpacing.lg),
@@ -219,7 +219,7 @@ class _ScreenName extends StatelessWidget {
             controller: controller,
             autofocus: true,
             style: SpendlerTextStyles.greeting,
-            cursorColor: SpendlerColors.yellow,
+            cursorColor: SpendlerColors.primary,
             decoration: const InputDecoration(
               hintText: 'Your first name',
               hintStyle: TextStyle(
@@ -234,7 +234,7 @@ class _ScreenName extends StatelessWidget {
                 borderSide: BorderSide(color: SpendlerColors.border),
               ),
               focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: SpendlerColors.yellow),
+                borderSide: BorderSide(color: SpendlerColors.primary),
               ),
             ),
             textCapitalization: TextCapitalization.words,
@@ -251,7 +251,7 @@ class _ScreenName extends StatelessWidget {
                   vertical: SpendlerSpacing.sm,
                 ),
                 decoration: BoxDecoration(
-                  color: SpendlerColors.yellow,
+                  color: SpendlerColors.primary,
                   borderRadius: BorderRadius.circular(SpendlerRadii.pill),
                 ),
                 child: const Text(
@@ -289,7 +289,7 @@ class _ScreenPromise extends StatelessWidget {
           children: [
             PhosphorIcon(
               PhosphorIcons.chatText(),
-              color: SpendlerColors.yellow,
+              color: SpendlerColors.primary,
               size: 48,
             ),
             const SizedBox(height: SpendlerSpacing.lg),
@@ -327,7 +327,7 @@ class _ScreenMirror extends StatelessWidget {
           children: [
             PhosphorIcon(
               PhosphorIcons.calendarCheck(),
-              color: SpendlerColors.yellow,
+              color: SpendlerColors.primary,
               size: 48,
             ),
             const SizedBox(height: SpendlerSpacing.lg),
@@ -366,7 +366,7 @@ class _ScreenStart extends StatelessWidget {
             isGuideMode
                 ? PhosphorIcons.checkCircle()
                 : PhosphorIcons.rocketLaunch(),
-            color: SpendlerColors.yellow,
+            color: SpendlerColors.primary,
             size: 48,
           ),
           const SizedBox(height: SpendlerSpacing.lg),

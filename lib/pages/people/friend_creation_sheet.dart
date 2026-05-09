@@ -61,7 +61,7 @@ class _FriendCreationSheetState extends ConsumerState<FriendCreationSheet> {
       ),
       focusedBorder: UnderlineInputBorder(
         borderSide:
-            BorderSide(color: SpendlerColors.accentYellow.withValues(alpha: 0.8)),
+            BorderSide(color: SpendlerColors.primary.withValues(alpha: 0.8)),
       ),
     );
   }
@@ -107,8 +107,8 @@ class _FriendCreationSheetState extends ConsumerState<FriendCreationSheet> {
           // Add Friend button
           NeoPOPButton(
             label: 'Add Friend',
-            color: SpendlerColors.accentYellow,
-            shadowColor: SpendlerColors.yellowShadow,
+            color: SpendlerColors.primary,
+            shadowColor: SpendlerColors.textTertiary,
             onTap: _nameController.text.trim().isEmpty ? null : _save,
           ),
         ],

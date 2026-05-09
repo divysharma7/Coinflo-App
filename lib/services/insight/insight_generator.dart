@@ -41,7 +41,7 @@ String generateWeeklyInsight({
   }
 
   // Category-based insights
-  if (topCat == TransactionCategory.food && topAmount > 500) {
+  if (topCat == TransactionCategory.foodAndDrink && topAmount > 500) {
     return 'Food led the week at \$${topAmount.toStringAsFixed(0)}. You ate well.';
   }
   if (topCat == TransactionCategory.transport && topAmount > 500) {
@@ -50,7 +50,7 @@ String generateWeeklyInsight({
   if (topCat == TransactionCategory.entertainment && topAmount > 2000) {
     return 'Entertainment spending hit \$${topAmount.toStringAsFixed(0)}. Good times aren\'t free.';
   }
-  if (topCat == TransactionCategory.housing) {
+  if (topCat == TransactionCategory.personalCare) {
     return 'Housing came through — \$${topAmount.toStringAsFixed(0)}. The essentials are covered.';
   }
 

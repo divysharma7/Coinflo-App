@@ -30,7 +30,7 @@ class _TransactionDetailPageState
   late TextEditingController _amountCtrl;
   late TextEditingController _merchantCtrl;
   late TextEditingController _noteCtrl;
-  TransactionCategory _category = TransactionCategory.food;
+  TransactionCategory _category = TransactionCategory.foodAndDrink;
   DateTime _date = DateTime.now();
   TimeOfDay _time = TimeOfDay.now();
   bool _isExpense = true;
@@ -42,7 +42,7 @@ class _TransactionDetailPageState
     _noteCtrl = TextEditingController(text: t.note ?? '');
     _category = TransactionCategory.values.firstWhere(
       (c) => c.name == t.category,
-      orElse: () => TransactionCategory.food,
+      orElse: () => TransactionCategory.foodAndDrink,
     );
     _date = DateTime(t.happenedAt.year, t.happenedAt.month, t.happenedAt.day);
     _time = TimeOfDay.fromDateTime(t.happenedAt);
@@ -112,7 +112,7 @@ class _TransactionDetailPageState
       fillColor: SpendlerColors.surface,
       border: const UnderlineInputBorder(borderSide: BorderSide(color: SpendlerColors.border)),
       enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: SpendlerColors.border)),
-      focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: SpendlerColors.yellow)),
+      focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: SpendlerColors.primary)),
     );
   }
 
@@ -164,7 +164,7 @@ class _TransactionDetailPageState
           return _editing ? _buildEditMode(t) : _buildReadMode(t);
         },
         loading: () => const Center(
-            child: CircularProgressIndicator(color: SpendlerColors.yellow)),
+            child: CircularProgressIndicator(color: SpendlerColors.primary)),
         error: (_, _) => const Center(
             child: Text('Error', style: TextStyle(color: SpendlerColors.expense))),
       ),
@@ -176,7 +176,7 @@ class _TransactionDetailPageState
   Widget _buildReadMode(SpendlerTransaction t) {
     final cat = TransactionCategory.values.firstWhere(
       (c) => c.name == t.category,
-      orElse: () => TransactionCategory.food,
+      orElse: () => TransactionCategory.foodAndDrink,
     );
     final catColor = SpendlerColors.categoryColor(cat);
     final isUnconfirmed = t.status == 'unconfirmed';
@@ -266,7 +266,7 @@ class _TransactionDetailPageState
                 icon: const Icon(Icons.check),
                 label: const Text('Confirm This'),
                 style: FilledButton.styleFrom(
-                  backgroundColor: SpendlerColors.yellow, foregroundColor: Colors.black,
+                  backgroundColor: SpendlerColors.primary, foregroundColor: Colors.black,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(SpendlerRadii.button)),
                 ),
               ),
@@ -352,7 +352,7 @@ class _TransactionDetailPageState
             controller: _amountCtrl,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             style: SpendlerTextStyles.greeting,
-            cursorColor: SpendlerColors.yellow,
+            cursorColor: SpendlerColors.primary,
             decoration: _inputDecor('Amount'),
             onChanged: (_) => _hasChanges = true,
           ),
@@ -363,7 +363,7 @@ class _TransactionDetailPageState
             controller: _merchantCtrl,
             textCapitalization: TextCapitalization.words,
             style: const TextStyle(color: SpendlerColors.textPrimary, fontSize: 16),
-            cursorColor: SpendlerColors.yellow,
+            cursorColor: SpendlerColors.primary,
             decoration: _inputDecor('Merchant'),
             onChanged: (_) => _hasChanges = true,
           ),
@@ -457,7 +457,7 @@ class _TransactionDetailPageState
           TextField(
             controller: _noteCtrl,
             style: const TextStyle(color: SpendlerColors.textPrimary),
-            cursorColor: SpendlerColors.yellow,
+            cursorColor: SpendlerColors.primary,
             maxLength: 200,
             decoration: _inputDecor('Note (optional)'),
             onChanged: (_) => _hasChanges = true,
@@ -503,7 +503,7 @@ class _TransactionDetailPageState
                 ),
               ),
               trailing: selected
-                  ? const Icon(Icons.check, color: SpendlerColors.yellow, size: 20)
+                  ? const Icon(Icons.check, color: SpendlerColors.primary, size: 20)
                   : null,
               onTap: () {
                 setState(() { _category = cat; _hasChanges = true; });

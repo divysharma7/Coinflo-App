@@ -223,7 +223,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           autofocus: true,
           textCapitalization: TextCapitalization.words,
           style: const TextStyle(color: SpendlerColors.textPrimary),
-          cursorColor: SpendlerColors.yellow,
+          cursorColor: SpendlerColors.primary,
         ),
         actions: [
           TextButton(
@@ -260,7 +260,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           autofocus: true,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           style: const TextStyle(color: SpendlerColors.textPrimary),
-          cursorColor: SpendlerColors.yellow,
+          cursorColor: SpendlerColors.primary,
           decoration: const InputDecoration(prefixText: '\$ '),
         ),
         actions: [
@@ -534,8 +534,8 @@ class _ToggleRow extends StatelessWidget {
           Switch.adaptive(
             value: value,
             onChanged: onChanged,
-            activeThumbColor: SpendlerColors.yellow,
-            activeTrackColor: SpendlerColors.yellow.withValues(alpha: 0.3),
+            activeThumbColor: SpendlerColors.primary,
+            activeTrackColor: SpendlerColors.primary.withValues(alpha: 0.3),
             inactiveTrackColor: SpendlerColors.border,
             inactiveThumbColor: SpendlerColors.textTertiary,
           ),

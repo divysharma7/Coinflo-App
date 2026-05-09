@@ -149,7 +149,7 @@ class _MonthlySummaryCard extends StatelessWidget {
           const SizedBox(height: SpendlerSpacing.sm),
           monthlyTotal.when(
             data: (total) => Text(
-              '₹${total.toStringAsFixed(0)}',
+              '\$${total.toStringAsFixed(0)}',
               style: const TextStyle(
                 fontSize: 40,
                 fontWeight: FontWeight.w700,
@@ -248,7 +248,7 @@ class _SubscriptionCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '₹${subscription.amount.toStringAsFixed(0)}${cycle.shortLabel} · ${cat.label}',
+                  '\$${subscription.amount.toStringAsFixed(0)}${cycle.shortLabel} · ${cat.label}',
                   style: const TextStyle(
                     fontSize: 13,
                     color: SpendlerColors.textSecondary,
@@ -367,7 +367,7 @@ class _AddSubscriptionSheetState extends ConsumerState<_AddSubscriptionSheet> {
             // Amount
             TextField(
               controller: _amountController,
-              decoration: _inputDecoration('Amount (₹)'),
+              decoration: _inputDecoration('Amount (\$)'),
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
             ),
             const SizedBox(height: SpendlerSpacing.md),

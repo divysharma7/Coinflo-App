@@ -12,8 +12,8 @@ class NeoPOPButton extends StatefulWidget {
     super.key,
     required this.label,
     required this.onTap,
-    this.color = SpendlerColors.accentYellow,
-    this.shadowColor = SpendlerColors.neoPopShadow,
+    this.color = SpendlerColors.primary,
+    this.shadowColor = SpendlerColors.textTertiary,
     this.textColor = Colors.black,
     this.offset = 4.0,
   });

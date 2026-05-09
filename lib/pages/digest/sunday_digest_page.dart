@@ -46,7 +46,7 @@ class _SundayDigestPageState extends ConsumerState<SundayDigestPage> {
             for (final t in expenses) {
               final cat = TransactionCategory.values.firstWhere(
                 (c) => c.name == t.category,
-                orElse: () => TransactionCategory.food,
+                orElse: () => TransactionCategory.foodAndDrink,
               );
               catTotals[cat] = (catTotals[cat] ?? 0) + t.amount.abs();
             }
@@ -75,7 +75,7 @@ class _SundayDigestPageState extends ConsumerState<SundayDigestPage> {
                         height: 8,
                         decoration: BoxDecoration(
                           color: i == _currentPage
-                              ? SpendlerColors.yellow
+                              ? SpendlerColors.primary
                               : SpendlerColors.textTertiary,
                           borderRadius: BorderRadius.circular(4),
                         ),
@@ -113,7 +113,7 @@ class _SundayDigestPageState extends ConsumerState<SundayDigestPage> {
             );
           },
           loading: () => const Center(
-            child: CircularProgressIndicator(color: SpendlerColors.yellow),
+            child: CircularProgressIndicator(color: SpendlerColors.primary),
           ),
           error: (_, _) => const Center(
             child: Text('Error', style: TextStyle(color: SpendlerColors.expense)),

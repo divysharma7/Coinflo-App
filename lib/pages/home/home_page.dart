@@ -204,7 +204,7 @@ class HomePage extends ConsumerWidget {
                   child: const Text(
                     'Your weekly rhythm is ready \u2192',
                     style: TextStyle(
-                      color: SpendlerColors.yellow,
+                      color: SpendlerColors.primary,
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                     ),
@@ -454,7 +454,7 @@ class _DailyBreakdownSection extends ConsumerWidget {
                 height: 200,
                 child: Center(
                     child:
-                        CircularProgressIndicator(color: SpendlerColors.yellow)),
+                        CircularProgressIndicator(color: SpendlerColors.primary)),
               ),
               error: (_, _) => const SizedBox(
                 height: 200,
@@ -773,7 +773,7 @@ class _FriendsCardSection extends ConsumerWidget {
                       onTap: () => ref.read(selectedTabProvider.notifier).state = 3,
                       child: const Text(
                         'See all →',
-                        style: TextStyle(color: SpendlerColors.yellow, fontSize: 12, fontWeight: FontWeight.w500),
+                        style: TextStyle(color: SpendlerColors.primary, fontSize: 12, fontWeight: FontWeight.w500),
                       ),
                     ),
                   ],
@@ -790,7 +790,7 @@ class _FriendsCardSection extends ConsumerWidget {
                 if (balance.totalPayable > 0)
                   Text(
                     '�� \$${balance.totalPayable.toStringAsFixed(0)} to pay back',
-                    style: const TextStyle(color: SpendlerColors.amber, fontSize: 14, fontWeight: FontWeight.w500),
+                    style: const TextStyle(color: SpendlerColors.warning, fontSize: 14, fontWeight: FontWeight.w500),
                   ),
                 contactsAsync.when(
                   data: (contacts) {

@@ -2,34 +2,37 @@ import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 enum TransactionCategory {
-  housing,
+  foodAndDrink,
   transport,
-  food,
   shopping,
   entertainment,
-  health,
+  streaming,
+  gymFitness,
+  productivityTools,
+  personalCare,
   education,
-  utilities,
   other;
 
   String get label {
     switch (this) {
-      case housing:
-        return 'Housing';
+      case foodAndDrink:
+        return 'Food & Drink';
       case transport:
         return 'Transport';
-      case food:
-        return 'Food';
       case shopping:
         return 'Shopping';
       case entertainment:
         return 'Entertainment';
-      case health:
-        return 'Health';
+      case streaming:
+        return 'Streaming';
+      case gymFitness:
+        return 'Gym & Fitness';
+      case productivityTools:
+        return 'Productivity';
+      case personalCare:
+        return 'Personal Care';
       case education:
         return 'Education';
-      case utilities:
-        return 'Utilities';
       case other:
         return 'Other';
     }
@@ -38,22 +41,24 @@ enum TransactionCategory {
   /// Regular weight — for lists, unselected states.
   IconData get icon {
     switch (this) {
-      case housing:
-        return PhosphorIcons.house();
+      case foodAndDrink:
+        return PhosphorIcons.bowlFood();
       case transport:
         return PhosphorIcons.car();
-      case food:
-        return PhosphorIcons.bowlFood();
       case shopping:
         return PhosphorIcons.shoppingCart();
       case entertainment:
         return PhosphorIcons.filmSlate();
-      case health:
-        return PhosphorIcons.heartbeat();
+      case streaming:
+        return PhosphorIcons.play();
+      case gymFitness:
+        return PhosphorIcons.barbell();
+      case productivityTools:
+        return PhosphorIcons.wrench();
+      case personalCare:
+        return PhosphorIcons.heart();
       case education:
         return PhosphorIcons.graduationCap();
-      case utilities:
-        return PhosphorIcons.lightning();
       case other:
         return PhosphorIcons.dotsThreeCircle();
     }
@@ -62,22 +67,24 @@ enum TransactionCategory {
   /// Fill weight — for selected states, category avatars.
   IconData get iconFill {
     switch (this) {
-      case housing:
-        return PhosphorIconsFill.house;
+      case foodAndDrink:
+        return PhosphorIconsFill.bowlFood;
       case transport:
         return PhosphorIconsFill.car;
-      case food:
-        return PhosphorIconsFill.bowlFood;
       case shopping:
         return PhosphorIconsFill.shoppingCart;
       case entertainment:
         return PhosphorIconsFill.filmSlate;
-      case health:
-        return PhosphorIconsFill.heartbeat;
+      case streaming:
+        return PhosphorIconsFill.play;
+      case gymFitness:
+        return PhosphorIconsFill.barbell;
+      case productivityTools:
+        return PhosphorIconsFill.wrench;
+      case personalCare:
+        return PhosphorIconsFill.heart;
       case education:
         return PhosphorIconsFill.graduationCap;
-      case utilities:
-        return PhosphorIconsFill.lightning;
       case other:
         return PhosphorIconsFill.dotsThreeCircle;
     }

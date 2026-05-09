@@ -53,7 +53,7 @@ class _AddSplitSheetState extends ConsumerState<AddSplitSheet> {
       fillColor: SpendlerColors.surface,
       border: const UnderlineInputBorder(borderSide: BorderSide(color: SpendlerColors.border)),
       enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: SpendlerColors.border)),
-      focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: SpendlerColors.yellow.withValues(alpha: 0.8))),
+      focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: SpendlerColors.primary.withValues(alpha: 0.8))),
     );
   }
 
@@ -87,7 +87,7 @@ class _AddSplitSheetState extends ConsumerState<AddSplitSheet> {
                 label: 'They paid',
                 sublabel: 'I owe them',
                 icon: PhosphorIcons.arrowDownLeft(),
-                color: SpendlerColors.amber,
+                color: SpendlerColors.warning,
                 selected: _whoPaid == 'they_paid',
                 onTap: () => setState(() => _whoPaid = 'they_paid'),
               )),
@@ -119,9 +119,9 @@ class _AddSplitSheetState extends ConsumerState<AddSplitSheet> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
-                        color: selected ? SpendlerColors.yellow.withValues(alpha: 0.12) : SpendlerColors.surface,
+                        color: selected ? SpendlerColors.primary.withValues(alpha: 0.12) : SpendlerColors.surface,
                         borderRadius: BorderRadius.circular(SpendlerRadii.pill),
-                        border: Border.all(color: selected ? SpendlerColors.yellow : SpendlerColors.border),
+                        border: Border.all(color: selected ? SpendlerColors.primary : SpendlerColors.border),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -132,10 +132,10 @@ class _AddSplitSheetState extends ConsumerState<AddSplitSheet> {
                             child: Text(c.name[0].toUpperCase(), style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600)),
                           ),
                           const SizedBox(width: 6),
-                          Text(c.name, style: TextStyle(color: selected ? SpendlerColors.yellow : SpendlerColors.textPrimary, fontSize: 13, fontWeight: selected ? FontWeight.w600 : FontWeight.w400)),
+                          Text(c.name, style: TextStyle(color: selected ? SpendlerColors.primary : SpendlerColors.textPrimary, fontSize: 13, fontWeight: selected ? FontWeight.w600 : FontWeight.w400)),
                           if (selected) ...[
                             const SizedBox(width: 4),
-                            const Icon(Icons.check, color: SpendlerColors.yellow, size: 14),
+                            const Icon(Icons.check, color: SpendlerColors.primary, size: 14),
                           ],
                         ],
                       ),
@@ -154,14 +154,14 @@ class _AddSplitSheetState extends ConsumerState<AddSplitSheet> {
             controller: _amountCtrl,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             style: const TextStyle(color: SpendlerColors.textPrimary, fontSize: 20, fontWeight: FontWeight.w600),
-            cursorColor: SpendlerColors.yellow,
+            cursorColor: SpendlerColors.primary,
             decoration: _inputDecor('Amount', prefix: '\$ '),
           ),
           const SizedBox(height: SpendlerSpacing.cardGap),
           TextField(
             controller: _noteCtrl,
             style: const TextStyle(color: SpendlerColors.textPrimary),
-            cursorColor: SpendlerColors.yellow,
+            cursorColor: SpendlerColors.primary,
             decoration: _inputDecor('What for? (optional)'),
           ),
           const SizedBox(height: SpendlerSpacing.xl),

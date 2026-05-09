@@ -83,7 +83,7 @@ class _ProfileHeader extends ConsumerWidget {
           // Avatar
           CircleAvatar(
             radius: 28,
-            backgroundColor: SpendlerColors.yellow,
+            backgroundColor: SpendlerColors.primary,
             child: Text(
               name.isNotEmpty ? name[0].toUpperCase() : '?',
               style: const TextStyle(
@@ -121,7 +121,7 @@ class _ProfileHeader extends ConsumerWidget {
               child: const Text(
                 'Set a monthly target \u2192',
                 style: TextStyle(
-                  color: SpendlerColors.yellow,
+                  color: SpendlerColors.primary,
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                 ),
@@ -253,7 +253,7 @@ class _WeeklyPulseCard extends ConsumerWidget {
                 child: Text(
                   'See full report \u2192',
                   style: TextStyle(
-                    color: SpendlerColors.yellow,
+                    color: SpendlerColors.primary,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
@@ -322,7 +322,7 @@ class _MonthlyPaceCard extends ConsumerWidget {
                     value: (spentSoFar / targetValue).clamp(0.0, 1.0),
                     backgroundColor: SpendlerColors.border,
                     valueColor:
-                        const AlwaysStoppedAnimation(SpendlerColors.yellow),
+                        const AlwaysStoppedAnimation(SpendlerColors.primary),
                     minHeight: 6,
                   ),
                 ),
@@ -466,7 +466,7 @@ class _MiniCardsRow extends ConsumerWidget {
                         return const Text(
                           '\u2014',
                           style: TextStyle(
-                            color: SpendlerColors.yellow,
+                            color: SpendlerColors.primary,
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
                           ),
@@ -486,7 +486,7 @@ class _MiniCardsRow extends ConsumerWidget {
                           Text(
                             dayName,
                             style: const TextStyle(
-                              color: SpendlerColors.yellow,
+                              color: SpendlerColors.primary,
                               fontSize: 20,
                               fontWeight: FontWeight.w700,
                             ),
@@ -543,10 +543,10 @@ class _AlertCard extends ConsumerWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
             decoration: BoxDecoration(
-              color: SpendlerColors.amber.withValues(alpha: 0.06),
+              color: SpendlerColors.warning.withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(SpendlerRadii.card),
               border: Border.all(
-                color: SpendlerColors.amber.withValues(alpha: 0.3),
+                color: SpendlerColors.warning.withValues(alpha: 0.3),
               ),
             ),
             child: Column(
@@ -556,7 +556,7 @@ class _AlertCard extends ConsumerWidget {
                   children: [
                     PhosphorIcon(
                       PhosphorIcons.warning(),
-                      color: SpendlerColors.amber,
+                      color: SpendlerColors.warning,
                       size: 16,
                     ),
                     const SizedBox(width: 6),
@@ -645,7 +645,7 @@ class _PeopleSummaryCard extends ConsumerWidget {
                         Text(
                           '\u2191\u20b9${balance.totalPayable.toStringAsFixed(0)} to pay',
                           style: const TextStyle(
-                            color: SpendlerColors.amber,
+                            color: SpendlerColors.warning,
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                           ),
@@ -658,7 +658,7 @@ class _PeopleSummaryCard extends ConsumerWidget {
                     child: Text(
                       'See all \u2192',
                       style: TextStyle(
-                        color: SpendlerColors.yellow,
+                        color: SpendlerColors.primary,
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                       ),

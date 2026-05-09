@@ -39,7 +39,7 @@ class NotificationBell extends ConsumerWidget {
                   ? PhosphorIconsFill.bellRinging
                   : PhosphorIcons.bell(),
               color: hasUnread
-                  ? SpendlerColors.yellow
+                  ? SpendlerColors.primary
                   : SpendlerColors.textSecondary,
               size: 24,
             ),
@@ -51,7 +51,7 @@ class NotificationBell extends ConsumerWidget {
                   width: 8,
                   height: 8,
                   decoration: const BoxDecoration(
-                    color: SpendlerColors.yellow,
+                    color: SpendlerColors.primary,
                     shape: BoxShape.circle,
                   ),
                 ),

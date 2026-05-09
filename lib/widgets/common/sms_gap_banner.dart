@@ -28,9 +28,9 @@ class _SmsGapBannerState extends State<SmsGapBanner> {
       child: Container(
         padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
         decoration: BoxDecoration(
-          color: SpendlerColors.amber.withValues(alpha: 0.08),
+          color: SpendlerColors.warning.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(SpendlerRadii.button),
-          border: Border.all(color: SpendlerColors.amber.withValues(alpha: 0.2)),
+          border: Border.all(color: SpendlerColors.warning.withValues(alpha: 0.2)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,7 +40,7 @@ class _SmsGapBannerState extends State<SmsGapBanner> {
               children: [
                 PhosphorIcon(
                   PhosphorIcons.info(),
-                  color: SpendlerColors.amber,
+                  color: SpendlerColors.warning,
                   size: 18,
                 ),
                 const SizedBox(width: SpendlerSpacing.sm),
@@ -70,7 +70,7 @@ class _SmsGapBannerState extends State<SmsGapBanner> {
                         child: const Text(
                           'Add now →',
                           style: TextStyle(
-                            color: SpendlerColors.yellow,
+                            color: SpendlerColors.primary,
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                           ),
