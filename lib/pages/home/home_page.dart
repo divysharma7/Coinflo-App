@@ -540,16 +540,20 @@ class _CategoryBreakdownSection extends ConsumerWidget {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    cat.label,
-                                    style: TextStyle(
-                                      color: isDominant
-                                          ? SpendlerColors.textPrimary
-                                          : SpendlerColors.textSecondary,
-                                      fontSize: 15,
-                                      fontWeight: isDominant
-                                          ? FontWeight.w600
-                                          : FontWeight.w400,
+                                  Flexible(
+                                    child: Text(
+                                      cat.label,
+                                      style: TextStyle(
+                                        color: isDominant
+                                            ? SpendlerColors.textPrimary
+                                            : SpendlerColors.textSecondary,
+                                        fontSize: 15,
+                                        fontWeight: isDominant
+                                            ? FontWeight.w600
+                                            : FontWeight.w400,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                   Text(
@@ -802,7 +806,15 @@ class _FriendsCardSection extends ConsumerWidget {
                                       ),
                                     ),
                                     const SizedBox(width: 6),
-                                    Text(c.name, style: const TextStyle(color: SpendlerColors.textSecondary, fontSize: 12)),
+                                    ConstrainedBox(
+                                      constraints: const BoxConstraints(maxWidth: 100),
+                                      child: Text(
+                                        c.name,
+                                        style: const TextStyle(color: SpendlerColors.textSecondary, fontSize: 12),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),

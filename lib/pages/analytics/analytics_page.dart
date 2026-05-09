@@ -506,6 +506,8 @@ class _TopMerchantsSection extends ConsumerWidget {
                                       ? FontWeight.w600
                                       : FontWeight.w400,
                                 ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                               Text(
                                 '${m.count} time${m.count > 1 ? 's' : ''} this month',

@@ -245,6 +245,8 @@ class _SubscriptionCard extends StatelessWidget {
                         ? SpendlerColors.textPrimary
                         : SpendlerColors.textTertiary,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -253,6 +255,8 @@ class _SubscriptionCard extends StatelessWidget {
                     fontSize: 13,
                     color: SpendlerColors.textSecondary,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
                 Text(

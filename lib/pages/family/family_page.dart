@@ -25,9 +25,9 @@ class FamilyPage extends ConsumerWidget {
           // Total wealth header
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(
+            padding: EdgeInsets.fromLTRB(
               SpendlerSpacing.screenH,
-              SpendlerSpacing.screenTop + 16,
+              MediaQuery.paddingOf(context).top + 16,
               SpendlerSpacing.screenH,
               SpendlerSpacing.lg,
             ),

@@ -214,7 +214,12 @@ class _TransactionDetailPageState
             ],
           ),
           const SizedBox(height: 4),
-          Text(t.merchant ?? cat.label, style: SpendlerTextStyles.merchantName.copyWith(fontSize: 20)),
+          Text(
+            t.merchant ?? cat.label,
+            style: SpendlerTextStyles.merchantName.copyWith(fontSize: 20),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
           Text(
             DateFormat('EEEE, d MMM yyyy • h:mm a').format(t.happenedAt),
             style: const TextStyle(color: SpendlerColors.textTertiary),

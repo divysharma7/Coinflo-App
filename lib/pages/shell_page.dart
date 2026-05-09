@@ -77,9 +77,14 @@ class ShellPage extends ConsumerWidget {
                 ),
                 const VerticalDivider(thickness: 1, width: 1, color: SpendlerColors.border),
                 Expanded(
-                  child: IndexedStack(
-                    index: selectedTab,
-                    children: _pages,
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 700),
+                      child: IndexedStack(
+                        index: selectedTab,
+                        children: _pages,
+                      ),
+                    ),
                   ),
                 ),
               ],

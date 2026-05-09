@@ -606,7 +606,9 @@ class _PeopleSummaryCard extends ConsumerWidget {
                 children: [
                   const Text('PEOPLE', style: SpendlerTextStyles.sectionLabel),
                   const SizedBox(height: SpendlerSpacing.md),
-                  Row(
+                  Wrap(
+                    spacing: 4,
+                    runSpacing: 4,
                     children: [
                       if (balance.totalReceivable > 0)
                         Text(
@@ -620,7 +622,7 @@ class _PeopleSummaryCard extends ConsumerWidget {
                       if (balance.totalReceivable > 0 &&
                           balance.totalPayable > 0)
                         const Text(
-                          ' \u00b7 ',
+                          '\u00b7',
                           style: TextStyle(
                             color: SpendlerColors.textTertiary,
                             fontSize: 14,

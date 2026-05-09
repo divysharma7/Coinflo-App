@@ -349,7 +349,12 @@ class _FriendCard extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(contact.name, style: const TextStyle(color: SpendlerColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w600)),
+                      Text(
+                        contact.name,
+                        style: const TextStyle(color: SpendlerColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w600),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                       if (contact.note != null && contact.note!.isNotEmpty)
                         Text(contact.note!, style: const TextStyle(color: SpendlerColors.textTertiary, fontSize: 12)),
                     ],
@@ -684,7 +689,12 @@ class _FamilyList extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(titleBuilder(e), style: const TextStyle(color: SpendlerColors.textPrimary, fontSize: 14, fontWeight: FontWeight.w500)),
+                            Text(
+                              titleBuilder(e),
+                              style: const TextStyle(color: SpendlerColors.textPrimary, fontSize: 14, fontWeight: FontWeight.w500),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                             const SizedBox(height: 2),
                             Text(sub, style: const TextStyle(color: SpendlerColors.textTertiary, fontSize: 12)),
                           ],
