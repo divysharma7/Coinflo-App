@@ -26,20 +26,20 @@ class FamilyPage extends ConsumerWidget {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(
-              PaisaSpacing.screenH,
-              PaisaSpacing.screenTop + 16,
-              PaisaSpacing.screenH,
-              PaisaSpacing.lg,
+              SpendlerSpacing.screenH,
+              SpendlerSpacing.screenTop + 16,
+              SpendlerSpacing.screenH,
+              SpendlerSpacing.lg,
             ),
-            color: PaisaColors.gold.withValues(alpha: 0.04),
+            color: SpendlerColors.gold.withValues(alpha: 0.04),
             child: Column(
               children: [
-                const Text('TOTAL FAMILY WEALTH', style: PaisaTextStyles.sectionLabel),
-                const SizedBox(height: PaisaSpacing.sm),
+                const Text('TOTAL FAMILY WEALTH', style: SpendlerTextStyles.sectionLabel),
+                const SizedBox(height: SpendlerSpacing.sm),
                 wealth.when(
                   data: (total) => HeroAmount(amount: total, amountSize: 40, symbolSize: 20),
-                  loading: () => const Text('...', style: TextStyle(color: PaisaColors.textTertiary)),
-                  error: (_, _) => const Text('—', style: TextStyle(color: PaisaColors.expense)),
+                  loading: () => const Text('...', style: TextStyle(color: SpendlerColors.textTertiary)),
+                  error: (_, _) => const Text('—', style: TextStyle(color: SpendlerColors.expense)),
                 ),
               ],
             ),
@@ -47,9 +47,9 @@ class FamilyPage extends ConsumerWidget {
 
           // Tab bar — 3 tabs
           const TabBar(
-            indicatorColor: PaisaColors.gold,
-            labelColor: PaisaColors.gold,
-            unselectedLabelColor: PaisaColors.textTertiary,
+            indicatorColor: SpendlerColors.gold,
+            labelColor: SpendlerColors.gold,
+            unselectedLabelColor: SpendlerColors.textTertiary,
             tabs: [
               Tab(text: 'Inflows'),
               Tab(text: 'Outflows'),
@@ -65,8 +65,8 @@ class FamilyPage extends ConsumerWidget {
                 _FamilyList(
                   data: inflows,
                   icon: PhosphorIcons.arrowCircleDown(),
-                  color: PaisaColors.income,
-                  titleBuilder: (e) => '₹${e.amount.toStringAsFixed(0)} from ${e.fromPerson}',
+                  color: SpendlerColors.income,
+                  titleBuilder: (e) => '\$${e.amount.toStringAsFixed(0)} from ${e.fromPerson}',
                   emptyMessage: 'Family finances live here.',
                   emptySubtitle: 'Add your first entry to get started.',
                 ),
@@ -75,8 +75,8 @@ class FamilyPage extends ConsumerWidget {
                 _FamilyList(
                   data: outflows,
                   icon: PhosphorIcons.arrowCircleUp(),
-                  color: PaisaColors.expense,
-                  titleBuilder: (e) => '₹${e.amount.toStringAsFixed(0)} to ${e.fromPerson}',
+                  color: SpendlerColors.expense,
+                  titleBuilder: (e) => '\$${e.amount.toStringAsFixed(0)} to ${e.fromPerson}',
                   emptyMessage: 'No outflows recorded.',
                   emptySubtitle: 'Money sent to family shows up here.',
                 ),
@@ -85,8 +85,8 @@ class FamilyPage extends ConsumerWidget {
                 _FamilyList(
                   data: investments,
                   icon: PhosphorIcons.trendUp(),
-                  color: PaisaColors.gold,
-                  titleBuilder: (e) => '₹${e.amount.toStringAsFixed(0)} — ${e.investmentType ?? "Other"}',
+                  color: SpendlerColors.gold,
+                  titleBuilder: (e) => '\$${e.amount.toStringAsFixed(0)} — ${e.investmentType ?? "Other"}',
                   subtitleBuilder: (e) => 'Via ${e.fromPerson} · ${DateFormat('d MMM').format(e.happenedAt)}'
                       '${e.note != null && e.note!.isNotEmpty ? " · ${e.note}" : ""}',
                   emptyMessage: 'No investments tracked yet.',
@@ -145,17 +145,17 @@ class _FamilyList extends StatelessWidget {
                 backgroundColor: color.withValues(alpha: 0.15),
                 child: PhosphorIcon(icon, color: color, size: 22),
               ),
-              title: Text(titleBuilder(e), style: PaisaTextStyles.merchantName),
+              title: Text(titleBuilder(e), style: SpendlerTextStyles.merchantName),
               subtitle: Text(
                 sub,
-                style: const TextStyle(color: PaisaColors.textTertiary, fontSize: 12),
+                style: const TextStyle(color: SpendlerColors.textTertiary, fontSize: 12),
               ),
             );
           },
         );
       },
       loading: () => Center(child: CircularProgressIndicator(color: color)),
-      error: (_, _) => const Center(child: Text('Error', style: TextStyle(color: PaisaColors.expense))),
+      error: (_, _) => const Center(child: Text('Error', style: TextStyle(color: SpendlerColors.expense))),
     );
   }
 }

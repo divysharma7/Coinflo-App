@@ -9,7 +9,7 @@ class HeroAmount extends StatelessWidget {
   const HeroAmount({
     super.key,
     required this.amount,
-    this.symbol = '₹',
+    this.symbol = '\$',
     this.deltaText,
     this.deltaType = DeltaType.neutral,
     this.amountSize = 64,
@@ -36,23 +36,23 @@ class HeroAmount extends StatelessWidget {
           children: [
             Text(
               symbol,
-              style: PaisaTextStyles.heroSymbol.copyWith(fontSize: symbolSize),
+              style: SpendlerTextStyles.heroSymbol.copyWith(fontSize: symbolSize),
             ),
             const SizedBox(width: 2),
             AnimatedAmount(
               value: amount,
               prefix: '',
-              style: PaisaTextStyles.heroAmount.copyWith(
+              style: SpendlerTextStyles.heroAmount.copyWith(
                 fontSize: amountSize,
                 letterSpacing: amountSize > 40 ? -2.0 : -1.0,
               ),
-              duration: PaisaMotion.number,
-              curve: PaisaMotion.numberCurve,
+              duration: SpendlerMotion.number,
+              curve: SpendlerMotion.numberCurve,
             ),
           ],
         ),
         if (deltaText != null) ...[
-          const SizedBox(height: PaisaSpacing.sm),
+          const SizedBox(height: SpendlerSpacing.sm),
           ContextualPill(text: deltaText!, type: deltaType),
         ],
       ],

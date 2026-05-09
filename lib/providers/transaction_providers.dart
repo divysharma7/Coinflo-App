@@ -4,23 +4,23 @@ import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/providers/database_providers.dart';
 import 'package:finance_buddy_app/providers/navigation_providers.dart';
 
-final weeklyTransactionsProvider = StreamProvider.autoDispose<List<PaisaTransaction>>((ref) {
+final weeklyTransactionsProvider = StreamProvider.autoDispose<List<SpendlerTransaction>>((ref) {
   final repo = ref.watch(repositoryProvider);
   final weekStart = ref.watch(selectedWeekProvider);
   return repo.watchTransactionsForWeek(weekStart);
 });
 
-final unconfirmedQueueProvider = StreamProvider.autoDispose<List<PaisaTransaction>>((ref) {
+final unconfirmedQueueProvider = StreamProvider.autoDispose<List<SpendlerTransaction>>((ref) {
   final repo = ref.watch(repositoryProvider);
   return repo.watchUnconfirmed();
 });
 
-final allTransactionsProvider = StreamProvider.autoDispose<List<PaisaTransaction>>((ref) {
+final allTransactionsProvider = StreamProvider.autoDispose<List<SpendlerTransaction>>((ref) {
   final repo = ref.watch(repositoryProvider);
   return repo.watchAll();
 });
 
-final singleTransactionProvider = FutureProvider.autoDispose.family<PaisaTransaction?, int>((ref, id) async {
+final singleTransactionProvider = FutureProvider.autoDispose.family<SpendlerTransaction?, int>((ref, id) async {
   final repo = ref.watch(repositoryProvider);
   final all = await repo.watchAll().first;
   return all.where((t) => t.id == id).firstOrNull;
@@ -73,7 +73,7 @@ class TransactionFilters {
 final transactionFiltersProvider =
     StateProvider<TransactionFilters>((ref) => TransactionFilters.empty);
 
-final filteredTransactionsProvider = Provider<AsyncValue<List<PaisaTransaction>>>((ref) {
+final filteredTransactionsProvider = Provider<AsyncValue<List<SpendlerTransaction>>>((ref) {
   final filters = ref.watch(transactionFiltersProvider);
   final allTxns = ref.watch(allTransactionsProvider);
 
@@ -116,7 +116,7 @@ final filteredTransactionsProvider = Provider<AsyncValue<List<PaisaTransaction>>
 });
 
 final dailyTransactionsProvider =
-    FutureProvider.family<List<PaisaTransaction>, DateTime>((ref, day) {
+    FutureProvider.family<List<SpendlerTransaction>, DateTime>((ref, day) {
   final repo = ref.watch(repositoryProvider);
   return repo.getTransactionsForDay(day);
 });

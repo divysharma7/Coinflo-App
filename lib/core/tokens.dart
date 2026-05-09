@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:finance_buddy_app/core/enums.dart';
 
 // ---------------------------------------------------------------------------
-// Pulse Design Tokens v1.2
-// Dark-first, OLED-friendly, Cred-inspired.
+// Spendler Design Tokens v2.0
+// Dark-first, OLED-friendly.
 // ---------------------------------------------------------------------------
 
 /// Colour palette.
-abstract final class PaisaColors {
+abstract final class SpendlerColors {
   // -- Backgrounds --
   static const Color scaffold = Color(0xFF000000);
   static const Color surface = Color(0xFF141414);
@@ -48,12 +48,15 @@ abstract final class PaisaColors {
 
   // -- Category accents (muted, never full saturation) --
   static const Map<TransactionCategory, Color> categoryActive = {
-    TransactionCategory.rent: Color(0xFF7B8FA1),
+    TransactionCategory.foodAndDrink: Color(0xFFA0785A),
     TransactionCategory.transport: Color(0xFF6B8F71),
-    TransactionCategory.food: Color(0xFFA0785A),
-    TransactionCategory.family: Color(0xFFC9A84C),
-    TransactionCategory.social: Color(0xFF8E7AAF),
-    TransactionCategory.other: Color(0xFF7A7A7A),
+    TransactionCategory.shopping: Color(0xFF7B8FA1),
+    TransactionCategory.entertainment: Color(0xFFC9A84C),
+    TransactionCategory.streaming: Color(0xFF8E7AAF),
+    TransactionCategory.gymFitness: Color(0xFF4DA8FF),
+    TransactionCategory.productivityTools: Color(0xFF9CA3AF),
+    TransactionCategory.personalCare: Color(0xFFF59E0B),
+    TransactionCategory.education: Color(0xFF34D399),
   };
 
   static const Color categoryMuted = Color(0xFF3A3A3A);
@@ -69,18 +72,18 @@ abstract final class PaisaColors {
 }
 
 /// Typography styles.
-abstract final class PaisaTextStyles {
+abstract final class SpendlerTextStyles {
   static const TextStyle heroSymbol = TextStyle(
     fontSize: 28,
     fontWeight: FontWeight.w300,
-    color: PaisaColors.textSecondary,
+    color: SpendlerColors.textSecondary,
     fontFeatures: [FontFeature.tabularFigures()],
   );
 
   static const TextStyle heroAmount = TextStyle(
     fontSize: 64,
     fontWeight: FontWeight.w700,
-    color: PaisaColors.textPrimary,
+    color: SpendlerColors.textPrimary,
     fontFeatures: [FontFeature.tabularFigures()],
     letterSpacing: -2.0,
     height: 1,
@@ -89,14 +92,14 @@ abstract final class PaisaTextStyles {
   static const TextStyle sectionLabel = TextStyle(
     fontSize: 11,
     fontWeight: FontWeight.w600,
-    color: PaisaColors.textTertiary,
+    color: SpendlerColors.textTertiary,
     letterSpacing: 1.5,
   );
 
   static const TextStyle merchantName = TextStyle(
     fontSize: 15,
     fontWeight: FontWeight.w500,
-    color: PaisaColors.textPrimary,
+    color: SpendlerColors.textPrimary,
   );
 
   static const TextStyle pillLabel = TextStyle(
@@ -108,41 +111,41 @@ abstract final class PaisaTextStyles {
   static const TextStyle emptyState = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w400,
-    color: PaisaColors.textSecondary,
+    color: SpendlerColors.textSecondary,
     height: 1.6,
   );
 
   static const TextStyle greeting = TextStyle(
     fontSize: 24,
     fontWeight: FontWeight.w600,
-    color: PaisaColors.textPrimary,
+    color: SpendlerColors.textPrimary,
     height: 1.3,
   );
 
   static const TextStyle insightBody = TextStyle(
     fontSize: 20,
     fontWeight: FontWeight.w500,
-    color: PaisaColors.textPrimary,
+    color: SpendlerColors.textPrimary,
     height: 1.5,
   );
 
   static const TextStyle onboardingHeadline = TextStyle(
     fontSize: 28,
     fontWeight: FontWeight.w700,
-    color: PaisaColors.textPrimary,
+    color: SpendlerColors.textPrimary,
     height: 1.2,
   );
 
   static const TextStyle onboardingBody = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w400,
-    color: PaisaColors.textSecondary,
+    color: SpendlerColors.textSecondary,
     height: 1.6,
   );
 }
 
 /// Spacing scale (8-pt grid).
-abstract final class PaisaSpacing {
+abstract final class SpendlerSpacing {
   static const double xs = 4;
   static const double sm = 8;
   static const double md = 16;
@@ -157,7 +160,7 @@ abstract final class PaisaSpacing {
 }
 
 /// Corner radii.
-abstract final class PaisaRadii {
+abstract final class SpendlerRadii {
   static const double card = 16;
   static const double sheet = 24;
   static const double pill = 100;
@@ -167,7 +170,7 @@ abstract final class PaisaRadii {
 }
 
 /// Typography sizes (kept for widgets using raw sizes).
-abstract final class PaisaTypo {
+abstract final class SpendlerTypo {
   static const double heroSize = 64;
   static const FontWeight heroWeight = FontWeight.w700;
   static const double symbolSize = 28;
@@ -186,7 +189,7 @@ abstract final class PaisaTypo {
 }
 
 /// Animation durations & curves.
-abstract final class PaisaMotion {
+abstract final class SpendlerMotion {
   // Micro-interactions (button press, toggle)
   static const Duration micro = Duration(milliseconds: 150);
   // Transitions (sheet open, screen change)
@@ -214,7 +217,7 @@ abstract final class PaisaMotion {
 }
 
 /// Shadow presets.
-abstract final class PaisaShadows {
+abstract final class SpendlerShadows {
   static List<BoxShadow> card = const [
     BoxShadow(color: Color(0x66000000), offset: Offset(0, 2), blurRadius: 8),
   ];

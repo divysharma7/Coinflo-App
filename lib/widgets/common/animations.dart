@@ -102,7 +102,7 @@ class _PressableCardState extends State<PressableCard>
     super.initState();
     _ctrl = AnimationController(
       vsync: this,
-      duration: PaisaMotion.micro,
+      duration: SpendlerMotion.micro,
       reverseDuration: const Duration(milliseconds: 200),
     );
     _scaleAnim = Tween<double>(begin: 1.0, end: widget.scale).animate(
@@ -252,9 +252,9 @@ class _ShimmerBoxState extends State<ShimmerBox>
               begin: Alignment(-1.0 + _ctrl.value * 3, 0),
               end: Alignment(-1.0 + _ctrl.value * 3 + 1, 0),
               colors: const [
-                PaisaColors.surface,
+                SpendlerColors.surface,
                 Color(0xFF2A2A2A),
-                PaisaColors.surface,
+                SpendlerColors.surface,
               ],
               stops: const [0.0, 0.5, 1.0],
             ),

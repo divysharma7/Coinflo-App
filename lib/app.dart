@@ -4,8 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:finance_buddy_app/core/theme.dart';
 import 'package:finance_buddy_app/pages/splash/splash_page.dart';
 
-class PaisaBoltaApp extends StatelessWidget {
-  const PaisaBoltaApp({super.key});
+class SpendlerApp extends StatelessWidget {
+  const SpendlerApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -14,11 +14,11 @@ class PaisaBoltaApp extends StatelessWidget {
 
     return ProviderScope(
       child: MaterialApp(
-        title: 'Pulse',
+        title: 'Spendler',
         debugShowCheckedModeBanner: false,
         themeMode: ThemeMode.dark,
-        darkTheme: PaisaTheme.darkTheme,
-        theme: PaisaTheme.darkTheme,
+        darkTheme: SpendlerTheme.darkTheme,
+        theme: SpendlerTheme.darkTheme,
         home: const SplashPage(),
       ),
     );

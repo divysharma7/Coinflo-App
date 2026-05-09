@@ -2,63 +2,84 @@ import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 enum TransactionCategory {
-  rent,
+  foodAndDrink,
   transport,
-  food,
-  family,
-  social,
-  other;
+  shopping,
+  entertainment,
+  streaming,
+  gymFitness,
+  productivityTools,
+  personalCare,
+  education;
 
   String get label {
     switch (this) {
-      case rent:
-        return 'Rent';
+      case foodAndDrink:
+        return 'Food & Drink';
       case transport:
         return 'Transport';
-      case food:
-        return 'Food';
-      case family:
-        return 'Family';
-      case social:
-        return 'Social';
-      case other:
-        return 'Other';
+      case shopping:
+        return 'Shopping';
+      case entertainment:
+        return 'Entertainment';
+      case streaming:
+        return 'Streaming';
+      case gymFitness:
+        return 'Gym & Fitness';
+      case productivityTools:
+        return 'Productivity';
+      case personalCare:
+        return 'Personal Care';
+      case education:
+        return 'Education';
     }
   }
 
   /// Regular weight — for lists, unselected states.
   IconData get icon {
     switch (this) {
-      case rent:
-        return PhosphorIcons.house();
+      case foodAndDrink:
+        return PhosphorIcons.bowlFood();
       case transport:
         return PhosphorIcons.car();
-      case food:
-        return PhosphorIcons.bowlFood();
-      case family:
-        return PhosphorIcons.heartbeat();
-      case social:
-        return PhosphorIcons.usersThree();
-      case other:
-        return PhosphorIcons.dotsThreeCircle();
+      case shopping:
+        return PhosphorIcons.shoppingBag();
+      case entertainment:
+        return PhosphorIcons.filmStrip();
+      case streaming:
+        return PhosphorIcons.play();
+      case gymFitness:
+        return PhosphorIcons.barbell();
+      case productivityTools:
+        return PhosphorIcons.wrench();
+      case personalCare:
+        return PhosphorIcons.sparkle();
+      case education:
+        return PhosphorIcons.graduationCap();
     }
   }
 
   /// Fill weight — for selected states, category avatars.
   IconData get iconFill {
     switch (this) {
-      case rent:
-        return PhosphorIconsFill.house;
+      case foodAndDrink:
+        return PhosphorIconsFill.bowlFood;
       case transport:
         return PhosphorIconsFill.car;
-      case food:
-        return PhosphorIconsFill.bowlFood;
-      case family:
-        return PhosphorIconsFill.heartbeat;
-      case social:
-        return PhosphorIconsFill.usersThree;
-      case other:
-        return PhosphorIconsFill.dotsThreeCircle;
+      case shopping:
+        return PhosphorIconsFill.shoppingBag;
+      case entertainment:
+        return PhosphorIconsFill.filmStrip;
+      case streaming:
+        return PhosphorIconsFill.play;
+      case gymFitness:
+        return PhosphorIconsFill.barbell;
+      case productivityTools:
+        return PhosphorIconsFill.wrench;
+      case personalCare:
+        return PhosphorIconsFill.sparkle;
+      case education:
+        return PhosphorIconsFill.graduationCap;
     }
   }
 }

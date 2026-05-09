@@ -23,16 +23,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
-      backgroundColor: PaisaColors.scaffold,
+      backgroundColor: SpendlerColors.scaffold,
       body: ListView(
         padding: const EdgeInsets.symmetric(
-          horizontal: PaisaSpacing.screenH,
-          vertical: PaisaSpacing.md,
+          horizontal: SpendlerSpacing.screenH,
+          vertical: SpendlerSpacing.md,
         ),
         children: [
           // ─── Section 1: Profile ──────────────────
-          const Text('PROFILE', style: PaisaTextStyles.sectionLabel),
-          const SizedBox(height: PaisaSpacing.cardGap),
+          const Text('PROFILE', style: SpendlerTextStyles.sectionLabel),
+          const SizedBox(height: SpendlerSpacing.cardGap),
 
           _EditableRow(
             icon: PhosphorIcons.user(),
@@ -47,12 +47,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               },
             ),
           ),
-          const SizedBox(height: PaisaSpacing.sm),
+          const SizedBox(height: SpendlerSpacing.sm),
           _EditableRow(
             icon: PhosphorIcons.wallet(),
             label: 'Monthly salary',
             value: salary.valueOrNull != null
-                ? '₹${salary.valueOrNull!.toStringAsFixed(0)}'
+                ? '\$${salary.valueOrNull!.toStringAsFixed(0)}'
                 : 'Not set',
             onTap: () => _editNumber(
               title: 'Monthly salary',
@@ -63,12 +63,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               },
             ),
           ),
-          const SizedBox(height: PaisaSpacing.sm),
+          const SizedBox(height: SpendlerSpacing.sm),
           _EditableRow(
             icon: PhosphorIcons.target(),
             label: 'Spending target',
             value: target.valueOrNull != null
-                ? '₹${target.valueOrNull!.toStringAsFixed(0)}/month'
+                ? '\$${target.valueOrNull!.toStringAsFixed(0)}/month'
                 : 'Not set',
             onTap: () => _editNumber(
               title: 'Monthly spending target',
@@ -80,11 +80,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             ),
           ),
 
-          const SizedBox(height: PaisaSpacing.xl),
+          const SizedBox(height: SpendlerSpacing.xl),
 
           // ─── Section 2: Notifications ────────────
-          const Text('NOTIFICATIONS', style: PaisaTextStyles.sectionLabel),
-          const SizedBox(height: PaisaSpacing.cardGap),
+          const Text('NOTIFICATIONS', style: SpendlerTextStyles.sectionLabel),
+          const SizedBox(height: SpendlerSpacing.cardGap),
 
           _ToggleRow(
             icon: PhosphorIcons.bell(),
@@ -94,7 +94,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             onChanged: (v) =>
                 ref.read(notifPrefsProvider.notifier).setTxnAlerts(v),
           ),
-          const SizedBox(height: PaisaSpacing.sm),
+          const SizedBox(height: SpendlerSpacing.sm),
           _ToggleRow(
             icon: PhosphorIcons.moon(),
             title: 'Evening check-in',
@@ -104,7 +104,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             onChanged: (v) =>
                 ref.read(notifPrefsProvider.notifier).setEveningCheckin(v),
           ),
-          const SizedBox(height: PaisaSpacing.sm),
+          const SizedBox(height: SpendlerSpacing.sm),
           _ToggleRow(
             icon: PhosphorIcons.calendarCheck(),
             title: 'Sunday digest',
@@ -113,7 +113,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             onChanged: (v) =>
                 ref.read(notifPrefsProvider.notifier).setSundayDigest(v),
           ),
-          const SizedBox(height: PaisaSpacing.sm),
+          const SizedBox(height: SpendlerSpacing.sm),
           _TappableRow(
             icon: PhosphorIcons.clock(),
             label: 'Check-in time',
@@ -121,11 +121,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             onTap: () => _pickTime(prefs),
           ),
 
-          const SizedBox(height: PaisaSpacing.xl),
+          const SizedBox(height: SpendlerSpacing.xl),
 
           // ─── Section 3: Data ─────────────────────
-          const Text('DATA', style: PaisaTextStyles.sectionLabel),
-          const SizedBox(height: PaisaSpacing.cardGap),
+          const Text('DATA', style: SpendlerTextStyles.sectionLabel),
+          const SizedBox(height: SpendlerSpacing.cardGap),
 
           _TappableRow(
             icon: PhosphorIcons.export(),
@@ -133,15 +133,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             value: 'JSON',
             onTap: _exportData,
           ),
-          const SizedBox(height: PaisaSpacing.sm),
+          const SizedBox(height: SpendlerSpacing.sm),
           _TappableRow(
             icon: PhosphorIcons.trash(),
             label: 'Clear all data',
             value: '',
-            color: PaisaColors.expense,
+            color: SpendlerColors.expense,
             onTap: _clearData,
           ),
-          const SizedBox(height: PaisaSpacing.sm),
+          const SizedBox(height: SpendlerSpacing.sm),
           _TappableRow(
             icon: PhosphorIcons.shieldCheck(),
             label: 'Privacy policy',
@@ -156,15 +156,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             },
           ),
 
-          const SizedBox(height: PaisaSpacing.xl),
+          const SizedBox(height: SpendlerSpacing.xl),
 
           // ─── Section 4: App ──────────────────────
-          const Text('APP', style: PaisaTextStyles.sectionLabel),
-          const SizedBox(height: PaisaSpacing.cardGap),
+          const Text('APP', style: SpendlerTextStyles.sectionLabel),
+          const SizedBox(height: SpendlerSpacing.cardGap),
 
           _TappableRow(
             icon: PhosphorIcons.question(),
-            label: 'How Pulse works',
+            label: 'How Spendler works',
             value: '',
             onTap: () {
               Navigator.push(
@@ -175,7 +175,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               );
             },
           ),
-          const SizedBox(height: PaisaSpacing.sm),
+          const SizedBox(height: SpendlerSpacing.sm),
           _InfoRow(
             icon: PhosphorIcons.info(),
             label: 'Version',
@@ -222,8 +222,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           controller: ctrl,
           autofocus: true,
           textCapitalization: TextCapitalization.words,
-          style: const TextStyle(color: PaisaColors.textPrimary),
-          cursorColor: PaisaColors.yellow,
+          style: const TextStyle(color: SpendlerColors.textPrimary),
+          cursorColor: SpendlerColors.yellow,
         ),
         actions: [
           TextButton(
@@ -259,9 +259,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           controller: ctrl,
           autofocus: true,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          style: const TextStyle(color: PaisaColors.textPrimary),
-          cursorColor: PaisaColors.yellow,
-          decoration: const InputDecoration(prefixText: '₹ '),
+          style: const TextStyle(color: SpendlerColors.textPrimary),
+          cursorColor: SpendlerColors.yellow,
+          decoration: const InputDecoration(prefixText: '\$ '),
         ),
         actions: [
           TextButton(
@@ -309,7 +309,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             onPressed: () => Navigator.pop(context, true),
             child: const Text(
               'Delete Everything',
-              style: TextStyle(color: PaisaColors.expense),
+              style: TextStyle(color: SpendlerColors.expense),
             ),
           ),
         ],
@@ -318,7 +318,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     if (confirmed == true && mounted) {
       await HapticFeedback.heavyImpact();
       final db = ref.read(databaseProvider);
-      await db.customStatement('DELETE FROM paisa_transactions');
+      await db.customStatement('DELETE FROM spendler_transactions');
       await db.customStatement('DELETE FROM family_entries');
       await db.customStatement('DELETE FROM weekly_reflections');
       await db.customStatement('DELETE FROM app_metrics');
@@ -379,22 +379,22 @@ class _EditableRow extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(
-          horizontal: PaisaSpacing.md,
-          vertical: PaisaSpacing.cardGap,
+          horizontal: SpendlerSpacing.md,
+          vertical: SpendlerSpacing.cardGap,
         ),
         decoration: BoxDecoration(
-          color: PaisaColors.surface,
-          borderRadius: BorderRadius.circular(PaisaRadii.button),
+          color: SpendlerColors.surface,
+          borderRadius: BorderRadius.circular(SpendlerRadii.button),
         ),
         child: Row(
           children: [
-            PhosphorIcon(icon, color: PaisaColors.textSecondary, size: 20),
-            const SizedBox(width: PaisaSpacing.cardGap),
+            PhosphorIcon(icon, color: SpendlerColors.textSecondary, size: 20),
+            const SizedBox(width: SpendlerSpacing.cardGap),
             Expanded(
               child: Text(
                 label,
                 style: const TextStyle(
-                  color: PaisaColors.textPrimary,
+                  color: SpendlerColors.textPrimary,
                   fontSize: 15,
                 ),
               ),
@@ -402,14 +402,14 @@ class _EditableRow extends StatelessWidget {
             Text(
               value,
               style: const TextStyle(
-                color: PaisaColors.textSecondary,
+                color: SpendlerColors.textSecondary,
                 fontSize: 14,
               ),
             ),
-            const SizedBox(width: PaisaSpacing.sm),
+            const SizedBox(width: SpendlerSpacing.sm),
             PhosphorIcon(
               PhosphorIcons.caretRight(),
-              color: PaisaColors.textTertiary,
+              color: SpendlerColors.textTertiary,
               size: 16,
             ),
           ],
@@ -436,40 +436,40 @@ class _TappableRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = color ?? PaisaColors.textSecondary;
+    final c = color ?? SpendlerColors.textSecondary;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(
-          horizontal: PaisaSpacing.md,
-          vertical: PaisaSpacing.cardGap,
+          horizontal: SpendlerSpacing.md,
+          vertical: SpendlerSpacing.cardGap,
         ),
         decoration: BoxDecoration(
-          color: PaisaColors.surface,
-          borderRadius: BorderRadius.circular(PaisaRadii.button),
+          color: SpendlerColors.surface,
+          borderRadius: BorderRadius.circular(SpendlerRadii.button),
         ),
         child: Row(
           children: [
             PhosphorIcon(icon, color: c, size: 20),
-            const SizedBox(width: PaisaSpacing.cardGap),
+            const SizedBox(width: SpendlerSpacing.cardGap),
             Expanded(
               child: Text(
                 label,
-                style: TextStyle(color: color ?? PaisaColors.textPrimary, fontSize: 15),
+                style: TextStyle(color: color ?? SpendlerColors.textPrimary, fontSize: 15),
               ),
             ),
             if (value.isNotEmpty)
               Text(
                 value,
                 style: const TextStyle(
-                  color: PaisaColors.textSecondary,
+                  color: SpendlerColors.textSecondary,
                   fontSize: 14,
                 ),
               ),
-            const SizedBox(width: PaisaSpacing.sm),
+            const SizedBox(width: SpendlerSpacing.sm),
             PhosphorIcon(
               PhosphorIcons.caretRight(),
-              color: PaisaColors.textTertiary,
+              color: SpendlerColors.textTertiary,
               size: 16,
             ),
           ],
@@ -498,17 +498,17 @@ class _ToggleRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: PaisaSpacing.md,
-        vertical: PaisaSpacing.cardGap,
+        horizontal: SpendlerSpacing.md,
+        vertical: SpendlerSpacing.cardGap,
       ),
       decoration: BoxDecoration(
-        color: PaisaColors.surface,
-        borderRadius: BorderRadius.circular(PaisaRadii.button),
+        color: SpendlerColors.surface,
+        borderRadius: BorderRadius.circular(SpendlerRadii.button),
       ),
       child: Row(
         children: [
-          PhosphorIcon(icon, color: PaisaColors.textSecondary, size: 20),
-          const SizedBox(width: PaisaSpacing.cardGap),
+          PhosphorIcon(icon, color: SpendlerColors.textSecondary, size: 20),
+          const SizedBox(width: SpendlerSpacing.cardGap),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -516,7 +516,7 @@ class _ToggleRow extends StatelessWidget {
                 Text(
                   title,
                   style: const TextStyle(
-                    color: PaisaColors.textPrimary,
+                    color: SpendlerColors.textPrimary,
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
                   ),
@@ -524,7 +524,7 @@ class _ToggleRow extends StatelessWidget {
                 Text(
                   subtitle,
                   style: const TextStyle(
-                    color: PaisaColors.textTertiary,
+                    color: SpendlerColors.textTertiary,
                     fontSize: 12,
                   ),
                 ),
@@ -534,10 +534,10 @@ class _ToggleRow extends StatelessWidget {
           Switch.adaptive(
             value: value,
             onChanged: onChanged,
-            activeThumbColor: PaisaColors.yellow,
-            activeTrackColor: PaisaColors.yellow.withValues(alpha: 0.3),
-            inactiveTrackColor: PaisaColors.border,
-            inactiveThumbColor: PaisaColors.textTertiary,
+            activeThumbColor: SpendlerColors.yellow,
+            activeTrackColor: SpendlerColors.yellow.withValues(alpha: 0.3),
+            inactiveTrackColor: SpendlerColors.border,
+            inactiveThumbColor: SpendlerColors.textTertiary,
           ),
         ],
       ),
@@ -560,20 +560,20 @@ class _InfoRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: PaisaSpacing.md,
-        vertical: PaisaSpacing.cardGap,
+        horizontal: SpendlerSpacing.md,
+        vertical: SpendlerSpacing.cardGap,
       ),
       decoration: BoxDecoration(
-        color: PaisaColors.surface,
-        borderRadius: BorderRadius.circular(PaisaRadii.button),
+        color: SpendlerColors.surface,
+        borderRadius: BorderRadius.circular(SpendlerRadii.button),
       ),
       child: Row(
         children: [
-          PhosphorIcon(icon, color: PaisaColors.textSecondary, size: 20),
-          const SizedBox(width: PaisaSpacing.cardGap),
-          Text(label, style: const TextStyle(color: PaisaColors.textPrimary, fontSize: 15)),
+          PhosphorIcon(icon, color: SpendlerColors.textSecondary, size: 20),
+          const SizedBox(width: SpendlerSpacing.cardGap),
+          Text(label, style: const TextStyle(color: SpendlerColors.textPrimary, fontSize: 15)),
           const Spacer(),
-          Text(value, style: const TextStyle(color: PaisaColors.textTertiary, fontSize: 14)),
+          Text(value, style: const TextStyle(color: SpendlerColors.textTertiary, fontSize: 14)),
         ],
       ),
     );

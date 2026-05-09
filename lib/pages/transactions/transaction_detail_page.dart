@@ -10,7 +10,7 @@ import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/pages/transactions/split_flow_sheet.dart';
 import 'package:finance_buddy_app/widgets/common/neo_pop_button.dart';
-import 'package:finance_buddy_app/widgets/common/paisa_bottom_sheet.dart';
+import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 
 class TransactionDetailPage extends ConsumerStatefulWidget {
   final int transactionId;
@@ -30,19 +30,19 @@ class _TransactionDetailPageState
   late TextEditingController _amountCtrl;
   late TextEditingController _merchantCtrl;
   late TextEditingController _noteCtrl;
-  TransactionCategory _category = TransactionCategory.other;
+  TransactionCategory _category = TransactionCategory.foodAndDrink;
   DateTime _date = DateTime.now();
   TimeOfDay _time = TimeOfDay.now();
   bool _isExpense = true;
   bool _hasChanges = false;
 
-  void _enterEditMode(PaisaTransaction t) {
+  void _enterEditMode(SpendlerTransaction t) {
     _amountCtrl = TextEditingController(text: t.amount.abs().toStringAsFixed(0));
     _merchantCtrl = TextEditingController(text: t.merchant ?? '');
     _noteCtrl = TextEditingController(text: t.note ?? '');
     _category = TransactionCategory.values.firstWhere(
       (c) => c.name == t.category,
-      orElse: () => TransactionCategory.other,
+      orElse: () => TransactionCategory.foodAndDrink,
     );
     _date = DateTime(t.happenedAt.year, t.happenedAt.month, t.happenedAt.day);
     _time = TimeOfDay.fromDateTime(t.happenedAt);
@@ -89,7 +89,7 @@ class _TransactionDetailPageState
     final repo = ref.read(repositoryProvider);
     await repo.updateTransaction(
       id,
-      PaisaTransactionsCompanion(
+      SpendlerTransactionsCompanion(
         amount: Value(_isExpense ? -amount : amount),
         merchant: Value(_merchantCtrl.text.trim().isEmpty
             ? null
@@ -107,12 +107,12 @@ class _TransactionDetailPageState
   InputDecoration _inputDecor(String label) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(color: PaisaColors.textSecondary, fontSize: 13),
+      labelStyle: const TextStyle(color: SpendlerColors.textSecondary, fontSize: 13),
       filled: true,
-      fillColor: PaisaColors.surface,
-      border: const UnderlineInputBorder(borderSide: BorderSide(color: PaisaColors.border)),
-      enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: PaisaColors.border)),
-      focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: PaisaColors.yellow)),
+      fillColor: SpendlerColors.surface,
+      border: const UnderlineInputBorder(borderSide: BorderSide(color: SpendlerColors.border)),
+      enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: SpendlerColors.border)),
+      focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: SpendlerColors.yellow)),
     );
   }
 
@@ -136,7 +136,7 @@ class _TransactionDetailPageState
             ? TextButton(
                 onPressed: _cancelEdit,
                 child: const Text('Cancel',
-                    style: TextStyle(color: PaisaColors.textSecondary)),
+                    style: TextStyle(color: SpendlerColors.textSecondary)),
               )
             : null,
         title: Text(_editing ? 'Edit' : ''),
@@ -146,7 +146,7 @@ class _TransactionDetailPageState
               data: (t) => t != null
                   ? IconButton(
                       icon: PhosphorIcon(PhosphorIcons.pencilSimple(),
-                          color: PaisaColors.textSecondary),
+                          color: SpendlerColors.textSecondary),
                       onPressed: () => _enterEditMode(t),
                     )
                   : null,
@@ -158,27 +158,27 @@ class _TransactionDetailPageState
           if (t == null) {
             return const Center(
               child: Text('Transaction not found',
-                  style: TextStyle(color: PaisaColors.textTertiary)),
+                  style: TextStyle(color: SpendlerColors.textTertiary)),
             );
           }
           return _editing ? _buildEditMode(t) : _buildReadMode(t);
         },
         loading: () => const Center(
-            child: CircularProgressIndicator(color: PaisaColors.yellow)),
+            child: CircularProgressIndicator(color: SpendlerColors.yellow)),
         error: (_, _) => const Center(
-            child: Text('Error', style: TextStyle(color: PaisaColors.expense))),
+            child: Text('Error', style: TextStyle(color: SpendlerColors.expense))),
       ),
     );
   }
 
   // ─── Read Mode ─────────────────────────────────────
 
-  Widget _buildReadMode(PaisaTransaction t) {
+  Widget _buildReadMode(SpendlerTransaction t) {
     final cat = TransactionCategory.values.firstWhere(
       (c) => c.name == t.category,
-      orElse: () => TransactionCategory.other,
+      orElse: () => TransactionCategory.foodAndDrink,
     );
-    final catColor = PaisaColors.categoryColor(cat);
+    final catColor = SpendlerColors.categoryColor(cat);
     final isUnconfirmed = t.status == 'unconfirmed';
 
     return SingleChildScrollView(
@@ -191,51 +191,51 @@ class _TransactionDetailPageState
             backgroundColor: catColor.withValues(alpha: 0.15),
             child: Icon(cat.iconFill, color: catColor, size: 32),
           ),
-          const SizedBox(height: PaisaSpacing.md),
+          const SizedBox(height: SpendlerSpacing.md),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
               Text(
-                t.amount < 0 ? '-₹' : '+₹',
+                t.amount < 0 ? '-\$' : '+\$',
                 style: TextStyle(
                   fontSize: 20, fontWeight: FontWeight.w400,
-                  color: t.amount < 0 ? PaisaColors.expense : PaisaColors.income,
+                  color: t.amount < 0 ? SpendlerColors.expense : SpendlerColors.income,
                 ),
               ),
               Text(
                 t.amount.abs().toStringAsFixed(0),
                 style: TextStyle(
                   fontSize: 40, fontWeight: FontWeight.bold,
-                  color: t.amount < 0 ? PaisaColors.expense : PaisaColors.income,
+                  color: t.amount < 0 ? SpendlerColors.expense : SpendlerColors.income,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 4),
-          Text(t.merchant ?? cat.label, style: PaisaTextStyles.merchantName.copyWith(fontSize: 20)),
+          Text(t.merchant ?? cat.label, style: SpendlerTextStyles.merchantName.copyWith(fontSize: 20)),
           Text(
             DateFormat('EEEE, d MMM yyyy • h:mm a').format(t.happenedAt),
-            style: const TextStyle(color: PaisaColors.textTertiary),
+            style: const TextStyle(color: SpendlerColors.textTertiary),
           ),
           if (t.note != null && t.note!.isNotEmpty) ...[
             const SizedBox(height: 8),
-            Text(t.note!, style: const TextStyle(color: PaisaColors.textSecondary)),
+            Text(t.note!, style: const TextStyle(color: SpendlerColors.textSecondary)),
           ],
-          const SizedBox(height: PaisaSpacing.lg),
+          const SizedBox(height: SpendlerSpacing.lg),
 
           // Details card
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(PaisaSpacing.cardPadding),
+            padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 begin: Alignment.topCenter, end: Alignment.bottomCenter,
-                colors: [Color(0xFF1E1E1E), PaisaColors.surface],
+                colors: [Color(0xFF1E1E1E), SpendlerColors.surface],
               ),
-              borderRadius: BorderRadius.circular(PaisaRadii.card),
-              boxShadow: PaisaShadows.card,
+              borderRadius: BorderRadius.circular(SpendlerRadii.card),
+              boxShadow: SpendlerShadows.card,
             ),
             child: Column(
               children: [
@@ -244,14 +244,14 @@ class _TransactionDetailPageState
                 _detailRow('Status', isUnconfirmed ? 'Unconfirmed' : 'Confirmed'),
                 if (t.isSplit) ...[
                   _detailRow('Split', '${t.splitCount} people'),
-                  _detailRow('My Share', '₹${t.splitMyShare?.toStringAsFixed(0) ?? "—"}'),
-                  _detailRow('Pending', '₹${t.splitPendingAmount?.toStringAsFixed(0) ?? "0"}'),
+                  _detailRow('My Share', '\$${t.splitMyShare?.toStringAsFixed(0) ?? "—"}'),
+                  _detailRow('Pending', '\$${t.splitPendingAmount?.toStringAsFixed(0) ?? "0"}'),
                   _detailRow('Settled', t.splitSettled ? 'Yes' : 'No'),
                 ],
               ],
             ),
           ),
-          const SizedBox(height: PaisaSpacing.lg),
+          const SizedBox(height: SpendlerSpacing.lg),
 
           // Actions
           if (isUnconfirmed) ...[
@@ -266,8 +266,8 @@ class _TransactionDetailPageState
                 icon: const Icon(Icons.check),
                 label: const Text('Confirm This'),
                 style: FilledButton.styleFrom(
-                  backgroundColor: PaisaColors.yellow, foregroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(PaisaRadii.button)),
+                  backgroundColor: SpendlerColors.yellow, foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(SpendlerRadii.button)),
                 ),
               ),
             ),
@@ -278,7 +278,7 @@ class _TransactionDetailPageState
               width: double.infinity,
               child: OutlinedButton.icon(
                 onPressed: () {
-                  showPaisaSheet<void>(
+                  showSpendlerSheet<void>(
                     context: context,
                     builder: (_) => SplitFlowSheet(
                       transactionId: t.id, totalAmount: t.amount.abs(),
@@ -288,9 +288,9 @@ class _TransactionDetailPageState
                 icon: const Icon(Icons.group),
                 label: const Text('Split This'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: PaisaColors.textPrimary,
-                  side: const BorderSide(color: PaisaColors.border),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(PaisaRadii.button)),
+                  foregroundColor: SpendlerColors.textPrimary,
+                  side: const BorderSide(color: SpendlerColors.border),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(SpendlerRadii.button)),
                 ),
               ),
             ),
@@ -316,8 +316,8 @@ class _TransactionDetailPageState
                   if (mounted) Navigator.pop(context);
                 }
               },
-              icon: const Icon(Icons.delete_outline, color: PaisaColors.expense),
-              label: const Text('Delete', style: TextStyle(color: PaisaColors.expense)),
+              icon: const Icon(Icons.delete_outline, color: SpendlerColors.expense),
+              label: const Text('Delete', style: TextStyle(color: SpendlerColors.expense)),
             ),
           ),
         ],
@@ -327,7 +327,7 @@ class _TransactionDetailPageState
 
   // ─── Edit Mode ─────────────────────────────────────
 
-  Widget _buildEditMode(PaisaTransaction t) {
+  Widget _buildEditMode(SpendlerTransaction t) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -345,29 +345,29 @@ class _TransactionDetailPageState
               _hasChanges = true;
             }),
           ),
-          const SizedBox(height: PaisaSpacing.lg),
+          const SizedBox(height: SpendlerSpacing.lg),
 
           // Amount
           TextField(
             controller: _amountCtrl,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            style: PaisaTextStyles.greeting,
-            cursorColor: PaisaColors.yellow,
+            style: SpendlerTextStyles.greeting,
+            cursorColor: SpendlerColors.yellow,
             decoration: _inputDecor('Amount'),
             onChanged: (_) => _hasChanges = true,
           ),
-          const SizedBox(height: PaisaSpacing.md),
+          const SizedBox(height: SpendlerSpacing.md),
 
           // Merchant
           TextField(
             controller: _merchantCtrl,
             textCapitalization: TextCapitalization.words,
-            style: const TextStyle(color: PaisaColors.textPrimary, fontSize: 16),
-            cursorColor: PaisaColors.yellow,
+            style: const TextStyle(color: SpendlerColors.textPrimary, fontSize: 16),
+            cursorColor: SpendlerColors.yellow,
             decoration: _inputDecor('Merchant'),
             onChanged: (_) => _hasChanges = true,
           ),
-          const SizedBox(height: PaisaSpacing.md),
+          const SizedBox(height: SpendlerSpacing.md),
 
           // Category picker
           GestureDetector(
@@ -375,21 +375,21 @@ class _TransactionDetailPageState
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
               decoration: const BoxDecoration(
-                color: PaisaColors.surface,
-                border: Border(bottom: BorderSide(color: PaisaColors.border)),
+                color: SpendlerColors.surface,
+                border: Border(bottom: BorderSide(color: SpendlerColors.border)),
               ),
               child: Row(
                 children: [
-                  Icon(_category.iconFill, color: PaisaColors.categoryColor(_category), size: 20),
+                  Icon(_category.iconFill, color: SpendlerColors.categoryColor(_category), size: 20),
                   const SizedBox(width: 10),
-                  Text(_category.label, style: const TextStyle(color: PaisaColors.textPrimary, fontSize: 16)),
+                  Text(_category.label, style: const TextStyle(color: SpendlerColors.textPrimary, fontSize: 16)),
                   const Spacer(),
-                  PhosphorIcon(PhosphorIcons.caretDown(), color: PaisaColors.textTertiary, size: 16),
+                  PhosphorIcon(PhosphorIcons.caretDown(), color: SpendlerColors.textTertiary, size: 16),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: PaisaSpacing.md),
+          const SizedBox(height: SpendlerSpacing.md),
 
           // Date + Time row
           Row(
@@ -408,21 +408,21 @@ class _TransactionDetailPageState
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                     decoration: const BoxDecoration(
-                      color: PaisaColors.surface,
-                      border: Border(bottom: BorderSide(color: PaisaColors.border)),
+                      color: SpendlerColors.surface,
+                      border: Border(bottom: BorderSide(color: SpendlerColors.border)),
                     ),
                     child: Row(
                       children: [
-                        PhosphorIcon(PhosphorIcons.calendar(), color: PaisaColors.textSecondary, size: 18),
+                        PhosphorIcon(PhosphorIcons.calendar(), color: SpendlerColors.textSecondary, size: 18),
                         const SizedBox(width: 8),
                         Text(DateFormat('d MMM yyyy').format(_date),
-                            style: const TextStyle(color: PaisaColors.textPrimary, fontSize: 14)),
+                            style: const TextStyle(color: SpendlerColors.textPrimary, fontSize: 14)),
                       ],
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: PaisaSpacing.sm),
+              const SizedBox(width: SpendlerSpacing.sm),
               Expanded(
                 child: GestureDetector(
                   onTap: () async {
@@ -435,15 +435,15 @@ class _TransactionDetailPageState
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                     decoration: const BoxDecoration(
-                      color: PaisaColors.surface,
-                      border: Border(bottom: BorderSide(color: PaisaColors.border)),
+                      color: SpendlerColors.surface,
+                      border: Border(bottom: BorderSide(color: SpendlerColors.border)),
                     ),
                     child: Row(
                       children: [
-                        PhosphorIcon(PhosphorIcons.clock(), color: PaisaColors.textSecondary, size: 18),
+                        PhosphorIcon(PhosphorIcons.clock(), color: SpendlerColors.textSecondary, size: 18),
                         const SizedBox(width: 8),
                         Text(_time.format(context),
-                            style: const TextStyle(color: PaisaColors.textPrimary, fontSize: 14)),
+                            style: const TextStyle(color: SpendlerColors.textPrimary, fontSize: 14)),
                       ],
                     ),
                   ),
@@ -451,23 +451,23 @@ class _TransactionDetailPageState
               ),
             ],
           ),
-          const SizedBox(height: PaisaSpacing.md),
+          const SizedBox(height: SpendlerSpacing.md),
 
           // Note
           TextField(
             controller: _noteCtrl,
-            style: const TextStyle(color: PaisaColors.textPrimary),
-            cursorColor: PaisaColors.yellow,
+            style: const TextStyle(color: SpendlerColors.textPrimary),
+            cursorColor: SpendlerColors.yellow,
             maxLength: 200,
             decoration: _inputDecor('Note (optional)'),
             onChanged: (_) => _hasChanges = true,
           ),
 
           // Source (read-only)
-          const SizedBox(height: PaisaSpacing.md),
+          const SizedBox(height: SpendlerSpacing.md),
           _detailRow('Source', t.source == 'sms_auto' ? 'SMS Auto' : 'Manual'),
 
-          const SizedBox(height: PaisaSpacing.xl),
+          const SizedBox(height: SpendlerSpacing.xl),
 
           // Save button
           NeoPOPButton(
@@ -480,30 +480,30 @@ class _TransactionDetailPageState
   }
 
   void _pickCategory() {
-    showPaisaSheet<void>(
+    showSpendlerSheet<void>(
       context: context,
       builder: (_) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('CATEGORY', style: PaisaTextStyles.sectionLabel),
-          const SizedBox(height: PaisaSpacing.md),
+          const Text('CATEGORY', style: SpendlerTextStyles.sectionLabel),
+          const SizedBox(height: SpendlerSpacing.md),
           ...TransactionCategory.values.map((cat) {
             final selected = _category == cat;
-            final catColor = PaisaColors.categoryColor(cat);
+            final catColor = SpendlerColors.categoryColor(cat);
             return ListTile(
               leading: Icon(
                 selected ? cat.iconFill : cat.icon,
-                color: selected ? catColor : PaisaColors.textTertiary,
+                color: selected ? catColor : SpendlerColors.textTertiary,
               ),
               title: Text(
                 cat.label,
                 style: TextStyle(
-                  color: selected ? PaisaColors.textPrimary : PaisaColors.textSecondary,
+                  color: selected ? SpendlerColors.textPrimary : SpendlerColors.textSecondary,
                   fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                 ),
               ),
               trailing: selected
-                  ? const Icon(Icons.check, color: PaisaColors.yellow, size: 20)
+                  ? const Icon(Icons.check, color: SpendlerColors.yellow, size: 20)
                   : null,
               onTap: () {
                 setState(() { _category = cat; _hasChanges = true; });
@@ -511,7 +511,7 @@ class _TransactionDetailPageState
               },
             );
           }),
-          const SizedBox(height: PaisaSpacing.md),
+          const SizedBox(height: SpendlerSpacing.md),
         ],
       ),
     );
@@ -523,8 +523,8 @@ class _TransactionDetailPageState
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: PaisaColors.textTertiary)),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.w500, color: PaisaColors.textPrimary)),
+          Text(label, style: const TextStyle(color: SpendlerColors.textTertiary)),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.w500, color: SpendlerColors.textPrimary)),
         ],
       ),
     );

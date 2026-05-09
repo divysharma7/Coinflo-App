@@ -25,13 +25,13 @@ class HomePage extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const FadeSlideIn(delay: Duration.zero, child: _GreetingSection()),
-          const SizedBox(height: PaisaSpacing.xl),
+          const SizedBox(height: SpendlerSpacing.xl),
           const FadeSlideIn(delay: Duration(milliseconds: 80), child: _WeeklyHeroSection()),
-          const SizedBox(height: PaisaSpacing.xl),
+          const SizedBox(height: SpendlerSpacing.xl),
           const FadeSlideIn(delay: Duration(milliseconds: 160), child: _DailyBreakdownSection()),
-          const SizedBox(height: PaisaSpacing.xl),
+          const SizedBox(height: SpendlerSpacing.xl),
           const FadeSlideIn(delay: Duration(milliseconds: 240), child: _CategoryBreakdownSection()),
-          const SizedBox(height: PaisaSpacing.xl),
+          const SizedBox(height: SpendlerSpacing.xl),
           const FadeSlideIn(delay: Duration(milliseconds: 320), child: _ActionNeededSection()),
           const FadeSlideIn(delay: Duration(milliseconds: 360), child: _FriendsCardSection()),
           const FadeSlideIn(delay: Duration(milliseconds: 400), child: _WeeklyInsightSection()),
@@ -39,8 +39,8 @@ class HomePage extends ConsumerWidget {
           if (DateTime.now().weekday == DateTime.sunday)
             Padding(
               padding: const EdgeInsets.symmetric(
-                horizontal: PaisaSpacing.screenH + 4,
-                vertical: PaisaSpacing.lg,
+                horizontal: SpendlerSpacing.screenH + 4,
+                vertical: SpendlerSpacing.lg,
               ),
               child: GestureDetector(
                 onTap: () => Navigator.push(
@@ -52,18 +52,18 @@ class HomePage extends ConsumerWidget {
                 child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(
-                    horizontal: PaisaSpacing.cardPadding,
-                    vertical: PaisaSpacing.md,
+                    horizontal: SpendlerSpacing.cardPadding,
+                    vertical: SpendlerSpacing.md,
                   ),
                   decoration: BoxDecoration(
-                    color: PaisaColors.surfaceHigh,
-                    borderRadius: BorderRadius.circular(PaisaRadii.card),
-                    border: Border.all(color: PaisaColors.border),
+                    color: SpendlerColors.surfaceHigh,
+                    borderRadius: BorderRadius.circular(SpendlerRadii.card),
+                    border: Border.all(color: SpendlerColors.border),
                   ),
                   child: const Text(
                     'Your weekly rhythm is ready \u2192',
                     style: TextStyle(
-                      color: PaisaColors.yellow,
+                      color: SpendlerColors.yellow,
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                     ),
@@ -78,7 +78,7 @@ class HomePage extends ConsumerWidget {
   }
 }
 
-// ─── Section A: Greeting + Today's Pulse ─────────────
+// ─── Section A: Greeting + Today's Summary ─────────────
 
 class _GreetingSection extends ConsumerWidget {
   const _GreetingSection();
@@ -107,9 +107,9 @@ class _GreetingSection extends ConsumerWidget {
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        PaisaSpacing.screenH + 4,
-        MediaQuery.paddingOf(context).top + PaisaSpacing.lg,
-        PaisaSpacing.screenH + 4,
+        SpendlerSpacing.screenH + 4,
+        MediaQuery.paddingOf(context).top + SpendlerSpacing.lg,
+        SpendlerSpacing.screenH + 4,
         0,
       ),
       child: Column(
@@ -132,7 +132,7 @@ class _GreetingSection extends ConsumerWidget {
                     height: 40,
                     child: Icon(
                       Icons.settings_outlined,
-                      color: PaisaColors.textSecondary,
+                      color: SpendlerColors.textSecondary,
                       size: 22,
                     ),
                   ),
@@ -140,21 +140,21 @@ class _GreetingSection extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: PaisaSpacing.sm),
+          const SizedBox(height: SpendlerSpacing.sm),
           // Greeting with user's name
           Text(
             _greeting(userName.valueOrNull),
-            style: PaisaTextStyles.greeting,
+            style: SpendlerTextStyles.greeting,
           ),
-          const SizedBox(height: PaisaSpacing.sm),
+          const SizedBox(height: SpendlerSpacing.sm),
           // Today's pulse
           todaySpent.when(
             data: (spent) {
               if (spent == 0) {
                 return const Text(
-                  'Nothing spent today. A clean start.',
+                  '\$0 spent today.',
                   style: TextStyle(
-                    color: PaisaColors.textSecondary,
+                    color: SpendlerColors.textSecondary,
                     fontSize: 15,
                   ),
                 );
@@ -162,16 +162,16 @@ class _GreetingSection extends ConsumerWidget {
               final catName = todayTopCat.valueOrNull;
               final catSuffix = catName != null ? ' Mostly $catName.' : '';
               return Text(
-                '₹${spent.toStringAsFixed(0)} spent today.$catSuffix',
+                '\$${spent.toStringAsFixed(0)} spent today.$catSuffix',
                 style: const TextStyle(
-                  color: PaisaColors.textSecondary,
+                  color: SpendlerColors.textSecondary,
                   fontSize: 15,
                 ),
               );
             },
             loading: () => const Text(
               '...',
-              style: TextStyle(color: PaisaColors.textTertiary),
+              style: TextStyle(color: SpendlerColors.textTertiary),
             ),
             error: (_, _) => const SizedBox.shrink(),
           ),
@@ -181,7 +181,7 @@ class _GreetingSection extends ConsumerWidget {
   }
 }
 
-// ─── Section B: Weekly Hero Number + Context ─────────
+// ─── Section B: Current Balance Hero Card ──────────
 
 class _WeeklyHeroSection extends ConsumerWidget {
   const _WeeklyHeroSection();
@@ -193,75 +193,89 @@ class _WeeklyHeroSection extends ConsumerWidget {
     final delta = ref.watch(weekOverWeekDeltaProvider);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: PaisaSpacing.screenH + 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Section label + week nav
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('THIS WEEK', style: PaisaTextStyles.sectionLabel),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  GestureDetector(
-                    onTap: () => ref.read(selectedWeekProvider.notifier).state =
-                        weekStart.subtract(const Duration(days: 7)),
-                    child: const Icon(Icons.chevron_left,
-                        color: PaisaColors.textTertiary, size: 22),
+      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH + 4),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(SpendlerSpacing.lg),
+        decoration: BoxDecoration(
+          color: const Color(0xFF000000),
+          borderRadius: BorderRadius.circular(SpendlerRadii.card),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Section label + week nav
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('CURRENT BALANCE', style: SpendlerTextStyles.sectionLabel),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    GestureDetector(
+                      onTap: () => ref.read(selectedWeekProvider.notifier).state =
+                          weekStart.subtract(const Duration(days: 7)),
+                      child: const Icon(Icons.chevron_left,
+                          color: SpendlerColors.textTertiary, size: 22),
+                    ),
+                    const SizedBox(width: SpendlerSpacing.sm),
+                    GestureDetector(
+                      onTap: () {
+                        final next = weekStart.add(const Duration(days: 7));
+                        if (next.isBefore(DateTime.now())) {
+                          ref.read(selectedWeekProvider.notifier).state = next;
+                        }
+                      },
+                      child: const Icon(Icons.chevron_right,
+                          color: SpendlerColors.textTertiary, size: 22),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: SpendlerSpacing.md),
+            // Hero amount — white text on black
+            weeklyTxns.when(
+              data: (txns) {
+                final spent = txns
+                    .where((t) => t.amount < 0)
+                    .fold<double>(0, (s, t) => s + t.amount.abs());
+                return AnimatedAmount(
+                  value: spent,
+                  prefix: '\$',
+                  style: SpendlerTextStyles.heroAmount.copyWith(
+                    color: Colors.white,
                   ),
-                  const SizedBox(width: PaisaSpacing.sm),
-                  GestureDetector(
-                    onTap: () {
-                      final next = weekStart.add(const Duration(days: 7));
-                      if (next.isBefore(DateTime.now())) {
-                        ref.read(selectedWeekProvider.notifier).state = next;
-                      }
-                    },
-                    child: const Icon(Icons.chevron_right,
-                        color: PaisaColors.textTertiary, size: 22),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: PaisaSpacing.md),
-          // Hero amount
-          weeklyTxns.when(
-            data: (txns) {
-              final spent = txns
-                  .where((t) => t.amount < 0)
-                  .fold<double>(0, (s, t) => s + t.amount.abs());
-              return AnimatedAmount(
-                value: spent,
-                prefix: '₹',
-                style: PaisaTextStyles.heroAmount,
-                duration: PaisaMotion.number,
-                curve: PaisaMotion.numberCurve,
-              );
-            },
-            loading: () => const AnimatedAmount(
-                value: 0, prefix: '₹', style: PaisaTextStyles.heroAmount),
-            error: (_, _) => const Text('Error',
-                style: TextStyle(color: PaisaColors.expense)),
-          ),
-          const SizedBox(height: PaisaSpacing.sm),
-          // Delta pill
-          delta.when(
-            data: (pct) {
-              if (pct == 0) return const SizedBox.shrink();
-              final sign = pct > 0 ? '↑' : '↓';
-              final label = '$sign${pct.abs().toStringAsFixed(0)}% vs last week';
-              return ContextualPill(
-                text: label,
-                type: pct > 0 ? DeltaType.negative : DeltaType.positive,
-              );
-            },
-            loading: () => const SizedBox.shrink(),
-            error: (_, _) => const SizedBox.shrink(),
-          ),
-        ],
+                  duration: SpendlerMotion.number,
+                  curve: SpendlerMotion.numberCurve,
+                );
+              },
+              loading: () => AnimatedAmount(
+                  value: 0,
+                  prefix: '\$',
+                  style: SpendlerTextStyles.heroAmount.copyWith(
+                    color: Colors.white,
+                  )),
+              error: (_, _) => const Text('Error',
+                  style: TextStyle(color: SpendlerColors.expense)),
+            ),
+            const SizedBox(height: SpendlerSpacing.sm),
+            // Delta pill
+            delta.when(
+              data: (pct) {
+                if (pct == 0) return const SizedBox.shrink();
+                final sign = pct > 0 ? '↑' : '↓';
+                final label = '$sign${pct.abs().toStringAsFixed(0)}% vs last week';
+                return ContextualPill(
+                  text: label,
+                  type: pct > 0 ? DeltaType.negative : DeltaType.positive,
+                );
+              },
+              loading: () => const SizedBox.shrink(),
+              error: (_, _) => const SizedBox.shrink(),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -278,24 +292,24 @@ class _DailyBreakdownSection extends ConsumerWidget {
     final weeklyTxns = ref.watch(weeklyTransactionsProvider);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: PaisaSpacing.screenH),
+      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Padding(
-            padding: EdgeInsets.only(left: 4, bottom: PaisaSpacing.cardGap),
-            child: Text('DAILY BREAKDOWN', style: PaisaTextStyles.sectionLabel),
+            padding: EdgeInsets.only(left: 4, bottom: SpendlerSpacing.cardGap),
+            child: Text('DAILY BREAKDOWN', style: SpendlerTextStyles.sectionLabel),
           ),
           Container(
-            padding: const EdgeInsets.all(PaisaSpacing.cardPadding),
+            padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [Color(0xFF1E1E1E), PaisaColors.surface],
+                colors: [Color(0xFF1E1E1E), SpendlerColors.surface],
               ),
-              borderRadius: BorderRadius.circular(PaisaRadii.card),
-              boxShadow: PaisaShadows.card,
+              borderRadius: BorderRadius.circular(SpendlerRadii.card),
+              boxShadow: SpendlerShadows.card,
             ),
             child: weeklyTxns.when(
               data: (txns) => WeeklyBarChart(
@@ -313,13 +327,13 @@ class _DailyBreakdownSection extends ConsumerWidget {
                 height: 200,
                 child: Center(
                     child:
-                        CircularProgressIndicator(color: PaisaColors.yellow)),
+                        CircularProgressIndicator(color: SpendlerColors.yellow)),
               ),
               error: (_, _) => const SizedBox(
                 height: 200,
                 child: Center(
                     child: Text('Error',
-                        style: TextStyle(color: PaisaColors.textTertiary))),
+                        style: TextStyle(color: SpendlerColors.textTertiary))),
               ),
             ),
           ),
@@ -340,12 +354,12 @@ class _CategoryBreakdownSection extends ConsumerWidget {
     final merchantCounts = ref.watch(weeklyMerchantCountsProvider);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: PaisaSpacing.screenH + 4),
+      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH + 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('WHERE IT WENT', style: PaisaTextStyles.sectionLabel),
-          const SizedBox(height: PaisaSpacing.md),
+          const Text('WHERE IT WENT', style: SpendlerTextStyles.sectionLabel),
+          const SizedBox(height: SpendlerSpacing.md),
           weeklyTxns.when(
             data: (txns) {
               final totals = <TransactionCategory, double>{};
@@ -353,7 +367,7 @@ class _CategoryBreakdownSection extends ConsumerWidget {
                 if (t.amount < 0) {
                   final cat = TransactionCategory.values.firstWhere(
                     (c) => c.name == t.category,
-                    orElse: () => TransactionCategory.other,
+                    orElse: () => TransactionCategory.foodAndDrink,
                   );
                   totals[cat] = (totals[cat] ?? 0) + t.amount.abs();
                 }
@@ -361,7 +375,7 @@ class _CategoryBreakdownSection extends ConsumerWidget {
               if (totals.isEmpty) {
                 return const Text(
                   'No spending yet this week.',
-                  style: PaisaTextStyles.emptyState,
+                  style: SpendlerTextStyles.emptyState,
                 );
               }
 
@@ -390,11 +404,11 @@ class _CategoryBreakdownSection extends ConsumerWidget {
                   final pct =
                       totalSpent > 0 ? amount / totalSpent : 0.0;
                   final isDominant = i == 0;
-                  final catColor = PaisaColors.categoryColor(cat);
+                  final catColor = SpendlerColors.categoryColor(cat);
 
                   return Padding(
                     padding:
-                        const EdgeInsets.only(bottom: PaisaSpacing.md),
+                        const EdgeInsets.only(bottom: SpendlerSpacing.md),
                     child: Row(
                       children: [
                         Icon(
@@ -402,9 +416,9 @@ class _CategoryBreakdownSection extends ConsumerWidget {
                           size: 22,
                           color: isDominant
                               ? catColor
-                              : PaisaColors.textTertiary,
+                              : SpendlerColors.textTertiary,
                         ),
-                        const SizedBox(width: PaisaSpacing.cardGap),
+                        const SizedBox(width: SpendlerSpacing.cardGap),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -417,8 +431,8 @@ class _CategoryBreakdownSection extends ConsumerWidget {
                                     cat.label,
                                     style: TextStyle(
                                       color: isDominant
-                                          ? PaisaColors.textPrimary
-                                          : PaisaColors.textSecondary,
+                                          ? SpendlerColors.textPrimary
+                                          : SpendlerColors.textSecondary,
                                       fontSize: 15,
                                       fontWeight: isDominant
                                           ? FontWeight.w600
@@ -426,11 +440,11 @@ class _CategoryBreakdownSection extends ConsumerWidget {
                                     ),
                                   ),
                                   Text(
-                                    '₹${amount.toStringAsFixed(0)}',
+                                    '\$${amount.toStringAsFixed(0)}',
                                     style: TextStyle(
                                       color: isDominant
-                                          ? PaisaColors.textPrimary
-                                          : PaisaColors.textTertiary,
+                                          ? SpendlerColors.textPrimary
+                                          : SpendlerColors.textTertiary,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w700,
                                     ),
@@ -442,11 +456,11 @@ class _CategoryBreakdownSection extends ConsumerWidget {
                                 borderRadius: BorderRadius.circular(2),
                                 child: LinearProgressIndicator(
                                   value: pct,
-                                  backgroundColor: PaisaColors.border,
+                                  backgroundColor: SpendlerColors.border,
                                   valueColor: AlwaysStoppedAnimation(
                                     isDominant
                                         ? catColor
-                                        : PaisaColors.textTertiary,
+                                        : SpendlerColors.textTertiary,
                                   ),
                                   minHeight: 4,
                                 ),
@@ -493,24 +507,24 @@ class _ActionNeededSection extends ConsumerWidget {
         if (list.isEmpty) return const SizedBox.shrink();
         return Padding(
           padding: const EdgeInsets.fromLTRB(
-            PaisaSpacing.screenH + 4,
+            SpendlerSpacing.screenH + 4,
             0,
-            PaisaSpacing.screenH + 4,
-            PaisaSpacing.xl,
+            SpendlerSpacing.screenH + 4,
+            SpendlerSpacing.xl,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('ACTION NEEDED', style: PaisaTextStyles.sectionLabel),
-              const SizedBox(height: PaisaSpacing.md),
+              const Text('ACTION NEEDED', style: SpendlerTextStyles.sectionLabel),
+              const SizedBox(height: SpendlerSpacing.md),
               Text(
                 '${list.length} transaction${list.length > 1 ? 's' : ''} need a quick look.',
                 style: const TextStyle(
-                  color: PaisaColors.textSecondary,
+                  color: SpendlerColors.textSecondary,
                   fontSize: 15,
                 ),
               ),
-              const SizedBox(height: PaisaSpacing.md),
+              const SizedBox(height: SpendlerSpacing.md),
               if (list.length >= 2)
                 NeoPOPButton(
                   label: 'Confirm All (${list.length})',
@@ -520,7 +534,7 @@ class _ActionNeededSection extends ConsumerWidget {
                     await repo.confirmAllUnconfirmed();
                   },
                 ),
-              const SizedBox(height: PaisaSpacing.sm),
+              const SizedBox(height: SpendlerSpacing.sm),
               Center(
                 child: GestureDetector(
                   onTap: () =>
@@ -528,7 +542,7 @@ class _ActionNeededSection extends ConsumerWidget {
                   child: const Text(
                     'Review individually →',
                     style: TextStyle(
-                      color: PaisaColors.textTertiary,
+                      color: SpendlerColors.textTertiary,
                       fontSize: 13,
                     ),
                   ),
@@ -565,7 +579,7 @@ class _WeeklyInsightSection extends ConsumerWidget {
         for (final t in expenses) {
           final cat = TransactionCategory.values.firstWhere(
             (c) => c.name == t.category,
-            orElse: () => TransactionCategory.other,
+            orElse: () => TransactionCategory.foodAndDrink,
           );
           catTotals[cat] = (catTotals[cat] ?? 0) + t.amount.abs();
         }
@@ -581,8 +595,8 @@ class _WeeklyInsightSection extends ConsumerWidget {
 
         return Padding(
           padding: const EdgeInsets.symmetric(
-              horizontal: PaisaSpacing.screenH + 4),
-          child: Text(insight, style: PaisaTextStyles.insightBody),
+              horizontal: SpendlerSpacing.screenH + 4),
+          child: Text(insight, style: SpendlerTextStyles.insightBody),
         );
       },
       loading: () => const SizedBox.shrink(),
@@ -608,18 +622,18 @@ class _FriendsCardSection extends ConsumerWidget {
         }
         return Padding(
           padding: const EdgeInsets.fromLTRB(
-            PaisaSpacing.screenH, 0, PaisaSpacing.screenH, PaisaSpacing.xl,
+            SpendlerSpacing.screenH, 0, SpendlerSpacing.screenH, SpendlerSpacing.xl,
           ),
           child: Container(
-            padding: const EdgeInsets.all(PaisaSpacing.cardPadding),
+            padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [Color(0xFF1E1E1E), PaisaColors.surface],
+                colors: [Color(0xFF1E1E1E), SpendlerColors.surface],
               ),
-              borderRadius: BorderRadius.circular(PaisaRadii.card),
-              boxShadow: PaisaShadows.card,
+              borderRadius: BorderRadius.circular(SpendlerRadii.card),
+              boxShadow: SpendlerShadows.card,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -627,35 +641,35 @@ class _FriendsCardSection extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('WITH FRIENDS', style: PaisaTextStyles.sectionLabel),
+                    const Text('WITH FRIENDS', style: SpendlerTextStyles.sectionLabel),
                     GestureDetector(
                       onTap: () => ref.read(selectedTabProvider.notifier).state = 3,
                       child: const Text(
                         'See all →',
-                        style: TextStyle(color: PaisaColors.yellow, fontSize: 12, fontWeight: FontWeight.w500),
+                        style: TextStyle(color: SpendlerColors.yellow, fontSize: 12, fontWeight: FontWeight.w500),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: PaisaSpacing.md),
+                const SizedBox(height: SpendlerSpacing.md),
                 if (balance.totalReceivable > 0)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 4),
                     child: Text(
-                      '↓ ₹${balance.totalReceivable.toStringAsFixed(0)} to collect',
-                      style: const TextStyle(color: PaisaColors.income, fontSize: 14, fontWeight: FontWeight.w500),
+                      '↓ \$\${balance.totalReceivable.toStringAsFixed(0)} to collect',
+                      style: const TextStyle(color: SpendlerColors.income, fontSize: 14, fontWeight: FontWeight.w500),
                     ),
                   ),
                 if (balance.totalPayable > 0)
                   Text(
-                    '�� ₹${balance.totalPayable.toStringAsFixed(0)} to pay back',
-                    style: const TextStyle(color: PaisaColors.amber, fontSize: 14, fontWeight: FontWeight.w500),
+                    '�� \$\${balance.totalPayable.toStringAsFixed(0)} to pay back',
+                    style: const TextStyle(color: SpendlerColors.amber, fontSize: 14, fontWeight: FontWeight.w500),
                   ),
                 contactsAsync.when(
                   data: (contacts) {
                     if (contacts.isEmpty) return const SizedBox.shrink();
                     return Padding(
-                      padding: const EdgeInsets.only(top: PaisaSpacing.md),
+                      padding: const EdgeInsets.only(top: SpendlerSpacing.md),
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
@@ -664,16 +678,16 @@ class _FriendsCardSection extends ConsumerWidget {
                             try {
                               chipColor = Color(int.parse(c.avatarColour.replaceFirst('#', '0xFF')));
                             } on FormatException {
-                              chipColor = PaisaColors.textTertiary;
+                              chipColor = SpendlerColors.textTertiary;
                             }
                             return Padding(
-                              padding: const EdgeInsets.only(right: PaisaSpacing.sm),
+                              padding: const EdgeInsets.only(right: SpendlerSpacing.sm),
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                 decoration: BoxDecoration(
-                                  color: PaisaColors.surface,
-                                  borderRadius: BorderRadius.circular(PaisaRadii.pill),
-                                  border: Border.all(color: PaisaColors.border),
+                                  color: SpendlerColors.surface,
+                                  borderRadius: BorderRadius.circular(SpendlerRadii.pill),
+                                  border: Border.all(color: SpendlerColors.border),
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -687,7 +701,7 @@ class _FriendsCardSection extends ConsumerWidget {
                                       ),
                                     ),
                                     const SizedBox(width: 6),
-                                    Text(c.name, style: const TextStyle(color: PaisaColors.textSecondary, fontSize: 12)),
+                                    Text(c.name, style: const TextStyle(color: SpendlerColors.textSecondary, fontSize: 12)),
                                   ],
                                 ),
                               ),

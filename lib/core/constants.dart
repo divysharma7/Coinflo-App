@@ -1,12 +1,12 @@
 class AppConstants {
   AppConstants._();
 
-  static const String appName = 'Pulse';
+  static const String appName = 'Spendler';
   static const String tagline = 'Feel your financial rhythm.';
 
   // Notification channel
   static const String notificationChannelId = 'pulse_reminders';
-  static const String notificationChannelName = 'Pulse Reminders';
+  static const String notificationChannelName = 'Spendler Reminders';
   static const String notificationChannelDescription = 'Transaction alerts and weekly digests';
 
   // Notification IDs

@@ -24,7 +24,7 @@ class PosterShare {
 
     await Share.shareXFiles(
       [XFile(file.path)],
-      text: 'My week with Pulse',
+      text: 'My week with Spendler',
     );
   }
 }

@@ -19,7 +19,7 @@ class SmsProcessor {
     // Store as negative amount for debits
     final amount = parsed.isDebit ? -parsed.amount : parsed.amount;
 
-    await repository.insertTransaction(PaisaTransactionsCompanion.insert(
+    await repository.insertTransaction(SpendlerTransactionsCompanion.insert(
       amount: amount,
       category: category.name,
       merchant: Value(parsed.merchant),

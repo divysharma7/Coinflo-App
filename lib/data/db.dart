@@ -9,7 +9,7 @@ part 'db.g.dart';
 
 // ─── Tables ───────────────────────────────────────────
 
-class PaisaTransactions extends Table {
+class SpendlerTransactions extends Table {
   IntColumn get id => integer().autoIncrement()();
   RealColumn get amount => real()();
   TextColumn get category => text()(); // enum string: rent/transport/food/family/social/other
@@ -90,7 +90,7 @@ class FriendSplits extends Table {
 // ─── Database ─────────────────────────────────────────
 
 @DriftDatabase(tables: [
-  PaisaTransactions,
+  SpendlerTransactions,
   FamilyEntries,
   WeeklyReflections,
   AppMetrics,
@@ -98,8 +98,8 @@ class FriendSplits extends Table {
   FriendContacts,
   FriendSplits,
 ])
-class PaisaDatabase extends _$PaisaDatabase {
-  PaisaDatabase() : super(_openConnection());
+class SpendlerDatabase extends _$SpendlerDatabase {
+  SpendlerDatabase() : super(_openConnection());
 
   @override
   int get schemaVersion => 3;
@@ -124,7 +124,7 @@ class PaisaDatabase extends _$PaisaDatabase {
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
     final dir = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dir.path, 'paisa_bolta.sqlite'));
+    final file = File(p.join(dir.path, 'spendler.sqlite'));
     return NativeDatabase.createInBackground(file);
   });
 }

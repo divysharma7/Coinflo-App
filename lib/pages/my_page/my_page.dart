@@ -25,7 +25,7 @@ class MyPage extends ConsumerWidget {
           expandedHeight: 260,
           floating: false,
           pinned: false,
-          backgroundColor: PaisaColors.scaffold,
+          backgroundColor: SpendlerColors.scaffold,
           flexibleSpace: FlexibleSpaceBar(
             collapseMode: CollapseMode.parallax,
             background: _ProfileHeader(),
@@ -33,17 +33,17 @@ class MyPage extends ConsumerWidget {
         ),
         // Cards
         SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: PaisaSpacing.screenH),
+          padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
-              _WeeklyPulseCard(),
-              const SizedBox(height: PaisaSpacing.cardGap),
+              _WeeklySpendlerCard(),
+              const SizedBox(height: SpendlerSpacing.cardGap),
               _MonthlyPaceCard(),
-              const SizedBox(height: PaisaSpacing.cardGap),
+              const SizedBox(height: SpendlerSpacing.cardGap),
               _MiniCardsRow(),
-              const SizedBox(height: PaisaSpacing.cardGap),
+              const SizedBox(height: SpendlerSpacing.cardGap),
               _AlertCard(),
-              const SizedBox(height: PaisaSpacing.cardGap),
+              const SizedBox(height: SpendlerSpacing.cardGap),
               _PeopleSummaryCard(),
               const SizedBox(height: 100),
             ]),
@@ -75,7 +75,7 @@ class _ProfileHeader extends ConsumerWidget {
     }
 
     return Container(
-      color: PaisaColors.scaffold,
+      color: SpendlerColors.scaffold,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -83,7 +83,7 @@ class _ProfileHeader extends ConsumerWidget {
           // Avatar
           CircleAvatar(
             radius: 28,
-            backgroundColor: PaisaColors.yellow,
+            backgroundColor: SpendlerColors.yellow,
             child: Text(
               name.isNotEmpty ? name[0].toUpperCase() : '?',
               style: const TextStyle(
@@ -97,7 +97,7 @@ class _ProfileHeader extends ConsumerWidget {
           // Name
           Text(
             name.isNotEmpty ? name : 'Hey there',
-            style: PaisaTextStyles.greeting,
+            style: SpendlerTextStyles.greeting,
           ),
           const SizedBox(height: 16),
           // Health Ring
@@ -108,7 +108,7 @@ class _ProfileHeader extends ConsumerWidget {
             Text(
               '${(progress * 100).toStringAsFixed(0)}% of target remaining',
               style: const TextStyle(
-                color: PaisaColors.textSecondary,
+                color: SpendlerColors.textSecondary,
                 fontSize: 13,
               ),
             )
@@ -121,7 +121,7 @@ class _ProfileHeader extends ConsumerWidget {
               child: const Text(
                 'Set a monthly target \u2192',
                 style: TextStyle(
-                  color: PaisaColors.yellow,
+                  color: SpendlerColors.yellow,
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                 ),
@@ -133,9 +133,9 @@ class _ProfileHeader extends ConsumerWidget {
   }
 }
 
-// ─── Weekly Pulse Card ──────────────────────────────────
+// ─── Weekly Spendler Card ──────────────────────────────────
 
-class _WeeklyPulseCard extends ConsumerWidget {
+class _WeeklySpendlerCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final weeklyTxns = ref.watch(weeklyTransactionsProvider);
@@ -151,21 +151,21 @@ class _WeeklyPulseCard extends ConsumerWidget {
         ),
         child: Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(PaisaSpacing.cardPadding),
+          padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Color(0xFF1E1E1E), PaisaColors.surface],
+              colors: [Color(0xFF1E1E1E), SpendlerColors.surface],
             ),
-            borderRadius: BorderRadius.circular(PaisaRadii.card),
-            boxShadow: PaisaShadows.card,
+            borderRadius: BorderRadius.circular(SpendlerRadii.card),
+            boxShadow: SpendlerShadows.card,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('WEEKLY PULSE', style: PaisaTextStyles.sectionLabel),
-              const SizedBox(height: PaisaSpacing.md),
+              const Text('WEEKLY PULSE', style: SpendlerTextStyles.sectionLabel),
+              const SizedBox(height: SpendlerSpacing.md),
               // Hero amount + delta pill
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -178,19 +178,19 @@ class _WeeklyPulseCard extends ConsumerWidget {
                       return AnimatedAmount(
                         value: spent,
                         prefix: '\u20b9',
-                        style: PaisaTextStyles.heroAmount.copyWith(fontSize: 36),
-                        duration: PaisaMotion.number,
-                        curve: PaisaMotion.numberCurve,
+                        style: SpendlerTextStyles.heroAmount.copyWith(fontSize: 36),
+                        duration: SpendlerMotion.number,
+                        curve: SpendlerMotion.numberCurve,
                       );
                     },
                     loading: () => const AnimatedAmount(
                       value: 0,
                       prefix: '\u20b9',
-                      style: PaisaTextStyles.heroAmount,
+                      style: SpendlerTextStyles.heroAmount,
                     ),
                     error: (_, _) => const SizedBox.shrink(),
                   ),
-                  const SizedBox(width: PaisaSpacing.sm),
+                  const SizedBox(width: SpendlerSpacing.sm),
                   delta.when(
                     data: (pct) {
                       if (pct == 0) return const SizedBox.shrink();
@@ -208,7 +208,7 @@ class _WeeklyPulseCard extends ConsumerWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: PaisaSpacing.md),
+              const SizedBox(height: SpendlerSpacing.md),
               // One-line insight
               weeklyTxns.when(
                 data: (txns) {
@@ -220,7 +220,7 @@ class _WeeklyPulseCard extends ConsumerWidget {
                   for (final t in expenses) {
                     final cat = TransactionCategory.values.firstWhere(
                       (c) => c.name == t.category,
-                      orElse: () => TransactionCategory.other,
+                      orElse: () => TransactionCategory.foodAndDrink,
                     );
                     catTotals[cat] = (catTotals[cat] ?? 0) + t.amount.abs();
                   }
@@ -235,7 +235,7 @@ class _WeeklyPulseCard extends ConsumerWidget {
                   return Text(
                     insight,
                     style: const TextStyle(
-                      color: PaisaColors.textSecondary,
+                      color: SpendlerColors.textSecondary,
                       fontSize: 13,
                       height: 1.4,
                     ),
@@ -246,14 +246,14 @@ class _WeeklyPulseCard extends ConsumerWidget {
                 loading: () => const SizedBox.shrink(),
                 error: (_, _) => const SizedBox.shrink(),
               ),
-              const SizedBox(height: PaisaSpacing.md),
+              const SizedBox(height: SpendlerSpacing.md),
               // See full report
               const Align(
                 alignment: Alignment.centerRight,
                 child: Text(
                   'See full report \u2192',
                   style: TextStyle(
-                    color: PaisaColors.yellow,
+                    color: SpendlerColors.yellow,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
@@ -289,44 +289,44 @@ class _MonthlyPaceCard extends ConsumerWidget {
         ),
         child: Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(PaisaSpacing.cardPadding),
+          padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Color(0xFF1E1E1E), PaisaColors.surface],
+              colors: [Color(0xFF1E1E1E), SpendlerColors.surface],
             ),
-            borderRadius: BorderRadius.circular(PaisaRadii.card),
-            boxShadow: PaisaShadows.card,
+            borderRadius: BorderRadius.circular(SpendlerRadii.card),
+            boxShadow: SpendlerShadows.card,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('MONTHLY PACE', style: PaisaTextStyles.sectionLabel),
-              const SizedBox(height: PaisaSpacing.md),
+              const Text('MONTHLY PACE', style: SpendlerTextStyles.sectionLabel),
+              const SizedBox(height: SpendlerSpacing.md),
               if (targetValue != null && targetValue > 0) ...[
                 // Spent / Target
                 Text(
                   '\u20b9${spentSoFar.toStringAsFixed(0)} / \u20b9${targetValue.toStringAsFixed(0)}',
                   style: const TextStyle(
-                    color: PaisaColors.textPrimary,
+                    color: SpendlerColors.textPrimary,
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: PaisaSpacing.cardGap),
+                const SizedBox(height: SpendlerSpacing.cardGap),
                 // Progress bar
                 ClipRRect(
                   borderRadius: BorderRadius.circular(3),
                   child: LinearProgressIndicator(
                     value: (spentSoFar / targetValue).clamp(0.0, 1.0),
-                    backgroundColor: PaisaColors.border,
+                    backgroundColor: SpendlerColors.border,
                     valueColor:
-                        const AlwaysStoppedAnimation(PaisaColors.yellow),
+                        const AlwaysStoppedAnimation(SpendlerColors.yellow),
                     minHeight: 6,
                   ),
                 ),
-                const SizedBox(height: PaisaSpacing.sm),
+                const SizedBox(height: SpendlerSpacing.sm),
                 // Projection text
                 Builder(builder: (context) {
                   final now = DateTime.now();
@@ -339,7 +339,7 @@ class _MonthlyPaceCard extends ConsumerWidget {
                   return Text(
                     'At this rate, \u20b9${projected.toStringAsFixed(0)} by month end',
                     style: const TextStyle(
-                      color: PaisaColors.textSecondary,
+                      color: SpendlerColors.textSecondary,
                       fontSize: 13,
                     ),
                   );
@@ -348,7 +348,7 @@ class _MonthlyPaceCard extends ConsumerWidget {
                 const Text(
                   'Set a monthly target in Settings',
                   style: TextStyle(
-                    color: PaisaColors.textSecondary,
+                    color: SpendlerColors.textSecondary,
                     fontSize: 14,
                   ),
                 ),
@@ -377,21 +377,21 @@ class _MiniCardsRow extends ConsumerWidget {
           // Left card: Streak
           Expanded(
             child: Container(
-              padding: const EdgeInsets.all(PaisaSpacing.cardPadding),
+              padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Color(0xFF1E1E1E), PaisaColors.surface],
+                  colors: [Color(0xFF1E1E1E), SpendlerColors.surface],
                 ),
-                borderRadius: BorderRadius.circular(PaisaRadii.card),
-                boxShadow: PaisaShadows.card,
+                borderRadius: BorderRadius.circular(SpendlerRadii.card),
+                boxShadow: SpendlerShadows.card,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('STREAK', style: PaisaTextStyles.sectionLabel),
-                  const SizedBox(height: PaisaSpacing.sm),
+                  const Text('STREAK', style: SpendlerTextStyles.sectionLabel),
+                  const SizedBox(height: SpendlerSpacing.sm),
                   streakAsync.when(
                     data: (streak) {
                       final hasTarget = target.valueOrNull != null;
@@ -399,7 +399,7 @@ class _MiniCardsRow extends ConsumerWidget {
                         return const Text(
                           '\u2014',
                           style: TextStyle(
-                            color: PaisaColors.textPrimary,
+                            color: SpendlerColors.textPrimary,
                             fontSize: 28,
                             fontWeight: FontWeight.w700,
                           ),
@@ -408,7 +408,7 @@ class _MiniCardsRow extends ConsumerWidget {
                       return Text(
                         '$streak',
                         style: const TextStyle(
-                          color: PaisaColors.textPrimary,
+                          color: SpendlerColors.textPrimary,
                           fontSize: 28,
                           fontWeight: FontWeight.w700,
                         ),
@@ -417,14 +417,14 @@ class _MiniCardsRow extends ConsumerWidget {
                     loading: () => const Text(
                       '...',
                       style: TextStyle(
-                        color: PaisaColors.textTertiary,
+                        color: SpendlerColors.textTertiary,
                         fontSize: 28,
                       ),
                     ),
                     error: (_, _) => const Text(
                       '\u2014',
                       style: TextStyle(
-                        color: PaisaColors.textTertiary,
+                        color: SpendlerColors.textTertiary,
                         fontSize: 28,
                       ),
                     ),
@@ -433,7 +433,7 @@ class _MiniCardsRow extends ConsumerWidget {
                   const Text(
                     'weeks under target',
                     style: TextStyle(
-                      color: PaisaColors.textSecondary,
+                      color: SpendlerColors.textSecondary,
                       fontSize: 12,
                     ),
                   ),
@@ -445,28 +445,28 @@ class _MiniCardsRow extends ConsumerWidget {
           // Right card: Pattern
           Expanded(
             child: Container(
-              padding: const EdgeInsets.all(PaisaSpacing.cardPadding),
+              padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Color(0xFF1E1E1E), PaisaColors.surface],
+                  colors: [Color(0xFF1E1E1E), SpendlerColors.surface],
                 ),
-                borderRadius: BorderRadius.circular(PaisaRadii.card),
-                boxShadow: PaisaShadows.card,
+                borderRadius: BorderRadius.circular(SpendlerRadii.card),
+                boxShadow: SpendlerShadows.card,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('TOP PATTERN', style: PaisaTextStyles.sectionLabel),
-                  const SizedBox(height: PaisaSpacing.sm),
+                  const Text('TOP PATTERN', style: SpendlerTextStyles.sectionLabel),
+                  const SizedBox(height: SpendlerSpacing.sm),
                   dayAvgAsync.when(
                     data: (averages) {
                       if (averages.isEmpty) {
                         return const Text(
                           '\u2014',
                           style: TextStyle(
-                            color: PaisaColors.yellow,
+                            color: SpendlerColors.yellow,
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
                           ),
@@ -486,7 +486,7 @@ class _MiniCardsRow extends ConsumerWidget {
                           Text(
                             dayName,
                             style: const TextStyle(
-                              color: PaisaColors.yellow,
+                              color: SpendlerColors.yellow,
                               fontSize: 20,
                               fontWeight: FontWeight.w700,
                             ),
@@ -495,7 +495,7 @@ class _MiniCardsRow extends ConsumerWidget {
                           Text(
                             'avg \u20b9${avgAmount.toStringAsFixed(0)}/week',
                             style: const TextStyle(
-                              color: PaisaColors.textSecondary,
+                              color: SpendlerColors.textSecondary,
                               fontSize: 12,
                             ),
                           ),
@@ -505,14 +505,14 @@ class _MiniCardsRow extends ConsumerWidget {
                     loading: () => const Text(
                       '...',
                       style: TextStyle(
-                        color: PaisaColors.textTertiary,
+                        color: SpendlerColors.textTertiary,
                         fontSize: 20,
                       ),
                     ),
                     error: (_, _) => const Text(
                       '\u2014',
                       style: TextStyle(
-                        color: PaisaColors.textTertiary,
+                        color: SpendlerColors.textTertiary,
                         fontSize: 20,
                       ),
                     ),
@@ -541,12 +541,12 @@ class _AlertCard extends ConsumerWidget {
           delay: const Duration(milliseconds: 240),
           child: Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(PaisaSpacing.cardPadding),
+            padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
             decoration: BoxDecoration(
-              color: PaisaColors.amber.withValues(alpha: 0.06),
-              borderRadius: BorderRadius.circular(PaisaRadii.card),
+              color: SpendlerColors.amber.withValues(alpha: 0.06),
+              borderRadius: BorderRadius.circular(SpendlerRadii.card),
               border: Border.all(
-                color: PaisaColors.amber.withValues(alpha: 0.3),
+                color: SpendlerColors.amber.withValues(alpha: 0.3),
               ),
             ),
             child: Column(
@@ -556,21 +556,21 @@ class _AlertCard extends ConsumerWidget {
                   children: [
                     PhosphorIcon(
                       PhosphorIcons.warning(),
-                      color: PaisaColors.amber,
+                      color: SpendlerColors.amber,
                       size: 16,
                     ),
                     const SizedBox(width: 6),
-                    const Text('ALERT', style: PaisaTextStyles.sectionLabel),
+                    const Text('ALERT', style: SpendlerTextStyles.sectionLabel),
                   ],
                 ),
-                const SizedBox(height: PaisaSpacing.sm),
+                const SizedBox(height: SpendlerSpacing.sm),
                 ...alerts.take(2).map(
                       (alert) => Padding(
                         padding: const EdgeInsets.only(bottom: 4),
                         child: Text(
                           alert,
                           style: const TextStyle(
-                            color: PaisaColors.textPrimary,
+                            color: SpendlerColors.textPrimary,
                             fontSize: 13,
                           ),
                         ),
@@ -606,28 +606,28 @@ class _PeopleSummaryCard extends ConsumerWidget {
                 ref.read(selectedTabProvider.notifier).state = 3,
             child: Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(PaisaSpacing.cardPadding),
+              padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Color(0xFF1E1E1E), PaisaColors.surface],
+                  colors: [Color(0xFF1E1E1E), SpendlerColors.surface],
                 ),
-                borderRadius: BorderRadius.circular(PaisaRadii.card),
-                boxShadow: PaisaShadows.card,
+                borderRadius: BorderRadius.circular(SpendlerRadii.card),
+                boxShadow: SpendlerShadows.card,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('PEOPLE', style: PaisaTextStyles.sectionLabel),
-                  const SizedBox(height: PaisaSpacing.md),
+                  const Text('PEOPLE', style: SpendlerTextStyles.sectionLabel),
+                  const SizedBox(height: SpendlerSpacing.md),
                   Row(
                     children: [
                       if (balance.totalReceivable > 0)
                         Text(
                           '\u2193\u20b9${balance.totalReceivable.toStringAsFixed(0)} to collect',
                           style: const TextStyle(
-                            color: PaisaColors.income,
+                            color: SpendlerColors.income,
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                           ),
@@ -637,7 +637,7 @@ class _PeopleSummaryCard extends ConsumerWidget {
                         const Text(
                           ' \u00b7 ',
                           style: TextStyle(
-                            color: PaisaColors.textTertiary,
+                            color: SpendlerColors.textTertiary,
                             fontSize: 14,
                           ),
                         ),
@@ -645,20 +645,20 @@ class _PeopleSummaryCard extends ConsumerWidget {
                         Text(
                           '\u2191\u20b9${balance.totalPayable.toStringAsFixed(0)} to pay',
                           style: const TextStyle(
-                            color: PaisaColors.amber,
+                            color: SpendlerColors.amber,
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                     ],
                   ),
-                  const SizedBox(height: PaisaSpacing.sm),
+                  const SizedBox(height: SpendlerSpacing.sm),
                   const Align(
                     alignment: Alignment.centerRight,
                     child: Text(
                       'See all \u2192',
                       style: TextStyle(
-                        color: PaisaColors.yellow,
+                        color: SpendlerColors.yellow,
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                       ),

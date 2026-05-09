@@ -3,7 +3,7 @@ import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/data/repositories/friend_split_repository.dart';
 
 class LocalFriendSplitRepository implements FriendSplitRepository {
-  final PaisaDatabase db;
+  final SpendlerDatabase db;
 
   LocalFriendSplitRepository(this.db);
 

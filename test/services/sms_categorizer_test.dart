@@ -63,62 +63,62 @@ void main() {
       });
     });
 
-    group('food merchants', () {
-      test('SWIGGY merchant maps to TransactionCategory.food', () {
+    group('foodAndDrink merchants', () {
+      test('SWIGGY merchant maps to TransactionCategory.foodAndDrink', () {
         final sms = _makeSms(merchant: 'SWIGGY INDIA');
         expect(
           SmsCategorizer.categorize(sms),
-          equals(TransactionCategory.food),
+          equals(TransactionCategory.foodAndDrink),
         );
       });
 
-      test('ZOMATO merchant maps to TransactionCategory.food', () {
+      test('ZOMATO merchant maps to TransactionCategory.foodAndDrink', () {
         final sms = _makeSms(merchant: 'ZOMATO LTD');
         expect(
           SmsCategorizer.categorize(sms),
-          equals(TransactionCategory.food),
+          equals(TransactionCategory.foodAndDrink),
         );
       });
 
-      test('BLINKIT merchant maps to TransactionCategory.food', () {
+      test('BLINKIT merchant maps to TransactionCategory.foodAndDrink', () {
         final sms = _makeSms(merchant: 'BLINKIT');
         expect(
           SmsCategorizer.categorize(sms),
-          equals(TransactionCategory.food),
+          equals(TransactionCategory.foodAndDrink),
         );
       });
 
-      test('DOMINOS merchant maps to TransactionCategory.food', () {
+      test('DOMINOS merchant maps to TransactionCategory.foodAndDrink', () {
         final sms = _makeSms(merchant: 'DOMINOS PIZZA');
         expect(
           SmsCategorizer.categorize(sms),
-          equals(TransactionCategory.food),
+          equals(TransactionCategory.foodAndDrink),
         );
       });
 
-      test('STARBUCKS merchant maps to TransactionCategory.food', () {
+      test('STARBUCKS merchant maps to TransactionCategory.foodAndDrink', () {
         final sms = _makeSms(merchant: 'STARBUCKS COFFEE');
         expect(
           SmsCategorizer.categorize(sms),
-          equals(TransactionCategory.food),
+          equals(TransactionCategory.foodAndDrink),
         );
       });
     });
 
-    group('social merchants', () {
-      test('BOOKMYSHOW merchant maps to TransactionCategory.social', () {
+    group('entertainment merchants', () {
+      test('BOOKMYSHOW merchant maps to TransactionCategory.entertainment', () {
         final sms = _makeSms(merchant: 'BOOKMYSHOW');
         expect(
           SmsCategorizer.categorize(sms),
-          equals(TransactionCategory.social),
+          equals(TransactionCategory.entertainment),
         );
       });
 
-      test('PVR merchant maps to TransactionCategory.social', () {
+      test('PVR merchant maps to TransactionCategory.entertainment', () {
         final sms = _makeSms(merchant: 'PVR CINEMAS');
         expect(
           SmsCategorizer.categorize(sms),
-          equals(TransactionCategory.social),
+          equals(TransactionCategory.entertainment),
         );
       });
     });
@@ -132,46 +132,46 @@ void main() {
         );
       });
 
-      test('mixed case Swiggy still maps to food', () {
+      test('mixed case Swiggy still maps to foodAndDrink', () {
         final sms = _makeSms(merchant: 'Swiggy Delivery');
         expect(
           SmsCategorizer.categorize(sms),
-          equals(TransactionCategory.food),
+          equals(TransactionCategory.foodAndDrink),
         );
       });
 
-      test('ALL CAPS ZOMATO still maps to food', () {
+      test('ALL CAPS ZOMATO still maps to foodAndDrink', () {
         final sms = _makeSms(merchant: 'ZOMATO');
         expect(
           SmsCategorizer.categorize(sms),
-          equals(TransactionCategory.food),
+          equals(TransactionCategory.foodAndDrink),
         );
       });
     });
 
     group('credit transactions', () {
-      test('credit (isDebit=false) returns TransactionCategory.family', () {
+      test('credit (isDebit=false) returns TransactionCategory.foodAndDrink', () {
         final sms = _makeSms(isDebit: false, amount: 5000);
         expect(
           SmsCategorizer.categorize(sms),
-          equals(TransactionCategory.family),
+          equals(TransactionCategory.foodAndDrink),
         );
       });
 
       test(
-        'credit returns family even if merchant matches a known rule',
+        'credit returns foodAndDrink even if merchant matches a known rule',
         () {
           // Credit check happens before merchant matching in the code
           final sms = _makeSms(isDebit: false, merchant: 'UBER INDIA');
           expect(
             SmsCategorizer.categorize(sms),
-            equals(TransactionCategory.family),
+            equals(TransactionCategory.foodAndDrink),
           );
         },
       );
 
-      test('credit with large rent-range amount still returns family', () {
-        // receivedAt on day 1, amount in rent range, but isDebit=false
+      test('credit with large shopping-range amount still returns foodAndDrink', () {
+        // receivedAt on day 1, amount in shopping range, but isDebit=false
         final sms = _makeSms(
           isDebit: false,
           amount: 21000,
@@ -179,14 +179,14 @@ void main() {
         );
         expect(
           SmsCategorizer.categorize(sms),
-          equals(TransactionCategory.family),
+          equals(TransactionCategory.foodAndDrink),
         );
       });
     });
 
-    group('rent heuristic', () {
+    group('shopping heuristic', () {
       test(
-        'large amount (21000) on day 1 of month returns TransactionCategory.rent',
+        'large amount (21000) on day 1 of month returns TransactionCategory.shopping',
         () {
           final sms = _makeSms(
             amount: 21000,
@@ -194,35 +194,35 @@ void main() {
           );
           expect(
             SmsCategorizer.categorize(sms),
-            equals(TransactionCategory.rent),
+            equals(TransactionCategory.shopping),
           );
         },
       );
 
-      test('large amount (15000) on day 3 returns rent', () {
+      test('large amount (15000) on day 3 returns shopping', () {
         final sms = _makeSms(
           amount: 15000,
           receivedAt: DateTime(2026, 5, 3),
         );
         expect(
           SmsCategorizer.categorize(sms),
-          equals(TransactionCategory.rent),
+          equals(TransactionCategory.shopping),
         );
       });
 
-      test('large amount (50000) on day 5 returns rent', () {
+      test('large amount (50000) on day 5 returns shopping', () {
         final sms = _makeSms(
           amount: 50000,
           receivedAt: DateTime(2026, 5, 5),
         );
         expect(
           SmsCategorizer.categorize(sms),
-          equals(TransactionCategory.rent),
+          equals(TransactionCategory.shopping),
         );
       });
 
       test(
-        'large amount on day 6 does NOT return rent (outside day 1-5 window)',
+        'large amount on day 6 does NOT return shopping (outside day 1-5 window)',
         () {
           final sms = _makeSms(
             amount: 25000,
@@ -230,35 +230,35 @@ void main() {
           );
           expect(
             SmsCategorizer.categorize(sms),
-            equals(TransactionCategory.other),
+            equals(TransactionCategory.foodAndDrink),
           );
         },
       );
 
-      test('amount below 15000 on day 1 does NOT return rent', () {
+      test('amount below 15000 on day 1 does NOT return shopping', () {
         final sms = _makeSms(
           amount: 14999,
           receivedAt: DateTime(2026, 5, 1),
         );
         expect(
           SmsCategorizer.categorize(sms),
-          equals(TransactionCategory.other),
+          equals(TransactionCategory.foodAndDrink),
         );
       });
 
-      test('amount above 50000 on day 1 does NOT return rent', () {
+      test('amount above 50000 on day 1 does NOT return shopping', () {
         final sms = _makeSms(
           amount: 50001,
           receivedAt: DateTime(2026, 5, 1),
         );
         expect(
           SmsCategorizer.categorize(sms),
-          equals(TransactionCategory.other),
+          equals(TransactionCategory.foodAndDrink),
         );
       });
 
-      test('merchant match takes priority over rent heuristic', () {
-        // Even though amount and day match rent, merchant rule comes first
+      test('merchant match takes priority over shopping heuristic', () {
+        // Even though amount and day match shopping, merchant rule comes first
         final sms = _makeSms(
           amount: 20000,
           merchant: 'UBER INDIA',
@@ -271,16 +271,16 @@ void main() {
       });
     });
 
-    group('unknown / other', () {
-      test('unknown merchant with no rent match returns other', () {
+    group('unknown / default', () {
+      test('unknown merchant with no shopping match returns foodAndDrink', () {
         final sms = _makeSms(merchant: 'SOME RANDOM SHOP');
         expect(
           SmsCategorizer.categorize(sms),
-          equals(TransactionCategory.other),
+          equals(TransactionCategory.foodAndDrink),
         );
       });
 
-      test('null merchant with mid-month small amount returns other', () {
+      test('null merchant with mid-month small amount returns foodAndDrink', () {
         final sms = _makeSms(
           merchant: null,
           amount: 200,
@@ -288,7 +288,7 @@ void main() {
         );
         expect(
           SmsCategorizer.categorize(sms),
-          equals(TransactionCategory.other),
+          equals(TransactionCategory.foodAndDrink),
         );
       });
     });

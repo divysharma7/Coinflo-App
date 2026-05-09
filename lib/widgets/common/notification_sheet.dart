@@ -50,9 +50,9 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
       builder: (context, scrollController) {
         return Padding(
           padding: EdgeInsets.only(
-            left: PaisaSpacing.screenH,
-            right: PaisaSpacing.screenH,
-            bottom: MediaQuery.viewInsetsOf(context).bottom + PaisaSpacing.lg,
+            left: SpendlerSpacing.screenH,
+            right: SpendlerSpacing.screenH,
+            bottom: MediaQuery.viewInsetsOf(context).bottom + SpendlerSpacing.lg,
           ),
           child: ListView(
             controller: scrollController,
@@ -61,13 +61,13 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('PULSE', style: PaisaTextStyles.sectionLabel),
+                  const Text('PULSE', style: SpendlerTextStyles.sectionLabel),
                   GestureDetector(
                     onTap: () => ref.read(repositoryProvider).markAllRead(),
                     child: const Text(
                       'Mark all read',
                       style: TextStyle(
-                        color: PaisaColors.yellow,
+                        color: SpendlerColors.yellow,
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                       ),
@@ -75,27 +75,27 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
                   ),
                 ],
               ),
-              const SizedBox(height: PaisaSpacing.md),
+              const SizedBox(height: SpendlerSpacing.md),
 
               // ─── Section 1: Recent notifications ────────────
               const Text(
                 'RECENT',
-                style: PaisaTextStyles.sectionLabel,
+                style: SpendlerTextStyles.sectionLabel,
               ),
-              const SizedBox(height: PaisaSpacing.sm),
+              const SizedBox(height: SpendlerSpacing.sm),
 
               recentAsync.when(
                 data: (notifications) {
                   if (notifications.isEmpty) {
                     return const Padding(
                       padding: EdgeInsets.symmetric(
-                        vertical: PaisaSpacing.xl,
+                        vertical: SpendlerSpacing.xl,
                       ),
                       child: Center(
                         child: Text(
                           'No notifications yet',
                           style: TextStyle(
-                            color: PaisaColors.textTertiary,
+                            color: SpendlerColors.textTertiary,
                             fontSize: 14,
                           ),
                         ),
@@ -113,10 +113,10 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
                   );
                 },
                 loading: () => const Padding(
-                  padding: EdgeInsets.symmetric(vertical: PaisaSpacing.xl),
+                  padding: EdgeInsets.symmetric(vertical: SpendlerSpacing.xl),
                   child: Center(
                     child: CircularProgressIndicator(
-                      color: PaisaColors.yellow,
+                      color: SpendlerColors.yellow,
                       strokeWidth: 2,
                     ),
                   ),
@@ -124,16 +124,16 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
                 error: (_, _) => const SizedBox.shrink(),
               ),
 
-              const SizedBox(height: PaisaSpacing.lg),
-              const Divider(color: PaisaColors.border, height: 1),
-              const SizedBox(height: PaisaSpacing.md),
+              const SizedBox(height: SpendlerSpacing.lg),
+              const Divider(color: SpendlerColors.border, height: 1),
+              const SizedBox(height: SpendlerSpacing.md),
 
               // ─── Section 2: Settings ────────────────────────
               const Text(
                 'SETTINGS',
-                style: PaisaTextStyles.sectionLabel,
+                style: SpendlerTextStyles.sectionLabel,
               ),
-              const SizedBox(height: PaisaSpacing.sm),
+              const SizedBox(height: SpendlerSpacing.sm),
 
               _ToggleRow(
                 icon: PhosphorIcons.bell(),
@@ -143,7 +143,7 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
                 onChanged: (v) =>
                     ref.read(notifPrefsProvider.notifier).setTxnAlerts(v),
               ),
-              const SizedBox(height: PaisaSpacing.sm),
+              const SizedBox(height: SpendlerSpacing.sm),
               _ToggleRow(
                 icon: PhosphorIcons.moon(),
                 title: 'Evening check-in',
@@ -153,7 +153,7 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
                 onChanged: (v) =>
                     ref.read(notifPrefsProvider.notifier).setEveningCheckin(v),
               ),
-              const SizedBox(height: PaisaSpacing.sm),
+              const SizedBox(height: SpendlerSpacing.sm),
               _ToggleRow(
                 icon: PhosphorIcons.calendarCheck(),
                 title: 'Sunday digest',
@@ -163,50 +163,50 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
                     ref.read(notifPrefsProvider.notifier).setSundayDigest(v),
               ),
 
-              const SizedBox(height: PaisaSpacing.md),
-              const Divider(color: PaisaColors.border, height: 1),
-              const SizedBox(height: PaisaSpacing.md),
+              const SizedBox(height: SpendlerSpacing.md),
+              const Divider(color: SpendlerColors.border, height: 1),
+              const SizedBox(height: SpendlerSpacing.md),
 
               // --- Check-in time ---
               GestureDetector(
                 onTap: () => _pickTime(context, ref, prefs),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: PaisaSpacing.md,
-                    vertical: PaisaSpacing.cardGap,
+                    horizontal: SpendlerSpacing.md,
+                    vertical: SpendlerSpacing.cardGap,
                   ),
                   decoration: BoxDecoration(
-                    color: PaisaColors.surface,
-                    borderRadius: BorderRadius.circular(PaisaRadii.button),
+                    color: SpendlerColors.surface,
+                    borderRadius: BorderRadius.circular(SpendlerRadii.button),
                   ),
                   child: Row(
                     children: [
                       PhosphorIcon(
                         PhosphorIcons.clock(),
-                        color: PaisaColors.textSecondary,
+                        color: SpendlerColors.textSecondary,
                         size: 20,
                       ),
-                      const SizedBox(width: PaisaSpacing.cardGap),
+                      const SizedBox(width: SpendlerSpacing.cardGap),
                       Expanded(
                         child: Text(
                           'Check-in time: ${_formatTime(prefs.checkinHour, prefs.checkinMinute)}',
                           style: const TextStyle(
-                            color: PaisaColors.textPrimary,
+                            color: SpendlerColors.textPrimary,
                             fontSize: 15,
                           ),
                         ),
                       ),
                       PhosphorIcon(
                         PhosphorIcons.caretRight(),
-                        color: PaisaColors.textTertiary,
+                        color: SpendlerColors.textTertiary,
                         size: 18,
                       ),
                     ],
                   ),
                 ),
               ),
-              const Divider(color: PaisaColors.border, height: 1),
-              const SizedBox(height: PaisaSpacing.md),
+              const Divider(color: SpendlerColors.border, height: 1),
+              const SizedBox(height: SpendlerSpacing.md),
 
               // --- How it works ---
               GestureDetector(
@@ -221,40 +221,40 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
                 },
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: PaisaSpacing.md,
-                    vertical: PaisaSpacing.cardGap,
+                    horizontal: SpendlerSpacing.md,
+                    vertical: SpendlerSpacing.cardGap,
                   ),
                   decoration: BoxDecoration(
-                    color: PaisaColors.surface,
-                    borderRadius: BorderRadius.circular(PaisaRadii.button),
+                    color: SpendlerColors.surface,
+                    borderRadius: BorderRadius.circular(SpendlerRadii.button),
                   ),
                   child: Row(
                     children: [
                       PhosphorIcon(
                         PhosphorIcons.question(),
-                        color: PaisaColors.textSecondary,
+                        color: SpendlerColors.textSecondary,
                         size: 20,
                       ),
-                      const SizedBox(width: PaisaSpacing.cardGap),
+                      const SizedBox(width: SpendlerSpacing.cardGap),
                       const Expanded(
                         child: Text(
-                          'How Pulse works',
+                          'How Spendler works',
                           style: TextStyle(
-                            color: PaisaColors.textPrimary,
+                            color: SpendlerColors.textPrimary,
                             fontSize: 15,
                           ),
                         ),
                       ),
                       PhosphorIcon(
                         PhosphorIcons.caretRight(),
-                        color: PaisaColors.textTertiary,
+                        color: SpendlerColors.textTertiary,
                         size: 18,
                       ),
                     ],
                   ),
                 ),
               ),
-              const SizedBox(height: PaisaSpacing.md),
+              const SizedBox(height: SpendlerSpacing.md),
             ],
           ),
         );
@@ -282,10 +282,10 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
         return Theme(
           data: Theme.of(context).copyWith(
             timePickerTheme: const TimePickerThemeData(
-              backgroundColor: PaisaColors.surfaceHigh,
-              hourMinuteTextColor: PaisaColors.textPrimary,
-              dialHandColor: PaisaColors.yellow,
-              dialBackgroundColor: PaisaColors.surface,
+              backgroundColor: SpendlerColors.surfaceHigh,
+              hourMinuteTextColor: SpendlerColors.textPrimary,
+              dialHandColor: SpendlerColors.yellow,
+              dialBackgroundColor: SpendlerColors.surface,
             ),
           ),
           child: child!,
@@ -316,18 +316,18 @@ class _NotificationRow extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.only(bottom: PaisaSpacing.sm),
+        margin: const EdgeInsets.only(bottom: SpendlerSpacing.sm),
         padding: const EdgeInsets.symmetric(
-          horizontal: PaisaSpacing.md,
-          vertical: PaisaSpacing.cardGap,
+          horizontal: SpendlerSpacing.md,
+          vertical: SpendlerSpacing.cardGap,
         ),
         decoration: BoxDecoration(
-          color: PaisaColors.surface,
-          borderRadius: BorderRadius.circular(PaisaRadii.button),
+          color: SpendlerColors.surface,
+          borderRadius: BorderRadius.circular(SpendlerRadii.button),
           border: notification.isRead
               ? null
               : const Border(
-                  left: BorderSide(color: PaisaColors.amber, width: 3),
+                  left: BorderSide(color: SpendlerColors.amber, width: 3),
                 ),
         ),
         child: Row(
@@ -338,7 +338,7 @@ class _NotificationRow extends StatelessWidget {
               color: _colorForType(notification.type),
               size: 20,
             ),
-            const SizedBox(width: PaisaSpacing.cardGap),
+            const SizedBox(width: SpendlerSpacing.cardGap),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -346,7 +346,7 @@ class _NotificationRow extends StatelessWidget {
                   Text(
                     notification.title,
                     style: TextStyle(
-                      color: PaisaColors.textPrimary,
+                      color: SpendlerColors.textPrimary,
                       fontSize: 14,
                       fontWeight: notification.isRead
                           ? FontWeight.w400
@@ -357,7 +357,7 @@ class _NotificationRow extends StatelessWidget {
                   Text(
                     notification.body,
                     style: const TextStyle(
-                      color: PaisaColors.textSecondary,
+                      color: SpendlerColors.textSecondary,
                       fontSize: 12,
                     ),
                     maxLines: 2,
@@ -366,11 +366,11 @@ class _NotificationRow extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: PaisaSpacing.sm),
+            const SizedBox(width: SpendlerSpacing.sm),
             Text(
               _relativeTime(notification.sentAt),
               style: const TextStyle(
-                color: PaisaColors.textTertiary,
+                color: SpendlerColors.textTertiary,
                 fontSize: 11,
               ),
             ),
@@ -396,13 +396,13 @@ class _NotificationRow extends StatelessWidget {
   static Color _colorForType(String type) {
     switch (type) {
       case 'transaction':
-        return PaisaColors.yellow;
+        return SpendlerColors.yellow;
       case 'checkin':
-        return PaisaColors.accentPurple;
+        return SpendlerColors.accentPurple;
       case 'digest':
-        return PaisaColors.accentBlue;
+        return SpendlerColors.accentBlue;
       default:
-        return PaisaColors.textSecondary;
+        return SpendlerColors.textSecondary;
     }
   }
 
@@ -440,17 +440,17 @@ class _ToggleRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: PaisaSpacing.md,
-        vertical: PaisaSpacing.cardGap,
+        horizontal: SpendlerSpacing.md,
+        vertical: SpendlerSpacing.cardGap,
       ),
       decoration: BoxDecoration(
-        color: PaisaColors.surface,
-        borderRadius: BorderRadius.circular(PaisaRadii.button),
+        color: SpendlerColors.surface,
+        borderRadius: BorderRadius.circular(SpendlerRadii.button),
       ),
       child: Row(
         children: [
-          PhosphorIcon(icon, color: PaisaColors.textSecondary, size: 20),
-          const SizedBox(width: PaisaSpacing.cardGap),
+          PhosphorIcon(icon, color: SpendlerColors.textSecondary, size: 20),
+          const SizedBox(width: SpendlerSpacing.cardGap),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -458,7 +458,7 @@ class _ToggleRow extends StatelessWidget {
                 Text(
                   title,
                   style: const TextStyle(
-                    color: PaisaColors.textPrimary,
+                    color: SpendlerColors.textPrimary,
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
                   ),
@@ -466,7 +466,7 @@ class _ToggleRow extends StatelessWidget {
                 Text(
                   subtitle,
                   style: const TextStyle(
-                    color: PaisaColors.textTertiary,
+                    color: SpendlerColors.textTertiary,
                     fontSize: 12,
                   ),
                 ),
@@ -476,10 +476,10 @@ class _ToggleRow extends StatelessWidget {
           Switch.adaptive(
             value: value,
             onChanged: onChanged,
-            activeThumbColor: PaisaColors.yellow,
-            activeTrackColor: PaisaColors.yellow.withValues(alpha: 0.3),
-            inactiveTrackColor: PaisaColors.border,
-            inactiveThumbColor: PaisaColors.textTertiary,
+            activeThumbColor: SpendlerColors.yellow,
+            activeTrackColor: SpendlerColors.yellow.withValues(alpha: 0.3),
+            inactiveTrackColor: SpendlerColors.border,
+            inactiveThumbColor: SpendlerColors.textTertiary,
           ),
         ],
       ),

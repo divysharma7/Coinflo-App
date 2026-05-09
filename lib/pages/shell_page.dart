@@ -10,7 +10,7 @@ import 'package:finance_buddy_app/pages/people/people_page.dart';
 import 'package:finance_buddy_app/pages/people/friend_creation_sheet.dart';
 import 'package:finance_buddy_app/pages/my_page/my_page.dart';
 import 'package:finance_buddy_app/pages/add/quick_add_sheet.dart';
-import 'package:finance_buddy_app/widgets/common/paisa_bottom_sheet.dart';
+import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 
 /// Shared navigation destination data used by both NavigationBar and NavigationRail.
 class _Destination {
@@ -54,7 +54,7 @@ class ShellPage extends ConsumerWidget {
           ? Row(
               children: [
                 NavigationRail(
-                  backgroundColor: PaisaColors.scaffold,
+                  backgroundColor: SpendlerColors.scaffold,
                   selectedIndex: selectedTab > 2 ? selectedTab - 1 : selectedTab,
                   onDestinationSelected: (i) {
                     final actualIndex = i >= 2 ? i + 1 : i;
@@ -68,13 +68,13 @@ class ShellPage extends ConsumerWidget {
                   destinations: [
                     for (final d in _destinations)
                       NavigationRailDestination(
-                        icon: Icon(d.icon, color: PaisaColors.textTertiary),
-                        selectedIcon: Icon(d.selectedIcon, color: PaisaColors.accentYellow),
+                        icon: Icon(d.icon, color: SpendlerColors.textTertiary),
+                        selectedIcon: Icon(d.selectedIcon, color: SpendlerColors.accentYellow),
                         label: Text(d.label),
                       ),
                   ],
                 ),
-                const VerticalDivider(thickness: 1, width: 1, color: PaisaColors.surfaceSecondary),
+                const VerticalDivider(thickness: 1, width: 1, color: SpendlerColors.surfaceSecondary),
                 Expanded(
                   child: IndexedStack(
                     index: selectedTab,
@@ -123,7 +123,7 @@ class ShellPage extends ConsumerWidget {
   void _onFabPressed(BuildContext context, WidgetRef ref, int selectedTab) {
     if (selectedTab == 3) {
       // People tab — show chooser with two tiles
-      showPaisaSheet<void>(
+      showSpendlerSheet<void>(
         context: context,
         builder: (_) => Column(
           mainAxisSize: MainAxisSize.min,
@@ -131,23 +131,23 @@ class ShellPage extends ConsumerWidget {
             _PeopleActionTile(
               icon: PhosphorIcons.usersFour(),
               label: 'Add family entry',
-              accentColor: PaisaColors.gold,
+              accentColor: SpendlerColors.gold,
               onTap: () {
                 Navigator.pop(context);
-                showPaisaSheet<void>(
+                showSpendlerSheet<void>(
                   context: context,
                   builder: (_) => const FamilyEntrySheet(),
                 );
               },
             ),
-            const SizedBox(height: PaisaSpacing.cardGap),
+            const SizedBox(height: SpendlerSpacing.cardGap),
             _PeopleActionTile(
               icon: PhosphorIcons.userPlus(),
               label: 'Add a friend',
-              accentColor: PaisaColors.accentYellow,
+              accentColor: SpendlerColors.accentYellow,
               onTap: () {
                 Navigator.pop(context);
-                showPaisaSheet<void>(
+                showSpendlerSheet<void>(
                   context: context,
                   builder: (_) => const FriendCreationSheet(),
                 );
@@ -157,7 +157,7 @@ class ShellPage extends ConsumerWidget {
         ),
       );
     } else {
-      showPaisaSheet<void>(
+      showSpendlerSheet<void>(
         context: context,
         builder: (_) => const QuickAddSheet(),
       );
@@ -185,12 +185,12 @@ class _PeopleActionTile extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(
-          horizontal: PaisaSpacing.md,
-          vertical: PaisaSpacing.cardPadding,
+          horizontal: SpendlerSpacing.md,
+          vertical: SpendlerSpacing.cardPadding,
         ),
         decoration: BoxDecoration(
           color: accentColor.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(PaisaRadii.card),
+          borderRadius: BorderRadius.circular(SpendlerRadii.card),
           border: Border.all(color: accentColor.withValues(alpha: 0.2)),
         ),
         child: Row(

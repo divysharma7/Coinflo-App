@@ -16,9 +16,9 @@ class AmountText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isNegative = amount < 0;
-    final color = isNegative ? PaisaColors.accentRed : PaisaColors.accentGreen;
+    final color = isNegative ? SpendlerColors.accentRed : SpendlerColors.accentGreen;
     final sign = showSign ? (isNegative ? '-' : '+') : '';
-    final formatted = '$sign₹${amount.abs().toStringAsFixed(0)}';
+    final formatted = '$sign\$\${amount.abs().toStringAsFixed(0)}';
 
     return Text(
       formatted,
