@@ -31,27 +31,13 @@ class _SundayDigestPageState extends ConsumerState<SundayDigestPage> {
   @override
   Widget build(BuildContext context) {
     final weekStart = ref.watch(selectedWeekProvider);
-    final weeklyTxns = ref.watch(weeklyTransactionsProvider);
 
     return Scaffold(
       backgroundColor: SpendlerColors.scaffold,
       body: SafeArea(
-        child: weeklyTxns.when(
-          data: (txns) {
-            final expenses = txns.where((t) => t.amount < 0).toList();
-            final totalSpent = expenses.fold<double>(0, (s, t) => s + t.amount.abs());
-
-            // Category totals
-            final catTotals = <TransactionCategory, double>{};
-            for (final t in expenses) {
-              final cat = TransactionCategory.values.firstWhere(
-                (c) => c.name == t.category,
-                orElse: () => TransactionCategory.foodAndDrink,
-              );
-              catTotals[cat] = (catTotals[cat] ?? 0) + t.amount.abs();
-            }
-            final sortedCats = catTotals.entries.toList()
-              ..sort((a, b) => b.value.compareTo(a.value));
+        child: ref.watch(weeklyCategoryTotalsProvider).when(
+          data: (sortedCats) {
+            final totalSpent = ref.watch(weeklyTotalSpentProvider).valueOrNull ?? 0.0;
 
             // Weekly insight (shared generator)
             final insight = generateWeeklyInsight(

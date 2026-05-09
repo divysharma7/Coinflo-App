@@ -18,4 +18,7 @@ abstract class BaseRepository
         FriendSplitRepository,
         SubscriptionRepository,
         BudgetRepository,
-        GoalRepository {}
+        GoalRepository {
+  /// Delete all user data across every table.
+  Future<void> clearAll();
+}

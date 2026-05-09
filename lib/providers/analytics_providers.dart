@@ -49,3 +49,45 @@ final weeklyAlertsProvider = FutureProvider<List<String>>((ref) {
   final repo = ref.watch(repositoryProvider);
   return repo.getWeeklyAlerts();
 });
+
+// ─── Computed analytics providers ───────────────────
+
+/// Month-end spending projection based on current pace.
+class MonthProjection {
+  final double spentSoFar;
+  final double projected;
+  final int daysLeft;
+  final int? percentVsLast;
+  const MonthProjection({
+    required this.spentSoFar,
+    required this.projected,
+    required this.daysLeft,
+    this.percentVsLast,
+  });
+}
+
+final monthEndProjectionProvider = FutureProvider<MonthProjection?>((ref) async {
+  final thisData = await ref.watch(thisMonthCumulativeProvider.future);
+  if (thisData.isEmpty) return null;
+
+  final lastData = await ref.watch(lastMonthCumulativeProvider.future);
+
+  final today = DateTime.now().day;
+  final spentSoFar = thisData[today - 1];
+  final daysLeft = thisData.length - today;
+  final dailyRate = today > 0 ? spentSoFar / today : 0.0;
+  final projected = spentSoFar + (dailyRate * daysLeft);
+  final lastTotal = lastData.isNotEmpty ? lastData.last : 0.0;
+
+  int? percentVsLast;
+  if (lastTotal > 0 && projected > 0) {
+    percentVsLast = ((projected - lastTotal) / lastTotal * 100).round();
+  }
+
+  return MonthProjection(
+    spentSoFar: spentSoFar,
+    projected: projected,
+    daysLeft: daysLeft,
+    percentVsLast: percentVsLast,
+  );
+});

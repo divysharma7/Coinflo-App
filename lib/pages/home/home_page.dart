@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:finance_buddy_app/core/enums.dart';
 import 'package:finance_buddy_app/core/tokens.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/widgets/charts/weekly_bar_chart.dart';
@@ -477,7 +476,6 @@ class _CategoryBreakdownSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final weeklyTxns = ref.watch(weeklyTransactionsProvider);
     final merchantCounts = ref.watch(weeklyMerchantCountsProvider);
 
     return Padding(
@@ -487,27 +485,15 @@ class _CategoryBreakdownSection extends ConsumerWidget {
         children: [
           const Text('WHERE IT WENT', style: SpendlerTextStyles.sectionLabel),
           const SizedBox(height: SpendlerSpacing.md),
-          weeklyTxns.when(
-            data: (txns) {
-              final totals = <TransactionCategory, double>{};
-              for (final t in txns) {
-                if (t.amount < 0) {
-                  final cat = TransactionCategory.values.firstWhere(
-                    (c) => c.name == t.category,
-                    orElse: () => TransactionCategory.other,
-                  );
-                  totals[cat] = (totals[cat] ?? 0) + t.amount.abs();
-                }
-              }
-              if (totals.isEmpty) {
+          ref.watch(weeklyCategoryTotalsProvider).when(
+            data: (sorted) {
+              if (sorted.isEmpty) {
                 return const Text(
                   'No spending yet this week.',
                   style: SpendlerTextStyles.emptyState,
                 );
               }
 
-              final sorted = totals.entries.toList()
-                ..sort((a, b) => b.value.compareTo(a.value));
               final totalSpent =
                   sorted.fold<double>(0, (s, e) => s + e.value);
 
@@ -657,8 +643,7 @@ class _ActionNeededSection extends ConsumerWidget {
                   label: 'Confirm All (${list.length})',
                   onTap: () async {
                     await HapticFeedback.mediumImpact();
-                    final repo = ref.read(repositoryProvider);
-                    await repo.confirmAllUnconfirmed();
+                    await confirmAllTransactions(ref.read(repositoryProvider));
                   },
                 ),
               const SizedBox(height: SpendlerSpacing.sm),
@@ -692,27 +677,16 @@ class _WeeklyInsightSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final weeklyTxns = ref.watch(weeklyTransactionsProvider);
     final merchantCounts = ref.watch(weeklyMerchantCountsProvider);
 
-    return weeklyTxns.when(
-      data: (txns) {
-        final expenses = txns.where((t) => t.amount < 0).toList();
-        if (expenses.isEmpty) return const SizedBox.shrink();
+    final sortedCatsAsync = ref.watch(weeklyCategoryTotalsProvider);
+    final totalSpentAsync = ref.watch(weeklyTotalSpentProvider);
 
-        final totalSpent =
-            expenses.fold<double>(0, (s, t) => s + t.amount.abs());
-        final catTotals = <TransactionCategory, double>{};
-        for (final t in expenses) {
-          final cat = TransactionCategory.values.firstWhere(
-            (c) => c.name == t.category,
-            orElse: () => TransactionCategory.other,
-          );
-          catTotals[cat] = (catTotals[cat] ?? 0) + t.amount.abs();
-        }
-        final sortedCats = catTotals.entries.toList()
-          ..sort((a, b) => b.value.compareTo(a.value));
+    return sortedCatsAsync.when(
+      data: (sortedCats) {
+        if (sortedCats.isEmpty) return const SizedBox.shrink();
 
+        final totalSpent = totalSpentAsync.valueOrNull ?? 0.0;
         final counts = merchantCounts.valueOrNull ?? {};
         final insight = generateWeeklyInsight(
           sortedCats: sortedCats,

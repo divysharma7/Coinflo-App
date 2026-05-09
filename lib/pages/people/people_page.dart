@@ -437,7 +437,7 @@ class _FriendCard extends ConsumerWidget {
     if (pending.length == 1) {
       // Single item — settle directly
       HapticFeedback.mediumImpact();
-      ref.read(repositoryProvider).markSettled(pending.first.id, 'manual');
+      settleSplit(ref.read(repositoryProvider), pending.first.id);
       return;
     }
 
@@ -554,10 +554,7 @@ class _SettlementPickerState extends ConsumerState<_SettlementPicker> {
               ? null
               : () async {
                   await HapticFeedback.mediumImpact();
-                  final repo = ref.read(repositoryProvider);
-                  for (final id in _selected) {
-                    await repo.markSettled(id, 'manual');
-                  }
+                  await settleSplits(ref.read(repositoryProvider), _selected);
                   if (context.mounted) Navigator.pop(context);
                 },
         ),

@@ -330,4 +330,20 @@ class LocalRepository extends BaseRepository {
 
   @override
   Future<void> deleteGoal(int id) => _goalRepo.deleteGoal(id);
+
+  // ─── Cross-cutting ────────────────────────────────
+
+  @override
+  Future<void> clearAll() async {
+    await db.customStatement('DELETE FROM spendler_transactions');
+    await db.customStatement('DELETE FROM family_entries');
+    await db.customStatement('DELETE FROM weekly_reflections');
+    await db.customStatement('DELETE FROM app_metrics');
+    await db.customStatement('DELETE FROM app_notifications');
+    await db.customStatement('DELETE FROM friend_splits');
+    await db.customStatement('DELETE FROM friend_contacts');
+    await db.customStatement('DELETE FROM category_budgets');
+    await db.customStatement('DELETE FROM savings_goals');
+    await db.customStatement('DELETE FROM subscriptions');
+  }
 }

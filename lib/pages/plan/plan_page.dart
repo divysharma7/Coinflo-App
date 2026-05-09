@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -45,9 +44,6 @@ class _HeroHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final budgets = ref.watch(budgetsProvider);
-    final spending = ref.watch(monthlyCategorySpendingProvider);
-
     return SliverToBoxAdapter(
       child: Container(
         decoration: const BoxDecoration(
@@ -78,50 +74,37 @@ class _HeroHeader extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: SpendlerSpacing.xs),
-                budgets.when(
-                  data: (budgetList) {
-                    return spending.when(
-                      data: (spendingMap) {
-                        double totalLimit = 0;
-                        double totalSpent = 0;
-                        for (final b in budgetList) {
-                          totalLimit += b.monthlyLimit;
-                          totalSpent += spendingMap[b.category] ?? 0;
-                        }
-                        if (budgetList.isEmpty) {
-                          return const Text(
-                            'Set budgets to track your spending',
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: SpendlerColors.heroTextSecondary,
-                            ),
-                          );
-                        }
-                        final remaining = totalLimit - totalSpent;
-                        return Text(
-                          remaining >= 0
-                              ? '\$${remaining.toStringAsFixed(0)} left this month'
-                              : '\$${remaining.abs().toStringAsFixed(0)} over budget',
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: remaining >= 0
-                                ? SpendlerColors.onTrack
-                                : SpendlerColors.overBudget,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        );
-                      },
-                      loading: () => const Text(
-                        'Loading...',
+                ref.watch(budgetStatusProvider).when(
+                  data: (status) {
+                    if (status.totalLimit == 0) {
+                      return const Text(
+                        'Set budgets to track your spending',
                         style: TextStyle(
                           fontSize: 15,
                           color: SpendlerColors.heroTextSecondary,
                         ),
+                      );
+                    }
+                    return Text(
+                      status.remaining >= 0
+                          ? '\$${status.remaining.toStringAsFixed(0)} left this month'
+                          : '\$${status.remaining.abs().toStringAsFixed(0)} over budget',
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: status.isOverBudget
+                            ? SpendlerColors.overBudget
+                            : SpendlerColors.onTrack,
+                        fontWeight: FontWeight.w500,
                       ),
-                      error: (_, __) => const SizedBox.shrink(),
                     );
                   },
-                  loading: () => const SizedBox.shrink(),
+                  loading: () => const Text(
+                    'Loading...',
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: SpendlerColors.heroTextSecondary,
+                    ),
+                  ),
                   error: (_, __) => const SizedBox.shrink(),
                 ),
               ],
@@ -247,8 +230,7 @@ class _BudgetsSection extends ConsumerWidget {
   }
 
   Future<void> _deleteBudget(WidgetRef ref, int id) async {
-    final repo = ref.read(repositoryProvider);
-    await repo.deleteBudget(id);
+    await deleteBudget(ref.read(repositoryProvider), id);
   }
 }
 
@@ -523,8 +505,7 @@ class _GoalsSection extends ConsumerWidget {
   }
 
   Future<void> _deleteGoal(WidgetRef ref, int id) async {
-    final repo = ref.read(repositoryProvider);
-    await repo.deleteGoal(id);
+    await deleteGoal(ref.read(repositoryProvider), id);
   }
 }
 
@@ -870,21 +851,11 @@ class _AddBudgetSheetState extends ConsumerState<_AddBudgetSheet> {
     final amount = double.tryParse(_amountCtrl.text.trim());
     if (amount == null || amount <= 0) return;
 
-    final repo = ref.read(repositoryProvider);
-
-    // Upsert: check if budget already exists for this category
-    final existing = await repo.getBudgetForCategory(_selected.name);
-    if (existing != null) {
-      await repo.updateBudget(
-        existing.id,
-        CategoryBudgetsCompanion(monthlyLimit: Value(amount)),
-      );
-    } else {
-      await repo.insertBudget(CategoryBudgetsCompanion(
-        category: Value(_selected.name),
-        monthlyLimit: Value(amount),
-      ));
-    }
+    await upsertBudget(
+      ref.read(repositoryProvider),
+      category: _selected.name,
+      monthlyLimit: amount,
+    );
 
     // Invalidate spending cache so UI refreshes
     ref.invalidate(monthlyCategorySpendingProvider);
@@ -1100,12 +1071,12 @@ class _AddGoalSheetState extends ConsumerState<_AddGoalSheet> {
     final target = double.tryParse(_amountCtrl.text.trim());
     if (name.isEmpty || target == null || target <= 0) return;
 
-    final repo = ref.read(repositoryProvider);
-    await repo.insertGoal(SavingsGoalsCompanion(
-      name: Value(name),
-      targetAmount: Value(target),
-      iconName: Value(_selectedIcon),
-    ));
+    await insertGoal(
+      ref.read(repositoryProvider),
+      name: name,
+      targetAmount: target,
+      iconName: _selectedIcon,
+    );
 
     if (mounted) Navigator.pop(context);
   }
@@ -1211,8 +1182,7 @@ class _AddMoneySheetState extends ConsumerState<_AddMoneySheet> {
     final amount = double.tryParse(_amountCtrl.text.trim());
     if (amount == null || amount <= 0) return;
 
-    final repo = ref.read(repositoryProvider);
-    await repo.addMoney(widget.goal.id, amount);
+    await addMoneyToGoal(ref.read(repositoryProvider), widget.goal.id, amount);
 
     if (mounted) Navigator.pop(context);
   }

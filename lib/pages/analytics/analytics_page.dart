@@ -46,9 +46,6 @@ class _HeadlineInsightSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final thisMonth = ref.watch(thisMonthCumulativeProvider);
-    final lastMonth = ref.watch(lastMonthCumulativeProvider);
-
     return Padding(
       padding: EdgeInsets.fromLTRB(
         SpendlerSpacing.screenH + 4,
@@ -61,31 +58,22 @@ class _HeadlineInsightSection extends ConsumerWidget {
         children: [
           const Text('PATTERNS', style: SpendlerTextStyles.sectionLabel),
           const SizedBox(height: SpendlerSpacing.lg),
-          thisMonth.when(
-            data: (thisData) {
-              if (thisData.isEmpty) {
+          ref.watch(monthEndProjectionProvider).when(
+            data: (projection) {
+              if (projection == null) {
                 return const Text(
                   'Month just started.\nYour rhythm will build here.',
                   style: SpendlerTextStyles.insightBody,
                 );
               }
 
-              final today = DateTime.now().day;
-              final spentSoFar = thisData[today - 1];
-              final daysLeft = thisData.length - today;
               final monthName = DateFormat('MMMM').format(DateTime.now());
-
-              // Project month-end
-              final dailyRate = today > 0 ? spentSoFar / today : 0.0;
-              final projected = spentSoFar + (dailyRate * daysLeft);
-
-              final lastData = lastMonth.valueOrNull ?? [];
-              final lastTotal = lastData.isNotEmpty ? lastData.last : 0.0;
+              final spentSoFar = projection.spentSoFar;
+              final projected = projection.projected;
+              final pctVsLast = projection.percentVsLast;
 
               String headline;
-              if (lastTotal > 0 && projected > 0) {
-                final pctVsLast =
-                    ((projected - lastTotal) / lastTotal * 100).round();
+              if (pctVsLast != null) {
                 if (pctVsLast > 5) {
                   headline =
                       '\$${spentSoFar.toStringAsFixed(0)} spent in $monthName so far.\n'
@@ -103,7 +91,7 @@ class _HeadlineInsightSection extends ConsumerWidget {
               } else {
                 headline =
                     '\$${spentSoFar.toStringAsFixed(0)} in $monthName so far.\n'
-                    '$daysLeft days left this month.';
+                    '${projection.daysLeft} days left this month.';
               }
 
               return Text(headline, style: SpendlerTextStyles.insightBody);
