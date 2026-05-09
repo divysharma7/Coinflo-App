@@ -72,3 +72,31 @@ enum LedgerType { personal, family }
 enum FamilyEntryType { inflow, investment }
 
 enum InvestmentType { mf, stocks, fd, other }
+
+enum BillingCycle {
+  weekly,
+  monthly,
+  yearly;
+
+  String get label {
+    switch (this) {
+      case weekly:
+        return 'Weekly';
+      case monthly:
+        return 'Monthly';
+      case yearly:
+        return 'Yearly';
+    }
+  }
+
+  String get shortLabel {
+    switch (this) {
+      case weekly:
+        return '/wk';
+      case monthly:
+        return '/mo';
+      case yearly:
+        return '/yr';
+    }
+  }
+}

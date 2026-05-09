@@ -87,6 +87,17 @@ class FriendSplits extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
+class Subscriptions extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text()();
+  RealColumn get amount => real()();
+  TextColumn get billingCycle => text()(); // weekly / monthly / yearly
+  DateTimeColumn get nextBillingDate => dateTime()();
+  TextColumn get category => text()(); // reuses TransactionCategory values
+  BoolColumn get isActive => boolean().withDefault(const Constant(true))();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
 // ─── Database ─────────────────────────────────────────
 
 @DriftDatabase(tables: [
@@ -97,12 +108,13 @@ class FriendSplits extends Table {
   AppNotifications,
   FriendContacts,
   FriendSplits,
+  Subscriptions,
 ])
 class PaisaDatabase extends _$PaisaDatabase {
   PaisaDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -116,6 +128,9 @@ class PaisaDatabase extends _$PaisaDatabase {
           if (from < 3) {
             await m.createTable(friendContacts);
             await m.createTable(friendSplits);
+          }
+          if (from < 4) {
+            await m.createTable(subscriptions);
           }
         },
       );

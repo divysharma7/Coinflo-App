@@ -213,6 +213,61 @@ abstract final class PaisaMotion {
   static const Curve tabCurve = Curves.easeInOut;
 }
 
+// ---------------------------------------------------------------------------
+// Spendler Design Tokens – Light theme for subscription tracking.
+// ---------------------------------------------------------------------------
+
+/// Spendler colour palette (light theme).
+abstract final class SpendlerColors {
+  static const Color scaffold = Color(0xFFF5F5F7);
+  static const Color card = Color(0xFFFFFFFF);
+  static const Color cardBorder = Color(0xFFE8E8ED);
+
+  static const Color textPrimary = Color(0xFF1C1C1E);
+  static const Color textSecondary = Color(0xFF8E8E93);
+  static const Color textTertiary = Color(0xFFAEAEB2);
+
+  static const Color accent = Color(0xFF007AFF);
+  static const Color destructive = Color(0xFFFF3B30);
+  static const Color success = Color(0xFF34C759);
+  static const Color warning = Color(0xFFFF9500);
+  static const Color paused = Color(0xFFAEAEB2);
+
+  static const Map<TransactionCategory, Color> categoryActive = {
+    TransactionCategory.rent: Color(0xFF5856D6),
+    TransactionCategory.transport: Color(0xFF007AFF),
+    TransactionCategory.food: Color(0xFFFF9500),
+    TransactionCategory.family: Color(0xFFFF2D55),
+    TransactionCategory.social: Color(0xFFAF52DE),
+    TransactionCategory.other: Color(0xFF8E8E93),
+  };
+
+  static Color categoryColor(TransactionCategory cat) =>
+      categoryActive[cat] ?? const Color(0xFF8E8E93);
+}
+
+/// Spendler spacing scale (8-pt grid).
+abstract final class SpendlerSpacing {
+  static const double xs = 4;
+  static const double sm = 8;
+  static const double md = 16;
+  static const double lg = 24;
+  static const double xl = 32;
+  static const double xxl = 48;
+
+  static const double cardPadding = 16;
+  static const double screenH = 16;
+  static const double screenTop = 24;
+  static const double cardGap = 12;
+}
+
+/// Spendler corner radii.
+abstract final class SpendlerRadii {
+  static const double card = 20;
+  static const double pill = 100;
+  static const double button = 12;
+}
+
 /// Shadow presets.
 abstract final class PaisaShadows {
   static List<BoxShadow> card = const [

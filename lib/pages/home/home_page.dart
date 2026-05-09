@@ -13,6 +13,7 @@ import 'package:finance_buddy_app/services/insight/insight_generator.dart';
 import 'package:finance_buddy_app/pages/home/daily_view_page.dart';
 import 'package:finance_buddy_app/pages/digest/sunday_digest_page.dart';
 import 'package:finance_buddy_app/pages/settings/settings_page.dart';
+import 'package:finance_buddy_app/pages/subscriptions/subscriptions_page.dart';
 import 'package:finance_buddy_app/widgets/common/animations.dart';
 
 class HomePage extends ConsumerWidget {
@@ -34,6 +35,49 @@ class HomePage extends ConsumerWidget {
           const SizedBox(height: PaisaSpacing.xl),
           const FadeSlideIn(delay: Duration(milliseconds: 320), child: _ActionNeededSection()),
           const FadeSlideIn(delay: Duration(milliseconds: 360), child: _FriendsCardSection()),
+          FadeSlideIn(
+            delay: const Duration(milliseconds: 380),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: PaisaSpacing.screenH + 4,
+                vertical: PaisaSpacing.sm,
+              ),
+              child: GestureDetector(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(builder: (_) => const SubscriptionsPage()),
+                ),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: PaisaSpacing.cardPadding,
+                    vertical: PaisaSpacing.md,
+                  ),
+                  decoration: BoxDecoration(
+                    color: PaisaColors.surfaceHigh,
+                    borderRadius: BorderRadius.circular(PaisaRadii.card),
+                    border: Border.all(color: PaisaColors.border),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.autorenew, color: PaisaColors.accentBlue, size: 20),
+                      SizedBox(width: 10),
+                      Text(
+                        'Subscriptions',
+                        style: TextStyle(
+                          color: PaisaColors.accentBlue,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Spacer(),
+                      Icon(Icons.chevron_right, color: PaisaColors.accentBlue, size: 20),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
           const FadeSlideIn(delay: Duration(milliseconds: 400), child: _WeeklyInsightSection()),
           // Show a digest entry-point on Sundays
           if (DateTime.now().weekday == DateTime.sunday)
