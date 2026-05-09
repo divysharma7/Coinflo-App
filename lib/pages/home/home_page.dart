@@ -14,6 +14,7 @@ import 'package:finance_buddy_app/pages/home/daily_view_page.dart';
 import 'package:finance_buddy_app/pages/digest/sunday_digest_page.dart';
 import 'package:finance_buddy_app/pages/settings/settings_page.dart';
 import 'package:finance_buddy_app/widgets/common/animations.dart';
+import 'package:finance_buddy_app/pages/penny/penny_page.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -35,6 +36,66 @@ class HomePage extends ConsumerWidget {
           const FadeSlideIn(delay: Duration(milliseconds: 320), child: _ActionNeededSection()),
           const FadeSlideIn(delay: Duration(milliseconds: 360), child: _FriendsCardSection()),
           const FadeSlideIn(delay: Duration(milliseconds: 400), child: _WeeklyInsightSection()),
+          FadeSlideIn(
+            delay: const Duration(milliseconds: 440),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: PaisaSpacing.screenH + 4,
+                vertical: PaisaSpacing.lg,
+              ),
+              child: GestureDetector(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(builder: (_) => const PennyPage()),
+                ),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: PaisaSpacing.cardPadding,
+                    vertical: PaisaSpacing.md,
+                  ),
+                  decoration: BoxDecoration(
+                    color: PaisaColors.yellow.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(PaisaRadii.card),
+                    border: Border.all(
+                      color: PaisaColors.yellow.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 28,
+                        height: 28,
+                        decoration: const BoxDecoration(
+                          color: PaisaColors.yellow,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Center(
+                          child: Text(
+                            'P',
+                            style: TextStyle(
+                              color: PaisaColors.scaffold,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Text(
+                        'Ask Penny a question \u2192',
+                        style: TextStyle(
+                          color: PaisaColors.yellow,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
           // Show a digest entry-point on Sundays
           if (DateTime.now().weekday == DateTime.sunday)
             Padding(
