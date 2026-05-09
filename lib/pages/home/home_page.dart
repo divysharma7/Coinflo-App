@@ -41,8 +41,8 @@ class HomePage extends ConsumerWidget {
             delay: const Duration(milliseconds: 380),
             child: Padding(
               padding: const EdgeInsets.symmetric(
-                horizontal: PaisaSpacing.screenH + 4,
-                vertical: PaisaSpacing.sm,
+                horizontal: SpendlerSpacing.screenH + 4,
+                vertical: SpendlerSpacing.sm,
               ),
               child: GestureDetector(
                 onTap: () => Navigator.push(
@@ -52,28 +52,28 @@ class HomePage extends ConsumerWidget {
                 child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(
-                    horizontal: PaisaSpacing.cardPadding,
-                    vertical: PaisaSpacing.md,
+                    horizontal: SpendlerSpacing.cardPadding,
+                    vertical: SpendlerSpacing.md,
                   ),
                   decoration: BoxDecoration(
-                    color: PaisaColors.surfaceHigh,
-                    borderRadius: BorderRadius.circular(PaisaRadii.card),
-                    border: Border.all(color: PaisaColors.border),
+                    color: SpendlerColors.surfaceHigh,
+                    borderRadius: BorderRadius.circular(SpendlerRadii.card),
+                    border: Border.all(color: SpendlerColors.border),
                   ),
                   child: const Row(
                     children: [
-                      Icon(Icons.autorenew, color: PaisaColors.accentBlue, size: 20),
+                      Icon(Icons.autorenew, color: SpendlerColors.accentBlue, size: 20),
                       SizedBox(width: 10),
                       Text(
                         'Subscriptions',
                         style: TextStyle(
-                          color: PaisaColors.accentBlue,
+                          color: SpendlerColors.accentBlue,
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                       Spacer(),
-                      Icon(Icons.chevron_right, color: PaisaColors.accentBlue, size: 20),
+                      Icon(Icons.chevron_right, color: SpendlerColors.accentBlue, size: 20),
                     ],
                   ),
                 ),

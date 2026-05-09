@@ -53,7 +53,7 @@ class DailyViewPage extends ConsumerWidget {
                     final t = list[i];
                     final cat = TransactionCategory.values.firstWhere(
                       (c) => c.name == t.category,
-                      orElse: () => TransactionCategory.foodAndDrink,
+                      orElse: () => TransactionCategory.food,
                     );
                     final catColor = SpendlerColors.categoryColor(cat);
                     return ListTile(

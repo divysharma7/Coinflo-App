@@ -10,7 +10,7 @@ import 'package:finance_buddy_app/pages/people/people_page.dart';
 import 'package:finance_buddy_app/pages/my_page/my_page.dart';
 import 'package:finance_buddy_app/pages/plan/plan_page.dart';
 import 'package:finance_buddy_app/pages/add/quick_add_sheet.dart';
-import 'package:finance_buddy_app/widgets/common/paisa_bottom_sheet.dart';
+import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 
 /// Shared navigation destination data used by both NavigationBar and NavigationRail.
 class _Destination {

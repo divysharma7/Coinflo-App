@@ -3,7 +3,7 @@ import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/data/repositories/goal_repository.dart';
 
 class LocalGoalRepository implements GoalRepository {
-  final PaisaDatabase db;
+  final SpendlerDatabase db;
 
   LocalGoalRepository(this.db);
 

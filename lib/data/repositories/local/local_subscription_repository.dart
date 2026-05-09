@@ -3,7 +3,7 @@ import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/data/repositories/subscription_repository.dart';
 
 class LocalSubscriptionRepository implements SubscriptionRepository {
-  final PaisaDatabase db;
+  final SpendlerDatabase db;
 
   LocalSubscriptionRepository(this.db);
 

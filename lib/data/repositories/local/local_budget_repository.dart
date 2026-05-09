@@ -3,7 +3,7 @@ import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/data/repositories/budget_repository.dart';
 
 class LocalBudgetRepository implements BudgetRepository {
-  final PaisaDatabase db;
+  final SpendlerDatabase db;
 
   LocalBudgetRepository(this.db);
 

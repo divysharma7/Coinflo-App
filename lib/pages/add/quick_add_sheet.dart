@@ -15,7 +15,7 @@ class QuickAddSheet extends ConsumerStatefulWidget {
 
 class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
   String _amount = '';
-  TransactionCategory _category = TransactionCategory.foodAndDrink;
+  TransactionCategory _category = TransactionCategory.food;
   final _noteController = TextEditingController();
   bool _isExpense = true;
 

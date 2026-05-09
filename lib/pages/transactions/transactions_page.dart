@@ -192,7 +192,7 @@ class TransactionsPage extends ConsumerWidget {
   Widget _buildTile(BuildContext context, SpendlerTransaction t, {bool isUnconfirmed = false}) {
     final cat = TransactionCategory.values.firstWhere(
       (c) => c.name == t.category,
-      orElse: () => TransactionCategory.foodAndDrink,
+      orElse: () => TransactionCategory.food,
     );
     final catColor = SpendlerColors.categoryColor(cat);
     final isSent = t.amount < 0;

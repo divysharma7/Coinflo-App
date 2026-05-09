@@ -39,8 +39,8 @@ class _PennyPageState extends ConsumerState<PennyPage> {
     if (_scrollController.hasClients) {
       _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
-        duration: PaisaMotion.transition,
-        curve: PaisaMotion.surfaceCurve,
+        duration: SpendlerMotion.transition,
+        curve: SpendlerMotion.surfaceCurve,
       );
     }
   }
@@ -56,12 +56,12 @@ class _PennyPageState extends ConsumerState<PennyPage> {
     });
 
     return Scaffold(
-      backgroundColor: PaisaColors.scaffold,
+      backgroundColor: SpendlerColors.scaffold,
       appBar: AppBar(
-        backgroundColor: PaisaColors.scaffold,
+        backgroundColor: SpendlerColors.scaffold,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
-          icon: PhosphorIcon(PhosphorIcons.caretLeft(), color: PaisaColors.textPrimary),
+          icon: PhosphorIcon(PhosphorIcons.caretLeft(), color: SpendlerColors.textPrimary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Row(
@@ -71,25 +71,25 @@ class _PennyPageState extends ConsumerState<PennyPage> {
               width: 32,
               height: 32,
               decoration: const BoxDecoration(
-                color: PaisaColors.yellow,
+                color: SpendlerColors.yellow,
                 shape: BoxShape.circle,
               ),
               child: const Center(
                 child: Text(
                   'P',
                   style: TextStyle(
-                    color: PaisaColors.scaffold,
+                    color: SpendlerColors.scaffold,
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
             ),
-            const SizedBox(width: PaisaSpacing.sm),
+            const SizedBox(width: SpendlerSpacing.sm),
             const Text(
               'Ask Penny',
               style: TextStyle(
-                color: PaisaColors.textPrimary,
+                color: SpendlerColors.textPrimary,
                 fontSize: 17,
                 fontWeight: FontWeight.w600,
               ),
@@ -105,8 +105,8 @@ class _PennyPageState extends ConsumerState<PennyPage> {
             child: ListView.builder(
               controller: _scrollController,
               padding: const EdgeInsets.symmetric(
-                horizontal: PaisaSpacing.screenH,
-                vertical: PaisaSpacing.sm,
+                horizontal: SpendlerSpacing.screenH,
+                vertical: SpendlerSpacing.sm,
               ),
               itemCount: messages.length + (isProcessing ? 1 : 0),
               itemBuilder: (context, index) {
@@ -144,16 +144,16 @@ class _UserBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(
-        top: PaisaSpacing.xs,
-        bottom: PaisaSpacing.xs,
+        top: SpendlerSpacing.xs,
+        bottom: SpendlerSpacing.xs,
         left: 64,
       ),
       child: Align(
         alignment: Alignment.centerRight,
         child: Container(
           padding: const EdgeInsets.symmetric(
-            horizontal: PaisaSpacing.md,
-            vertical: PaisaSpacing.cardGap,
+            horizontal: SpendlerSpacing.md,
+            vertical: SpendlerSpacing.cardGap,
           ),
           decoration: const BoxDecoration(
             color: Color(0xFF000000),
@@ -164,7 +164,7 @@ class _UserBubble extends StatelessWidget {
               bottomRight: Radius.zero, // squared corner
             ),
             border: Border.fromBorderSide(
-              BorderSide(color: PaisaColors.border, width: 1),
+              BorderSide(color: SpendlerColors.border, width: 1),
             ),
           ),
           child: Text(
@@ -192,15 +192,15 @@ class _AssistantBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(
-        top: PaisaSpacing.sm,
-        bottom: PaisaSpacing.sm,
+        top: SpendlerSpacing.sm,
+        bottom: SpendlerSpacing.sm,
       ),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(PaisaSpacing.md),
+        padding: const EdgeInsets.all(SpendlerSpacing.md),
         decoration: BoxDecoration(
           color: const Color(0xFFF5F5F7),
-          borderRadius: BorderRadius.circular(PaisaRadii.card),
+          borderRadius: BorderRadius.circular(SpendlerRadii.card),
         ),
         child: _MarkdownText(text: text),
       ),
@@ -373,15 +373,15 @@ class _TypingIndicatorState extends State<_TypingIndicator>
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(
-        top: PaisaSpacing.sm,
-        bottom: PaisaSpacing.sm,
+        top: SpendlerSpacing.sm,
+        bottom: SpendlerSpacing.sm,
       ),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(PaisaSpacing.md),
+        padding: const EdgeInsets.all(SpendlerSpacing.md),
         decoration: BoxDecoration(
           color: const Color(0xFFF5F5F7),
-          borderRadius: BorderRadius.circular(PaisaRadii.card),
+          borderRadius: BorderRadius.circular(SpendlerRadii.card),
         ),
         child: AnimatedBuilder(
           animation: _anim,
@@ -435,15 +435,15 @@ class _InputBar extends StatelessWidget {
     final bottomPadding = MediaQuery.paddingOf(context).bottom;
     return Container(
       padding: EdgeInsets.only(
-        left: PaisaSpacing.screenH,
-        right: PaisaSpacing.screenH,
-        top: PaisaSpacing.sm,
-        bottom: PaisaSpacing.sm + bottomPadding,
+        left: SpendlerSpacing.screenH,
+        right: SpendlerSpacing.screenH,
+        top: SpendlerSpacing.sm,
+        bottom: SpendlerSpacing.sm + bottomPadding,
       ),
       decoration: const BoxDecoration(
-        color: PaisaColors.scaffold,
+        color: SpendlerColors.scaffold,
         border: Border(
-          top: BorderSide(color: PaisaColors.border, width: 0.5),
+          top: BorderSide(color: SpendlerColors.border, width: 0.5),
         ),
       ),
       child: Row(
@@ -451,27 +451,27 @@ class _InputBar extends StatelessWidget {
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                color: PaisaColors.surfaceHigh,
-                borderRadius: BorderRadius.circular(PaisaRadii.pill),
+                color: SpendlerColors.surfaceHigh,
+                borderRadius: BorderRadius.circular(SpendlerRadii.pill),
               ),
               child: TextField(
                 controller: controller,
                 focusNode: focusNode,
                 style: const TextStyle(
-                  color: PaisaColors.textPrimary,
+                  color: SpendlerColors.textPrimary,
                   fontSize: 15,
                 ),
                 decoration: InputDecoration(
                   hintText: 'Ask Penny anything...',
                   hintStyle: TextStyle(
-                    color: PaisaColors.textTertiary,
+                    color: SpendlerColors.textTertiary,
                     fontSize: 15,
                     fontWeight: FontWeight.w400,
                   ),
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(
-                    horizontal: PaisaSpacing.md,
-                    vertical: PaisaSpacing.cardGap,
+                    horizontal: SpendlerSpacing.md,
+                    vertical: SpendlerSpacing.cardGap,
                   ),
                 ),
                 textCapitalization: TextCapitalization.sentences,
@@ -481,7 +481,7 @@ class _InputBar extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: PaisaSpacing.sm),
+          const SizedBox(width: SpendlerSpacing.sm),
           // Circular black send button
           GestureDetector(
             onTap: isProcessing ? null : onSend,
@@ -490,17 +490,17 @@ class _InputBar extends StatelessWidget {
               height: 40,
               decoration: BoxDecoration(
                 color: isProcessing
-                    ? PaisaColors.surfaceHigh
+                    ? SpendlerColors.surfaceHigh
                     : const Color(0xFF000000),
                 shape: BoxShape.circle,
-                border: Border.all(color: PaisaColors.border, width: 1),
+                border: Border.all(color: SpendlerColors.border, width: 1),
               ),
               child: Center(
                 child: PhosphorIcon(
                   PhosphorIcons.arrowUp(PhosphorIconsStyle.bold),
                   size: 20,
                   color: isProcessing
-                      ? PaisaColors.textTertiary
+                      ? SpendlerColors.textTertiary
                       : Colors.white,
                 ),
               ),

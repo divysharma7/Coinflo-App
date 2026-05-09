@@ -26,7 +26,7 @@ final _reportScopeProvider =
 
 /// All transactions for the selected month.
 final _monthTransactionsProvider =
-    FutureProvider.autoDispose<List<PaisaTransaction>>((ref) {
+    FutureProvider.autoDispose<List<SpendlerTransaction>>((ref) {
   final repo = ref.watch(repositoryProvider);
   final month = ref.watch(_reportMonthProvider);
   return repo.getTransactionsForMonth(month);
@@ -45,7 +45,7 @@ final _monthCategoryTotalsProvider =
 // ---------------------------------------------------------------------------
 
 Color _colorForCategory(TransactionCategory cat) {
-  return PaisaColors.categoryColor(cat);
+  return SpendlerColors.categoryColor(cat);
 }
 
 // ---------------------------------------------------------------------------
@@ -65,24 +65,24 @@ class _ReportPageState extends ConsumerState<ReportPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: PaisaColors.scaffold,
+      backgroundColor: SpendlerColors.scaffold,
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: MediaQuery.paddingOf(context).top + PaisaSpacing.lg),
+            SizedBox(height: MediaQuery.paddingOf(context).top + SpendlerSpacing.lg),
             _buildHeader(),
-            const SizedBox(height: PaisaSpacing.lg),
+            const SizedBox(height: SpendlerSpacing.lg),
             const _PeriodSelector(),
-            const SizedBox(height: PaisaSpacing.lg),
+            const SizedBox(height: SpendlerSpacing.lg),
             _buildMonthNavigator(),
-            const SizedBox(height: PaisaSpacing.xl),
+            const SizedBox(height: SpendlerSpacing.xl),
             _buildDonutSection(),
-            const SizedBox(height: PaisaSpacing.xl),
+            const SizedBox(height: SpendlerSpacing.xl),
             const _TopCategoriesList(),
-            const SizedBox(height: PaisaSpacing.xl),
+            const SizedBox(height: SpendlerSpacing.xl),
             const _SummaryCards(),
-            const SizedBox(height: PaisaSpacing.xl),
+            const SizedBox(height: SpendlerSpacing.xl),
             const _TransactionList(),
             const SizedBox(height: 100),
           ],
@@ -95,24 +95,24 @@ class _ReportPageState extends ConsumerState<ReportPage> {
 
   Widget _buildHeader() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: PaisaSpacing.screenH + 4),
+      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH + 4),
       child: Row(
         children: [
           GestureDetector(
             onTap: () => Navigator.maybePop(context),
             child: const Icon(
               Icons.arrow_back_ios_new_rounded,
-              color: PaisaColors.textSecondary,
+              color: SpendlerColors.textSecondary,
               size: 20,
             ),
           ),
-          const SizedBox(width: PaisaSpacing.cardGap),
+          const SizedBox(width: SpendlerSpacing.cardGap),
           const Text(
             'Monthly Report',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w700,
-              color: PaisaColors.textPrimary,
+              color: SpendlerColors.textPrimary,
             ),
           ),
         ],
@@ -127,7 +127,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
     final label = DateFormat('MMMM yyyy').format(month);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: PaisaSpacing.screenH + 4),
+      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH + 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -138,12 +138,12 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                   DateTime(month.year, month.month - 1);
             },
             child: const Icon(Icons.chevron_left,
-                color: PaisaColors.textTertiary, size: 24),
+                color: SpendlerColors.textTertiary, size: 24),
           ),
           Text(
             label,
             style: const TextStyle(
-              color: PaisaColors.textPrimary,
+              color: SpendlerColors.textPrimary,
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),
@@ -162,8 +162,8 @@ class _ReportPageState extends ConsumerState<ReportPage> {
               Icons.chevron_right,
               color: DateTime(month.year, month.month + 1)
                       .isAfter(DateTime.now())
-                  ? PaisaColors.textTertiary.withValues(alpha: 0.3)
-                  : PaisaColors.textTertiary,
+                  ? SpendlerColors.textTertiary.withValues(alpha: 0.3)
+                  : SpendlerColors.textTertiary,
               size: 24,
             ),
           ),
@@ -178,17 +178,17 @@ class _ReportPageState extends ConsumerState<ReportPage> {
     final catTotals = ref.watch(_monthCategoryTotalsProvider);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: PaisaSpacing.screenH),
+      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH),
       child: Container(
-        padding: const EdgeInsets.all(PaisaSpacing.cardPadding),
+        padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFF1E1E1E), PaisaColors.surface],
+            colors: [Color(0xFF1E1E1E), SpendlerColors.surface],
           ),
-          borderRadius: BorderRadius.circular(PaisaRadii.card),
-          boxShadow: PaisaShadows.card,
+          borderRadius: BorderRadius.circular(SpendlerRadii.card),
+          boxShadow: SpendlerShadows.card,
         ),
         child: catTotals.when(
           data: (data) {
@@ -198,7 +198,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                 child: Center(
                   child: Text(
                     'No expenses this month.',
-                    style: PaisaTextStyles.emptyState,
+                    style: SpendlerTextStyles.emptyState,
                   ),
                 ),
               );
@@ -284,7 +284,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                         style: TextStyle(
                           fontSize: _touchedIndex != null ? 22 : 20,
                           fontWeight: FontWeight.w700,
-                          color: PaisaColors.textPrimary,
+                          color: SpendlerColors.textPrimary,
                           fontFeatures: const [FontFeature.tabularFigures()],
                         ),
                       ),
@@ -293,7 +293,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                         centerLabel,
                         style: const TextStyle(
                           fontSize: 12,
-                          color: PaisaColors.textTertiary,
+                          color: SpendlerColors.textTertiary,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -306,14 +306,14 @@ class _ReportPageState extends ConsumerState<ReportPage> {
           loading: () => const SizedBox(
             height: 220,
             child: Center(
-              child: CircularProgressIndicator(color: PaisaColors.yellow),
+              child: CircularProgressIndicator(color: SpendlerColors.yellow),
             ),
           ),
           error: (_, _) => const SizedBox(
             height: 220,
             child: Center(
               child: Text('Error loading data',
-                  style: TextStyle(color: PaisaColors.expense)),
+                  style: TextStyle(color: SpendlerColors.expense)),
             ),
           ),
         ),
@@ -334,12 +334,12 @@ class _PeriodSelector extends ConsumerWidget {
     final selected = ref.watch(_reportScopeProvider);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: PaisaSpacing.screenH),
+      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH),
       child: Container(
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          color: PaisaColors.surface,
-          borderRadius: BorderRadius.circular(PaisaRadii.pill),
+          color: SpendlerColors.surface,
+          borderRadius: BorderRadius.circular(SpendlerRadii.pill),
         ),
         child: Row(
           children: _ReportScope.values.map((scope) {
@@ -351,12 +351,12 @@ class _PeriodSelector extends ConsumerWidget {
                   ref.read(_reportScopeProvider.notifier).state = scope;
                 },
                 child: AnimatedContainer(
-                  duration: PaisaMotion.micro,
-                  curve: PaisaMotion.surfaceCurve,
+                  duration: SpendlerMotion.micro,
+                  curve: SpendlerMotion.surfaceCurve,
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
-                    color: isSelected ? PaisaColors.textPrimary : Colors.transparent,
-                    borderRadius: BorderRadius.circular(PaisaRadii.pill),
+                    color: isSelected ? SpendlerColors.textPrimary : Colors.transparent,
+                    borderRadius: BorderRadius.circular(SpendlerRadii.pill),
                   ),
                   child: Center(
                     child: Text(
@@ -365,8 +365,8 @@ class _PeriodSelector extends ConsumerWidget {
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: isSelected
-                            ? PaisaColors.scaffold
-                            : PaisaColors.textTertiary,
+                            ? SpendlerColors.scaffold
+                            : SpendlerColors.textTertiary,
                       ),
                     ),
                   ),
@@ -392,18 +392,18 @@ class _TopCategoriesList extends ConsumerWidget {
     final catTotals = ref.watch(_monthCategoryTotalsProvider);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: PaisaSpacing.screenH + 4),
+      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH + 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('TOP CATEGORIES', style: PaisaTextStyles.sectionLabel),
-          const SizedBox(height: PaisaSpacing.md),
+          const Text('TOP CATEGORIES', style: SpendlerTextStyles.sectionLabel),
+          const SizedBox(height: SpendlerSpacing.md),
           catTotals.when(
             data: (data) {
               if (data.isEmpty) {
                 return const Text(
                   'No data for this month.',
-                  style: PaisaTextStyles.emptyState,
+                  style: SpendlerTextStyles.emptyState,
                 );
               }
 
@@ -424,7 +424,7 @@ class _TopCategoriesList extends ConsumerWidget {
                   final catColor = _colorForCategory(cat);
 
                   return Padding(
-                    padding: const EdgeInsets.only(bottom: PaisaSpacing.cardGap),
+                    padding: const EdgeInsets.only(bottom: SpendlerSpacing.cardGap),
                     child: Row(
                       children: [
                         // Tinted icon square
@@ -443,13 +443,13 @@ class _TopCategoriesList extends ConsumerWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(width: PaisaSpacing.cardGap),
+                        const SizedBox(width: SpendlerSpacing.cardGap),
                         // Name
                         Expanded(
                           child: Text(
                             cat.label,
                             style: const TextStyle(
-                              color: PaisaColors.textPrimary,
+                              color: SpendlerColors.textPrimary,
                               fontSize: 15,
                               fontWeight: FontWeight.w500,
                             ),
@@ -462,7 +462,7 @@ class _TopCategoriesList extends ConsumerWidget {
                             Text(
                               '₹${entry.value.toStringAsFixed(0)}',
                               style: const TextStyle(
-                                color: PaisaColors.textPrimary,
+                                color: SpendlerColors.textPrimary,
                                 fontSize: 15,
                                 fontWeight: FontWeight.w700,
                               ),
@@ -486,7 +486,7 @@ class _TopCategoriesList extends ConsumerWidget {
             loading: () => const SizedBox(
               height: 100,
               child: Center(
-                child: CircularProgressIndicator(color: PaisaColors.yellow),
+                child: CircularProgressIndicator(color: SpendlerColors.yellow),
               ),
             ),
             error: (_, _) => const SizedBox.shrink(),
@@ -509,7 +509,7 @@ class _SummaryCards extends ConsumerWidget {
     final txnsAsync = ref.watch(_monthTransactionsProvider);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: PaisaSpacing.screenH),
+      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH),
       child: txnsAsync.when(
         data: (txns) {
           final income = txns
@@ -526,25 +526,25 @@ class _SummaryCards extends ConsumerWidget {
                 child: _SummaryCard(
                   label: 'Income',
                   amount: income,
-                  color: PaisaColors.income,
+                  color: SpendlerColors.income,
                   icon: PhosphorIcons.arrowDown(),
                 ),
               ),
-              const SizedBox(width: PaisaSpacing.sm),
+              const SizedBox(width: SpendlerSpacing.sm),
               Expanded(
                 child: _SummaryCard(
                   label: 'Expenses',
                   amount: expenses,
-                  color: PaisaColors.expense,
+                  color: SpendlerColors.expense,
                   icon: PhosphorIcons.arrowUp(),
                 ),
               ),
-              const SizedBox(width: PaisaSpacing.sm),
+              const SizedBox(width: SpendlerSpacing.sm),
               Expanded(
                 child: _SummaryCard(
                   label: 'Net',
                   amount: net,
-                  color: net >= 0 ? PaisaColors.income : PaisaColors.expense,
+                  color: net >= 0 ? SpendlerColors.income : SpendlerColors.expense,
                   icon: PhosphorIcons.equals(),
                 ),
               ),
@@ -554,7 +554,7 @@ class _SummaryCards extends ConsumerWidget {
         loading: () => const SizedBox(
           height: 100,
           child: Center(
-            child: CircularProgressIndicator(color: PaisaColors.yellow),
+            child: CircularProgressIndicator(color: SpendlerColors.yellow),
           ),
         ),
         error: (_, _) => const SizedBox.shrink(),
@@ -579,11 +579,11 @@ class _SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(PaisaSpacing.cardGap),
+      padding: const EdgeInsets.all(SpendlerSpacing.cardGap),
       decoration: BoxDecoration(
-        color: PaisaColors.surface,
-        borderRadius: BorderRadius.circular(PaisaRadii.card),
-        border: Border.all(color: PaisaColors.border),
+        color: SpendlerColors.surface,
+        borderRadius: BorderRadius.circular(SpendlerRadii.card),
+        border: Border.all(color: SpendlerColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -603,11 +603,11 @@ class _SummaryCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: PaisaSpacing.sm),
+          const SizedBox(height: SpendlerSpacing.sm),
           Text(
             '₹${_formatCompact(amount.abs())}',
             style: const TextStyle(
-              color: PaisaColors.textPrimary,
+              color: SpendlerColors.textPrimary,
               fontSize: 16,
               fontWeight: FontWeight.w700,
               fontFeatures: [FontFeature.tabularFigures()],
@@ -631,23 +631,23 @@ class _TransactionList extends ConsumerWidget {
     final txnsAsync = ref.watch(_monthTransactionsProvider);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: PaisaSpacing.screenH + 4),
+      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH + 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('ALL TRANSACTIONS', style: PaisaTextStyles.sectionLabel),
-          const SizedBox(height: PaisaSpacing.md),
+          const Text('ALL TRANSACTIONS', style: SpendlerTextStyles.sectionLabel),
+          const SizedBox(height: SpendlerSpacing.md),
           txnsAsync.when(
             data: (txns) {
               if (txns.isEmpty) {
                 return const Text(
                   'No transactions this month.',
-                  style: PaisaTextStyles.emptyState,
+                  style: SpendlerTextStyles.emptyState,
                 );
               }
 
               // Group by date
-              final grouped = <String, List<PaisaTransaction>>{};
+              final grouped = <String, List<SpendlerTransaction>>{};
               for (final t in txns) {
                 final key = DateFormat('d MMM, EEEE').format(t.happenedAt);
                 grouped.putIfAbsent(key, () => []).add(t);
@@ -665,8 +665,8 @@ class _TransactionList extends ConsumerWidget {
                       // Day header
                       Padding(
                         padding: const EdgeInsets.only(
-                          top: PaisaSpacing.md,
-                          bottom: PaisaSpacing.sm,
+                          top: SpendlerSpacing.md,
+                          bottom: SpendlerSpacing.sm,
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -674,7 +674,7 @@ class _TransactionList extends ConsumerWidget {
                             Text(
                               dayGroup.key,
                               style: const TextStyle(
-                                color: PaisaColors.textTertiary,
+                                color: SpendlerColors.textTertiary,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -683,7 +683,7 @@ class _TransactionList extends ConsumerWidget {
                               Text(
                                 '₹${dayTotal.toStringAsFixed(0)}',
                                 style: const TextStyle(
-                                  color: PaisaColors.textTertiary,
+                                  color: SpendlerColors.textTertiary,
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -702,7 +702,7 @@ class _TransactionList extends ConsumerWidget {
 
                         return Padding(
                           padding: const EdgeInsets.only(
-                              bottom: PaisaSpacing.sm),
+                              bottom: SpendlerSpacing.sm),
                           child: Row(
                             children: [
                               // Category icon
@@ -718,7 +718,7 @@ class _TransactionList extends ConsumerWidget {
                                       color: catColor),
                                 ),
                               ),
-                              const SizedBox(width: PaisaSpacing.cardGap),
+                              const SizedBox(width: SpendlerSpacing.cardGap),
                               // Name + time
                               Expanded(
                                 child: Column(
@@ -728,7 +728,7 @@ class _TransactionList extends ConsumerWidget {
                                     Text(
                                       t.merchant ?? cat.label,
                                       style: const TextStyle(
-                                        color: PaisaColors.textPrimary,
+                                        color: SpendlerColors.textPrimary,
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
                                       ),
@@ -739,7 +739,7 @@ class _TransactionList extends ConsumerWidget {
                                       DateFormat('h:mm a')
                                           .format(t.happenedAt),
                                       style: const TextStyle(
-                                        color: PaisaColors.textTertiary,
+                                        color: SpendlerColors.textTertiary,
                                         fontSize: 11,
                                       ),
                                     ),
@@ -751,8 +751,8 @@ class _TransactionList extends ConsumerWidget {
                                 '${isExpense ? '-' : '+'}₹${t.amount.abs().toStringAsFixed(0)}',
                                 style: TextStyle(
                                   color: isExpense
-                                      ? PaisaColors.textPrimary
-                                      : PaisaColors.income,
+                                      ? SpendlerColors.textPrimary
+                                      : SpendlerColors.income,
                                   fontSize: 15,
                                   fontWeight: FontWeight.w700,
                                   fontFeatures: const [
@@ -772,7 +772,7 @@ class _TransactionList extends ConsumerWidget {
             loading: () => const SizedBox(
               height: 100,
               child: Center(
-                child: CircularProgressIndicator(color: PaisaColors.yellow),
+                child: CircularProgressIndicator(color: SpendlerColors.yellow),
               ),
             ),
             error: (_, _) => const SizedBox.shrink(),

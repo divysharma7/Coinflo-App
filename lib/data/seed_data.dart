@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SeedData {
   static const _seededKey = 'db_seeded_v2'; // v2: real data
 
-  static Future<void> seedIfNeeded(PaisaDatabase db) async {
+  static Future<void> seedIfNeeded(SpendlerDatabase db) async {
     final prefs = await SharedPreferences.getInstance();
     if (prefs.getBool(_seededKey) == true) return;
 
@@ -17,9 +17,9 @@ class SeedData {
     await prefs.setBool(_seededKey, true);
   }
 
-  static Future<void> _seedTransactions(PaisaDatabase db) async {
+  static Future<void> _seedTransactions(SpendlerDatabase db) async {
     // Real expense data — March 30 to April 21, 2026
-    final txns = <PaisaTransactionsCompanion>[
+    final txns = <SpendlerTransactionsCompanion>[
       // ── March 30 ──
       _t(2026, 3, 30, 9, 0, -64.06, 'transport', 'Uber', 'Auto'),
       _t(2026, 3, 30, 9, 30, -55.94, 'transport', 'Uber', 'Driver'),
@@ -141,12 +141,12 @@ class SeedData {
     ];
 
     for (final txn in txns) {
-      await db.into(db.paisaTransactions).insert(txn);
+      await db.into(db.spendlerTransactions).insert(txn);
     }
   }
 
   /// Helper to build a transaction companion.
-  static PaisaTransactionsCompanion _t(
+  static SpendlerTransactionsCompanion _t(
     int year,
     int month,
     int day,
@@ -157,7 +157,7 @@ class SeedData {
     String merchant,
     String? note,
   ) {
-    return PaisaTransactionsCompanion.insert(
+    return SpendlerTransactionsCompanion.insert(
       amount: amount,
       category: category,
       merchant: Value(merchant),
@@ -168,7 +168,7 @@ class SeedData {
     );
   }
 
-  static Future<void> _seedFamilyEntries(PaisaDatabase db) async {
+  static Future<void> _seedFamilyEntries(SpendlerDatabase db) async {
     final entries = <FamilyEntriesCompanion>[
       FamilyEntriesCompanion.insert(
         type: 'inflow',

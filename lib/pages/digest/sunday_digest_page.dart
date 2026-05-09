@@ -46,7 +46,7 @@ class _SundayDigestPageState extends ConsumerState<SundayDigestPage> {
             for (final t in expenses) {
               final cat = TransactionCategory.values.firstWhere(
                 (c) => c.name == t.category,
-                orElse: () => TransactionCategory.foodAndDrink,
+                orElse: () => TransactionCategory.food,
               );
               catTotals[cat] = (catTotals[cat] ?? 0) + t.amount.abs();
             }

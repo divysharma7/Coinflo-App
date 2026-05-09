@@ -30,7 +30,7 @@ class _TransactionDetailPageState
   late TextEditingController _amountCtrl;
   late TextEditingController _merchantCtrl;
   late TextEditingController _noteCtrl;
-  TransactionCategory _category = TransactionCategory.foodAndDrink;
+  TransactionCategory _category = TransactionCategory.food;
   DateTime _date = DateTime.now();
   TimeOfDay _time = TimeOfDay.now();
   bool _isExpense = true;
@@ -42,7 +42,7 @@ class _TransactionDetailPageState
     _noteCtrl = TextEditingController(text: t.note ?? '');
     _category = TransactionCategory.values.firstWhere(
       (c) => c.name == t.category,
-      orElse: () => TransactionCategory.foodAndDrink,
+      orElse: () => TransactionCategory.food,
     );
     _date = DateTime(t.happenedAt.year, t.happenedAt.month, t.happenedAt.day);
     _time = TimeOfDay.fromDateTime(t.happenedAt);
@@ -176,7 +176,7 @@ class _TransactionDetailPageState
   Widget _buildReadMode(SpendlerTransaction t) {
     final cat = TransactionCategory.values.firstWhere(
       (c) => c.name == t.category,
-      orElse: () => TransactionCategory.foodAndDrink,
+      orElse: () => TransactionCategory.food,
     );
     final catColor = SpendlerColors.categoryColor(cat);
     final isUnconfirmed = t.status == 'unconfirmed';

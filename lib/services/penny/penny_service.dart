@@ -434,7 +434,7 @@ class PennyService {
     return s[0].toUpperCase() + s.substring(1);
   }
 
-  double _sumExpenses(List<PaisaTransaction> txns) {
+  double _sumExpenses(List<SpendlerTransaction> txns) {
     return txns
         .where((t) => t.amount < 0)
         .fold<double>(0, (s, t) => s + t.amount.abs());
