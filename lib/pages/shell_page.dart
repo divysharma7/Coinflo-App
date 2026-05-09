@@ -9,6 +9,7 @@ import 'package:finance_buddy_app/pages/family/family_entry_sheet.dart';
 import 'package:finance_buddy_app/pages/people/people_page.dart';
 import 'package:finance_buddy_app/pages/people/friend_creation_sheet.dart';
 import 'package:finance_buddy_app/pages/my_page/my_page.dart';
+import 'package:finance_buddy_app/pages/plan/plan_page.dart';
 import 'package:finance_buddy_app/pages/add/quick_add_sheet.dart';
 import 'package:finance_buddy_app/widgets/common/paisa_bottom_sheet.dart';
 
@@ -28,18 +29,20 @@ final _destinations = [
   _Destination(icon: PhosphorIcons.house(), selectedIcon: PhosphorIconsFill.house, label: 'Home'),
   _Destination(icon: PhosphorIcons.money(), selectedIcon: PhosphorIconsFill.money, label: 'Transactions'),
   _Destination(icon: PhosphorIcons.usersThree(), selectedIcon: PhosphorIconsFill.usersThree, label: 'People'),
+  _Destination(icon: PhosphorIcons.chartPieSlice(), selectedIcon: PhosphorIconsFill.chartPieSlice, label: 'Plan'),
   _Destination(icon: PhosphorIcons.user(), selectedIcon: PhosphorIconsFill.user, label: 'Me'),
 ];
 
 class ShellPage extends ConsumerWidget {
   const ShellPage({super.key});
 
-  // Pages indexed 0–4; index 2 is a FAB placeholder (kept for provider compat).
+  // Pages indexed 0–5; index 2 is a FAB placeholder (kept for provider compat).
   static const _pages = [
     HomePage(),
     TransactionsPage(),
     SizedBox.shrink(),
     PeoplePage(),
+    PlanPage(),
     MyPage(),
   ];
 
