@@ -565,7 +565,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
               fontSize: 13,
             ),
           ),
-          Text(
+          const Text(
             '·',
             style: TextStyle(
               color: SpendlerColors.border,
@@ -579,7 +579,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
               fontSize: 13,
             ),
           ),
-          Text(
+          const Text(
             '·',
             style: TextStyle(
               color: SpendlerColors.border,

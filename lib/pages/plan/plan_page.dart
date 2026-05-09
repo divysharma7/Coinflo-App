@@ -105,7 +105,7 @@ class _HeroHeader extends ConsumerWidget {
                       color: SpendlerColors.heroTextSecondary,
                     ),
                   ),
-                  error: (_, __) => const SizedBox.shrink(),
+                  error: (_, _) => const SizedBox.shrink(),
                 ),
               ],
             ),
