@@ -14,6 +14,7 @@ import 'package:finance_buddy_app/pages/home/daily_view_page.dart';
 import 'package:finance_buddy_app/pages/digest/sunday_digest_page.dart';
 import 'package:finance_buddy_app/pages/settings/settings_page.dart';
 import 'package:finance_buddy_app/pages/subscriptions/subscriptions_page.dart';
+import 'package:finance_buddy_app/pages/report/report_page.dart';
 import 'package:finance_buddy_app/widgets/common/animations.dart';
 
 class HomePage extends ConsumerWidget {
@@ -73,6 +74,41 @@ class HomePage extends ConsumerWidget {
                       Spacer(),
                       Icon(Icons.chevron_right, color: PaisaColors.accentBlue, size: 20),
                     ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          FadeSlideIn(
+            delay: const Duration(milliseconds: 390),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: SpendlerSpacing.screenH + 4,
+                vertical: SpendlerSpacing.sm,
+              ),
+              child: GestureDetector(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(builder: (_) => const ReportPage()),
+                ),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: SpendlerSpacing.cardPadding,
+                    vertical: SpendlerSpacing.md,
+                  ),
+                  decoration: BoxDecoration(
+                    color: SpendlerColors.surfaceHigh,
+                    borderRadius: BorderRadius.circular(SpendlerRadii.card),
+                    border: Border.all(color: SpendlerColors.border),
+                  ),
+                  child: Text(
+                    'View monthly report \u2192',
+                    style: TextStyle(
+                      color: SpendlerColors.primary,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
