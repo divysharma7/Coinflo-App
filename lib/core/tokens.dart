@@ -240,3 +240,87 @@ abstract final class SpendlerShadows {
     BoxShadow(color: Color(0x1A000000), offset: Offset(0, 4), blurRadius: 12),
   ];
 }
+
+// ---------------------------------------------------------------------------
+// Spendler Design Tokens v1.0
+// Light theme, system font, clean cards.
+// ---------------------------------------------------------------------------
+
+/// Spendler colour palette — light-first.
+abstract final class SpendlerColors {
+  // -- Backgrounds --
+  static const Color scaffold = Color(0xFFF5F5F7);
+  static const Color card = Color(0xFFFFFFFF);
+  static const Color heroBackground = Color(0xFF1C1C1E);
+
+  // -- Text --
+  static const Color textPrimary = Color(0xFF1C1C1E);
+  static const Color textSecondary = Color(0xFF8E8E93);
+  static const Color textTertiary = Color(0xFFAEAEB2);
+  static const Color heroText = Color(0xFFFFFFFF);
+  static const Color heroTextSecondary = Color(0xFF9999A3);
+
+  // -- Semantic --
+  static const Color overBudget = Color(0xFFFF3B30);
+  static const Color onTrack = Color(0xFF34C759);
+  static const Color accent = Color(0xFF007AFF);
+
+  // -- Progress --
+  static const Color progressTrack = Color(0xFFE5E5EA);
+  static const Color separator = Color(0xFFE5E5EA);
+
+  // -- Category colours (light-friendly, slightly more saturated) --
+  static const Map<TransactionCategory, Color> categoryActive = {
+    TransactionCategory.rent: Color(0xFF5E8BA0),
+    TransactionCategory.transport: Color(0xFF4A8A56),
+    TransactionCategory.food: Color(0xFFB8784A),
+    TransactionCategory.family: Color(0xFFC9A84C),
+    TransactionCategory.social: Color(0xFF8E6FBF),
+    TransactionCategory.other: Color(0xFF8E8E93),
+  };
+
+  static Color categoryColor(TransactionCategory cat) =>
+      categoryActive[cat] ?? const Color(0xFF8E8E93);
+}
+
+/// Spendler spacing (8-pt grid, matches Paisa scale).
+abstract final class SpendlerSpacing {
+  static const double xs = 4;
+  static const double sm = 8;
+  static const double md = 16;
+  static const double lg = 24;
+  static const double xl = 32;
+  static const double xxl = 48;
+
+  static const double cardPadding = 16;
+  static const double screenH = 16;
+  static const double screenTop = 24;
+  static const double cardGap = 12;
+  static const double sectionGap = 32;
+}
+
+/// Spendler corner radii.
+abstract final class SpendlerRadii {
+  static const double card = 20;
+  static const double progressBar = 3; // half of 6pt bar height → fully rounded
+  static const double sheet = 24;
+  static const double pill = 100;
+  static const double button = 12;
+  static const double ring = 40; // progress ring size
+}
+
+/// Spendler card shadow (subtle for light bg).
+abstract final class SpendlerShadows {
+  static const List<BoxShadow> card = [
+    BoxShadow(
+      color: Color(0x0A000000),
+      offset: Offset(0, 1),
+      blurRadius: 3,
+    ),
+    BoxShadow(
+      color: Color(0x0F000000),
+      offset: Offset(0, 4),
+      blurRadius: 12,
+    ),
+  ];
+}

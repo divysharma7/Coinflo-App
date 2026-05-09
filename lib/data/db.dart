@@ -98,6 +98,22 @@ class Subscriptions extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
+class CategoryBudgets extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get category => text()(); // matches TransactionCategory name
+  RealColumn get monthlyLimit => real()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+class SavingsGoals extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text()();
+  RealColumn get targetAmount => real()();
+  RealColumn get currentAmount => real().withDefault(const Constant(0))();
+  TextColumn get iconName => text()(); // Phosphor icon identifier
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
 // ─── Database ─────────────────────────────────────────
 
 @DriftDatabase(tables: [
@@ -109,12 +125,14 @@ class Subscriptions extends Table {
   FriendContacts,
   FriendSplits,
   Subscriptions,
+  CategoryBudgets,
+  SavingsGoals,
 ])
 class SpendlerDatabase extends _$SpendlerDatabase {
   SpendlerDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -131,6 +149,10 @@ class SpendlerDatabase extends _$SpendlerDatabase {
           }
           if (from < 4) {
             await m.createTable(subscriptions);
+          }
+          if (from < 5) {
+            await m.createTable(categoryBudgets);
+            await m.createTable(savingsGoals);
           }
         },
       );

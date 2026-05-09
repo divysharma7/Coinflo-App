@@ -5,7 +5,10 @@ import 'package:finance_buddy_app/core/tokens.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/pages/home/home_page.dart';
 import 'package:finance_buddy_app/pages/analytics/analytics_page.dart';
-import 'package:finance_buddy_app/pages/settings/settings_page.dart';
+import 'package:finance_buddy_app/pages/transactions/transactions_page.dart';
+import 'package:finance_buddy_app/pages/people/people_page.dart';
+import 'package:finance_buddy_app/pages/my_page/my_page.dart';
+import 'package:finance_buddy_app/pages/plan/plan_page.dart';
 import 'package:finance_buddy_app/pages/add/quick_add_sheet.dart';
 import 'package:finance_buddy_app/widgets/common/paisa_bottom_sheet.dart';
 
@@ -23,9 +26,10 @@ class _Destination {
 
 final _destinations = [
   _Destination(icon: PhosphorIcons.house(), selectedIcon: PhosphorIconsFill.house, label: 'Home'),
-  _Destination(icon: PhosphorIcons.chartBar(), selectedIcon: PhosphorIconsFill.chartBar, label: 'Report'),
-  _Destination(icon: PhosphorIcons.mapTrifold(), selectedIcon: PhosphorIconsFill.mapTrifold, label: 'Plan'),
-  _Destination(icon: PhosphorIcons.gear(), selectedIcon: PhosphorIconsFill.gear, label: 'Settings'),
+  _Destination(icon: PhosphorIcons.money(), selectedIcon: PhosphorIconsFill.money, label: 'Transactions'),
+  _Destination(icon: PhosphorIcons.usersThree(), selectedIcon: PhosphorIconsFill.usersThree, label: 'People'),
+  _Destination(icon: PhosphorIcons.chartPieSlice(), selectedIcon: PhosphorIconsFill.chartPieSlice, label: 'Plan'),
+  _Destination(icon: PhosphorIcons.user(), selectedIcon: PhosphorIconsFill.user, label: 'Me'),
 ];
 
 /// Placeholder for the Plan tab until a dedicated page is built.
@@ -50,13 +54,14 @@ class _PlanPlaceholder extends StatelessWidget {
 class ShellPage extends ConsumerWidget {
   const ShellPage({super.key});
 
-  // Pages indexed 0–4; index 2 is a FAB placeholder (kept for provider compat).
+  // Pages indexed 0–5; index 2 is a FAB placeholder (kept for provider compat).
   static const _pages = [
     HomePage(),
     AnalyticsPage(),
     SizedBox.shrink(),
-    _PlanPlaceholder(),
-    SettingsPage(),
+    PeoplePage(),
+    PlanPage(),
+    MyPage(),
   ];
 
   @override
