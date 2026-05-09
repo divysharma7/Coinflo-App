@@ -12,6 +12,7 @@ import 'package:finance_buddy_app/widgets/common/notification_bell.dart';
 import 'package:finance_buddy_app/services/insight/insight_generator.dart';
 import 'package:finance_buddy_app/pages/home/daily_view_page.dart';
 import 'package:finance_buddy_app/pages/digest/sunday_digest_page.dart';
+import 'package:finance_buddy_app/pages/report/report_page.dart';
 import 'package:finance_buddy_app/pages/settings/settings_page.dart';
 import 'package:finance_buddy_app/widgets/common/animations.dart';
 
@@ -35,6 +36,41 @@ class HomePage extends ConsumerWidget {
           const FadeSlideIn(delay: Duration(milliseconds: 320), child: _ActionNeededSection()),
           const FadeSlideIn(delay: Duration(milliseconds: 360), child: _FriendsCardSection()),
           const FadeSlideIn(delay: Duration(milliseconds: 400), child: _WeeklyInsightSection()),
+          // Monthly report entry point
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: PaisaSpacing.screenH + 4,
+              vertical: PaisaSpacing.lg,
+            ),
+            child: GestureDetector(
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute<void>(
+                  builder: (_) => const ReportPage(),
+                ),
+              ),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: PaisaSpacing.cardPadding,
+                  vertical: PaisaSpacing.md,
+                ),
+                decoration: BoxDecoration(
+                  color: PaisaColors.surfaceHigh,
+                  borderRadius: BorderRadius.circular(PaisaRadii.card),
+                  border: Border.all(color: PaisaColors.border),
+                ),
+                child: const Text(
+                  'View monthly report \u2192',
+                  style: TextStyle(
+                    color: PaisaColors.yellow,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ),
           // Show a digest entry-point on Sundays
           if (DateTime.now().weekday == DateTime.sunday)
             Padding(
