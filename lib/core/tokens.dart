@@ -67,12 +67,15 @@ abstract final class SpendlerColors {
     TransactionCategory.foodAndDrink: Color(0xFFFF8A4C),
     TransactionCategory.transport: Color(0xFF4A8FE7),
     TransactionCategory.shopping: Color(0xFFB19CD9),
+    TransactionCategory.billsAndUtilities: Color(0xFFF59E0B),
+    TransactionCategory.healthAndWellness: Color(0xFF22C55E),
     TransactionCategory.entertainment: Color(0xFFE91E63),
     TransactionCategory.streaming: Color(0xFFEC407A),
     TransactionCategory.gymFitness: Color(0xFF4CAF50),
     TransactionCategory.productivityTools: Color(0xFF9575CD),
     TransactionCategory.personalCare: Color(0xFFF8BBD0),
     TransactionCategory.education: Color(0xFF5C6BC0),
+    TransactionCategory.travel: Color(0xFF14B8A6),
     TransactionCategory.other: Color(0xFF6E6E73),
   };
 
@@ -80,12 +83,15 @@ abstract final class SpendlerColors {
     TransactionCategory.foodAndDrink: Color(0xFFFFF3E0),
     TransactionCategory.transport: Color(0xFFE3F2FD),
     TransactionCategory.shopping: Color(0xFFF3E5F5),
+    TransactionCategory.billsAndUtilities: Color(0xFFFEF3C7),
+    TransactionCategory.healthAndWellness: Color(0xFFDCFCE7),
     TransactionCategory.entertainment: Color(0xFFFCE4EC),
     TransactionCategory.streaming: Color(0xFFFCE4EC),
     TransactionCategory.gymFitness: Color(0xFFE8F5E9),
     TransactionCategory.productivityTools: Color(0xFFEDE7F6),
     TransactionCategory.personalCare: Color(0xFFFCE4EC),
     TransactionCategory.education: Color(0xFFE8EAF6),
+    TransactionCategory.travel: Color(0xFFCCFBF1),
     TransactionCategory.other: Color(0xFFF5F5F7),
   };
 

@@ -18,6 +18,13 @@ class _PennyPageState extends ConsumerState<PennyPage> {
   final _scrollController = ScrollController();
   final _focusNode = FocusNode();
 
+  static const _suggestions = [
+    'How much did I spend this month?',
+    'What is my top spending category?',
+    'Show my spending by category',
+    'How does this month compare to last month?',
+  ];
+
   @override
   void dispose() {
     _controller.dispose();
@@ -26,11 +33,11 @@ class _PennyPageState extends ConsumerState<PennyPage> {
     super.dispose();
   }
 
-  void _send() {
-    final text = _controller.text.trim();
-    if (text.isEmpty) return;
+  void _send([String? text]) {
+    final msg = text ?? _controller.text.trim();
+    if (msg.isEmpty) return;
     _controller.clear();
-    ref.read(pennyChatProvider.notifier).send(text);
+    ref.read(pennyChatProvider.notifier).send(msg);
     // Scroll to bottom after a frame so new messages are laid out
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
   }
@@ -49,6 +56,7 @@ class _PennyPageState extends ConsumerState<PennyPage> {
   Widget build(BuildContext context) {
     final messages = ref.watch(pennyChatProvider);
     final isProcessing = ref.watch(pennyProcessingProvider);
+    final hasMessages = messages.length > 1; // more than just the welcome message
 
     // Auto-scroll when new messages arrive
     ref.listen<List<PennyMessage>>(pennyChatProvider, (_, _) {
@@ -64,28 +72,9 @@ class _PennyPageState extends ConsumerState<PennyPage> {
           icon: PhosphorIcon(PhosphorIcons.caretLeft(), color: SpendlerColors.textPrimary),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: const BoxDecoration(
-                color: SpendlerColors.primary,
-                shape: BoxShape.circle,
-              ),
-              child: const Center(
-                child: Text(
-                  'P',
-                  style: TextStyle(
-                    color: SpendlerColors.scaffold,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: SpendlerSpacing.sm),
             const Text(
               'Ask Penny',
               style: TextStyle(
@@ -94,40 +83,170 @@ class _PennyPageState extends ConsumerState<PennyPage> {
                 fontWeight: FontWeight.w600,
               ),
             ),
+            Text(
+              '${messages.length > 1 ? messages.length - 1 : 0} transactions loaded',
+              style: const TextStyle(
+                color: SpendlerColors.textTertiary,
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
           ],
         ),
-        centerTitle: true,
+        centerTitle: false,
       ),
       body: Column(
         children: [
-          // Chat messages
+          // Chat messages or empty state
           Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.symmetric(
-                horizontal: SpendlerSpacing.screenH,
-                vertical: SpendlerSpacing.sm,
-              ),
-              itemCount: messages.length + (isProcessing ? 1 : 0),
-              itemBuilder: (context, index) {
-                if (index == messages.length) {
-                  return const _TypingIndicator();
-                }
-                final msg = messages[index];
-                return msg.isUser
-                    ? _UserBubble(text: msg.text)
-                    : _AssistantBubble(text: msg.text);
-              },
-            ),
+            child: hasMessages
+                ? ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: SpendlerSpacing.screenH,
+                      vertical: SpendlerSpacing.sm,
+                    ),
+                    itemCount: messages.length + (isProcessing ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index == messages.length) {
+                        return const _TypingIndicator();
+                      }
+                      final msg = messages[index];
+                      return msg.isUser
+                          ? _UserBubble(text: msg.text)
+                          : _AssistantBubble(text: msg.text);
+                    },
+                  )
+                : _EmptyState(
+                    suggestions: _suggestions,
+                    onSuggestionTap: _send,
+                  ),
           ),
 
           // Input area
           _InputBar(
             controller: _controller,
             focusNode: _focusNode,
-            onSend: _send,
+            onSend: () => _send(),
             isProcessing: isProcessing,
           ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Empty State ──────────────────────────────────────────
+
+class _EmptyState extends StatelessWidget {
+  const _EmptyState({
+    required this.suggestions,
+    required this.onSuggestionTap,
+  });
+
+  final List<String> suggestions;
+  final void Function(String) onSuggestionTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(
+        horizontal: SpendlerSpacing.screenH,
+        vertical: SpendlerSpacing.xl,
+      ),
+      child: Column(
+        children: [
+          const SizedBox(height: 40),
+
+          // Lightning icon in rounded square
+          Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              color: SpendlerColors.primary,
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Center(
+              child: PhosphorIcon(
+                PhosphorIcons.lightning(PhosphorIconsStyle.fill),
+                color: Colors.white,
+                size: 30,
+              ),
+            ),
+          ),
+          const SizedBox(height: SpendlerSpacing.lg),
+
+          // Title
+          const Text(
+            "Hi, I'm Penny",
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              color: SpendlerColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: SpendlerSpacing.sm),
+
+          // Subtitle
+          const Text(
+            'Ask me anything about your finances\u2009\u2014\u2009spending, trends, categories.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              color: SpendlerColors.textTertiary,
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: SpendlerSpacing.xl),
+
+          // Suggestions label
+          const Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'SUGGESTIONS',
+              style: SpendlerTextStyles.sectionLabel,
+            ),
+          ),
+          const SizedBox(height: SpendlerSpacing.cardGap),
+
+          // Suggestion cards
+          ...suggestions.map((s) => Padding(
+                padding: const EdgeInsets.only(bottom: SpendlerSpacing.sm),
+                child: GestureDetector(
+                  onTap: () => onSuggestionTap(s),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: SpendlerSpacing.md,
+                      vertical: 14,
+                    ),
+                    decoration: BoxDecoration(
+                      color: SpendlerColors.surface,
+                      borderRadius: BorderRadius.circular(SpendlerRadii.button),
+                      border: Border.all(color: SpendlerColors.border),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            s,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              color: SpendlerColors.textPrimary,
+                            ),
+                          ),
+                        ),
+                        PhosphorIcon(
+                          PhosphorIcons.caretRight(),
+                          color: SpendlerColors.textTertiary,
+                          size: 16,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              )),
         ],
       ),
     );
@@ -462,7 +581,7 @@ class _InputBar extends StatelessWidget {
                   fontSize: 15,
                 ),
                 decoration: const InputDecoration(
-                  hintText: 'Ask Penny anything...',
+                  hintText: 'Ask about your finances...',
                   hintStyle: TextStyle(
                     color: SpendlerColors.textTertiary,
                     fontSize: 15,

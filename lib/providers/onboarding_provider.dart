@@ -60,3 +60,59 @@ Future<void> saveSpendingTarget(double value) async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setDouble(_targetKey, value);
 }
+
+// ─── Currency preference ─────────────────────────────
+
+const _currencyKey = 'selected_currency';
+
+final selectedCurrencyProvider = FutureProvider<String>((ref) async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getString(_currencyKey) ?? 'inr';
+});
+
+Future<void> saveSelectedCurrency(String currencyName) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString(_currencyKey, currencyName);
+}
+
+// ─── Track income toggle ─────────────────────────────
+
+const _trackIncomeKey = 'track_income';
+
+final trackIncomeProvider = FutureProvider<bool>((ref) async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getBool(_trackIncomeKey) ?? true;
+});
+
+Future<void> saveTrackIncome(bool value) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setBool(_trackIncomeKey, value);
+}
+
+// ─── Monthly budget ──────────────────────────────────
+
+const _monthlyBudgetKey = 'monthly_budget';
+
+final monthlyBudgetProvider = FutureProvider<double?>((ref) async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getDouble(_monthlyBudgetKey);
+});
+
+Future<void> saveMonthlyBudget(double value) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setDouble(_monthlyBudgetKey, value);
+}
+
+// ─── User email ──────────────────────────────────────
+
+const _userEmailKey = 'user_email';
+
+final userEmailProvider = FutureProvider<String?>((ref) async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getString(_userEmailKey);
+});
+
+Future<void> saveUserEmail(String email) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString(_userEmailKey, email);
+}

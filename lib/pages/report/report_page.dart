@@ -41,11 +41,33 @@ final _monthCategoryTotalsProvider =
 });
 
 // ---------------------------------------------------------------------------
-// Donut chart colour palette (muted, dark-friendly)
+// Helpers
 // ---------------------------------------------------------------------------
 
 Color _colorForCategory(TransactionCategory cat) {
   return SpendlerColors.categoryColor(cat);
+}
+
+String _formatCompact(double value) {
+  if (value >= 100000) {
+    return '${(value / 100000).toStringAsFixed(1)}L';
+  } else if (value >= 1000) {
+    return '${(value / 1000).toStringAsFixed(1)}K';
+  }
+  return value.toStringAsFixed(0);
+}
+
+String _periodLabel(DateTime month, _ReportScope scope) {
+  switch (scope) {
+    case _ReportScope.week:
+      final weekStart = month.subtract(Duration(days: month.weekday - 1));
+      final weekEnd = weekStart.add(const Duration(days: 6));
+      return '${DateFormat('d MMM').format(weekStart)} - ${DateFormat('d MMM').format(weekEnd)}';
+    case _ReportScope.month:
+      return DateFormat('MMMM yyyy').format(month);
+    case _ReportScope.year:
+      return month.year.toString();
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -64,81 +86,96 @@ class _ReportPageState extends ConsumerState<ReportPage> {
 
   @override
   Widget build(BuildContext context) {
+    final scope = ref.watch(_reportScopeProvider);
+    final month = ref.watch(_reportMonthProvider);
+    final txnsAsync = ref.watch(_monthTransactionsProvider);
+
     return Scaffold(
       backgroundColor: SpendlerColors.scaffold,
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: MediaQuery.paddingOf(context).top + SpendlerSpacing.lg),
-            _buildHeader(),
-            const SizedBox(height: SpendlerSpacing.lg),
-            const _PeriodSelector(),
-            const SizedBox(height: SpendlerSpacing.lg),
-            _buildMonthNavigator(),
-            const SizedBox(height: SpendlerSpacing.xl),
-            _buildDonutSection(),
-            const SizedBox(height: SpendlerSpacing.xl),
-            const _TopCategoriesList(),
-            const SizedBox(height: SpendlerSpacing.xl),
-            const _SummaryCards(),
-            const SizedBox(height: SpendlerSpacing.xl),
-            const _TransactionList(),
-            const SizedBox(height: 100),
-          ],
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Report',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w700,
+                        color: SpendlerColors.textPrimary,
+                      ),
+                    ),
+                    IconButton(
+                      icon: PhosphorIcon(
+                        PhosphorIcons.downloadSimple(),
+                        color: SpendlerColors.textPrimary,
+                      ),
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Export coming soon')),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+
+              // Period Selector (Week / Month / Year)
+              const _PeriodSelector(),
+              const SizedBox(height: SpendlerSpacing.lg),
+
+              // Period Navigation (< May 2026 >)
+              _buildPeriodNavigator(scope, month),
+              const SizedBox(height: SpendlerSpacing.xl),
+
+              // Summary cards (Expenses / Income / Net)
+              _buildSummaryCards(txnsAsync),
+              const SizedBox(height: SpendlerSpacing.xl),
+
+              // Content: donut chart + categories or empty state
+              _buildContent(scope, month),
+
+              const SizedBox(height: 100),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  // ─── Header ────────────────────────────────────────────
+  // ─── Period Navigator ──────────────────────────────────
 
-  Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH + 4),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: () => Navigator.maybePop(context),
-            child: const Icon(
-              Icons.arrow_back_ios_new_rounded,
-              color: SpendlerColors.textSecondary,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: SpendlerSpacing.cardGap),
-          const Text(
-            'Monthly Report',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: SpendlerColors.textPrimary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ─── Month Navigator ──────────────────────────────────
-
-  Widget _buildMonthNavigator() {
-    final month = ref.watch(_reportMonthProvider);
-    final label = DateFormat('MMMM yyyy').format(month);
+  Widget _buildPeriodNavigator(_ReportScope scope, DateTime month) {
+    final label = _periodLabel(month, scope);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH + 4),
+      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           GestureDetector(
             onTap: () {
               HapticFeedback.selectionClick();
-              ref.read(_reportMonthProvider.notifier).state =
-                  DateTime(month.year, month.month - 1);
+              _navigatePeriod(-1, scope, month);
             },
-            child: const Icon(Icons.chevron_left,
-                color: SpendlerColors.textTertiary, size: 24),
+            child: Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: SpendlerColors.surface,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Center(
+                child: Icon(Icons.chevron_left,
+                    color: SpendlerColors.textTertiary, size: 22),
+              ),
+            ),
           ),
           Text(
             label,
@@ -150,21 +187,27 @@ class _ReportPageState extends ConsumerState<ReportPage> {
           ),
           GestureDetector(
             onTap: () {
-              final next = DateTime(month.year, month.month + 1);
-              if (next.isBefore(DateTime.now()) ||
-                  next.month == DateTime.now().month &&
-                      next.year == DateTime.now().year) {
+              if (_canNavigateForward(scope, month)) {
                 HapticFeedback.selectionClick();
-                ref.read(_reportMonthProvider.notifier).state = next;
+                _navigatePeriod(1, scope, month);
               }
             },
-            child: Icon(
-              Icons.chevron_right,
-              color: DateTime(month.year, month.month + 1)
-                      .isAfter(DateTime.now())
-                  ? SpendlerColors.textTertiary.withValues(alpha: 0.3)
-                  : SpendlerColors.textTertiary,
-              size: 24,
+            child: Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: SpendlerColors.surface,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(
+                child: Icon(
+                  Icons.chevron_right,
+                  color: _canNavigateForward(scope, month)
+                      ? SpendlerColors.textTertiary
+                      : SpendlerColors.textTertiary.withValues(alpha: 0.3),
+                  size: 22,
+                ),
+              ),
             ),
           ),
         ],
@@ -172,151 +215,379 @@ class _ReportPageState extends ConsumerState<ReportPage> {
     );
   }
 
-  // ─── Donut Chart ──────────────────────────────────────
+  void _navigatePeriod(int direction, _ReportScope scope, DateTime current) {
+    DateTime next;
+    switch (scope) {
+      case _ReportScope.week:
+        next = current.add(Duration(days: 7 * direction));
+      case _ReportScope.month:
+        next = DateTime(current.year, current.month + direction);
+      case _ReportScope.year:
+        next = DateTime(current.year + direction, current.month);
+    }
+    ref.read(_reportMonthProvider.notifier).state = next;
+  }
 
-  Widget _buildDonutSection() {
+  bool _canNavigateForward(_ReportScope scope, DateTime current) {
+    final now = DateTime.now();
+    switch (scope) {
+      case _ReportScope.week:
+        return current.add(const Duration(days: 7)).isBefore(now);
+      case _ReportScope.month:
+        final next = DateTime(current.year, current.month + 1);
+        return next.isBefore(now) ||
+            (next.month == now.month && next.year == now.year);
+      case _ReportScope.year:
+        return current.year < now.year;
+    }
+  }
+
+  // ─── Summary Cards ─────────────────────────────────────
+
+  Widget _buildSummaryCards(AsyncValue<List<SpendlerTransaction>> txnsAsync) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH),
+      child: txnsAsync.when(
+        data: (txns) {
+          final income = txns
+              .where((t) => t.amount > 0)
+              .fold<double>(0, (s, t) => s + t.amount);
+          final expenses = txns
+              .where((t) => t.amount < 0)
+              .fold<double>(0, (s, t) => s + t.amount.abs());
+          final net = income - expenses;
+
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _FilterCard(
+                  label: 'Expenses',
+                  amount: expenses,
+                  icon: PhosphorIcons.arrowDown(),
+                  iconColor: SpendlerColors.expense,
+                  isSelected: true,
+                ),
+                const SizedBox(width: SpendlerSpacing.sm),
+                _FilterCard(
+                  label: 'Income',
+                  amount: income,
+                  icon: PhosphorIcons.arrowUp(),
+                  iconColor: SpendlerColors.income,
+                  isSelected: false,
+                ),
+                const SizedBox(width: SpendlerSpacing.sm),
+                _FilterCard(
+                  label: 'Net',
+                  amount: net,
+                  icon: PhosphorIcons.waveSine(),
+                  iconColor: net >= 0 ? SpendlerColors.income : SpendlerColors.expense,
+                  isSelected: false,
+                  amountColor: net >= 0 ? SpendlerColors.income : SpendlerColors.expense,
+                ),
+              ],
+            ),
+          );
+        },
+        loading: () => const SizedBox(
+          height: 80,
+          child: Center(
+            child: CircularProgressIndicator(color: SpendlerColors.primary),
+          ),
+        ),
+        error: (_, _) => const SizedBox.shrink(),
+      ),
+    );
+  }
+
+  // ─── Content Area ──────────────────────────────────────
+
+  Widget _buildContent(_ReportScope scope, DateTime month) {
     final catTotals = ref.watch(_monthCategoryTotalsProvider);
+    final txnsAsync = ref.watch(_monthTransactionsProvider);
+
+    return catTotals.when(
+      data: (data) {
+        if (data.isEmpty) {
+          return _buildEmptyState(scope, month);
+        }
+
+        return Column(
+          children: [
+            _buildDonutSection(data),
+            const SizedBox(height: SpendlerSpacing.xl),
+            const _TopCategoriesList(),
+            const SizedBox(height: SpendlerSpacing.xl),
+            // Transaction count
+            txnsAsync.when(
+              data: (txns) => Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: SpendlerSpacing.screenH + 4),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    '${txns.length} transactions',
+                    style: const TextStyle(
+                      color: SpendlerColors.textTertiary,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+              loading: () => const SizedBox.shrink(),
+              error: (_, _) => const SizedBox.shrink(),
+            ),
+            const SizedBox(height: SpendlerSpacing.md),
+            const _TransactionList(),
+          ],
+        );
+      },
+      loading: () => const SizedBox(
+        height: 300,
+        child: Center(
+          child: CircularProgressIndicator(color: SpendlerColors.primary),
+        ),
+      ),
+      error: (_, _) => const SizedBox(
+        height: 300,
+        child: Center(
+          child: Text('Error loading data',
+              style: TextStyle(color: SpendlerColors.expense)),
+        ),
+      ),
+    );
+  }
+
+  // ─── Empty State ───────────────────────────────────────
+
+  Widget _buildEmptyState(_ReportScope scope, DateTime month) {
+    final String emoji;
+    final String title;
+    final String subtitle;
+
+    switch (scope) {
+      case _ReportScope.year:
+        emoji = '\u{1F4CA}'; // chart emoji
+        title = 'No data for ${month.year}';
+        subtitle = 'Your numbers are on vacation.\nStart spending (or earning) to see insights.';
+      case _ReportScope.month:
+        emoji = '\u{1F575}\u{FE0F}'; // detective emoji
+        title = 'No data for this month';
+        subtitle = 'Nothing to report yet.\nTransactions will show up here once added.';
+      case _ReportScope.week:
+        emoji = '\u{1F575}\u{FE0F}';
+        title = 'No data for this week';
+        subtitle = 'A clean slate!\nAdd some transactions to get started.';
+    }
+
+    return SizedBox(
+      height: 300,
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(emoji, style: const TextStyle(fontSize: 48)),
+            const SizedBox(height: SpendlerSpacing.md),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: SpendlerColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: SpendlerSpacing.sm),
+            Text(
+              subtitle,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 14,
+                color: SpendlerColors.textTertiary,
+                height: 1.5,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ─── Donut Chart ───────────────────────────────────────
+
+  Widget _buildDonutSection(Map<String, double> data) {
+    final sorted = data.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final totalSpent = sorted.fold<double>(0, (s, e) => s + e.value);
+
+    // Build sections
+    final sections = <PieChartSectionData>[];
+    for (int i = 0; i < sorted.length; i++) {
+      final entry = sorted[i];
+      final cat = TransactionCategory.values.firstWhere(
+        (c) => c.name == entry.key,
+        orElse: () => TransactionCategory.other,
+      );
+      final isTouched = _touchedIndex == i;
+
+      sections.add(PieChartSectionData(
+        value: entry.value,
+        color: _colorForCategory(cat),
+        radius: isTouched ? 28 : 22,
+        title: '',
+        borderSide: isTouched
+            ? BorderSide(
+                color: _colorForCategory(cat).withValues(alpha: 0.6),
+                width: 2,
+              )
+            : BorderSide.none,
+      ));
+    }
+
+    // Center label
+    String centerValue;
+    String centerLabel;
+    if (_touchedIndex != null && _touchedIndex! < sorted.length) {
+      final entry = sorted[_touchedIndex!];
+      final cat = TransactionCategory.values.firstWhere(
+        (c) => c.name == entry.key,
+        orElse: () => TransactionCategory.other,
+      );
+      final pct = (entry.value / totalSpent * 100).round();
+      centerValue = '$pct%';
+      centerLabel = cat.label;
+    } else {
+      centerValue = '\$${_formatCompact(totalSpent)}';
+      centerLabel = 'Total Spent';
+    }
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH),
       child: Container(
         padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF1E1E1E), SpendlerColors.surface],
-          ),
+          color: SpendlerColors.surface,
           borderRadius: BorderRadius.circular(SpendlerRadii.card),
           boxShadow: SpendlerShadows.card,
         ),
-        child: catTotals.when(
-          data: (data) {
-            if (data.isEmpty) {
-              return const SizedBox(
-                height: 220,
-                child: Center(
-                  child: Text(
-                    'No expenses this month.',
-                    style: SpendlerTextStyles.emptyState,
+        child: SizedBox(
+          height: 220,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              PieChart(
+                PieChartData(
+                  sections: sections,
+                  centerSpaceRadius: 64,
+                  sectionsSpace: 3,
+                  pieTouchData: PieTouchData(
+                    touchCallback: (event, response) {
+                      if (!event.isInterestedForInteractions ||
+                          response == null ||
+                          response.touchedSection == null) {
+                        setState(() => _touchedIndex = null);
+                        return;
+                      }
+                      setState(() => _touchedIndex =
+                          response.touchedSection!.touchedSectionIndex);
+                    },
                   ),
                 ),
-              );
-            }
-
-            final sorted = data.entries.toList()
-              ..sort((a, b) => b.value.compareTo(a.value));
-            final totalSpent =
-                sorted.fold<double>(0, (s, e) => s + e.value);
-
-            // Build sections
-            final sections = <PieChartSectionData>[];
-            for (int i = 0; i < sorted.length; i++) {
-              final entry = sorted[i];
-              final cat = TransactionCategory.values.firstWhere(
-                (c) => c.name == entry.key,
-                orElse: () => TransactionCategory.other,
-              );
-              final isTouched = _touchedIndex == i;
-
-              sections.add(PieChartSectionData(
-                value: entry.value,
-                color: _colorForCategory(cat),
-                radius: isTouched ? 28 : 22,
-                title: '',
-                borderSide: isTouched
-                    ? BorderSide(
-                        color: _colorForCategory(cat).withValues(alpha: 0.6),
-                        width: 2,
-                      )
-                    : BorderSide.none,
-              ));
-            }
-
-            // Center label
-            String centerValue;
-            String centerLabel;
-            if (_touchedIndex != null &&
-                _touchedIndex! < sorted.length) {
-              final entry = sorted[_touchedIndex!];
-              final cat = TransactionCategory.values.firstWhere(
-                (c) => c.name == entry.key,
-                orElse: () => TransactionCategory.other,
-              );
-              final pct = (entry.value / totalSpent * 100).round();
-              centerValue = '$pct%';
-              centerLabel = cat.label;
-            } else {
-              centerValue = '\$${_formatCompact(totalSpent)}';
-              centerLabel = 'Total Spent';
-            }
-
-            return SizedBox(
-              height: 220,
-              child: Stack(
-                alignment: Alignment.center,
+              ),
+              // Center text
+              Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  PieChart(
-                    PieChartData(
-                      sections: sections,
-                      centerSpaceRadius: 64,
-                      sectionsSpace: 3,
-                      pieTouchData: PieTouchData(
-                        touchCallback: (event, response) {
-                          if (!event.isInterestedForInteractions ||
-                              response == null ||
-                              response.touchedSection == null) {
-                            setState(() => _touchedIndex = null);
-                            return;
-                          }
-                          setState(() => _touchedIndex =
-                              response.touchedSection!.touchedSectionIndex);
-                        },
-                      ),
+                  Text(
+                    centerValue,
+                    style: TextStyle(
+                      fontSize: _touchedIndex != null ? 22 : 20,
+                      fontWeight: FontWeight.w700,
+                      color: SpendlerColors.textPrimary,
+                      fontFeatures: const [FontFeature.tabularFigures()],
                     ),
                   ),
-                  // Center text
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        centerValue,
-                        style: TextStyle(
-                          fontSize: _touchedIndex != null ? 22 : 20,
-                          fontWeight: FontWeight.w700,
-                          color: SpendlerColors.textPrimary,
-                          fontFeatures: const [FontFeature.tabularFigures()],
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        centerLabel,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: SpendlerColors.textTertiary,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
+                  const SizedBox(height: 4),
+                  Text(
+                    centerLabel,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: SpendlerColors.textTertiary,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ],
               ),
-            );
-          },
-          loading: () => const SizedBox(
-            height: 220,
-            child: Center(
-              child: CircularProgressIndicator(color: SpendlerColors.primary),
-            ),
-          ),
-          error: (_, _) => const SizedBox(
-            height: 220,
-            child: Center(
-              child: Text('Error loading data',
-                  style: TextStyle(color: SpendlerColors.expense)),
-            ),
+            ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Filter Card
+// ---------------------------------------------------------------------------
+
+class _FilterCard extends StatelessWidget {
+  const _FilterCard({
+    required this.label,
+    required this.amount,
+    required this.icon,
+    required this.iconColor,
+    required this.isSelected,
+    this.amountColor,
+  });
+
+  final String label;
+  final double amount;
+  final IconData icon;
+  final Color iconColor;
+  final bool isSelected;
+  final Color? amountColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 140,
+      padding: const EdgeInsets.all(SpendlerSpacing.cardGap),
+      decoration: BoxDecoration(
+        color: isSelected ? SpendlerColors.textPrimary : SpendlerColors.surface,
+        borderRadius: BorderRadius.circular(SpendlerRadii.button),
+        border: isSelected ? null : Border.all(color: SpendlerColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 14,
+                  color: isSelected ? Colors.white70 : iconColor),
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  color: isSelected ? Colors.white70 : SpendlerColors.textTertiary,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: SpendlerSpacing.sm),
+          Text(
+            '\$${_formatCompact(amount.abs())}',
+            style: TextStyle(
+              color: isSelected
+                  ? Colors.white
+                  : (amountColor ?? SpendlerColors.textPrimary),
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -498,128 +769,6 @@ class _TopCategoriesList extends ConsumerWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Summary Cards (Income / Expenses / Net)
-// ---------------------------------------------------------------------------
-
-class _SummaryCards extends ConsumerWidget {
-  const _SummaryCards();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final txnsAsync = ref.watch(_monthTransactionsProvider);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH),
-      child: txnsAsync.when(
-        data: (txns) {
-          final income = txns
-              .where((t) => t.amount > 0)
-              .fold<double>(0, (s, t) => s + t.amount);
-          final expenses = txns
-              .where((t) => t.amount < 0)
-              .fold<double>(0, (s, t) => s + t.amount.abs());
-          final net = income - expenses;
-
-          return Row(
-            children: [
-              Expanded(
-                child: _SummaryCard(
-                  label: 'Income',
-                  amount: income,
-                  color: SpendlerColors.income,
-                  icon: PhosphorIcons.arrowDown(),
-                ),
-              ),
-              const SizedBox(width: SpendlerSpacing.sm),
-              Expanded(
-                child: _SummaryCard(
-                  label: 'Expenses',
-                  amount: expenses,
-                  color: SpendlerColors.expense,
-                  icon: PhosphorIcons.arrowUp(),
-                ),
-              ),
-              const SizedBox(width: SpendlerSpacing.sm),
-              Expanded(
-                child: _SummaryCard(
-                  label: 'Net',
-                  amount: net,
-                  color: net >= 0 ? SpendlerColors.income : SpendlerColors.expense,
-                  icon: PhosphorIcons.equals(),
-                ),
-              ),
-            ],
-          );
-        },
-        loading: () => const SizedBox(
-          height: 100,
-          child: Center(
-            child: CircularProgressIndicator(color: SpendlerColors.primary),
-          ),
-        ),
-        error: (_, _) => const SizedBox.shrink(),
-      ),
-    );
-  }
-}
-
-class _SummaryCard extends StatelessWidget {
-  const _SummaryCard({
-    required this.label,
-    required this.amount,
-    required this.color,
-    required this.icon,
-  });
-
-  final String label;
-  final double amount;
-  final Color color;
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(SpendlerSpacing.cardGap),
-      decoration: BoxDecoration(
-        color: SpendlerColors.surface,
-        borderRadius: BorderRadius.circular(SpendlerRadii.card),
-        border: Border.all(color: SpendlerColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, size: 14, color: color),
-              const SizedBox(width: 4),
-              Text(
-                label,
-                style: TextStyle(
-                  color: color.withValues(alpha: 0.8),
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.5,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: SpendlerSpacing.sm),
-          Text(
-            '\$${_formatCompact(amount.abs())}',
-            style: const TextStyle(
-              color: SpendlerColors.textPrimary,
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              fontFeatures: [FontFeature.tabularFigures()],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
 // Transaction List (full month)
 // ---------------------------------------------------------------------------
 
@@ -781,17 +930,4 @@ class _TransactionList extends ConsumerWidget {
       ),
     );
   }
-}
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-String _formatCompact(double value) {
-  if (value >= 100000) {
-    return '${(value / 100000).toStringAsFixed(1)}L';
-  } else if (value >= 1000) {
-    return '${(value / 1000).toStringAsFixed(1)}K';
-  }
-  return value.toStringAsFixed(0);
 }

@@ -215,7 +215,7 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
                   Navigator.push(
                     context,
                     MaterialPageRoute<void>(
-                      builder: (_) => const OnboardingPage(isGuideMode: true),
+                      builder: (_) => const OnboardingPage(),
                     ),
                   );
                 },

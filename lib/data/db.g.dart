@@ -693,7 +693,8 @@ class SpendlerTransaction extends DataClass
           other.createdAt == this.createdAt);
 }
 
-class SpendlerTransactionsCompanion extends UpdateCompanion<SpendlerTransaction> {
+class SpendlerTransactionsCompanion
+    extends UpdateCompanion<SpendlerTransaction> {
   final Value<int> id;
   final Value<double> amount;
   final Value<String> category;
@@ -4097,7 +4098,6 @@ class SubscriptionsCompanion extends UpdateCompanion<Subscription> {
   }
 }
 
-
 class $CategoryBudgetsTable extends CategoryBudgets
     with TableInfo<$CategoryBudgetsTable, CategoryBudget> {
   @override
@@ -4805,6 +4805,597 @@ class SavingsGoalsCompanion extends UpdateCompanion<SavingsGoal> {
   }
 }
 
+class $UserAccountsTable extends UserAccounts
+    with TableInfo<$UserAccountsTable, UserAccount> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $UserAccountsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+    'type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, name, type, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'user_accounts';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<UserAccount> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+        _typeMeta,
+        type.isAcceptableOrUnknown(data['type']!, _typeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_typeMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  UserAccount map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return UserAccount(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      type: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}type'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $UserAccountsTable createAlias(String alias) {
+    return $UserAccountsTable(attachedDatabase, alias);
+  }
+}
+
+class UserAccount extends DataClass implements Insertable<UserAccount> {
+  final int id;
+  final String name;
+  final String type;
+  final DateTime createdAt;
+  const UserAccount({
+    required this.id,
+    required this.name,
+    required this.type,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    map['type'] = Variable<String>(type);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  UserAccountsCompanion toCompanion(bool nullToAbsent) {
+    return UserAccountsCompanion(
+      id: Value(id),
+      name: Value(name),
+      type: Value(type),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory UserAccount.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return UserAccount(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      type: serializer.fromJson<String>(json['type']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+      'type': serializer.toJson<String>(type),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  UserAccount copyWith({
+    int? id,
+    String? name,
+    String? type,
+    DateTime? createdAt,
+  }) => UserAccount(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    type: type ?? this.type,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  UserAccount copyWithCompanion(UserAccountsCompanion data) {
+    return UserAccount(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      type: data.type.present ? data.type.value : this.type,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserAccount(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('type: $type, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, type, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is UserAccount &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.type == this.type &&
+          other.createdAt == this.createdAt);
+}
+
+class UserAccountsCompanion extends UpdateCompanion<UserAccount> {
+  final Value<int> id;
+  final Value<String> name;
+  final Value<String> type;
+  final Value<DateTime> createdAt;
+  const UserAccountsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.type = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  UserAccountsCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+    required String type,
+    this.createdAt = const Value.absent(),
+  }) : name = Value(name),
+       type = Value(type);
+  static Insertable<UserAccount> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+    Expression<String>? type,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (type != null) 'type': type,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  UserAccountsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? name,
+    Value<String>? type,
+    Value<DateTime>? createdAt,
+  }) {
+    return UserAccountsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      type: type ?? this.type,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserAccountsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('type: $type, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $SmartRulesTable extends SmartRules
+    with TableInfo<$SmartRulesTable, SmartRule> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SmartRulesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _keywordMeta = const VerificationMeta(
+    'keyword',
+  );
+  @override
+  late final GeneratedColumn<String> keyword = GeneratedColumn<String>(
+    'keyword',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _categoryMeta = const VerificationMeta(
+    'category',
+  );
+  @override
+  late final GeneratedColumn<String> category = GeneratedColumn<String>(
+    'category',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, keyword, category, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'smart_rules';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SmartRule> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('keyword')) {
+      context.handle(
+        _keywordMeta,
+        keyword.isAcceptableOrUnknown(data['keyword']!, _keywordMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_keywordMeta);
+    }
+    if (data.containsKey('category')) {
+      context.handle(
+        _categoryMeta,
+        category.isAcceptableOrUnknown(data['category']!, _categoryMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_categoryMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SmartRule map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SmartRule(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      keyword: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}keyword'],
+      )!,
+      category: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}category'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $SmartRulesTable createAlias(String alias) {
+    return $SmartRulesTable(attachedDatabase, alias);
+  }
+}
+
+class SmartRule extends DataClass implements Insertable<SmartRule> {
+  final int id;
+  final String keyword;
+  final String category;
+  final DateTime createdAt;
+  const SmartRule({
+    required this.id,
+    required this.keyword,
+    required this.category,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['keyword'] = Variable<String>(keyword);
+    map['category'] = Variable<String>(category);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  SmartRulesCompanion toCompanion(bool nullToAbsent) {
+    return SmartRulesCompanion(
+      id: Value(id),
+      keyword: Value(keyword),
+      category: Value(category),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory SmartRule.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SmartRule(
+      id: serializer.fromJson<int>(json['id']),
+      keyword: serializer.fromJson<String>(json['keyword']),
+      category: serializer.fromJson<String>(json['category']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'keyword': serializer.toJson<String>(keyword),
+      'category': serializer.toJson<String>(category),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  SmartRule copyWith({
+    int? id,
+    String? keyword,
+    String? category,
+    DateTime? createdAt,
+  }) => SmartRule(
+    id: id ?? this.id,
+    keyword: keyword ?? this.keyword,
+    category: category ?? this.category,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  SmartRule copyWithCompanion(SmartRulesCompanion data) {
+    return SmartRule(
+      id: data.id.present ? data.id.value : this.id,
+      keyword: data.keyword.present ? data.keyword.value : this.keyword,
+      category: data.category.present ? data.category.value : this.category,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SmartRule(')
+          ..write('id: $id, ')
+          ..write('keyword: $keyword, ')
+          ..write('category: $category, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, keyword, category, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SmartRule &&
+          other.id == this.id &&
+          other.keyword == this.keyword &&
+          other.category == this.category &&
+          other.createdAt == this.createdAt);
+}
+
+class SmartRulesCompanion extends UpdateCompanion<SmartRule> {
+  final Value<int> id;
+  final Value<String> keyword;
+  final Value<String> category;
+  final Value<DateTime> createdAt;
+  const SmartRulesCompanion({
+    this.id = const Value.absent(),
+    this.keyword = const Value.absent(),
+    this.category = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  SmartRulesCompanion.insert({
+    this.id = const Value.absent(),
+    required String keyword,
+    required String category,
+    this.createdAt = const Value.absent(),
+  }) : keyword = Value(keyword),
+       category = Value(category);
+  static Insertable<SmartRule> custom({
+    Expression<int>? id,
+    Expression<String>? keyword,
+    Expression<String>? category,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (keyword != null) 'keyword': keyword,
+      if (category != null) 'category': category,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  SmartRulesCompanion copyWith({
+    Value<int>? id,
+    Value<String>? keyword,
+    Value<String>? category,
+    Value<DateTime>? createdAt,
+  }) {
+    return SmartRulesCompanion(
+      id: id ?? this.id,
+      keyword: keyword ?? this.keyword,
+      category: category ?? this.category,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (keyword.present) {
+      map['keyword'] = Variable<String>(keyword.value);
+    }
+    if (category.present) {
+      map['category'] = Variable<String>(category.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SmartRulesCompanion(')
+          ..write('id: $id, ')
+          ..write('keyword: $keyword, ')
+          ..write('category: $category, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
 
 abstract class _$SpendlerDatabase extends GeneratedDatabase {
   _$SpendlerDatabase(QueryExecutor e) : super(e);
@@ -4821,8 +5412,12 @@ abstract class _$SpendlerDatabase extends GeneratedDatabase {
   late final $FriendContactsTable friendContacts = $FriendContactsTable(this);
   late final $FriendSplitsTable friendSplits = $FriendSplitsTable(this);
   late final $SubscriptionsTable subscriptions = $SubscriptionsTable(this);
-  late final $CategoryBudgetsTable categoryBudgets = $CategoryBudgetsTable(this);
+  late final $CategoryBudgetsTable categoryBudgets = $CategoryBudgetsTable(
+    this,
+  );
   late final $SavingsGoalsTable savingsGoals = $SavingsGoalsTable(this);
+  late final $UserAccountsTable userAccounts = $UserAccountsTable(this);
+  late final $SmartRulesTable smartRules = $SmartRulesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -4838,6 +5433,8 @@ abstract class _$SpendlerDatabase extends GeneratedDatabase {
     subscriptions,
     categoryBudgets,
     savingsGoals,
+    userAccounts,
+    smartRules,
   ];
 }
 
@@ -5162,7 +5759,10 @@ class $$SpendlerTransactionsTableTableManager
           createFilteringComposer: () =>
               $$SpendlerTransactionsTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$SpendlerTransactionsTableOrderingComposer($db: db, $table: table),
+              $$SpendlerTransactionsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
           createComputedFieldComposer: () =>
               $$SpendlerTransactionsTableAnnotationComposer(
                 $db: db,
@@ -5460,7 +6060,11 @@ class $$FamilyEntriesTableTableManager
           $$FamilyEntriesTableUpdateCompanionBuilder,
           (
             FamilyEntry,
-            BaseReferences<_$SpendlerDatabase, $FamilyEntriesTable, FamilyEntry>,
+            BaseReferences<
+              _$SpendlerDatabase,
+              $FamilyEntriesTable,
+              FamilyEntry
+            >,
           ),
           FamilyEntry,
           PrefetchHooks Function()
@@ -5972,7 +6576,10 @@ typedef $$AppMetricsTableProcessedTableManager =
       $$AppMetricsTableAnnotationComposer,
       $$AppMetricsTableCreateCompanionBuilder,
       $$AppMetricsTableUpdateCompanionBuilder,
-      (AppMetric, BaseReferences<_$SpendlerDatabase, $AppMetricsTable, AppMetric>),
+      (
+        AppMetric,
+        BaseReferences<_$SpendlerDatabase, $AppMetricsTable, AppMetric>,
+      ),
       AppMetric,
       PrefetchHooks Function()
     >;
@@ -6614,8 +7221,10 @@ class $$FriendSplitsTableTableManager
           FriendSplit,
           PrefetchHooks Function()
         > {
-  $$FriendSplitsTableTableManager(_$SpendlerDatabase db, $FriendSplitsTable table)
-    : super(
+  $$FriendSplitsTableTableManager(
+    _$SpendlerDatabase db,
+    $FriendSplitsTable table,
+  ) : super(
         TableManagerState(
           db: db,
           table: table,
@@ -6872,7 +7481,11 @@ class $$SubscriptionsTableTableManager
           $$SubscriptionsTableUpdateCompanionBuilder,
           (
             Subscription,
-            BaseReferences<_$SpendlerDatabase, $SubscriptionsTable, Subscription>,
+            BaseReferences<
+              _$SpendlerDatabase,
+              $SubscriptionsTable,
+              Subscription
+            >,
           ),
           Subscription,
           PrefetchHooks Function()
@@ -6955,7 +7568,6 @@ typedef $$SubscriptionsTableProcessedTableManager =
       Subscription,
       PrefetchHooks Function()
     >;
-
 typedef $$CategoryBudgetsTableCreateCompanionBuilder =
     CategoryBudgetsCompanion Function({
       Value<int> id,
@@ -7134,7 +7746,11 @@ typedef $$CategoryBudgetsTableProcessedTableManager =
       $$CategoryBudgetsTableUpdateCompanionBuilder,
       (
         CategoryBudget,
-        BaseReferences<_$SpendlerDatabase, $CategoryBudgetsTable, CategoryBudget>,
+        BaseReferences<
+          _$SpendlerDatabase,
+          $CategoryBudgetsTable,
+          CategoryBudget
+        >,
       ),
       CategoryBudget,
       PrefetchHooks Function()
@@ -7288,8 +7904,10 @@ class $$SavingsGoalsTableTableManager
           SavingsGoal,
           PrefetchHooks Function()
         > {
-  $$SavingsGoalsTableTableManager(_$SpendlerDatabase db, $SavingsGoalsTable table)
-    : super(
+  $$SavingsGoalsTableTableManager(
+    _$SpendlerDatabase db,
+    $SavingsGoalsTable table,
+  ) : super(
         TableManagerState(
           db: db,
           table: table,
@@ -7356,7 +7974,358 @@ typedef $$SavingsGoalsTableProcessedTableManager =
       SavingsGoal,
       PrefetchHooks Function()
     >;
+typedef $$UserAccountsTableCreateCompanionBuilder =
+    UserAccountsCompanion Function({
+      Value<int> id,
+      required String name,
+      required String type,
+      Value<DateTime> createdAt,
+    });
+typedef $$UserAccountsTableUpdateCompanionBuilder =
+    UserAccountsCompanion Function({
+      Value<int> id,
+      Value<String> name,
+      Value<String> type,
+      Value<DateTime> createdAt,
+    });
 
+class $$UserAccountsTableFilterComposer
+    extends Composer<_$SpendlerDatabase, $UserAccountsTable> {
+  $$UserAccountsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$UserAccountsTableOrderingComposer
+    extends Composer<_$SpendlerDatabase, $UserAccountsTable> {
+  $$UserAccountsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$UserAccountsTableAnnotationComposer
+    extends Composer<_$SpendlerDatabase, $UserAccountsTable> {
+  $$UserAccountsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$UserAccountsTableTableManager
+    extends
+        RootTableManager<
+          _$SpendlerDatabase,
+          $UserAccountsTable,
+          UserAccount,
+          $$UserAccountsTableFilterComposer,
+          $$UserAccountsTableOrderingComposer,
+          $$UserAccountsTableAnnotationComposer,
+          $$UserAccountsTableCreateCompanionBuilder,
+          $$UserAccountsTableUpdateCompanionBuilder,
+          (
+            UserAccount,
+            BaseReferences<_$SpendlerDatabase, $UserAccountsTable, UserAccount>,
+          ),
+          UserAccount,
+          PrefetchHooks Function()
+        > {
+  $$UserAccountsTableTableManager(
+    _$SpendlerDatabase db,
+    $UserAccountsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$UserAccountsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$UserAccountsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$UserAccountsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> type = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => UserAccountsCompanion(
+                id: id,
+                name: name,
+                type: type,
+                createdAt: createdAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String name,
+                required String type,
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => UserAccountsCompanion.insert(
+                id: id,
+                name: name,
+                type: type,
+                createdAt: createdAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$UserAccountsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SpendlerDatabase,
+      $UserAccountsTable,
+      UserAccount,
+      $$UserAccountsTableFilterComposer,
+      $$UserAccountsTableOrderingComposer,
+      $$UserAccountsTableAnnotationComposer,
+      $$UserAccountsTableCreateCompanionBuilder,
+      $$UserAccountsTableUpdateCompanionBuilder,
+      (
+        UserAccount,
+        BaseReferences<_$SpendlerDatabase, $UserAccountsTable, UserAccount>,
+      ),
+      UserAccount,
+      PrefetchHooks Function()
+    >;
+typedef $$SmartRulesTableCreateCompanionBuilder =
+    SmartRulesCompanion Function({
+      Value<int> id,
+      required String keyword,
+      required String category,
+      Value<DateTime> createdAt,
+    });
+typedef $$SmartRulesTableUpdateCompanionBuilder =
+    SmartRulesCompanion Function({
+      Value<int> id,
+      Value<String> keyword,
+      Value<String> category,
+      Value<DateTime> createdAt,
+    });
+
+class $$SmartRulesTableFilterComposer
+    extends Composer<_$SpendlerDatabase, $SmartRulesTable> {
+  $$SmartRulesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get keyword => $composableBuilder(
+    column: $table.keyword,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SmartRulesTableOrderingComposer
+    extends Composer<_$SpendlerDatabase, $SmartRulesTable> {
+  $$SmartRulesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get keyword => $composableBuilder(
+    column: $table.keyword,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SmartRulesTableAnnotationComposer
+    extends Composer<_$SpendlerDatabase, $SmartRulesTable> {
+  $$SmartRulesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get keyword =>
+      $composableBuilder(column: $table.keyword, builder: (column) => column);
+
+  GeneratedColumn<String> get category =>
+      $composableBuilder(column: $table.category, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$SmartRulesTableTableManager
+    extends
+        RootTableManager<
+          _$SpendlerDatabase,
+          $SmartRulesTable,
+          SmartRule,
+          $$SmartRulesTableFilterComposer,
+          $$SmartRulesTableOrderingComposer,
+          $$SmartRulesTableAnnotationComposer,
+          $$SmartRulesTableCreateCompanionBuilder,
+          $$SmartRulesTableUpdateCompanionBuilder,
+          (
+            SmartRule,
+            BaseReferences<_$SpendlerDatabase, $SmartRulesTable, SmartRule>,
+          ),
+          SmartRule,
+          PrefetchHooks Function()
+        > {
+  $$SmartRulesTableTableManager(_$SpendlerDatabase db, $SmartRulesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SmartRulesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SmartRulesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SmartRulesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> keyword = const Value.absent(),
+                Value<String> category = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => SmartRulesCompanion(
+                id: id,
+                keyword: keyword,
+                category: category,
+                createdAt: createdAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String keyword,
+                required String category,
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => SmartRulesCompanion.insert(
+                id: id,
+                keyword: keyword,
+                category: category,
+                createdAt: createdAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SmartRulesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SpendlerDatabase,
+      $SmartRulesTable,
+      SmartRule,
+      $$SmartRulesTableFilterComposer,
+      $$SmartRulesTableOrderingComposer,
+      $$SmartRulesTableAnnotationComposer,
+      $$SmartRulesTableCreateCompanionBuilder,
+      $$SmartRulesTableUpdateCompanionBuilder,
+      (
+        SmartRule,
+        BaseReferences<_$SpendlerDatabase, $SmartRulesTable, SmartRule>,
+      ),
+      SmartRule,
+      PrefetchHooks Function()
+    >;
 
 class $SpendlerDatabaseManager {
   final _$SpendlerDatabase _db;
@@ -7381,4 +8350,8 @@ class $SpendlerDatabaseManager {
       $$CategoryBudgetsTableTableManager(_db, _db.categoryBudgets);
   $$SavingsGoalsTableTableManager get savingsGoals =>
       $$SavingsGoalsTableTableManager(_db, _db.savingsGoals);
+  $$UserAccountsTableTableManager get userAccounts =>
+      $$UserAccountsTableTableManager(_db, _db.userAccounts);
+  $$SmartRulesTableTableManager get smartRules =>
+      $$SmartRulesTableTableManager(_db, _db.smartRules);
 }

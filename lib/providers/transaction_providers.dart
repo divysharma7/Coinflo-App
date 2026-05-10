@@ -177,6 +177,41 @@ final weeklyTotalSpentProvider =
       txns.where((t) => t.amount < 0).fold<double>(0, (s, t) => s + t.amount.abs()));
 });
 
+// ─── Home screen providers ────────────────────────────
+
+/// All transactions for the selected month (home page).
+final monthlyTransactionsForHomeProvider =
+    FutureProvider.autoDispose<List<SpendlerTransaction>>((ref) {
+  final repo = ref.watch(repositoryProvider);
+  final month = ref.watch(selectedMonthProvider);
+  return repo.getTransactionsForMonth(month);
+});
+
+/// Current all-time balance (sum of all amounts).
+final currentBalanceProvider = Provider.autoDispose<AsyncValue<double>>((ref) {
+  return ref.watch(allTransactionsProvider).whenData(
+        (txns) => txns.fold<double>(0, (sum, t) => sum + t.amount),
+      );
+});
+
+/// Monthly income (sum of positive amounts) for selected month.
+final monthlyIncomeProvider = Provider.autoDispose<AsyncValue<double>>((ref) {
+  return ref.watch(monthlyTransactionsForHomeProvider).whenData(
+        (txns) => txns
+            .where((t) => t.amount > 0)
+            .fold<double>(0, (s, t) => s + t.amount),
+      );
+});
+
+/// Monthly expense (abs sum of negative amounts) for selected month.
+final monthlyExpenseProvider = Provider.autoDispose<AsyncValue<double>>((ref) {
+  return ref.watch(monthlyTransactionsForHomeProvider).whenData(
+        (txns) => txns
+            .where((t) => t.amount < 0)
+            .fold<double>(0, (s, t) => s + t.amount.abs()),
+      );
+});
+
 // ─── Mutation helpers ───────────────────────────────
 
 /// Insert a manually entered transaction.

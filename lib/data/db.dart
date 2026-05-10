@@ -114,6 +114,20 @@ class SavingsGoals extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
+class UserAccounts extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text()();
+  TextColumn get type => text()(); // cash, bank, creditCard, digitalWallet
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+class SmartRules extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get keyword => text()();
+  TextColumn get category => text()(); // TransactionCategory name
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
 // ─── Database ─────────────────────────────────────────
 
 @DriftDatabase(tables: [
@@ -127,12 +141,14 @@ class SavingsGoals extends Table {
   Subscriptions,
   CategoryBudgets,
   SavingsGoals,
+  UserAccounts,
+  SmartRules,
 ])
 class SpendlerDatabase extends _$SpendlerDatabase {
   SpendlerDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -153,6 +169,10 @@ class SpendlerDatabase extends _$SpendlerDatabase {
           if (from < 5) {
             await m.createTable(categoryBudgets);
             await m.createTable(savingsGoals);
+          }
+          if (from < 6) {
+            await m.createTable(userAccounts);
+            await m.createTable(smartRules);
           }
         },
       );
