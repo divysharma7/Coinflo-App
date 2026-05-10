@@ -156,11 +156,11 @@ class _UserBubble extends StatelessWidget {
             vertical: SpendlerSpacing.cardGap,
           ),
           decoration: const BoxDecoration(
-            color: Color(0xFF000000),
+            color: SpendlerColors.primary,
             borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(16),
-              topRight: Radius.circular(16),
-              bottomLeft: Radius.circular(16),
+              topLeft: Radius.circular(SpendlerRadii.card),
+              topRight: Radius.circular(SpendlerRadii.card),
+              bottomLeft: Radius.circular(SpendlerRadii.card),
               bottomRight: Radius.zero, // squared corner
             ),
             border: Border.fromBorderSide(
@@ -199,7 +199,7 @@ class _AssistantBubble extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(SpendlerSpacing.md),
         decoration: BoxDecoration(
-          color: const Color(0xFFF5F5F7),
+          color: SpendlerColors.scaffold,
           borderRadius: BorderRadius.circular(SpendlerRadii.card),
         ),
         child: _MarkdownText(text: text),
@@ -237,7 +237,7 @@ class _MarkdownText extends StatelessWidget {
             children: [
               const Padding(
                 padding: EdgeInsets.only(top: 7),
-                child: Icon(Icons.circle, size: 5, color: Color(0xFF333333)),
+                child: Icon(Icons.circle, size: 5, color: SpendlerColors.textPrimary),
               ),
               const SizedBox(width: 8),
               Expanded(child: _buildRichLine(content)),
@@ -260,7 +260,7 @@ class _MarkdownText extends StatelessWidget {
               Text(
                 '$number.',
                 style: const TextStyle(
-                  color: Color(0xFF333333),
+                  color: SpendlerColors.textPrimary,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                   height: 1.5,
@@ -334,7 +334,7 @@ class _MarkdownText extends StatelessWidget {
   }
 
   static const _baseStyle = TextStyle(
-    color: Color(0xFF1A1A1A),
+    color: SpendlerColors.textPrimary,
     fontSize: 14,
     fontWeight: FontWeight.w400,
     height: 1.5,
@@ -380,7 +380,7 @@ class _TypingIndicatorState extends State<_TypingIndicator>
         width: double.infinity,
         padding: const EdgeInsets.all(SpendlerSpacing.md),
         decoration: BoxDecoration(
-          color: const Color(0xFFF5F5F7),
+          color: SpendlerColors.scaffold,
           borderRadius: BorderRadius.circular(SpendlerRadii.card),
         ),
         child: AnimatedBuilder(
@@ -400,7 +400,7 @@ class _TypingIndicatorState extends State<_TypingIndicator>
                       width: 8,
                       height: 8,
                       decoration: const BoxDecoration(
-                        color: Color(0xFF999999),
+                        color: SpendlerColors.textTertiary,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -491,7 +491,7 @@ class _InputBar extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isProcessing
                     ? SpendlerColors.surfaceHigh
-                    : const Color(0xFF000000),
+                    : SpendlerColors.primary,
                 shape: BoxShape.circle,
                 border: Border.all(color: SpendlerColors.border, width: 1),
               ),

@@ -78,7 +78,7 @@ class _ProfileHeader extends ConsumerWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SizedBox(height: MediaQuery.paddingOf(context).top + 16),
+          SizedBox(height: MediaQuery.paddingOf(context).top + SpendlerSpacing.md),
           // Avatar
           CircleAvatar(
             radius: 28,
@@ -92,16 +92,16 @@ class _ProfileHeader extends ConsumerWidget {
               ),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: SpendlerSpacing.sm),
           // Name
           Text(
             name.isNotEmpty ? name : 'Hey there',
             style: SpendlerTextStyles.greeting,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: SpendlerSpacing.md),
           // Health Ring
           HealthRing(progress: progress ?? 0.0, size: 120),
-          const SizedBox(height: 8),
+          const SizedBox(height: SpendlerSpacing.sm),
           // Status text
           if (progress != null)
             Text(
@@ -304,7 +304,7 @@ class _MonthlyPaceCard extends ConsumerWidget {
                 const SizedBox(height: SpendlerSpacing.cardGap),
                 // Progress bar
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(3),
+                  borderRadius: BorderRadius.circular(SpendlerRadii.progressBar),
                   child: LinearProgressIndicator(
                     value: (spentSoFar / targetValue).clamp(0.0, 1.0),
                     backgroundColor: SpendlerColors.border,
@@ -426,7 +426,7 @@ class _MiniCardsRow extends ConsumerWidget {
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: SpendlerSpacing.cardGap),
           // Right card: Pattern
           Expanded(
             child: Container(

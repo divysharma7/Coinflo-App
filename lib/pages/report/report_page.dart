@@ -95,7 +95,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
 
   Widget _buildHeader() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH + 4),
+      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH),
       child: Row(
         children: [
           GestureDetector(
@@ -127,7 +127,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
     final label = DateFormat('MMMM yyyy').format(month);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH + 4),
+      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -392,7 +392,7 @@ class _TopCategoriesList extends ConsumerWidget {
     final catTotals = ref.watch(_monthCategoryTotalsProvider);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH + 4),
+      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -433,7 +433,7 @@ class _TopCategoriesList extends ConsumerWidget {
                           height: 36,
                           decoration: BoxDecoration(
                             color: catColor.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(SpendlerRadii.button),
                           ),
                           child: Center(
                             child: Icon(
@@ -631,7 +631,7 @@ class _TransactionList extends ConsumerWidget {
     final txnsAsync = ref.watch(_monthTransactionsProvider);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH + 4),
+      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -711,7 +711,7 @@ class _TransactionList extends ConsumerWidget {
                                 height: 36,
                                 decoration: BoxDecoration(
                                   color: catColor.withValues(alpha: 0.12),
-                                  borderRadius: BorderRadius.circular(10),
+                                  borderRadius: BorderRadius.circular(SpendlerRadii.button),
                                 ),
                                 child: Center(
                                   child: Icon(cat.icon, size: 16,

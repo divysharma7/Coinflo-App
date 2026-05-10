@@ -22,7 +22,7 @@ class PeoplePage extends ConsumerWidget {
       length: 2,
       child: Column(
         children: [
-          SizedBox(height: MediaQuery.paddingOf(context).top + 16),
+          SizedBox(height: MediaQuery.paddingOf(context).top + SpendlerSpacing.md),
           // Header row
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH),
@@ -38,7 +38,7 @@ class PeoplePage extends ConsumerWidget {
                     height: 32,
                     decoration: BoxDecoration(
                       color: SpendlerColors.primary.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(SpendlerRadii.button),
                     ),
                     child: PhosphorIcon(
                       PhosphorIcons.plus(),
@@ -166,7 +166,7 @@ class _AddOptionTile extends StatelessWidget {
               height: 40,
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(SpendlerRadii.button),
               ),
               child: PhosphorIcon(icon, color: color, size: 20),
             ),
@@ -331,7 +331,7 @@ class _FriendCard extends ConsumerWidget {
         children: [
           // Header
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+            padding: const EdgeInsets.fromLTRB(SpendlerSpacing.cardPadding, SpendlerSpacing.cardPadding, SpendlerSpacing.cardPadding, SpendlerSpacing.cardGap),
             child: Row(
               children: [
                 Container(
@@ -373,7 +373,7 @@ class _FriendCard extends ConsumerWidget {
               if (theyOwe == 0 && iOwe == 0) {
                 return Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.cardPadding, vertical: 14),
                   decoration: BoxDecoration(
                     color: SpendlerColors.income.withValues(alpha: 0.06),
                     borderRadius: const BorderRadius.vertical(bottom: Radius.circular(SpendlerRadii.card)),
@@ -390,7 +390,7 @@ class _FriendCard extends ConsumerWidget {
               }
 
               return Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                padding: const EdgeInsets.fromLTRB(SpendlerSpacing.cardPadding, 0, SpendlerSpacing.cardPadding, SpendlerSpacing.cardPadding),
                 child: Column(
                   children: [
                     if (iOwe > 0)
@@ -427,7 +427,7 @@ class _FriendCard extends ConsumerWidget {
                 ),
               );
             },
-            loading: () => const Padding(padding: EdgeInsets.all(16), child: Center(child: CircularProgressIndicator(color: SpendlerColors.primary, strokeWidth: 2))),
+            loading: () => const Padding(padding: EdgeInsets.all(SpendlerSpacing.cardPadding), child: Center(child: CircularProgressIndicator(color: SpendlerColors.primary, strokeWidth: 2))),
             error: (_, _) => const SizedBox.shrink(),
           ),
         ],
@@ -681,7 +681,7 @@ class _FamilyList extends StatelessWidget {
                       Container(
                         width: 36,
                         height: 36,
-                        decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10)),
+                        decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(SpendlerRadii.button)),
                         child: Icon(icon, color: color, size: 18),
                       ),
                       const SizedBox(width: 12),
@@ -727,7 +727,7 @@ class _BalanceBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(color: color.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(10)),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(SpendlerRadii.button)),
       child: Row(
         children: [
           PhosphorIcon(icon, size: 16, color: color),

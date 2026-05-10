@@ -53,7 +53,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
             ),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: SpendlerSpacing.sm),
 
         // Expense/Income toggle
         SegmentedButton<bool>(
@@ -84,7 +84,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                   color: selected
                       ? catColor.withValues(alpha: 0.2)
                       : SpendlerColors.surfaceSecondary,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(SpendlerRadii.button),
                   border: selected
                       ? Border.all(color: catColor, width: 2)
                       : null,
@@ -169,7 +169,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
       crossAxisSpacing: 4,
       children: keys.map((key) {
         return InkWell(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(SpendlerRadii.button),
           onTap: () {
             setState(() {
               if (key == '⌫') {
@@ -186,7 +186,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
           child: Container(
             decoration: BoxDecoration(
               color: SpendlerColors.surfaceSecondary,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(SpendlerRadii.button),
             ),
             child: Center(
               child: Text(

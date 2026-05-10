@@ -40,7 +40,7 @@ class HomePage extends ConsumerWidget {
             delay: const Duration(milliseconds: 380),
             child: Padding(
               padding: const EdgeInsets.symmetric(
-                horizontal: SpendlerSpacing.screenH + 4,
+                horizontal: SpendlerSpacing.screenH,
                 vertical: SpendlerSpacing.sm,
               ),
               child: GestureDetector(
@@ -83,7 +83,7 @@ class HomePage extends ConsumerWidget {
             delay: const Duration(milliseconds: 390),
             child: Padding(
               padding: const EdgeInsets.symmetric(
-                horizontal: SpendlerSpacing.screenH + 4,
+                horizontal: SpendlerSpacing.screenH,
                 vertical: SpendlerSpacing.sm,
               ),
               child: GestureDetector(
@@ -118,7 +118,7 @@ class HomePage extends ConsumerWidget {
             delay: const Duration(milliseconds: 395),
             child: Padding(
               padding: const EdgeInsets.symmetric(
-                horizontal: SpendlerSpacing.screenH + 4,
+                horizontal: SpendlerSpacing.screenH,
                 vertical: SpendlerSpacing.sm,
               ),
               child: GestureDetector(
@@ -179,7 +179,7 @@ class HomePage extends ConsumerWidget {
           if (DateTime.now().weekday == DateTime.sunday)
             Padding(
               padding: const EdgeInsets.symmetric(
-                horizontal: SpendlerSpacing.screenH + 4,
+                horizontal: SpendlerSpacing.screenH,
                 vertical: SpendlerSpacing.lg,
               ),
               child: GestureDetector(
@@ -247,9 +247,9 @@ class _GreetingSection extends ConsumerWidget {
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        SpendlerSpacing.screenH + 4,
+        SpendlerSpacing.screenH,
         MediaQuery.paddingOf(context).top + SpendlerSpacing.lg,
-        SpendlerSpacing.screenH + 4,
+        SpendlerSpacing.screenH,
         0,
       ),
       child: Column(
@@ -333,7 +333,7 @@ class _WeeklyHeroSection extends ConsumerWidget {
     final delta = ref.watch(weekOverWeekDeltaProvider);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH + 4),
+      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -479,7 +479,7 @@ class _CategoryBreakdownSection extends ConsumerWidget {
     final merchantCounts = ref.watch(weeklyMerchantCountsProvider);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH + 4),
+      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -570,7 +570,7 @@ class _CategoryBreakdownSection extends ConsumerWidget {
                               ),
                               const SizedBox(height: 6),
                               ClipRRect(
-                                borderRadius: BorderRadius.circular(2),
+                                borderRadius: BorderRadius.circular(SpendlerRadii.progressBar),
                                 child: LinearProgressIndicator(
                                   value: pct,
                                   backgroundColor: SpendlerColors.border,
@@ -624,9 +624,9 @@ class _ActionNeededSection extends ConsumerWidget {
         if (list.isEmpty) return const SizedBox.shrink();
         return Padding(
           padding: const EdgeInsets.fromLTRB(
-            SpendlerSpacing.screenH + 4,
+            SpendlerSpacing.screenH,
             0,
-            SpendlerSpacing.screenH + 4,
+            SpendlerSpacing.screenH,
             SpendlerSpacing.xl,
           ),
           child: Column(
@@ -700,7 +700,7 @@ class _WeeklyInsightSection extends ConsumerWidget {
 
         return Padding(
           padding: const EdgeInsets.symmetric(
-              horizontal: SpendlerSpacing.screenH + 4),
+              horizontal: SpendlerSpacing.screenH),
           child: Text(insight, style: SpendlerTextStyles.insightBody),
         );
       },

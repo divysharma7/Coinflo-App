@@ -232,7 +232,7 @@ class _Card2State extends State<_Card2ThePattern>
                           const SizedBox(height: 4),
                           // Bar
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(2),
+                            borderRadius: BorderRadius.circular(SpendlerRadii.progressBar),
                             child: LinearProgressIndicator(
                               value: pct,
                               backgroundColor: SpendlerColors.border,
