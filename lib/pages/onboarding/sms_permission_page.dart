@@ -168,7 +168,10 @@ class _SmsPermissionPageState extends State<SmsPermissionPage> {
     return Scaffold(
       backgroundColor: SpendlerColors.scaffold,
       body: SafeArea(
-        child: Padding(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: Padding(
           padding: const EdgeInsets.all(SpendlerSpacing.xl),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -244,6 +247,8 @@ class _SmsPermissionPageState extends State<SmsPermissionPage> {
               ),
               const SizedBox(height: SpendlerSpacing.md),
             ],
+          ),
+          ),
           ),
         ),
       ),

@@ -20,7 +20,10 @@ class DailyViewPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text(dayName)),
-      body: txns.when(
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 700),
+          child: txns.when(
         data: (list) {
           if (list.isEmpty) {
             return const EmptyState(
@@ -82,6 +85,8 @@ class DailyViewPage extends ConsumerWidget {
         ),
         error: (_, _) => const Center(
           child: Text('Error loading', style: TextStyle(color: SpendlerColors.expense)),
+        ),
+          ),
         ),
       ),
     );

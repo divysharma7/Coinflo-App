@@ -35,7 +35,10 @@ class _SundayDigestPageState extends ConsumerState<SundayDigestPage> {
     return Scaffold(
       backgroundColor: SpendlerColors.scaffold,
       body: SafeArea(
-        child: ref.watch(weeklyCategoryTotalsProvider).when(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: ref.watch(weeklyCategoryTotalsProvider).when(
           data: (sortedCats) {
             final totalSpent = ref.watch(weeklyTotalSpentProvider).valueOrNull ?? 0.0;
 
@@ -104,11 +107,12 @@ class _SundayDigestPageState extends ConsumerState<SundayDigestPage> {
           error: (_, _) => const Center(
             child: Text('Error', style: TextStyle(color: SpendlerColors.expense)),
           ),
+          ),
+          ),
         ),
       ),
     );
   }
-
 }
 
 // ─── Card 1: The Number ──────────────────────────────

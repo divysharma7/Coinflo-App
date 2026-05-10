@@ -92,57 +92,30 @@ class _ReportPageState extends ConsumerState<ReportPage> {
 
     return Scaffold(
       backgroundColor: SpendlerColors.scaffold,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Report',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w700,
-                        color: SpendlerColors.textPrimary,
-                      ),
-                    ),
-                    IconButton(
-                      icon: PhosphorIcon(
-                        PhosphorIcons.downloadSimple(),
-                        color: SpendlerColors.textPrimary,
-                      ),
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Export coming soon')),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-
-              // Period Selector (Week / Month / Year)
-              const _PeriodSelector(),
-              const SizedBox(height: SpendlerSpacing.lg),
-
-              // Period Navigation (< May 2026 >)
-              _buildPeriodNavigator(scope, month),
-              const SizedBox(height: SpendlerSpacing.xl),
-
-              // Summary cards (Expenses / Income / Net)
-              _buildSummaryCards(txnsAsync),
-              const SizedBox(height: SpendlerSpacing.xl),
-
-              // Content: donut chart + categories or empty state
-              _buildContent(scope, month),
-
-              const SizedBox(height: 100),
-            ],
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 700),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: MediaQuery.paddingOf(context).top + SpendlerSpacing.lg),
+                _buildHeader(),
+                const SizedBox(height: SpendlerSpacing.lg),
+                const _PeriodSelector(),
+                const SizedBox(height: SpendlerSpacing.lg),
+                _buildMonthNavigator(),
+                const SizedBox(height: SpendlerSpacing.xl),
+                _buildDonutSection(),
+                const SizedBox(height: SpendlerSpacing.xl),
+                const _TopCategoriesList(),
+                const SizedBox(height: SpendlerSpacing.xl),
+                const _SummaryCards(),
+                const SizedBox(height: SpendlerSpacing.xl),
+                const _TransactionList(),
+                const SizedBox(height: 100),
+              ],
+            ),
           ),
         ),
       ),
@@ -493,32 +466,126 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                     },
                   ),
                 ),
-              ),
-              // Center text
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    centerValue,
-                    style: TextStyle(
-                      fontSize: _touchedIndex != null ? 22 : 20,
-                      fontWeight: FontWeight.w700,
-                      color: SpendlerColors.textPrimary,
-                      fontFeatures: const [FontFeature.tabularFigures()],
-                    ),
+              );
+            }
+
+            final sorted = data.entries.toList()
+              ..sort((a, b) => b.value.compareTo(a.value));
+            final totalSpent =
+                sorted.fold<double>(0, (s, e) => s + e.value);
+
+            // Build sections
+            final sections = <PieChartSectionData>[];
+            for (int i = 0; i < sorted.length; i++) {
+              final entry = sorted[i];
+              final cat = TransactionCategory.values.firstWhere(
+                (c) => c.name == entry.key,
+                orElse: () => TransactionCategory.other,
+              );
+              final isTouched = _touchedIndex == i;
+
+              sections.add(PieChartSectionData(
+                value: entry.value,
+                color: _colorForCategory(cat),
+                radius: isTouched ? 28 : 22,
+                title: '',
+                borderSide: isTouched
+                    ? BorderSide(
+                        color: _colorForCategory(cat).withValues(alpha: 0.6),
+                        width: 2,
+                      )
+                    : BorderSide.none,
+              ));
+            }
+
+            // Center label
+            String centerValue;
+            String centerLabel;
+            if (_touchedIndex != null &&
+                _touchedIndex! < sorted.length) {
+              final entry = sorted[_touchedIndex!];
+              final cat = TransactionCategory.values.firstWhere(
+                (c) => c.name == entry.key,
+                orElse: () => TransactionCategory.other,
+              );
+              final pct = (entry.value / totalSpent * 100).round();
+              centerValue = '$pct%';
+              centerLabel = cat.label;
+            } else {
+              centerValue = '\$${_formatCompact(totalSpent)}';
+              centerLabel = 'Total Spent';
+            }
+
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                final chartSize = constraints.maxWidth.clamp(200.0, 320.0);
+                final centerRadius = (chartSize * 0.25).clamp(40.0, 80.0);
+                return SizedBox(
+                  height: chartSize * 0.7,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      PieChart(
+                        PieChartData(
+                          sections: sections,
+                          centerSpaceRadius: centerRadius,
+                          sectionsSpace: 3,
+                          pieTouchData: PieTouchData(
+                            touchCallback: (event, response) {
+                              if (!event.isInterestedForInteractions ||
+                                  response == null ||
+                                  response.touchedSection == null) {
+                                setState(() => _touchedIndex = null);
+                                return;
+                              }
+                              setState(() => _touchedIndex =
+                                  response.touchedSection!.touchedSectionIndex);
+                            },
+                          ),
+                        ),
+                      ),
+                      // Center text
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            centerValue,
+                            style: TextStyle(
+                              fontSize: _touchedIndex != null ? 22 : 20,
+                              fontWeight: FontWeight.w700,
+                              color: SpendlerColors.textPrimary,
+                              fontFeatures: const [FontFeature.tabularFigures()],
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            centerLabel,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: SpendlerColors.textTertiary,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    centerLabel,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: SpendlerColors.textTertiary,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+                );
+              },
+            );
+          },
+          loading: () => const SizedBox(
+            height: 220,
+            child: Center(
+              child: CircularProgressIndicator(color: SpendlerColors.primary),
+            ),
+          ),
+          error: (_, _) => const SizedBox(
+            height: 220,
+            child: Center(
+              child: Text('Error loading data',
+                  style: TextStyle(color: SpendlerColors.expense)),
+            ),
           ),
         ),
       ),
