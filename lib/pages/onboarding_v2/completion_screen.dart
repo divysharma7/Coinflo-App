@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:finance_buddy_app/design_system/design_system.dart';
+import 'package:finance_buddy_app/pages/shell_page.dart';
 
 class CompletionScreen extends StatefulWidget {
   const CompletionScreen({super.key});
@@ -82,11 +83,10 @@ class _CompletionScreenState extends State<CompletionScreen>
 
   Future<void> _onCreateAccount() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('onboarding_complete', true);
+    await prefs.setBool('onboarding_completed', true);
     if (mounted) {
-      await Navigator.pushNamedAndRemoveUntil(
-        context,
-        '/',
+      await Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute<void>(builder: (_) => const ShellPage()),
         (route) => false,
       );
     }

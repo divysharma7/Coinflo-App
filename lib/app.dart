@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:finance_buddy_app/core/theme.dart';
 import 'package:finance_buddy_app/pages/splash/splash_page.dart';
-import 'package:finance_buddy_app/pages/shell_page.dart';
 import 'package:finance_buddy_app/pages/onboarding_v2/currency_selection_screen.dart';
 import 'package:finance_buddy_app/pages/onboarding_v2/add_accounts_screen.dart';
 import 'package:finance_buddy_app/pages/onboarding_v2/monthly_budget_screen.dart';
@@ -32,7 +31,6 @@ class SpendlerApp extends StatelessWidget {
         darkTheme: SpendlerTheme.lightTheme,
         home: const SplashPage(),
         routes: {
-          '/': (_) => const ShellPage(),
           '/onboarding/step1': (_) => const CurrencySelectionScreen(),
           '/onboarding/step2': (_) => const AddAccountsScreen(),
           '/onboarding/step3': (_) => const MonthlyBudgetScreen(),

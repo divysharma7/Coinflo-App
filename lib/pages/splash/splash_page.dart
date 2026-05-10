@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:finance_buddy_app/core/tokens.dart';
+import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/providers/onboarding_provider.dart';
 import 'package:finance_buddy_app/pages/onboarding_v2/currency_selection_screen.dart';
 import 'package:finance_buddy_app/pages/shell_page.dart';
@@ -68,7 +68,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
       context,
       PageRouteBuilder<void>(
         pageBuilder: (context, animation, secondaryAnimation) => destination,
-        transitionDuration: SpendlerMotion.transition,
+        transitionDuration: AppDurations.slow,
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(opacity: animation, child: child);
         },
@@ -86,56 +86,55 @@ class _SplashPageState extends ConsumerState<SplashPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: SpendlerColors.scaffold,
+      backgroundColor: AppColors.white,
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Animated ECG waveform in yellow circle
+            // App icon — black rounded square with checkmark
             AnimatedBuilder(
               animation: _waveAnim,
               builder: (context, _) {
-                return Container(
-                  width: 120,
-                  height: 120,
-                  decoration: const BoxDecoration(
-                    color: SpendlerColors.primary,
-                    shape: BoxShape.circle,
-                  ),
-                  child: ClipOval(
-                    child: CustomPaint(
-                      painter: _WaveformPainter(progress: _waveAnim.value),
-                      size: const Size(120, 120),
+                return Transform.scale(
+                  scale: _waveAnim.value,
+                  child: Container(
+                    width: 80,
+                    height: 80,
+                    decoration: const BoxDecoration(
+                      color: AppColors.black,
+                      borderRadius: AppRadius.xl,
+                    ),
+                    child: const Icon(
+                      Icons.attach_money,
+                      size: 40,
+                      color: AppColors.white,
                     ),
                   ),
                 );
               },
             ),
-            const SizedBox(height: SpendlerSpacing.lg),
+            const SizedBox(height: AppSpacing.xl),
 
-            // PULSE wordmark
+            // Wordmark
             FadeTransition(
               opacity: _wordmarkFade,
               child: Text(
                 'SPENDLER',
-                style: SpendlerTextStyles.heroAmount.copyWith(
-                  fontSize: 28,
-                  color: SpendlerColors.primary,
+                style: AppTextStyles.headingL.copyWith(
+                  color: AppColors.black,
                   letterSpacing: 4,
                 ),
               ),
             ),
-            const SizedBox(height: SpendlerSpacing.sm),
+            const SizedBox(height: AppSpacing.xs),
 
             // Tagline
             FadeTransition(
               opacity: _taglineFade,
-              child: const Text(
+              child: Text(
                 'Track your spending habits.',
-                style: TextStyle(
-                  color: SpendlerColors.textSecondary,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
+                style: AppTextStyles.bodyM.copyWith(
+                  color: AppColors.gray500,
                 ),
               ),
             ),
@@ -146,54 +145,3 @@ class _SplashPageState extends ConsumerState<SplashPage>
   }
 }
 
-/// Draws an ECG/heartbeat waveform that reveals left-to-right.
-class _WaveformPainter extends CustomPainter {
-  final double progress; // 0..1
-
-  _WaveformPainter({required this.progress});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.black
-      ..strokeWidth = size.width * 0.06
-      ..strokeCap = StrokeCap.round
-      ..style = PaintingStyle.stroke;
-
-    final w = size.width;
-    final h = size.height;
-    final midY = h * 0.55;
-
-    // Build the ECG path points (normalised)
-    final points = <Offset>[
-      Offset(0.05 * w, midY),         // start flat
-      Offset(0.25 * w, midY),         // flat line
-      Offset(0.32 * w, midY + h * 0.08), // small dip before spike
-      Offset(0.40 * w, h * 0.18),     // spike UP (the heartbeat)
-      Offset(0.48 * w, midY + h * 0.15), // dip below baseline
-      Offset(0.55 * w, midY),         // return to baseline
-      Offset(0.65 * w, midY - h * 0.06), // small bump
-      Offset(0.72 * w, midY),         // back to baseline
-      Offset(0.95 * w, midY),         // flat line out
-    ];
-
-    // Create path
-    final path = Path()..moveTo(points.first.dx, points.first.dy);
-    for (int i = 1; i < points.length; i++) {
-      final prev = points[i - 1];
-      final curr = points[i];
-      // Smooth curve between points
-      final cpX = (prev.dx + curr.dx) / 2;
-      path.cubicTo(cpX, prev.dy, cpX, curr.dy, curr.dx, curr.dy);
-    }
-
-    // Clip to progress (reveal left to right)
-    canvas.save();
-    canvas.clipRect(Rect.fromLTWH(0, 0, w * progress, h));
-    canvas.drawPath(path, paint);
-    canvas.restore();
-  }
-
-  @override
-  bool shouldRepaint(_WaveformPainter old) => old.progress != progress;
-}
