@@ -769,6 +769,134 @@ class _TopCategoriesList extends ConsumerWidget {
 }
 
 // ---------------------------------------------------------------------------
+// Summary Cards (Income / Expenses / Net)
+// ---------------------------------------------------------------------------
+
+class _SummaryCards extends ConsumerWidget {
+  const _SummaryCards();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final txnsAsync = ref.watch(_monthTransactionsProvider);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH),
+      child: txnsAsync.when(
+        data: (txns) {
+          final income = txns
+              .where((t) => t.amount > 0)
+              .fold<double>(0, (s, t) => s + t.amount);
+          final expenses = txns
+              .where((t) => t.amount < 0)
+              .fold<double>(0, (s, t) => s + t.amount.abs());
+          final net = income - expenses;
+
+          return Row(
+            children: [
+              Expanded(
+                child: _SummaryCard(
+                  label: 'Income',
+                  amount: income,
+                  color: SpendlerColors.income,
+                  icon: PhosphorIcons.arrowDown(),
+                ),
+              ),
+              const SizedBox(width: SpendlerSpacing.sm),
+              Expanded(
+                child: _SummaryCard(
+                  label: 'Expenses',
+                  amount: expenses,
+                  color: SpendlerColors.expense,
+                  icon: PhosphorIcons.arrowUp(),
+                ),
+              ),
+              const SizedBox(width: SpendlerSpacing.sm),
+              Expanded(
+                child: _SummaryCard(
+                  label: 'Net',
+                  amount: net,
+                  color: net >= 0 ? SpendlerColors.income : SpendlerColors.expense,
+                  icon: PhosphorIcons.equals(),
+                ),
+              ),
+            ],
+          );
+        },
+        loading: () => const SizedBox(
+          height: 100,
+          child: Center(
+            child: CircularProgressIndicator(color: SpendlerColors.primary),
+          ),
+        ),
+        error: (_, _) => const SizedBox.shrink(),
+      ),
+    );
+  }
+}
+
+class _SummaryCard extends StatelessWidget {
+  const _SummaryCard({
+    required this.label,
+    required this.amount,
+    required this.color,
+    required this.icon,
+  });
+
+  final String label;
+  final double amount;
+  final Color color;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(SpendlerSpacing.cardGap),
+      decoration: BoxDecoration(
+        color: SpendlerColors.surface,
+        borderRadius: BorderRadius.circular(SpendlerRadii.card),
+        border: Border.all(color: SpendlerColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 14, color: color),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color: color.withValues(alpha: 0.8),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: SpendlerSpacing.sm),
+          Text(
+            '\$${_formatCompact(amount.abs())}',
+            style: const TextStyle(
+              color: SpendlerColors.textPrimary,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              fontFeatures: [FontFeature.tabularFigures()],
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Transaction List (full month)
 // ---------------------------------------------------------------------------
 
@@ -820,12 +948,16 @@ class _TransactionList extends ConsumerWidget {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              dayGroup.key,
-                              style: const TextStyle(
-                                color: SpendlerColors.textTertiary,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
+                            Flexible(
+                              child: Text(
+                                dayGroup.key,
+                                style: const TextStyle(
+                                  color: SpendlerColors.textTertiary,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             if (dayTotal > 0)

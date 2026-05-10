@@ -58,65 +58,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 ),
               ),
             ),
-
-            // ─── Profile Card ────────────────────────
-            GestureDetector(
-              onTap: () => _showProfileSheet(context),
-              child: Container(
-                padding: const EdgeInsets.all(SpendlerSpacing.md),
-                decoration: BoxDecoration(
-                  color: SpendlerColors.surface,
-                  borderRadius: BorderRadius.circular(SpendlerRadii.card),
+            Flexible(
+              child: Text(
+                value,
+                style: const TextStyle(
+                  color: SpendlerColors.textSecondary,
+                  fontSize: 14,
                 ),
-                child: Row(
-                  children: [
-                    // Avatar
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: const BoxDecoration(
-                        color: SpendlerColors.primary,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                        child: PhosphorIcon(
-                          PhosphorIcons.user(),
-                          color: Colors.white,
-                          size: 22,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: SpendlerSpacing.cardGap),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            name,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: SpendlerColors.textPrimary,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            email,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: SpendlerColors.textTertiary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    PhosphorIcon(
-                      PhosphorIcons.caretRight(),
-                      color: SpendlerColors.textTertiary,
-                      size: 18,
-                    ),
-                  ],
-                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
 
@@ -421,10 +371,19 @@ class _SettingsRow extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w400,
-                  color: SpendlerColors.textPrimary,
+                style: TextStyle(color: color ?? SpendlerColors.textPrimary, fontSize: 15),
+              ),
+            ),
+            if (value.isNotEmpty)
+              Flexible(
+                child: Text(
+                  value,
+                  style: const TextStyle(
+                    color: SpendlerColors.textSecondary,
+                    fontSize: 14,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ),

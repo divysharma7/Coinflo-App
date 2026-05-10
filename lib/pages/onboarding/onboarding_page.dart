@@ -1610,1040 +1610,239 @@ class _OnboardingPageState extends State<OnboardingPage> {
     );
   }
 
-  Widget _buildRuleExampleRow(String keyword, String category) {
-    return Row(
-      children: [
-        Text(keyword,
-            style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
-                color: SpendlerColors.textPrimary)),
-        const SizedBox(width: 6),
-        const Text('\u2192',
-            style:
-                TextStyle(fontSize: 13, color: SpendlerColors.textTertiary)),
-        const SizedBox(width: 6),
-        Text(category,
-            style: const TextStyle(
-                fontSize: 13, color: SpendlerColors.textSecondary)),
-      ],
-    );
-  }
-
-  void _showAddRuleSheet() {
-    final keywordCtrl = TextEditingController();
-    TransactionCategory? selectedCat;
-
-    showSpendlerSheet<void>(
-      context: context,
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (ctx, setSheetState) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(SpendlerSpacing.xl),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: constraints.maxHeight - SpendlerSpacing.xl * 2,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    const Expanded(
-                      child: Text('Add a Rule',
-                          style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600)),
-                    ),
-                    GestureDetector(
-                      onTap: () => Navigator.pop(ctx),
-                      child: Icon(PhosphorIcons.x(), size: 24),
-                    ),
-                  ],
+                PhosphorIcon(
+                  PhosphorIcons.user(),
+                  color: SpendlerColors.primary,
+                  size: 48,
                 ),
                 const SizedBox(height: SpendlerSpacing.lg),
-                const Text('KEYWORD',
-                    style: SpendlerTextStyles.sectionLabel),
-                const SizedBox(height: SpendlerSpacing.sm),
+                const Text(
+                  'What should we\ncall you?',
+                  style: SpendlerTextStyles.onboardingHeadline,
+                ),
+                const SizedBox(height: SpendlerSpacing.lg),
                 TextField(
-                  controller: keywordCtrl,
-                  decoration: InputDecoration(
-                    hintText: 'e.g. netflix, - diet, rent',
-                    hintStyle:
-                        const TextStyle(color: SpendlerColors.textTertiary),
-                    filled: true,
-                    fillColor: SpendlerColors.surfaceSecondary,
-                    border: OutlineInputBorder(
-                      borderRadius:
-                          BorderRadius.circular(SpendlerRadii.button),
-                      borderSide: BorderSide.none,
+                  controller: controller,
+                  autofocus: true,
+                  style: SpendlerTextStyles.greeting,
+                  cursorColor: SpendlerColors.primary,
+                  decoration: const InputDecoration(
+                    hintText: 'Your first name',
+                    hintStyle: TextStyle(
+                      color: SpendlerColors.textTertiary,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    border: UnderlineInputBorder(
+                      borderSide: BorderSide(color: SpendlerColors.border),
+                    ),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: SpendlerColors.border),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: SpendlerColors.primary),
                     ),
                   ),
+                  textCapitalization: TextCapitalization.words,
+                  onSubmitted: (_) => onNext(),
                 ),
-                const SizedBox(height: SpendlerSpacing.lg),
-                const Text('CATEGORY',
-                    style: SpendlerTextStyles.sectionLabel),
-                const SizedBox(height: SpendlerSpacing.sm),
-                Wrap(
-                  spacing: SpendlerSpacing.sm,
-                  runSpacing: SpendlerSpacing.sm,
-                  children: TransactionCategory.groups.map((g) {
-                    final sel = g == selectedCat;
-                    final hue = SpendlerColors.categoryHue[g] ??
-                        SpendlerColors.textTertiary;
-                    return GestureDetector(
-                      onTap: () =>
-                          setSheetState(() => selectedCat = g),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: SpendlerSpacing.md,
-                          vertical: SpendlerSpacing.sm,
-                        ),
-                        decoration: BoxDecoration(
-                          color: sel
-                              ? SpendlerColors.textPrimary
-                              : SpendlerColors.surfaceSecondary,
-                          borderRadius:
-                              BorderRadius.circular(SpendlerRadii.pill),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(g.icon,
-                                size: 16,
-                                color: sel ? Colors.white : hue),
-                            const SizedBox(width: 6),
-                            Text(
-                              g.label,
-                              style: TextStyle(
-                                color: sel
-                                    ? Colors.white
-                                    : SpendlerColors.textPrimary,
-                                fontWeight: FontWeight.w500,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: SpendlerSpacing.lg),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.pop(ctx),
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(
-                              color: SpendlerColors.border),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                SpendlerRadii.button),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 14),
-                        ),
-                        child: const Text('Cancel',
-                            style: TextStyle(
-                                color: SpendlerColors.textSecondary)),
-                      ),
-                    ),
-                    const SizedBox(width: SpendlerSpacing.md),
-                    Expanded(
-                      child: FilledButton(
-                        onPressed: () {
-                          final kw = keywordCtrl.text.trim();
-                          if (kw.isNotEmpty && selectedCat != null) {
-                            setState(() {
-                              _smartRules.add(_SmartRuleEntry(
-                                keyword: kw,
-                                category: selectedCat!,
-                              ));
-                            });
-                            Navigator.pop(ctx);
-                          }
-                        },
-                        style: FilledButton.styleFrom(
-                          backgroundColor: SpendlerColors.textPrimary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                SpendlerRadii.button),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 14),
-                        ),
-                        child: const Text('Add Rule'),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-
-  // ────────────────────────────────────────────────────────
-  // STEP 8: Recurring payments
-  // ────────────────────────────────────────────────────────
-
-  Widget _buildStep8RecurringPayments() {
-    final quickChips = [
-      'Netflix',
-      'Spotify',
-      'YouTube Premium',
-      'Gym',
-      'Phone Bill',
-      'Internet',
-      'Electricity',
-      'Insurance',
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildStepHeader(
-          'Recurring payments',
-          'Add subscriptions and bills you pay regularly.',
-        ),
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.symmetric(
-              horizontal: SpendlerSpacing.screenH,
-            ),
-            children: [
-              // Quick-add chips
-              Wrap(
-                spacing: SpendlerSpacing.sm,
-                runSpacing: SpendlerSpacing.sm,
-                children: quickChips.map((name) {
-                  final alreadyAdded = _recurringPayments
-                      .any((p) => p.name == name);
-                  return GestureDetector(
-                    onTap: alreadyAdded
-                        ? null
-                        : () => _showAddPaymentSheet(prefillName: name),
+                const SizedBox(height: SpendlerSpacing.xl),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: GestureDetector(
+                    onTap: onNext,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: SpendlerSpacing.md,
                         vertical: SpendlerSpacing.sm,
                       ),
                       decoration: BoxDecoration(
-                        color: alreadyAdded
-                            ? SpendlerColors.textPrimary
-                            : SpendlerColors.surfaceSecondary,
-                        borderRadius:
-                            BorderRadius.circular(SpendlerRadii.pill),
+                        color: SpendlerColors.primary,
+                        borderRadius: BorderRadius.circular(SpendlerRadii.pill),
                       ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            alreadyAdded
-                                ? PhosphorIcons.check()
-                                : PhosphorIcons.plus(),
-                            size: 14,
-                            color: alreadyAdded
-                                ? Colors.white
-                                : SpendlerColors.textPrimary,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            name,
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: alreadyAdded
-                                  ? Colors.white
-                                  : SpendlerColors.textPrimary,
-                            ),
-                          ),
-                        ],
+                      child: const Text(
+                        'Next →',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: SpendlerSpacing.lg),
-              // Added payments
-              ..._recurringPayments.asMap().entries.map((entry) {
-                final i = entry.key;
-                final p = entry.value;
-                return Container(
-                  margin:
-                      const EdgeInsets.only(bottom: SpendlerSpacing.sm),
-                  padding: const EdgeInsets.all(SpendlerSpacing.md),
-                  decoration: BoxDecoration(
-                    color: SpendlerColors.surface,
-                    borderRadius:
-                        BorderRadius.circular(SpendlerRadii.card),
-                    border: Border.all(color: SpendlerColors.border),
-                  ),
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 18,
-                        backgroundColor: SpendlerColors.surfaceSecondary,
-                        child: Icon(PhosphorIcons.repeat(),
-                            size: 18,
-                            color: SpendlerColors.textPrimary),
-                      ),
-                      const SizedBox(width: SpendlerSpacing.md),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(p.name,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 15)),
-                            Text(
-                              '${_selectedCurrency.symbol}${_formatAmount(p.amount)} / ${p.isYearly ? 'year' : 'month'}',
-                              style: const TextStyle(
-                                  color: SpendlerColors.textTertiary,
-                                  fontSize: 13),
-                            ),
-                          ],
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () => setState(
-                            () => _recurringPayments.removeAt(i)),
-                        child: Icon(PhosphorIcons.trash(),
-                            size: 18,
-                            color: SpendlerColors.textTertiary),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-              // Add Payment button
-              GestureDetector(
-                onTap: () => _showAddPaymentSheet(),
-                child: Container(
-                  padding: const EdgeInsets.all(SpendlerSpacing.md),
-                  decoration: BoxDecoration(
-                    borderRadius:
-                        BorderRadius.circular(SpendlerRadii.card),
-                    border: Border.all(color: SpendlerColors.border),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(PhosphorIcons.plus(),
-                          size: 18,
-                          color: SpendlerColors.textSecondary),
-                      const SizedBox(width: SpendlerSpacing.sm),
-                      const Text(
-                        'Add Payment',
-                        style: TextStyle(
-                          color: SpendlerColors.textSecondary,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-        _buildContinueButton('Continue'),
-      ],
+        );
+      },
     );
   }
+}
 
-  void _showAddPaymentSheet({String? prefillName}) {
-    final nameCtrl = TextEditingController(text: prefillName ?? '');
-    final amountCtrl = TextEditingController();
-    bool isYearly = false;
-    DateTime? selectedDate;
+// ─── Screen: SMS Promise ─────────────────────────────
 
-    showSpendlerSheet<void>(
-      context: context,
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (ctx, setSheetState) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
+class _ScreenPromise extends StatelessWidget {
+  const _ScreenPromise({required this.onNext});
+  final VoidCallback onNext;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onNext,
+      child: Padding(
+        padding: const EdgeInsets.all(SpendlerSpacing.xl),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            PhosphorIcon(
+              PhosphorIcons.chatText(),
+              color: SpendlerColors.primary,
+              size: 48,
+            ),
+            const SizedBox(height: SpendlerSpacing.lg),
+            const Text(
+              'Your spending,\nautomatically tracked.',
+              style: SpendlerTextStyles.onboardingHeadline,
+            ),
+            const SizedBox(height: SpendlerSpacing.md),
+            const Text(
+              'Every bank SMS gets parsed instantly.\nYou just confirm.',
+              style: SpendlerTextStyles.onboardingBody,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Screen: Weekly Mirror ───────────────────────────
+
+class _ScreenMirror extends StatelessWidget {
+  const _ScreenMirror({required this.onNext});
+  final VoidCallback onNext;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onNext,
+      child: Padding(
+        padding: const EdgeInsets.all(SpendlerSpacing.xl),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            PhosphorIcon(
+              PhosphorIcons.calendarCheck(),
+              color: SpendlerColors.primary,
+              size: 48,
+            ),
+            const SizedBox(height: SpendlerSpacing.lg),
+            const Text(
+              'A weekly mirror\nfor your money.',
+              style: SpendlerTextStyles.onboardingHeadline,
+            ),
+            const SizedBox(height: SpendlerSpacing.md),
+            const Text(
+              'No budgets. No guilt.\nJust clear, honest awareness.',
+              style: SpendlerTextStyles.onboardingBody,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Screen: Permission + Start ──────────────────────
+
+class _ScreenStart extends StatelessWidget {
+  const _ScreenStart({required this.onFinish, this.isGuideMode = false});
+  final Future<void> Function({bool requestSms}) onFinish;
+  final bool isGuideMode;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(SpendlerSpacing.xl),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: constraints.maxHeight - SpendlerSpacing.xl * 2,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    const Expanded(
-                      child: Text('Add Payment',
-                          style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600)),
-                    ),
-                    GestureDetector(
-                      onTap: () => Navigator.pop(ctx),
-                      child: Icon(PhosphorIcons.x(), size: 24),
-                    ),
-                  ],
+                PhosphorIcon(
+                  isGuideMode
+                      ? PhosphorIcons.checkCircle()
+                      : PhosphorIcons.rocketLaunch(),
+                  color: SpendlerColors.primary,
+                  size: 48,
                 ),
                 const SizedBox(height: SpendlerSpacing.lg),
-                const Text('NAME', style: SpendlerTextStyles.sectionLabel),
-                const SizedBox(height: SpendlerSpacing.sm),
-                TextField(
-                  controller: nameCtrl,
-                  decoration: InputDecoration(
-                    hintText: 'e.g. Netflix, Rent...',
-                    hintStyle:
-                        const TextStyle(color: SpendlerColors.textTertiary),
-                    filled: true,
-                    fillColor: SpendlerColors.surfaceSecondary,
-                    border: OutlineInputBorder(
-                      borderRadius:
-                          BorderRadius.circular(SpendlerRadii.button),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: SpendlerSpacing.lg),
-                const Text('AMOUNT', style: SpendlerTextStyles.sectionLabel),
-                const SizedBox(height: SpendlerSpacing.sm),
-                TextField(
-                  controller: amountCtrl,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    prefixText: '${_selectedCurrency.symbol} ',
-                    filled: true,
-                    fillColor: SpendlerColors.surfaceSecondary,
-                    border: OutlineInputBorder(
-                      borderRadius:
-                          BorderRadius.circular(SpendlerRadii.button),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: SpendlerSpacing.lg),
-                const Text('FREQUENCY',
-                    style: SpendlerTextStyles.sectionLabel),
-                const SizedBox(height: SpendlerSpacing.sm),
-                Container(
-                  decoration: BoxDecoration(
-                    color: SpendlerColors.surfaceSecondary,
-                    borderRadius:
-                        BorderRadius.circular(SpendlerRadii.button),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () =>
-                              setSheetState(() => isYearly = false),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 12),
-                            decoration: BoxDecoration(
-                              color: !isYearly
-                                  ? SpendlerColors.textPrimary
-                                  : Colors.transparent,
-                              borderRadius: BorderRadius.circular(
-                                  SpendlerRadii.button),
-                            ),
-                            child: Center(
-                              child: Text(
-                                'Monthly',
-                                style: TextStyle(
-                                  color: !isYearly
-                                      ? Colors.white
-                                      : SpendlerColors.textPrimary,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () =>
-                              setSheetState(() => isYearly = true),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 12),
-                            decoration: BoxDecoration(
-                              color: isYearly
-                                  ? SpendlerColors.textPrimary
-                                  : Colors.transparent,
-                              borderRadius: BorderRadius.circular(
-                                  SpendlerRadii.button),
-                            ),
-                            child: Center(
-                              child: Text(
-                                'Yearly',
-                                style: TextStyle(
-                                  color: isYearly
-                                      ? Colors.white
-                                      : SpendlerColors.textPrimary,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                Text(
+                  isGuideMode ? 'That\'s the whole idea.' : 'Let\'s get started.',
+                  style: SpendlerTextStyles.onboardingHeadline,
                 ),
                 const SizedBox(height: SpendlerSpacing.md),
-                // Date picker
-                GestureDetector(
-                  onTap: () async {
-                    final picked = await showDatePicker(
-                      context: ctx,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(2020),
-                      lastDate: DateTime(2030),
-                    );
-                    if (picked != null) {
-                      setSheetState(() => selectedDate = picked);
-                    }
-                  },
-                  child: Row(
-                    children: [
-                      Icon(PhosphorIcons.calendar(),
-                          size: 18,
-                          color: SpendlerColors.textTertiary),
-                      const SizedBox(width: SpendlerSpacing.sm),
-                      Text(
-                        selectedDate != null
-                            ? '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}'
-                            : 'Set purchase or renewal date (optional)',
+                Text(
+                  isGuideMode
+                      ? 'SMS gets parsed, you confirm,\nand your weekly rhythm appears.'
+                      : 'Allow SMS access and we\'ll\nhandle the rest.',
+                  style: SpendlerTextStyles.onboardingBody,
+                ),
+                const SizedBox(height: SpendlerSpacing.xxl),
+                if (isGuideMode)
+                  NeoPOPButton(
+                    label: 'Got it',
+                    onTap: () => onFinish(),
+                  )
+                else ...[
+                  NeoPOPButton(
+                    label: 'Allow SMS Access',
+                    onTap: () {
+                      HapticFeedback.mediumImpact();
+                      onFinish(requestSms: true);
+                    },
+                  ),
+                  const SizedBox(height: SpendlerSpacing.md),
+                  Center(
+                    child: TextButton(
+                      onPressed: () => onFinish(requestSms: false),
+                      child: const Text(
+                        'I\'ll add manually',
                         style: TextStyle(
-                          color: selectedDate != null
-                              ? SpendlerColors.textPrimary
-                              : SpendlerColors.textTertiary,
+                          color: SpendlerColors.textSecondary,
                           fontSize: 14,
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: SpendlerSpacing.lg),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.pop(ctx),
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(
-                              color: SpendlerColors.border),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                SpendlerRadii.button),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 14),
-                        ),
-                        child: const Text('Cancel',
-                            style: TextStyle(
-                                color: SpendlerColors.textSecondary)),
-                      ),
-                    ),
-                    const SizedBox(width: SpendlerSpacing.md),
-                    Expanded(
-                      child: FilledButton(
-                        onPressed: () {
-                          final name = nameCtrl.text.trim();
-                          final amount =
-                              double.tryParse(amountCtrl.text.trim());
-                          if (name.isNotEmpty &&
-                              amount != null &&
-                              amount > 0) {
-                            setState(() {
-                              _recurringPayments.add(
-                                _RecurringPaymentEntry(
-                                  name: name,
-                                  amount: amount,
-                                  isYearly: isYearly,
-                                  nextDate: selectedDate,
-                                ),
-                              );
-                            });
-                            Navigator.pop(ctx);
-                          }
-                        },
-                        style: FilledButton.styleFrom(
-                          backgroundColor: SpendlerColors.textPrimary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                SpendlerRadii.button),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 14),
-                        ),
-                        child: const Text('Add'),
-                      ),
-                    ),
-                  ],
-                ),
+                ],
               ],
-            );
-          },
+            ),
+          ),
         );
       },
-    );
-  }
-
-  // ────────────────────────────────────────────────────────
-  // STEP 9: Stay on track
-  // ────────────────────────────────────────────────────────
-
-  Widget _buildStep9Notifications() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildStepHeader(
-          'Stay on track',
-          'Set up reminders to help you stay consistent.',
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: SpendlerSpacing.screenH,
-          ),
-          child: Column(
-            children: [
-              _buildToggleCard(
-                icon: PhosphorIcons.bell(),
-                title: 'Notifications',
-                subtitle: 'Enable push notifications',
-                value: _notificationsEnabled,
-                onChanged: (v) =>
-                    setState(() => _notificationsEnabled = v),
-              ),
-              const SizedBox(height: SpendlerSpacing.md),
-              _buildToggleCard(
-                icon: PhosphorIcons.clock(),
-                title: 'Daily Reminder',
-                subtitle: 'Remind me to log expenses every evening',
-                value: _dailyReminder,
-                onChanged: (v) => setState(() => _dailyReminder = v),
-              ),
-              const SizedBox(height: SpendlerSpacing.md),
-              _buildToggleCard(
-                icon: PhosphorIcons.chartBar(),
-                title: 'Weekly Report',
-                subtitle:
-                    'Get a summary of your spending each week',
-                value: _weeklyReport,
-                onChanged: (v) => setState(() => _weeklyReport = v),
-              ),
-            ],
-          ),
-        ),
-        const Spacer(),
-        _buildContinueButton('Continue'),
-      ],
-    );
-  }
-
-  Widget _buildToggleCard({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required bool value,
-    required ValueChanged<bool> onChanged,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(SpendlerSpacing.md),
-      decoration: BoxDecoration(
-        color: SpendlerColors.surface,
-        borderRadius: BorderRadius.circular(SpendlerRadii.card),
-        border: Border.all(color: SpendlerColors.border),
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 22,
-            backgroundColor: SpendlerColors.surfaceSecondary,
-            child: Icon(icon, size: 22, color: SpendlerColors.textPrimary),
-          ),
-          const SizedBox(width: SpendlerSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w600, fontSize: 15)),
-                const SizedBox(height: 2),
-                Text(subtitle,
-                    style: const TextStyle(
-                        color: SpendlerColors.textTertiary,
-                        fontSize: 13)),
-              ],
-            ),
-          ),
-          Switch.adaptive(
-            value: value,
-            onChanged: onChanged,
-            activeTrackColor: SpendlerColors.textPrimary,
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ────────────────────────────────────────────────────────
-  // STEP 10: Savings goals
-  // ────────────────────────────────────────────────────────
-
-  static const _goalIcons = <String, IconData>{
-    'shield': PhosphorIconsRegular.shield,
-    'monitor': PhosphorIconsRegular.monitor,
-    'bookOpen': PhosphorIconsRegular.bookOpen,
-    'house': PhosphorIconsRegular.house,
-    'heart': PhosphorIconsRegular.heart,
-    'laptop': PhosphorIconsRegular.laptop,
-    'gift': PhosphorIconsRegular.gift,
-    'target': PhosphorIconsRegular.target,
-  };
-
-  Widget _buildStep10SavingsGoals() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildStepHeader(
-          'Savings goals',
-          'What are you saving for? Add your goals.',
-        ),
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.symmetric(
-              horizontal: SpendlerSpacing.screenH,
-            ),
-            children: [
-              // Existing goals
-              ..._savingsGoals.asMap().entries.map((entry) {
-                final i = entry.key;
-                final g = entry.value;
-                final goalIcon = _goalIcons[g.iconName] ??
-                    PhosphorIconsRegular.target;
-                return Container(
-                  margin:
-                      const EdgeInsets.only(bottom: SpendlerSpacing.sm),
-                  padding: const EdgeInsets.all(SpendlerSpacing.md),
-                  decoration: BoxDecoration(
-                    color: SpendlerColors.surface,
-                    borderRadius:
-                        BorderRadius.circular(SpendlerRadii.card),
-                    border: Border.all(color: SpendlerColors.border),
-                  ),
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundColor: SpendlerColors.surfaceSecondary,
-                        child: Icon(goalIcon,
-                            size: 20,
-                            color: SpendlerColors.textPrimary),
-                      ),
-                      const SizedBox(width: SpendlerSpacing.md),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(g.name,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 15)),
-                            Text(
-                              '${_selectedCurrency.symbol}${_formatAmount(g.targetAmount)}',
-                              style: const TextStyle(
-                                  color: SpendlerColors.textTertiary,
-                                  fontSize: 13),
-                            ),
-                          ],
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () => setState(
-                            () => _savingsGoals.removeAt(i)),
-                        child: Icon(PhosphorIcons.trash(),
-                            size: 18,
-                            color: SpendlerColors.textTertiary),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-              // Add Goal button
-              GestureDetector(
-                onTap: _showAddGoalSheet,
-                child: Container(
-                  padding: const EdgeInsets.all(SpendlerSpacing.md),
-                  decoration: BoxDecoration(
-                    borderRadius:
-                        BorderRadius.circular(SpendlerRadii.card),
-                    border: Border.all(color: SpendlerColors.border),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(PhosphorIcons.plus(),
-                          size: 18,
-                          color: SpendlerColors.textSecondary),
-                      const SizedBox(width: SpendlerSpacing.sm),
-                      const Text(
-                        'Add Goal',
-                        style: TextStyle(
-                          color: SpendlerColors.textSecondary,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        _buildContinueButton('Continue'),
-      ],
-    );
-  }
-
-  void _showAddGoalSheet() {
-    final nameCtrl = TextEditingController();
-    final amountCtrl = TextEditingController();
-    String selectedIcon = 'target';
-
-    showSpendlerSheet<void>(
-      context: context,
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (ctx, setSheetState) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Expanded(
-                      child: Text('Add Goal',
-                          style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600)),
-                    ),
-                    GestureDetector(
-                      onTap: () => Navigator.pop(ctx),
-                      child: Icon(PhosphorIcons.x(), size: 24),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: SpendlerSpacing.lg),
-                const Text('GOAL NAME',
-                    style: SpendlerTextStyles.sectionLabel),
-                const SizedBox(height: SpendlerSpacing.sm),
-                TextField(
-                  controller: nameCtrl,
-                  decoration: InputDecoration(
-                    hintText: 'e.g. Vacation, New Laptop...',
-                    hintStyle:
-                        const TextStyle(color: SpendlerColors.textTertiary),
-                    filled: true,
-                    fillColor: SpendlerColors.surfaceSecondary,
-                    border: OutlineInputBorder(
-                      borderRadius:
-                          BorderRadius.circular(SpendlerRadii.button),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: SpendlerSpacing.lg),
-                const Text('TARGET AMOUNT',
-                    style: SpendlerTextStyles.sectionLabel),
-                const SizedBox(height: SpendlerSpacing.sm),
-                TextField(
-                  controller: amountCtrl,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    prefixText: '${_selectedCurrency.symbol} ',
-                    filled: true,
-                    fillColor: SpendlerColors.surfaceSecondary,
-                    border: OutlineInputBorder(
-                      borderRadius:
-                          BorderRadius.circular(SpendlerRadii.button),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: SpendlerSpacing.lg),
-                const Text('ICON', style: SpendlerTextStyles.sectionLabel),
-                const SizedBox(height: SpendlerSpacing.sm),
-                Wrap(
-                  spacing: SpendlerSpacing.sm,
-                  runSpacing: SpendlerSpacing.sm,
-                  children: _goalIcons.entries.map((e) {
-                    final sel = e.key == selectedIcon;
-                    return GestureDetector(
-                      onTap: () => setSheetState(
-                          () => selectedIcon = e.key),
-                      child: Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: sel
-                              ? SpendlerColors.textPrimary
-                              : SpendlerColors.surfaceSecondary,
-                          borderRadius: BorderRadius.circular(
-                              SpendlerRadii.button),
-                        ),
-                        child: Icon(
-                          e.value,
-                          size: 22,
-                          color: sel
-                              ? Colors.white
-                              : SpendlerColors.textPrimary,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: SpendlerSpacing.lg),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.pop(ctx),
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(
-                              color: SpendlerColors.border),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                SpendlerRadii.button),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 14),
-                        ),
-                        child: const Text('Cancel',
-                            style: TextStyle(
-                                color: SpendlerColors.textSecondary)),
-                      ),
-                    ),
-                    const SizedBox(width: SpendlerSpacing.md),
-                    Expanded(
-                      child: FilledButton(
-                        onPressed: () {
-                          final name = nameCtrl.text.trim();
-                          final amount =
-                              double.tryParse(amountCtrl.text.trim());
-                          if (name.isNotEmpty &&
-                              amount != null &&
-                              amount > 0) {
-                            setState(() {
-                              _savingsGoals.add(_SavingsGoalEntry(
-                                name: name,
-                                targetAmount: amount,
-                                iconName: selectedIcon,
-                              ));
-                            });
-                            Navigator.pop(ctx);
-                          }
-                        },
-                        style: FilledButton.styleFrom(
-                          backgroundColor: SpendlerColors.textPrimary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                SpendlerRadii.button),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 14),
-                        ),
-                        child: const Text('Add'),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-
-  // ────────────────────────────────────────────────────────
-  // COMPLETION PAGE
-  // ────────────────────────────────────────────────────────
-
-  Widget _buildCompletionPage() {
-    return Padding(
-      padding: const EdgeInsets.all(SpendlerSpacing.screenH),
-      child: Column(
-        children: [
-          const Spacer(),
-          // Checkmark icon
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: SpendlerColors.textPrimary,
-              borderRadius: BorderRadius.circular(SpendlerRadii.card),
-            ),
-            child: const Icon(
-              Icons.check_rounded,
-              color: Colors.white,
-              size: 40,
-            ),
-          ),
-          const SizedBox(height: SpendlerSpacing.lg),
-          const Text(
-            "You're all set!",
-            style: SpendlerTextStyles.onboardingHeadline,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: SpendlerSpacing.sm),
-          const Text(
-            'Great choices! Now let\'s create your account so your data is safely backed up and synced across devices.',
-            style: SpendlerTextStyles.onboardingBody,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: SpendlerSpacing.xl),
-          // Feature rows
-          _buildFeatureRow(
-            PhosphorIcons.shield(),
-            'Your data is saved locally',
-          ),
-          const SizedBox(height: SpendlerSpacing.md),
-          _buildFeatureRow(
-            PhosphorIcons.arrowsClockwise(),
-            'Sign in to sync across devices',
-          ),
-          const SizedBox(height: SpendlerSpacing.md),
-          _buildFeatureRow(
-            PhosphorIcons.lock(),
-            'Your data stays private and encrypted',
-          ),
-          const Spacer(),
-          // Create Account button
-          SizedBox(
-            width: double.infinity,
-            height: 56,
-            child: Material(
-              color: SpendlerColors.textPrimary,
-              borderRadius: BorderRadius.circular(SpendlerRadii.button),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(SpendlerRadii.button),
-                onTap: _handleComplete,
-                child: const Center(
-                  child: Text(
-                    'Create Account',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
