@@ -32,7 +32,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   // ── Step 2: Accounts ──
   final List<_AccountEntry> _accounts = [
-    _AccountEntry(name: 'Cash', type: AccountType.cash),
+    const _AccountEntry(name: 'Cash', type: AccountType.cash),
   ];
   bool _showAddAccount = false;
   final _accountNameController = TextEditingController();
@@ -174,7 +174,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   Future<void> _handleContinue() async {
-    HapticFeedback.lightImpact();
+    await HapticFeedback.lightImpact();
     switch (_currentStep) {
       case 0:
         await _saveStep1();
@@ -201,15 +201,15 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   Future<void> _handleComplete() async {
-    HapticFeedback.mediumImpact();
+    await HapticFeedback.mediumImpact();
     await completeOnboarding();
     if (!mounted) return;
-    Navigator.pushReplacement(
+    await Navigator.pushReplacement(
       context,
       PageRouteBuilder<void>(
-        pageBuilder: (_, __, ___) => const ShellPage(),
+        pageBuilder: (_, _, _) => const ShellPage(),
         transitionDuration: SpendlerMotion.transition,
-        transitionsBuilder: (_, anim, __, child) =>
+        transitionsBuilder: (_, anim, _, child) =>
             FadeTransition(opacity: anim, child: child),
       ),
     );
@@ -388,22 +388,22 @@ class _OnboardingPageState extends State<OnboardingPage> {
             onChanged: (v) => setState(() => _currencySearch = v),
             decoration: InputDecoration(
               hintText: 'Search currency...',
-              hintStyle: TextStyle(color: SpendlerColors.textTertiary),
+              hintStyle: const TextStyle(color: SpendlerColors.textTertiary),
               prefixIcon: Icon(PhosphorIcons.magnifyingGlass(),
                   color: SpendlerColors.textTertiary),
               filled: true,
               fillColor: SpendlerColors.surface,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(SpendlerRadii.button),
-                borderSide: BorderSide(color: SpendlerColors.border),
+                borderSide: const BorderSide(color: SpendlerColors.border),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(SpendlerRadii.button),
-                borderSide: BorderSide(color: SpendlerColors.border),
+                borderSide: const BorderSide(color: SpendlerColors.border),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(SpendlerRadii.button),
-                borderSide: BorderSide(color: SpendlerColors.textPrimary),
+                borderSide: const BorderSide(color: SpendlerColors.textPrimary),
               ),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: SpendlerSpacing.md,
@@ -554,7 +554,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         'ACCOUNT NAME',
                         style: SpendlerTextStyles.sectionLabel,
                       ),
@@ -563,7 +563,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         controller: _accountNameController,
                         decoration: InputDecoration(
                           hintText: 'e.g. HDFC Bank, Paytm...',
-                          hintStyle: TextStyle(
+                          hintStyle: const TextStyle(
                               color: SpendlerColors.textTertiary),
                           filled: true,
                           fillColor: SpendlerColors.surfaceSecondary,
@@ -579,7 +579,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         ),
                       ),
                       const SizedBox(height: SpendlerSpacing.md),
-                      Text('TYPE', style: SpendlerTextStyles.sectionLabel),
+                      const Text('TYPE', style: SpendlerTextStyles.sectionLabel),
                       const SizedBox(height: SpendlerSpacing.sm),
                       Wrap(
                         spacing: SpendlerSpacing.sm,
@@ -1077,7 +1077,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   ],
                 ),
                 const SizedBox(height: SpendlerSpacing.lg),
-                Text('CATEGORY GROUP',
+                const Text('CATEGORY GROUP',
                     style: SpendlerTextStyles.sectionLabel),
                 const SizedBox(height: SpendlerSpacing.sm),
                 Wrap(
@@ -1128,7 +1128,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   }).toList(),
                 ),
                 const SizedBox(height: SpendlerSpacing.lg),
-                Text('MONTHLY LIMIT',
+                const Text('MONTHLY LIMIT',
                     style: SpendlerTextStyles.sectionLabel),
                 const SizedBox(height: SpendlerSpacing.sm),
                 TextField(
@@ -1284,7 +1284,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                                 const SizedBox(width: 6),
                                 Text(
                                   sub.name,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w500,
                                     color: SpendlerColors.textPrimary,
@@ -1306,7 +1306,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'YOUR CUSTOM CATEGORIES',
                       style: SpendlerTextStyles.sectionLabel,
                     ),
@@ -1503,7 +1503,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                       ),
                     ),
                     const SizedBox(height: SpendlerSpacing.md),
-                    Text('EXAMPLE',
+                    const Text('EXAMPLE',
                         style: SpendlerTextStyles.sectionLabel),
                     const SizedBox(height: SpendlerSpacing.sm),
                     _buildRuleExampleRow(
@@ -1658,7 +1658,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   ],
                 ),
                 const SizedBox(height: SpendlerSpacing.lg),
-                Text('KEYWORD',
+                const Text('KEYWORD',
                     style: SpendlerTextStyles.sectionLabel),
                 const SizedBox(height: SpendlerSpacing.sm),
                 TextField(
@@ -1666,7 +1666,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   decoration: InputDecoration(
                     hintText: 'e.g. netflix, - diet, rent',
                     hintStyle:
-                        TextStyle(color: SpendlerColors.textTertiary),
+                        const TextStyle(color: SpendlerColors.textTertiary),
                     filled: true,
                     fillColor: SpendlerColors.surfaceSecondary,
                     border: OutlineInputBorder(
@@ -1677,7 +1677,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   ),
                 ),
                 const SizedBox(height: SpendlerSpacing.lg),
-                Text('CATEGORY',
+                const Text('CATEGORY',
                     style: SpendlerTextStyles.sectionLabel),
                 const SizedBox(height: SpendlerSpacing.sm),
                 Wrap(
@@ -1983,14 +1983,14 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   ],
                 ),
                 const SizedBox(height: SpendlerSpacing.lg),
-                Text('NAME', style: SpendlerTextStyles.sectionLabel),
+                const Text('NAME', style: SpendlerTextStyles.sectionLabel),
                 const SizedBox(height: SpendlerSpacing.sm),
                 TextField(
                   controller: nameCtrl,
                   decoration: InputDecoration(
                     hintText: 'e.g. Netflix, Rent...',
                     hintStyle:
-                        TextStyle(color: SpendlerColors.textTertiary),
+                        const TextStyle(color: SpendlerColors.textTertiary),
                     filled: true,
                     fillColor: SpendlerColors.surfaceSecondary,
                     border: OutlineInputBorder(
@@ -2001,7 +2001,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   ),
                 ),
                 const SizedBox(height: SpendlerSpacing.lg),
-                Text('AMOUNT', style: SpendlerTextStyles.sectionLabel),
+                const Text('AMOUNT', style: SpendlerTextStyles.sectionLabel),
                 const SizedBox(height: SpendlerSpacing.sm),
                 TextField(
                   controller: amountCtrl,
@@ -2018,7 +2018,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   ),
                 ),
                 const SizedBox(height: SpendlerSpacing.lg),
-                Text('FREQUENCY',
+                const Text('FREQUENCY',
                     style: SpendlerTextStyles.sectionLabel),
                 const SizedBox(height: SpendlerSpacing.sm),
                 Container(
@@ -2280,7 +2280,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
           Switch.adaptive(
             value: value,
             onChanged: onChanged,
-            activeColor: SpendlerColors.textPrimary,
+            activeTrackColor: SpendlerColors.textPrimary,
           ),
         ],
       ),
@@ -2435,7 +2435,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   ],
                 ),
                 const SizedBox(height: SpendlerSpacing.lg),
-                Text('GOAL NAME',
+                const Text('GOAL NAME',
                     style: SpendlerTextStyles.sectionLabel),
                 const SizedBox(height: SpendlerSpacing.sm),
                 TextField(
@@ -2443,7 +2443,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   decoration: InputDecoration(
                     hintText: 'e.g. Vacation, New Laptop...',
                     hintStyle:
-                        TextStyle(color: SpendlerColors.textTertiary),
+                        const TextStyle(color: SpendlerColors.textTertiary),
                     filled: true,
                     fillColor: SpendlerColors.surfaceSecondary,
                     border: OutlineInputBorder(
@@ -2454,7 +2454,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   ),
                 ),
                 const SizedBox(height: SpendlerSpacing.lg),
-                Text('TARGET AMOUNT',
+                const Text('TARGET AMOUNT',
                     style: SpendlerTextStyles.sectionLabel),
                 const SizedBox(height: SpendlerSpacing.sm),
                 TextField(
@@ -2472,7 +2472,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   ),
                 ),
                 const SizedBox(height: SpendlerSpacing.lg),
-                Text('ICON', style: SpendlerTextStyles.sectionLabel),
+                const Text('ICON', style: SpendlerTextStyles.sectionLabel),
                 const SizedBox(height: SpendlerSpacing.sm),
                 Wrap(
                   spacing: SpendlerSpacing.sm,
