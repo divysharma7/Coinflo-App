@@ -24,7 +24,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
       backgroundColor: SpendlerColors.scaffold,
-      body: ListView(
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 600),
+          child: ListView(
         padding: const EdgeInsets.symmetric(
           horizontal: SpendlerSpacing.screenH,
           vertical: SpendlerSpacing.md,
@@ -184,6 +187,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
           const SizedBox(height: 80),
         ],
+      ),
+        ),
       ),
     );
   }

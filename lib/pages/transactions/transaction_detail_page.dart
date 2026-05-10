@@ -153,7 +153,10 @@ class _TransactionDetailPageState
             ) ?? const SizedBox.shrink(),
         ],
       ),
-      body: txnAsync.when(
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 700),
+          child: txnAsync.when(
         data: (t) {
           if (t == null) {
             return const Center(
@@ -167,6 +170,8 @@ class _TransactionDetailPageState
             child: CircularProgressIndicator(color: SpendlerColors.primary)),
         error: (_, _) => const Center(
             child: Text('Error', style: TextStyle(color: SpendlerColors.expense))),
+          ),
+        ),
       ),
     );
   }

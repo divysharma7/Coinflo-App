@@ -98,7 +98,10 @@ class _PennyPageState extends ConsumerState<PennyPage> {
         ),
         centerTitle: true,
       ),
-      body: Column(
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 700),
+          child: Column(
         children: [
           // Chat messages
           Expanded(
@@ -129,6 +132,8 @@ class _PennyPageState extends ConsumerState<PennyPage> {
             isProcessing: isProcessing,
           ),
         ],
+          ),
+        ),
       ),
     );
   }

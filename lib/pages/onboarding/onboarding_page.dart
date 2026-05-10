@@ -94,52 +94,57 @@ class _OnboardingPageState extends State<OnboardingPage> {
     return Scaffold(
       backgroundColor: SpendlerColors.scaffold,
       body: SafeArea(
-        child: Column(
-          children: [
-            // Dot indicators
-            Padding(
-              padding: const EdgeInsets.all(SpendlerSpacing.lg),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(_pageCount, (i) {
-                  return AnimatedContainer(
-                    duration: SpendlerMotion.transition,
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    width: i == _currentPage ? 24 : 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: i == _currentPage
-                          ? SpendlerColors.primary
-                          : SpendlerColors.textTertiary,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  );
-                }),
-              ),
-            ),
-            // Pages
-            Expanded(
-              child: PageView(
-                controller: _pageController,
-                onPageChanged: (i) => setState(() => _currentPage = i),
-                physics: const BouncingScrollPhysics(),
-                children: [
-                  _ScreenIdentity(onNext: _next),
-                  if (!widget.isGuideMode)
-                    _ScreenName(
-                      controller: _nameController,
-                      onNext: _next,
-                    ),
-                  _ScreenPromise(onNext: _next),
-                  _ScreenMirror(onNext: _next),
-                  _ScreenStart(
-                    onFinish: _finish,
-                    isGuideMode: widget.isGuideMode,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: Column(
+              children: [
+                // Dot indicators
+                Padding(
+                  padding: const EdgeInsets.all(SpendlerSpacing.lg),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(_pageCount, (i) {
+                      return AnimatedContainer(
+                        duration: SpendlerMotion.transition,
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        width: i == _currentPage ? 24 : 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: i == _currentPage
+                              ? SpendlerColors.primary
+                              : SpendlerColors.textTertiary,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      );
+                    }),
                   ),
-                ],
-              ),
+                ),
+                // Pages
+                Expanded(
+                  child: PageView(
+                    controller: _pageController,
+                    onPageChanged: (i) => setState(() => _currentPage = i),
+                    physics: const BouncingScrollPhysics(),
+                    children: [
+                      _ScreenIdentity(onNext: _next),
+                      if (!widget.isGuideMode)
+                        _ScreenName(
+                          controller: _nameController,
+                          onNext: _next,
+                        ),
+                      _ScreenPromise(onNext: _next),
+                      _ScreenMirror(onNext: _next),
+                      _ScreenStart(
+                        onFinish: _finish,
+                        isGuideMode: widget.isGuideMode,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

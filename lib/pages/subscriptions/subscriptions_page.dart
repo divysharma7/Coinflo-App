@@ -36,7 +36,10 @@ class SubscriptionsPage extends ConsumerWidget {
         onPressed: () => _showAddSheet(context, ref),
         child: const Icon(Icons.add, color: Colors.white),
       ),
-      body: subsAsync.when(
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 700),
+          child: subsAsync.when(
         data: (subs) {
           if (subs.isEmpty) {
             return const EmptyState(
@@ -76,6 +79,8 @@ class SubscriptionsPage extends ConsumerWidget {
         ),
         error: (_, _) => const Center(
           child: Text('Something went wrong', style: TextStyle(color: SpendlerColors.textSecondary)),
+        ),
+          ),
         ),
       ),
     );

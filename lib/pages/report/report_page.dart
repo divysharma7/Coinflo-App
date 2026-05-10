@@ -66,26 +66,31 @@ class _ReportPageState extends ConsumerState<ReportPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: SpendlerColors.scaffold,
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: MediaQuery.paddingOf(context).top + SpendlerSpacing.lg),
-            _buildHeader(),
-            const SizedBox(height: SpendlerSpacing.lg),
-            const _PeriodSelector(),
-            const SizedBox(height: SpendlerSpacing.lg),
-            _buildMonthNavigator(),
-            const SizedBox(height: SpendlerSpacing.xl),
-            _buildDonutSection(),
-            const SizedBox(height: SpendlerSpacing.xl),
-            const _TopCategoriesList(),
-            const SizedBox(height: SpendlerSpacing.xl),
-            const _SummaryCards(),
-            const SizedBox(height: SpendlerSpacing.xl),
-            const _TransactionList(),
-            const SizedBox(height: 100),
-          ],
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 700),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: MediaQuery.paddingOf(context).top + SpendlerSpacing.lg),
+                _buildHeader(),
+                const SizedBox(height: SpendlerSpacing.lg),
+                const _PeriodSelector(),
+                const SizedBox(height: SpendlerSpacing.lg),
+                _buildMonthNavigator(),
+                const SizedBox(height: SpendlerSpacing.xl),
+                _buildDonutSection(),
+                const SizedBox(height: SpendlerSpacing.xl),
+                const _TopCategoriesList(),
+                const SizedBox(height: SpendlerSpacing.xl),
+                const _SummaryCards(),
+                const SizedBox(height: SpendlerSpacing.xl),
+                const _TransactionList(),
+                const SizedBox(height: 100),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -251,56 +256,62 @@ class _ReportPageState extends ConsumerState<ReportPage> {
               centerLabel = 'Total Spent';
             }
 
-            return SizedBox(
-              height: 220,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  PieChart(
-                    PieChartData(
-                      sections: sections,
-                      centerSpaceRadius: 64,
-                      sectionsSpace: 3,
-                      pieTouchData: PieTouchData(
-                        touchCallback: (event, response) {
-                          if (!event.isInterestedForInteractions ||
-                              response == null ||
-                              response.touchedSection == null) {
-                            setState(() => _touchedIndex = null);
-                            return;
-                          }
-                          setState(() => _touchedIndex =
-                              response.touchedSection!.touchedSectionIndex);
-                        },
-                      ),
-                    ),
-                  ),
-                  // Center text
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                final chartSize = constraints.maxWidth.clamp(200.0, 320.0);
+                final centerRadius = (chartSize * 0.25).clamp(40.0, 80.0);
+                return SizedBox(
+                  height: chartSize * 0.7,
+                  child: Stack(
+                    alignment: Alignment.center,
                     children: [
-                      Text(
-                        centerValue,
-                        style: TextStyle(
-                          fontSize: _touchedIndex != null ? 22 : 20,
-                          fontWeight: FontWeight.w700,
-                          color: SpendlerColors.textPrimary,
-                          fontFeatures: const [FontFeature.tabularFigures()],
+                      PieChart(
+                        PieChartData(
+                          sections: sections,
+                          centerSpaceRadius: centerRadius,
+                          sectionsSpace: 3,
+                          pieTouchData: PieTouchData(
+                            touchCallback: (event, response) {
+                              if (!event.isInterestedForInteractions ||
+                                  response == null ||
+                                  response.touchedSection == null) {
+                                setState(() => _touchedIndex = null);
+                                return;
+                              }
+                              setState(() => _touchedIndex =
+                                  response.touchedSection!.touchedSectionIndex);
+                            },
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        centerLabel,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: SpendlerColors.textTertiary,
-                          fontWeight: FontWeight.w500,
-                        ),
+                      // Center text
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            centerValue,
+                            style: TextStyle(
+                              fontSize: _touchedIndex != null ? 22 : 20,
+                              fontWeight: FontWeight.w700,
+                              color: SpendlerColors.textPrimary,
+                              fontFeatures: const [FontFeature.tabularFigures()],
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            centerLabel,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: SpendlerColors.textTertiary,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
+                );
+              },
             );
           },
           loading: () => const SizedBox(
