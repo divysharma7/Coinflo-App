@@ -1,311 +1,212 @@
-# Paisa Bolta Design System
+# Design System Audit: Spendler
 
-> Dark. Bold. Tactile. Confident. Quiet. Specific.
->
-> Every interactive element behaves like a physical object that responds to touch.
-> Buttons press. Cards lift. Numbers settle. Sheets slide. Nothing teleports.
+> **Date:** 2026-05-10
+> **Score:** 88/100
 
 ---
 
-## Font
+## Summary
 
-**Primary:** Inter (Google Fonts, free)
-**Fallback:** system sans-serif
-
-| Role | Size | Weight | Usage |
-|------|------|--------|-------|
-| Hero number | 72 | Bold (700) | Weekly total, daily total |
-| Currency symbol | 36 | Regular (400) | "Rs" beside hero number |
-| Section title | 20 | SemiBold (600) | Tab headers, card titles |
-| Body | 14 | Regular (400) | Transaction rows, descriptions |
-| Caption / pill text | 10 | SemiBold (600) | Contextual pills, timestamps |
-| Micro label | 10 | Medium (500) | Chart axis labels |
-
-**Hero number rule:** The amount is always 2x the size of its label/symbol. `Rs` at 36, amount at 72. `Food` label at 14, amount at 28. This ratio is non-negotiable.
+**Components:** 10 | **Tokens files:** 6 | **Barrel export:** Complete
 
 ---
 
-## Colour Palette
+## Token Coverage
 
-### Base (Dark-first, OLED-friendly)
+| Category | Tokens Defined | Hardcoded Values | Status |
+|----------|---------------|------------------|--------|
+| Colors | 24 (base + gray + semantic + category + light variants) | 0 | CLEAN |
+| Spacing | 8 (xxs → xxxl) | 0 | CLEAN |
+| Typography | 12 styles (display, heading, body, label, numeric) | 0 | CLEAN |
+| Radii | 6 (xs → full) | 0 | CLEAN |
+| Shadows | 3 (sm, md, lg) | 0 | CLEAN |
+| Durations | 3 (fast, base, slow) | 0 | CLEAN |
+
+---
+
+## Color Palette
+
+### Base
 
 | Token | Hex | Usage |
 |-------|-----|-------|
-| `scaffold` | `#000000` | Page background |
-| `surface` | `#0A0A0A` | Card background |
-| `surfaceElevated` | `#141414` | Bottom sheets, dialogs |
-| `surfaceSecondary` | `#1A1A1A` | Nested cards, inputs |
-| `textPrimary` | `#FFFFFF` | Headings, amounts |
-| `textSecondary` | `#A0A0A0` | Labels, descriptions |
-| `textTertiary` | `#606060` | Hints, disabled |
+| `black` | `#0A0A0A` | Titles, buttons, selected states |
+| `white` | `#FFFFFF` | Card backgrounds, text on black |
+| `offWhite` | `#F5F5F5` | Screen backgrounds |
 
-### Accent Colours (one per screen)
+### Grays
 
-| Token | Hex | Where |
+| Token | Hex | Usage |
 |-------|-----|-------|
-| `accentYellow` | `#FFD60A` | Home screen dominant category highlight, NeoPOP buttons |
-| `accentGold` | `#C9A84C` | Family tab accent |
-| `accentBlue` | `#4DA8FF` | Analytics tab accent |
-| `accentGreen` | `#34D399` | Positive delta pills ("ON TRACK", income) |
-| `accentAmber` | `#F59E0B` | Warning delta pills ("+10% VS LAST WEEK") |
-| `accentRed` | `#F87171` | Negative/over-budget pills |
+| `gray100` | `#F0F0F0` | Input backgrounds, icon boxes |
+| `gray200` | `#E0E0E0` | Borders, inactive dots, dividers |
+| `gray300` | `#C8C8C8` | Sheet handle bars |
+| `gray400` | `#A0A0A0` | Hints, labels, inactive icons |
+| `gray500` | `#6E6E6E` | Subtitles, de-emphasized text |
+| `gray600` | `#4A4A4A` | Explainer body, generic icons |
 
-**Rule:** Maximum ONE saturated colour per screen. Everything else is grey. The dominant data point gets the accent. Five muted, one loud.
+### Semantic
 
-### Category Colours
+| Token | Hex | Usage |
+|-------|-----|-------|
+| `green` | `#22C55E` | Success, checkmarks, "On Track" |
+| `red` | `#EF4444` | Errors, over-budget, "Behind" |
+| `orange` | `#F97316` | Warnings, "At Risk" |
+| `orangeLight` | `#F97316` @ 10% | "At Risk" badge background |
+| `redLight` | `#EF4444` @ 10% | "Behind" badge background |
 
-| Category | Active (accent) | Muted (default) |
-|----------|-----------------|-----------------|
-| Rent | `#FFD60A` | `#3A3A3A` |
-| Transport | `#4DA8FF` | `#3A3A3A` |
-| Food | `#34D399` | `#3A3A3A` |
-| Family | `#C9A84C` | `#3A3A3A` |
-| Social | `#A78BFA` | `#3A3A3A` |
-| Other | `#9CA3AF` | `#3A3A3A` |
+### Category Pill Pairs
 
-Only the top category for the period gets its active colour. All others stay muted grey.
-
----
-
-## Spacing Scale (8pt grid)
-
-| Token | Value |
-|-------|-------|
-| `xs` | 4 |
-| `sm` | 8 |
-| `md` | 16 |
-| `lg` | 24 |
-| `xl` | 32 |
-| `xxl` | 48 |
-
-**Card padding:** 16 all sides.
-**Screen padding:** 16 horizontal, 24 top.
-**Between cards:** 12.
+| Name | Background | Text |
+|------|-----------|------|
+| Pink | `#FCE7F3` | `#BE185D` |
+| Orange | `#FEF3C7` | `#B45309` |
+| Purple | `#EDE9FE` | `#6D28D9` |
+| Blue | `#DBEAFE` | `#1D40AE` |
+| Green | `#DCFCE7` | `#15803D` |
+| Gray | `#F3F4F6` | `#374151` |
 
 ---
 
-## Corner Radii
+## Typography Scale
 
-| Element | Radius |
-|---------|--------|
-| Transaction card | 16 |
-| Bottom sheet | 24 (top only) |
-| Contextual pill | 100 (full round) |
-| NeoPOP button | 12 |
-| Chart bars | 6 (top only) |
-| FAB | 28 |
+| Token | Size | Weight | Spacing | Features | Usage |
+|-------|------|--------|---------|----------|-------|
+| `displayXL` | 40 | 700 | -1.5 | Tabular figures | Hero amounts |
+| `displayL` | 32 | 700 | -1.0 | Tabular figures | Currency symbols, sheet inputs |
+| `headingL` | 28 | 700 | -0.5 | — | Screen titles |
+| `headingM` | 22 | 700 | -0.3 | — | Sheet headers |
+| `headingS` | 17 | 600 | -0.2 | — | Card titles, button text |
+| `bodyL` | 17 | 400 | — | Line height 1.41 | Large body text |
+| `bodyM` | 15 | 400 | — | Line height 1.47 | Standard body text |
+| `bodyS` | 13 | 400 | — | Line height 1.38 | Secondary text |
+| `labelM` | 12 | 600 | +0.8 | — | Form labels (UPPERCASE) |
+| `labelS` | 11 | 500 | +0.6 | — | Badges, metadata |
+| `numericL` | 17 | 600 | — | Tabular figures | Primary amounts |
+| `numericM` | 15 | 500 | — | Tabular figures | Secondary amounts |
 
 ---
 
-## Components
+## Spacing (4pt Grid)
 
-### 1. NeoPOP Button
+| Token | Value | Usage |
+|-------|-------|-------|
+| `xxs` | 4px | Micro gaps |
+| `xs` | 8px | Dot spacing, chip gaps, icon-to-text |
+| `sm` | 12px | Between list cards, pill padding |
+| `md` | 16px | Card padding, form container padding |
+| `lg` | 20px | Screen horizontal padding, button padding |
+| `xl` | 24px | Title-to-content gap |
+| `xxl` | 32px | Large section gaps |
+| `xxxl` | 48px | Extra large gaps |
 
-**Where:** "Confirm All" button, "Share Weekly Poster" button. Two buttons only.
+---
 
-```
-Structure:
-  - Front layer: solid fill (accentYellow), 12px radius
-  - Back layer: same shape, darker shade (#B8960A), offset 4px right + 4px down
-  - Text: black, 16pt SemiBold, uppercase
+## Border Radii
 
-States:
-  - Default: front layer at origin, shadow visible
-  - Pressed: front layer translates (4, 4), covering back layer entirely
-  - Animation: 150ms ease-out
+| Token | Value | Usage |
+|-------|-------|-------|
+| `xs` | 6px | Keyword chips, small elements |
+| `sm` | 10px | Icon boxes, image clips |
+| `md` | 14px | Input containers, search bars |
+| `lg` | 20px | Reserved |
+| `xl` | 28px | Cards, containers, checkmark icon |
+| `full` | 999px | Buttons, pills, badges, progress dots |
 
-Flutter note: Use Transform.translate + GestureDetector onTapDown/onTapUp
-```
+---
 
-### 2. Hero Number
+## Shadows
 
-```
-Layout:
-  Row(
-    crossAxisAlignment: baseline,
-    children: [
-      Text("Rs", style: 36pt / w400 / textSecondary),
-      SizedBox(width: 4),
-      Text("4,200", style: 72pt / w700 / textPrimary),
-    ]
-  )
+| Token | Blur | Offset | Opacity | Usage |
+|-------|------|--------|---------|-------|
+| `sm` | 4px | (0, 1) | 6% | Default cards (standard) |
+| `md` | 12px | (0, 4) | 8% | Elevated cards (opt-in) |
+| `lg` | 24px | (0, 8) | 10% | Reserved |
 
-Rule: Number is ALWAYS larger and bolder than its label/symbol.
-```
+---
 
-### 3. Contextual Pill
+## Animation Durations
 
-```
-Container(
-  padding: EdgeInsets(h: 8, v: 4),
-  decoration: BoxDecoration(
-    color: accentAmber.withOpacity(0.15),
-    borderRadius: 100,
-  ),
-  child: Text(
-    "+10% VS LAST WEEK",
-    style: 10pt / w600 / accentAmber / ALL_CAPS,
-  ),
-)
+| Token | Value | Usage |
+|-------|-------|-------|
+| `fast` | 150ms | Press scale, selection transitions, AnimatedContainer |
+| `base` | 250ms | List insert/remove, progress bar |
+| `slow` | 400ms | Screen enter animations |
 
-Placement: directly below the hero number, left-aligned.
-Content examples:
-  - "+10% VS LAST WEEK" (amber)
-  - "TOP CATEGORY" (green)
-  - "ON TRACK" (green)
-  - "QUIETEST DAY" (blue)
-```
+---
 
-### 4. Transaction Card (Skeuomorphic Surface)
+## Component Completeness
 
-```
-Container(
-  decoration: BoxDecoration(
-    gradient: LinearGradient(
-      begin: topCenter,
-      end: bottomCenter,
-      colors: [surface.lighten(3%), surface],  // subtle top-light
-    ),
-    borderRadius: 16,
-    boxShadow: [
-      BoxShadow(
-        color: #000000 @ 40%,
-        offset: (0, 2),
-        blurRadius: 8,
-      ),
-    ],
-  ),
-)
+| Component | States | Variants | Configurable | Score |
+|-----------|--------|----------|--------------|-------|
+| `AppButton` | default, pressed, disabled | primary, ghost | label, onTap, variant, disabled | 8/10 |
+| `AppCard` | — | light, dark | child, padding, shadow | 8/10 |
+| `AppProgressIndicator` | — | — | currentStep, totalSteps | 9/10 |
+| `AppBackButton` | — | — | onTap | 9/10 |
+| `AppTextField` | default, error | — | label, hint, prefix, keyboardType, hasError | 8/10 |
+| `AppAddButton` | — | — | label, onTap | 8/10 |
+| `HealthBadge` | onTrack, atRisk, behind, completed | fromGoalHealth, fromPaymentHealth | — | 9/10 |
+| `AccountIcon` | loaded, fallback | — | name, type, size | 8/10 |
+| `CategoryPill` | — | — | category | 6/10 |
+| `AppBottomTabBar` | active, inactive | — | currentIndex, onTap | 7/10 |
 
-Content layout:
-  Row: [CategoryIcon] [MerchantName + Time] [Amount right-aligned]
-  Amount uses hero number ratio (amount 2x label size)
-```
+---
 
-### 5. Bottom Sheet (not new screens)
-
-**Use for:** mark as split, pick category, add family entry, confirm settlement, quick-add.
+## File Structure
 
 ```
-Specs:
-  - Max height: 40% of screen
-  - Background: surfaceElevated (#141414)
-  - Top radius: 24
-  - Drag handle: 40w x 4h, centered, textTertiary colour
-  - Scrim: #000000 @ 50%
-  - Entry animation: 300ms cubic-bezier(0.4, 0, 0.2, 1) slide up
-  - Exit: 250ms slide down
-```
-
-### 6. Sunday Digest Card Stack
-
-```
-Structure: PageView with 4 cards
-  - Card 1: Weekly total (hero number + delta pill)
-  - Card 2: Top category (icon + amount + "TOP CATEGORY" pill)
-  - Card 3: Quietest day (day name + amount + "QUIETEST DAY" pill)
-  - Card 4: Shareable poster preview + "Share to Story" NeoPOP button
-
-Specs:
-  - viewportFraction: 0.85 (next card peeks from right)
-  - Card height: 80% of screen
-  - Dot indicators at bottom: active = accentYellow, inactive = textTertiary
-  - Swipe physics: BouncingScrollPhysics
-```
-
-### 7. Bottom-Anchored CTA
-
-Every detail/confirmation screen has its primary action pinned to the bottom.
-
-```
-Positioned(
-  bottom: 0,
-  left: 0,
-  right: 0,
-  child: Padding(
-    padding: EdgeInsets(h: 16, bottom: safeArea + 16),
-    child: NeoPOPButton(...)  // or standard filled button for non-hero CTAs
-  ),
-)
-
-Non-hero CTA style: full-width, 56px height, accentYellow fill, black text,
-  12px radius, no NeoPOP shadow. Reserve NeoPOP for the two hero buttons.
-```
-
-### 8. Seven-Day Bar Chart (Home Screen)
-
-```
-Specs:
-  - 7 bars, equal width, 6px gap between
-  - Default bar colour: textTertiary (#606060)
-  - Today's bar: accentYellow
-  - Highest bar: also accentYellow (if not today)
-  - Bar radius: 6 top only
-  - Below each bar: day initial (M T W T F S S) in 10pt caption
-  - Above tallest bar: amount in 12pt, textSecondary
-  - Animation: bars grow from 0 to value over 400ms with overshoot curve
+lib/design_system/
+├── app_colors.dart              ← 24 color tokens
+├── app_text_styles.dart         ← 12 text styles
+├── app_spacing.dart             ← 8 spacing values (4pt grid)
+├── app_radius.dart              ← 6 border radius presets
+├── app_shadows.dart             ← 3 shadow levels
+├── app_durations.dart           ← 3 animation durations
+├── design_system.dart           ← Barrel export (16 exports)
+└── widgets/
+    ├── app_button.dart          ← Primary + ghost, scale press
+    ├── app_card.dart            ← Light + dark, configurable shadow
+    ├── app_progress_indicator.dart ← Step dots
+    ├── app_back_button.dart     ← Navigation back arrow
+    ├── app_text_field.dart      ← Labeled input with error state
+    ├── app_add_button.dart      ← Outlined pill with + icon
+    ├── category_pill.dart       ← Colored category tags
+    ├── bottom_tab_bar.dart      ← 4-tab bar with FAB gap
+    ├── account_icon.dart        ← Brand logo or generic fallback
+    └── health_badge.dart        ← RAG status badges
 ```
 
 ---
 
-## Animation Specs
+## Naming Conventions
 
-| Animation | Duration | Curve | Trigger |
-|-----------|----------|-------|---------|
-| NeoPOP press | 150ms | easeOut | onTapDown / onTapUp |
-| Number roll | 400ms | elasticOut (overshoot) | Value change |
-| Bottom sheet enter | 300ms | cubic(0.4, 0, 0.2, 1) | Open |
-| Bottom sheet exit | 250ms | cubic(0.4, 0, 0.2, 1) | Close / drag |
-| Bar chart grow | 400ms | elasticOut | Screen load |
-| Card stack swipe | physics-driven | BouncingScrollPhysics | User swipe |
-| Tab transition | 200ms | easeInOut | Tab change |
-
-**Number roll implementation:** Use `Tween<double>` with `AnimationController`. Display `value.toStringAsFixed(0)` formatted with commas on each frame. The elasticOut curve gives the overshoot-then-settle effect.
+| Pattern | Convention | Status |
+|---------|-----------|--------|
+| Token classes | `App[Category]` (AppColors, AppSpacing) | Consistent |
+| Widget classes | `App[Name]` (AppButton, AppCard) | Consistent |
+| Enum variants | camelCase (primary, ghost, light, dark) | Consistent |
+| File naming | snake_case matching class | Consistent |
+| Private helpers | Underscore prefix | Consistent |
 
 ---
 
-## What NOT To Do
+## Usage Rules
 
-- No celebratory animations (no confetti, no bouncing coins, no "JACKPOT")
-- No gradient backgrounds on data screens (flat dark only)
-- No equal-weight number + symbol (always hero ratio)
-- No rainbow category charts (one accent, rest muted)
-- No full-screen navigations for short interactions (bottom sheets only)
-- No Material default buttons on hero actions (NeoPOP only on the two)
-- No passive number changes (always animate)
-
----
-
-## Implementation Priority
-
-1. **Token file first** — create `lib/styles/paisa_tokens.dart` with all colours, spacing, radii
-2. **Hero number widget** — reusable `HeroAmount(symbol, value, deltaText, deltaType)`
-3. **NeoPOP button widget** — reusable `NeoPOPButton(label, onTap, color)`
-4. **Transaction card** — skeuomorphic surface with gradient + shadow
-5. **Bottom sheet wrapper** — consistent sheet with drag handle and animation
-6. **Animated number** — `AnimatedAmount` widget with roll + overshoot
-7. **Bar chart** — 7-day chart with accent highlighting
-8. **Card stack** — Sunday digest PageView
+1. **Single import**: `package:finance_buddy_app/design_system/design_system.dart`
+2. **No raw Text styles**: Use `AppTextStyles.*` or `.copyWith()`
+3. **No hardcoded colors**: Use `AppColors.*`
+4. **No hardcoded spacing**: Use `AppSpacing.*`
+5. **No hardcoded radii**: Use `AppRadius.*`
+6. **No hardcoded durations**: Use `AppDurations.*`
 
 ---
 
-## 5-Tab Navigation Bar
+## Remaining Improvements (Low Priority)
 
-```
-Background: scaffold (#000000)
-Height: 64 + safeArea
-Icon size: 24
-Label size: 10pt
-
-Inactive: textTertiary (#606060)
-Active: accentYellow (#FFD60A)
-
-Tabs: Home | Transactions | [FAB] | Family | Analytics
-
-Centre FAB:
-  - 56px circle
-  - accentYellow fill
-  - "+" icon in black
-  - Elevated 4px shadow
-  - Tap opens quick-add bottom sheet (not a new screen)
-```
+| Item | Why Deferred |
+|------|--------------|
+| `CategoryPill` maps only 6 of 40 categories | Fallback works; expand when transaction UI is built |
+| Refactor 11 screens to use new shared widgets | Mechanical — do when touching files next |
+| Add doc comments to all widget classes | Non-blocking; add incrementally |
+| `AppButton` loading state | No async buttons in current screens |
+| `AppBottomTabBar` badge support | Future feature |
