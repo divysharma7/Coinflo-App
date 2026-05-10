@@ -253,7 +253,7 @@ class _ShimmerBoxState extends State<ShimmerBox>
               end: Alignment(-1.0 + _ctrl.value * 3 + 1, 0),
               colors: const [
                 SpendlerColors.surface,
-                Color(0xFFE5E7EB),
+                SpendlerColors.border,
                 SpendlerColors.surface,
               ],
               stops: const [0.0, 0.5, 1.0],

@@ -48,9 +48,9 @@ class _HeadlineInsightSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        SpendlerSpacing.screenH + 4,
+        SpendlerSpacing.screenH,
         MediaQuery.paddingOf(context).top + SpendlerSpacing.lg,
-        SpendlerSpacing.screenH + 4,
+        SpendlerSpacing.screenH,
         0,
       ),
       child: Column(
@@ -203,7 +203,7 @@ class _MonthlyComparisonSection extends ConsumerWidget {
         DateFormat('MMM').format(DateTime(now.year, now.month - 1));
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH + 4),
+      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -286,7 +286,7 @@ class _MonthlyComparisonSection extends ConsumerWidget {
                             ),
                             Expanded(
                               child: ClipRRect(
-                                borderRadius: BorderRadius.circular(2),
+                                borderRadius: BorderRadius.circular(SpendlerRadii.progressBar),
                                 child: LinearProgressIndicator(
                                   value: maxAmt > 0 ? thisAmt / maxAmt : 0,
                                   backgroundColor: SpendlerColors.border,
@@ -321,7 +321,7 @@ class _MonthlyComparisonSection extends ConsumerWidget {
                             ),
                             Expanded(
                               child: ClipRRect(
-                                borderRadius: BorderRadius.circular(2),
+                                borderRadius: BorderRadius.circular(SpendlerRadii.progressBar),
                                 child: LinearProgressIndicator(
                                   value: maxAmt > 0 ? lastAmt / maxAmt : 0,
                                   backgroundColor: SpendlerColors.border,
@@ -445,7 +445,7 @@ class _TopMerchantsSection extends ConsumerWidget {
     final merchants = ref.watch(topMerchantsProvider);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH + 4),
+      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

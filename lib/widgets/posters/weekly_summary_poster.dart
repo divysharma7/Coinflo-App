@@ -27,7 +27,7 @@ class WeeklySummaryPoster extends StatelessWidget {
       padding: const EdgeInsets.all(SpendlerSpacing.lg),
       decoration: BoxDecoration(
         color: SpendlerColors.surface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(SpendlerRadii.card),
         boxShadow: SpendlerShadows.card,
       ),
       child: Column(

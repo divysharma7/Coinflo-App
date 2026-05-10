@@ -277,7 +277,7 @@ class _BudgetCard extends StatelessWidget {
                   height: 36,
                   decoration: BoxDecoration(
                     color: categoryColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(SpendlerRadii.button),
                   ),
                   child: Center(
                     child: PhosphorIcon(
@@ -963,7 +963,7 @@ class _AddGoalSheetState extends ConsumerState<_AddGoalSheet> {
                           color: isSelected
                               ? SpendlerColors.accent.withValues(alpha: 0.15)
                               : SpendlerColors.progressTrack,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(SpendlerRadii.button),
                           border: isSelected
                               ? Border.all(
                                   color: SpendlerColors.accent, width: 1.5)

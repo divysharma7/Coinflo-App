@@ -24,7 +24,7 @@ class TransactionsPage extends ConsumerWidget {
 
     return Column(
       children: [
-        SizedBox(height: MediaQuery.paddingOf(context).top + 16),
+        SizedBox(height: MediaQuery.paddingOf(context).top + SpendlerSpacing.md),
 
         // Header + filter button
         Padding(
@@ -157,7 +157,7 @@ class TransactionsPage extends ConsumerWidget {
 
               if (unconfirmed.isNotEmpty) {
                 items.add(const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
+                  padding: EdgeInsets.fromLTRB(SpendlerSpacing.screenH, SpendlerSpacing.sm, SpendlerSpacing.screenH, SpendlerSpacing.xs),
                   child: Text('UNCONFIRMED', style: SpendlerTextStyles.sectionLabel),
                 ));
                 for (final t in unconfirmed) {
@@ -167,7 +167,7 @@ class TransactionsPage extends ConsumerWidget {
               }
               if (confirmed.isNotEmpty) {
                 items.add(const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
+                  padding: EdgeInsets.fromLTRB(SpendlerSpacing.screenH, SpendlerSpacing.sm, SpendlerSpacing.screenH, SpendlerSpacing.xs),
                   child: Text('CONFIRMED', style: SpendlerTextStyles.sectionLabel),
                 ));
                 for (final t in confirmed) {
@@ -207,14 +207,14 @@ class TransactionsPage extends ConsumerWidget {
         );
       },
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        margin: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.cardGap, vertical: 2),
+        padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.cardGap, vertical: 10),
         decoration: BoxDecoration(
           color: isUnconfirmed ? SpendlerColors.warning.withValues(alpha: 0.06) : null,
           border: isUnconfirmed
               ? const Border(left: BorderSide(color: SpendlerColors.warning, width: 3))
               : null,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(SpendlerRadii.button),
         ),
         child: Row(
           children: [
@@ -222,7 +222,7 @@ class TransactionsPage extends ConsumerWidget {
               backgroundColor: catColor.withValues(alpha: 0.15),
               child: Icon(cat.iconFill, color: catColor, size: 20),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: SpendlerSpacing.cardGap),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

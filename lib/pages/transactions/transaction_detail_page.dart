@@ -187,7 +187,7 @@ class _TransactionDetailPageState
     final isUnconfirmed = t.status == 'unconfirmed';
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(SpendlerSpacing.screenH),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -339,7 +339,7 @@ class _TransactionDetailPageState
 
   Widget _buildEditMode(SpendlerTransaction t) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(SpendlerSpacing.screenH),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

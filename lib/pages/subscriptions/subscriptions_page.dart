@@ -230,7 +230,7 @@ class _SubscriptionCard extends StatelessWidget {
             height: 44,
             decoration: BoxDecoration(
               color: catColor.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(SpendlerRadii.button),
             ),
             child: Icon(cat.icon, color: catColor, size: 22),
           ),

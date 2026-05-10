@@ -97,7 +97,10 @@ class ShellPage extends ConsumerWidget {
               height: 56,
               child: FloatingActionButton(
                 onPressed: () => _onFabPressed(context, ref),
+                backgroundColor: SpendlerColors.primary,
+                foregroundColor: Colors.white,
                 elevation: 4,
+                shape: const CircleBorder(),
                 child: const PhosphorIcon(PhosphorIconsBold.plus, size: 28),
               ),
             ),
