@@ -27,85 +27,92 @@ void main() {
   });
 
   group('OnboardingPage', () {
-    testWidgets('step 1 shows currency list with search and continue',
+    testWidgets('step 1 shows brand identity with app name and tagline',
         (tester) async {
       await tester.pumpWidget(buildWidget());
       await tester.pumpAndSettle();
 
-      expect(find.text('Choose your currency'), findsOneWidget);
-      expect(
-        find.text('This will be used across the app for all amounts.'),
-        findsOneWidget,
-      );
-      expect(find.text('Search currency...'), findsOneWidget);
-      expect(find.text('Continue'), findsOneWidget);
-      expect(find.text('Indian Rupee'), findsOneWidget);
+      expect(find.text('\$'), findsOneWidget);
+      expect(find.text('SPENDLER'), findsOneWidget);
+      expect(find.text('Track your spending habits.'), findsOneWidget);
     });
 
-    testWidgets('step 1 has search TextField and currency ListView',
+    testWidgets('step 1 is tappable to advance via GestureDetector',
         (tester) async {
       await tester.pumpWidget(buildWidget());
       await tester.pumpAndSettle();
 
-      expect(find.byType(TextField), findsOneWidget);
-      expect(find.byType(ListView), findsOneWidget);
-      expect(find.byType(ListTile), findsWidgets);
+      // The identity screen is wrapped in a GestureDetector
+      expect(find.byType(GestureDetector), findsWidgets);
+      expect(find.text('SPENDLER'), findsOneWidget);
     });
 
-    testWidgets('step 2 shows account form after continue', (tester) async {
-      await tester.pumpWidget(buildWidget());
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Continue'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Add your accounts'), findsOneWidget);
-      // "Cash" appears as both account name and type label
-      expect(find.text('Cash'), findsWidgets);
-      expect(find.text('Add another account'), findsOneWidget);
-    });
-
-    testWidgets('step 3 budget picker title exists in page list',
+    testWidgets('step 2 shows name input after tapping step 1',
         (tester) async {
       await tester.pumpWidget(buildWidget());
       await tester.pumpAndSettle();
 
-      // The budget step is in the PageView children but not visible on step 1.
-      // Verify the PageView exists with all 10 steps rendered.
+      // Tap to advance from identity screen
+      await tester.tap(find.text('SPENDLER'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('What should we\ncall you?'), findsOneWidget);
+      expect(find.text('Your first name'), findsOneWidget);
+      expect(find.text('Next \u2192'), findsOneWidget);
+    });
+
+    testWidgets('PageView exists with 5 step pages', (tester) async {
+      await tester.pumpWidget(buildWidget());
+      await tester.pumpAndSettle();
+
       expect(find.byType(PageView), findsOneWidget);
-      // Step 1 is visible
-      expect(find.text('Choose your currency'), findsOneWidget);
     });
 
-    testWidgets('progress bar advances on continue', (tester) async {
+    testWidgets('dot indicators are shown for all pages', (tester) async {
       await tester.pumpWidget(buildWidget());
       await tester.pumpAndSettle();
 
-      expect(find.text('Choose your currency'), findsOneWidget);
-
-      await tester.tap(find.text('Continue'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Add your accounts'), findsOneWidget);
-      expect(find.text('Choose your currency'), findsNothing);
+      // 5 dot indicators rendered as AnimatedContainer
+      expect(find.byType(AnimatedContainer), findsNWidgets(5));
     });
 
-    testWidgets('NeverScrollableScrollPhysics prevents swipe navigation',
+    testWidgets('BouncingScrollPhysics allows swipe navigation',
         (tester) async {
       await tester.pumpWidget(buildWidget());
       await tester.pumpAndSettle();
 
+      // Swipe left to go to step 2 (name screen)
       await tester.fling(find.byType(PageView), const Offset(-400, 0), 800);
       await tester.pumpAndSettle();
 
-      expect(find.text('Choose your currency'), findsOneWidget);
+      expect(find.text('What should we\ncall you?'), findsOneWidget);
     });
 
-    testWidgets('PageView exists with 10 step pages', (tester) async {
+    testWidgets('step 1 brand screen shows dollar sign hero',
+        (tester) async {
       await tester.pumpWidget(buildWidget());
       await tester.pumpAndSettle();
 
-      expect(find.byType(PageView), findsOneWidget);
+      // Verify the dollar sign is displayed as a hero element
+      expect(find.text('\$'), findsOneWidget);
+      expect(find.text('SPENDLER'), findsOneWidget);
+    });
+
+    testWidgets('last step shows start button with SMS access',
+        (tester) async {
+      await tester.pumpWidget(buildWidget());
+      await tester.pumpAndSettle();
+
+      // Navigate to the last page by swiping one page at a time
+      for (int i = 0; i < 4; i++) {
+        await tester.fling(find.byType(PageView), const Offset(-400, 0), 800);
+        await tester.pumpAndSettle();
+      }
+
+      expect(find.text('Let\'s get started.'), findsOneWidget);
+      // NeoPOPButton uppercases the label
+      expect(find.text('ALLOW SMS ACCESS'), findsOneWidget);
+      expect(find.text('I\'ll add manually'), findsOneWidget);
     });
   });
 }

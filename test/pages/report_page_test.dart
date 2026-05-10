@@ -44,11 +44,11 @@ void main() {
   }
 
   group('ReportPage', () {
-    testWidgets('renders Report header title', (tester) async {
+    testWidgets('renders Monthly Report header title', (tester) async {
       await tester.pumpWidget(buildWidget());
       await tester.pump();
 
-      expect(find.text('Report'), findsOneWidget);
+      expect(find.text('Monthly Report'), findsOneWidget);
     });
 
     testWidgets('renders scope selector with Week, Month, Year',
@@ -84,13 +84,13 @@ void main() {
       expect(find.text(expectedLabel), findsOneWidget);
     });
 
-    testWidgets('shows filter cards (Expenses, Income, Net) when data loads',
+    testWidgets('shows summary cards (Income, Expenses, Net) when data loads',
         (tester) async {
       await tester.pumpWidget(buildWidget());
       await tester.pumpAndSettle();
 
-      expect(find.text('Expenses'), findsOneWidget);
       expect(find.text('Income'), findsOneWidget);
+      expect(find.text('Expenses'), findsOneWidget);
       expect(find.text('Net'), findsOneWidget);
     });
 
@@ -98,17 +98,17 @@ void main() {
       await tester.pumpWidget(buildWidget());
       await tester.pumpAndSettle();
 
-      expect(find.text('No data for this month'), findsOneWidget);
+      expect(find.text('No data for this month.'), findsOneWidget);
     });
 
     testWidgets('back arrow icon exists for navigation', (tester) async {
       await tester.pumpWidget(buildWidget());
       await tester.pump();
 
-      expect(find.byIcon(Icons.chevron_left), findsOneWidget);
+      expect(find.byIcon(Icons.arrow_back_ios_new_rounded), findsOneWidget);
     });
 
-    testWidgets('filter cards show \$0 amounts when no transactions',
+    testWidgets('summary cards show \$0 amounts when no transactions',
         (tester) async {
       await tester.pumpWidget(buildWidget());
       await tester.pumpAndSettle();
