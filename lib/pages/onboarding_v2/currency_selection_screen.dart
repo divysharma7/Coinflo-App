@@ -144,27 +144,8 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen>
               child: _buildProgressIndicator(),
             ),
 
-            // Back button
-            Padding(
-              padding: const EdgeInsets.only(
-                left: AppSpacing.md,
-                top: AppSpacing.md,
-              ),
-              child: GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: const SizedBox(
-                  width: 44,
-                  height: 44,
-                  child: Center(
-                    child: Icon(
-                      Icons.arrow_back_ios_new,
-                      size: 20,
-                      color: AppColors.black,
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            // No back button on step 1 — splash was replaced, nothing to pop to
+            const SizedBox(height: AppSpacing.md),
 
             // Title & subtitle
             Padding(
