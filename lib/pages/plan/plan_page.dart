@@ -4,10 +4,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:finance_buddy_app/core/enums.dart';
-import 'package:finance_buddy_app/core/tokens.dart';
+import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/widgets/common/animations.dart';
+
+// ─── Category color helper ────────────────────────────
+
+Color _categoryColor(TransactionCategory cat) {
+  const map = <TransactionCategory, Color>{
+    TransactionCategory.foodAndDrink: Color(0xFFFF8A4C),
+    TransactionCategory.transport: Color(0xFF4A8FE7),
+    TransactionCategory.shopping: Color(0xFFB19CD9),
+    TransactionCategory.billsAndUtilities: Color(0xFFF59E0B),
+    TransactionCategory.healthAndWellness: Color(0xFF22C55E),
+    TransactionCategory.entertainment: Color(0xFFE91E63),
+    TransactionCategory.streaming: Color(0xFFEC407A),
+    TransactionCategory.gymFitness: Color(0xFF4CAF50),
+    TransactionCategory.productivityTools: Color(0xFF9575CD),
+    TransactionCategory.personalCare: Color(0xFFF8BBD0),
+    TransactionCategory.education: Color(0xFF5C6BC0),
+    TransactionCategory.travel: Color(0xFF14B8A6),
+    TransactionCategory.other: Color(0xFF6E6E73),
+  };
+  return map[cat] ?? const Color(0xFF6E6E73);
+}
 
 class PlanPage extends ConsumerWidget {
   const PlanPage({super.key});
@@ -15,19 +36,19 @@ class PlanPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      backgroundColor: SpendlerColors.scaffold,
+      backgroundColor: AppColors.offWhite,
       body: CustomScrollView(
         slivers: [
           const _HeroHeader(),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                const SizedBox(height: SpendlerSpacing.lg),
+                const SizedBox(height: AppSpacing.xl),
                 const _BudgetsSection(),
-                const SizedBox(height: SpendlerSpacing.sectionGap),
+                const SizedBox(height: AppSpacing.xxl),
                 const _GoalsSection(),
-                const SizedBox(height: SpendlerSpacing.xxl),
+                const SizedBox(height: AppSpacing.xxxl),
               ]),
             ),
           ),
@@ -47,41 +68,38 @@ class _HeroHeader extends ConsumerWidget {
     return SliverToBoxAdapter(
       child: Container(
         decoration: const BoxDecoration(
-          color: SpendlerColors.heroBackground,
+          color: AppColors.black,
           borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(SpendlerRadii.card),
+            bottom: Radius.circular(20),
           ),
         ),
         child: SafeArea(
           bottom: false,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(
-              SpendlerSpacing.screenH,
-              SpendlerSpacing.md,
-              SpendlerSpacing.screenH,
-              SpendlerSpacing.lg,
+              AppSpacing.lg,
+              AppSpacing.md,
+              AppSpacing.lg,
+              AppSpacing.xl,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Plan',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w700,
-                    color: SpendlerColors.heroText,
+                  style: AppTextStyles.headingL.copyWith(
+                    color: AppColors.white,
                     height: 1.2,
                   ),
                 ),
-                const SizedBox(height: SpendlerSpacing.xs),
+                const SizedBox(height: AppSpacing.xxs),
                 ref.watch(budgetStatusProvider).when(
                   data: (status) {
                     if (status.totalLimit == 0) {
-                      return const Text(
+                      return Text(
                         'Set budgets to track your spending',
-                        style: TextStyle(
-                          fontSize: 15,
-                          color: SpendlerColors.heroTextSecondary,
+                        style: AppTextStyles.bodyM.copyWith(
+                          color: AppColors.gray400,
                         ),
                       );
                     }
@@ -89,20 +107,18 @@ class _HeroHeader extends ConsumerWidget {
                       status.remaining >= 0
                           ? '\$${status.remaining.toStringAsFixed(0)} left this month'
                           : '\$${status.remaining.abs().toStringAsFixed(0)} over budget',
-                      style: TextStyle(
-                        fontSize: 15,
+                      style: AppTextStyles.bodyM.copyWith(
                         color: status.isOverBudget
-                            ? SpendlerColors.overBudget
-                            : SpendlerColors.onTrack,
+                            ? AppColors.red
+                            : AppColors.green,
                         fontWeight: FontWeight.w500,
                       ),
                     );
                   },
-                  loading: () => const Text(
+                  loading: () => Text(
                     'Loading...',
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: SpendlerColors.heroTextSecondary,
+                    style: AppTextStyles.bodyM.copyWith(
+                      color: AppColors.gray400,
                     ),
                   ),
                   error: (_, _) => const SizedBox.shrink(),
@@ -132,25 +148,24 @@ class _BudgetsSection extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
+            Text(
               'BUDGETS',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: SpendlerColors.textTertiary,
+              style: AppTextStyles.labelS.copyWith(
+                color: AppColors.gray500,
                 letterSpacing: 1.5,
+                fontWeight: FontWeight.w600,
               ),
             ),
             GestureDetector(
               onTap: () => _showAddBudgetSheet(context, ref),
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: SpendlerSpacing.sm,
-                  vertical: SpendlerSpacing.xs,
+                  horizontal: AppSpacing.xs,
+                  vertical: AppSpacing.xxs,
                 ),
                 decoration: BoxDecoration(
-                  color: SpendlerColors.accent.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(SpendlerRadii.pill),
+                  color: AppColors.black.withValues(alpha: 0.1),
+                  borderRadius: AppRadius.full,
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -158,15 +173,13 @@ class _BudgetsSection extends ConsumerWidget {
                     Icon(
                       PhosphorIcons.plus(),
                       size: 14,
-                      color: SpendlerColors.accent,
+                      color: AppColors.black,
                     ),
                     const SizedBox(width: 4),
-                    const Text(
+                    Text(
                       'Add',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: SpendlerColors.accent,
+                      style: AppTextStyles.labelM.copyWith(
+                        color: AppColors.black,
                       ),
                     ),
                   ],
@@ -175,7 +188,7 @@ class _BudgetsSection extends ConsumerWidget {
             ),
           ],
         ),
-        const SizedBox(height: SpendlerSpacing.cardGap),
+        const SizedBox(height: AppSpacing.sm),
         budgets.when(
           data: (budgetList) {
             if (budgetList.isEmpty) {
@@ -198,7 +211,7 @@ class _BudgetsSection extends ConsumerWidget {
                         ),
                       ),
                       if (i < budgetList.length - 1)
-                        const SizedBox(height: SpendlerSpacing.cardGap),
+                        const SizedBox(height: AppSpacing.sm),
                     ],
                   ],
                 );
@@ -218,10 +231,10 @@ class _BudgetsSection extends ConsumerWidget {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
-          top: Radius.circular(SpendlerRadii.sheet),
+          top: Radius.circular(24),
         ),
       ),
       showDragHandle: true,
@@ -255,17 +268,17 @@ class _BudgetCard extends StatelessWidget {
         ? (spent / budget.monthlyLimit).clamp(0.0, 1.5)
         : 0.0;
     final isOver = spent > budget.monthlyLimit;
-    final categoryColor = SpendlerColors.categoryColor(category);
-    final barColor = isOver ? SpendlerColors.overBudget : categoryColor;
+    final categoryColor = _categoryColor(category);
+    final barColor = isOver ? AppColors.red : categoryColor;
 
     return GestureDetector(
       onLongPress: () => _showDeleteDialog(context),
       child: Container(
-        padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
-        decoration: BoxDecoration(
-          color: SpendlerColors.card,
-          borderRadius: BorderRadius.circular(SpendlerRadii.card),
-          boxShadow: SpendlerShadows.card,
+        padding: const EdgeInsets.all(AppSpacing.md),
+        decoration: const BoxDecoration(
+          color: AppColors.white,
+          borderRadius: AppRadius.lg,
+          boxShadow: AppShadows.sm,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -277,7 +290,7 @@ class _BudgetCard extends StatelessWidget {
                   height: 36,
                   decoration: BoxDecoration(
                     color: categoryColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(SpendlerRadii.button),
+                    borderRadius: AppRadius.sm,
                   ),
                   child: Center(
                     child: PhosphorIcon(
@@ -287,43 +300,39 @@ class _BudgetCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: SpendlerSpacing.cardGap),
+                const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Text(
                     category.label,
-                    style: const TextStyle(
-                      fontSize: 15,
+                    style: AppTextStyles.bodyM.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: SpendlerColors.textPrimary,
+                      color: AppColors.black,
                     ),
                   ),
                 ),
                 Text(
                   '\$${spent.toStringAsFixed(0)} / \$${budget.monthlyLimit.toStringAsFixed(0)}',
-                  style: TextStyle(
-                    fontSize: 13,
+                  style: AppTextStyles.bodyS.copyWith(
                     fontWeight: FontWeight.w500,
-                    color: isOver
-                        ? SpendlerColors.overBudget
-                        : SpendlerColors.textSecondary,
+                    color: isOver ? AppColors.red : AppColors.gray500,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: SpendlerSpacing.cardGap),
+            const SizedBox(height: AppSpacing.sm),
             // Progress bar — 6pt tall, fully rounded
             ClipRRect(
-              borderRadius: BorderRadius.circular(SpendlerRadii.progressBar),
+              borderRadius: const BorderRadius.all(Radius.circular(3)),
               child: SizedBox(
                 height: 6,
                 child: Stack(
                   children: [
                     // Track
                     Container(
-                      decoration: BoxDecoration(
-                        color: SpendlerColors.progressTrack,
+                      decoration: const BoxDecoration(
+                        color: AppColors.gray200,
                         borderRadius:
-                            BorderRadius.circular(SpendlerRadii.progressBar),
+                            BorderRadius.all(Radius.circular(3)),
                       ),
                     ),
                     // Fill
@@ -333,7 +342,7 @@ class _BudgetCard extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: barColor,
                           borderRadius:
-                              BorderRadius.circular(SpendlerRadii.progressBar),
+                              const BorderRadius.all(Radius.circular(3)),
                         ),
                       ),
                     ),
@@ -342,13 +351,11 @@ class _BudgetCard extends StatelessWidget {
               ),
             ),
             if (isOver) ...[
-              const SizedBox(height: SpendlerSpacing.sm),
+              const SizedBox(height: AppSpacing.xs),
               Text(
                 '\$${(spent - budget.monthlyLimit).toStringAsFixed(0)} over limit',
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                  color: SpendlerColors.overBudget,
+                style: AppTextStyles.labelS.copyWith(
+                  color: AppColors.red,
                 ),
               ),
             ],
@@ -374,7 +381,7 @@ class _BudgetCard extends StatelessWidget {
               Navigator.pop(ctx);
               onDelete();
             },
-            child: const Text('Delete', style: TextStyle(color: SpendlerColors.overBudget)),
+            child: const Text('Delete', style: TextStyle(color: AppColors.red)),
           ),
         ],
       ),
@@ -397,25 +404,24 @@ class _GoalsSection extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
+            Text(
               'GOALS',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: SpendlerColors.textTertiary,
+              style: AppTextStyles.labelS.copyWith(
+                color: AppColors.gray500,
                 letterSpacing: 1.5,
+                fontWeight: FontWeight.w600,
               ),
             ),
             GestureDetector(
               onTap: () => _showAddGoalSheet(context),
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: SpendlerSpacing.sm,
-                  vertical: SpendlerSpacing.xs,
+                  horizontal: AppSpacing.xs,
+                  vertical: AppSpacing.xxs,
                 ),
                 decoration: BoxDecoration(
-                  color: SpendlerColors.accent.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(SpendlerRadii.pill),
+                  color: AppColors.black.withValues(alpha: 0.1),
+                  borderRadius: AppRadius.full,
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -423,15 +429,13 @@ class _GoalsSection extends ConsumerWidget {
                     Icon(
                       PhosphorIcons.plus(),
                       size: 14,
-                      color: SpendlerColors.accent,
+                      color: AppColors.black,
                     ),
                     const SizedBox(width: 4),
-                    const Text(
+                    Text(
                       'Add',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: SpendlerColors.accent,
+                      style: AppTextStyles.labelM.copyWith(
+                        color: AppColors.black,
                       ),
                     ),
                   ],
@@ -440,7 +444,7 @@ class _GoalsSection extends ConsumerWidget {
             ),
           ],
         ),
-        const SizedBox(height: SpendlerSpacing.cardGap),
+        const SizedBox(height: AppSpacing.sm),
         goals.when(
           data: (goalList) {
             if (goalList.isEmpty) {
@@ -461,7 +465,7 @@ class _GoalsSection extends ConsumerWidget {
                     ),
                   ),
                   if (i < goalList.length - 1)
-                    const SizedBox(height: SpendlerSpacing.cardGap),
+                    const SizedBox(height: AppSpacing.sm),
                 ],
               ],
             );
@@ -477,10 +481,10 @@ class _GoalsSection extends ConsumerWidget {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
-          top: Radius.circular(SpendlerRadii.sheet),
+          top: Radius.circular(24),
         ),
       ),
       showDragHandle: true,
@@ -493,10 +497,10 @@ class _GoalsSection extends ConsumerWidget {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
-          top: Radius.circular(SpendlerRadii.sheet),
+          top: Radius.circular(24),
         ),
       ),
       showDragHandle: true,
@@ -553,11 +557,11 @@ class _GoalCard extends StatelessWidget {
     return GestureDetector(
       onLongPress: () => _showDeleteDialog(context),
       child: Container(
-        padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
-        decoration: BoxDecoration(
-          color: SpendlerColors.card,
-          borderRadius: BorderRadius.circular(SpendlerRadii.card),
-          boxShadow: SpendlerShadows.card,
+        padding: const EdgeInsets.all(AppSpacing.md),
+        decoration: const BoxDecoration(
+          color: AppColors.white,
+          borderRadius: AppRadius.lg,
+          boxShadow: AppShadows.sm,
         ),
         child: Row(
           children: [
@@ -569,37 +573,35 @@ class _GoalCard extends StatelessWidget {
                 painter: _GoalRingPainter(
                   progress: progress,
                   strokeWidth: 5,
-                  foregroundColor: SpendlerColors.accent,
-                  backgroundColor: SpendlerColors.progressTrack,
+                  foregroundColor: AppColors.black,
+                  backgroundColor: AppColors.gray200,
                 ),
                 child: Center(
                   child: PhosphorIcon(
                     _resolveIcon(goal.iconName),
                     size: 22,
-                    color: SpendlerColors.accent,
+                    color: AppColors.black,
                   ),
                 ),
               ),
             ),
-            const SizedBox(width: SpendlerSpacing.md),
+            const SizedBox(width: AppSpacing.md),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     goal.name,
-                    style: const TextStyle(
-                      fontSize: 15,
+                    style: AppTextStyles.bodyM.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: SpendlerColors.textPrimary,
+                      color: AppColors.black,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     '\$${goal.currentAmount.toStringAsFixed(0)} of \$${goal.targetAmount.toStringAsFixed(0)}',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: SpendlerColors.textSecondary,
+                    style: AppTextStyles.bodyS.copyWith(
+                      color: AppColors.gray500,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -607,12 +609,10 @@ class _GoalCard extends StatelessWidget {
                     remaining > 0
                         ? '\$${remaining.toStringAsFixed(0)} to go'
                         : 'Goal reached!',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
+                    style: AppTextStyles.labelS.copyWith(
                       color: remaining > 0
-                          ? SpendlerColors.textTertiary
-                          : SpendlerColors.onTrack,
+                          ? AppColors.gray500
+                          : AppColors.green,
                     ),
                   ),
                 ],
@@ -625,14 +625,14 @@ class _GoalCard extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: SpendlerColors.accent.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(SpendlerRadii.button),
+                  color: AppColors.black.withValues(alpha: 0.1),
+                  borderRadius: AppRadius.sm,
                 ),
                 child: Center(
                   child: Icon(
                     PhosphorIcons.plus(),
                     size: 20,
-                    color: SpendlerColors.accent,
+                    color: AppColors.black,
                   ),
                 ),
               ),
@@ -659,7 +659,7 @@ class _GoalCard extends StatelessWidget {
               Navigator.pop(ctx);
               onDelete();
             },
-            child: const Text('Delete', style: TextStyle(color: SpendlerColors.overBudget)),
+            child: const Text('Delete', style: TextStyle(color: AppColors.red)),
           ),
         ],
       ),
@@ -733,30 +733,28 @@ class _AddBudgetSheetState extends ConsumerState<_AddBudgetSheet> {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(
-        left: SpendlerSpacing.screenH,
-        right: SpendlerSpacing.screenH,
-        bottom: MediaQuery.viewInsetsOf(context).bottom + SpendlerSpacing.md,
+        left: AppSpacing.lg,
+        right: AppSpacing.lg,
+        bottom: MediaQuery.viewInsetsOf(context).bottom + AppSpacing.md,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Set Budget',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: SpendlerColors.textPrimary,
+            style: AppTextStyles.headingM.copyWith(
+              color: AppColors.black,
             ),
           ),
-          const SizedBox(height: SpendlerSpacing.lg),
+          const SizedBox(height: AppSpacing.xl),
           // Category picker
           Wrap(
-            spacing: SpendlerSpacing.sm,
-            runSpacing: SpendlerSpacing.sm,
+            spacing: AppSpacing.xs,
+            runSpacing: AppSpacing.xs,
             children: TransactionCategory.values.map((cat) {
               final isSelected = cat == _selected;
-              final color = SpendlerColors.categoryColor(cat);
+              final color = _categoryColor(cat);
               return GestureDetector(
                 onTap: () => setState(() => _selected = cat),
                 child: Container(
@@ -767,8 +765,8 @@ class _AddBudgetSheetState extends ConsumerState<_AddBudgetSheet> {
                   decoration: BoxDecoration(
                     color: isSelected
                         ? color.withValues(alpha: 0.15)
-                        : SpendlerColors.progressTrack,
-                    borderRadius: BorderRadius.circular(SpendlerRadii.pill),
+                        : AppColors.gray200,
+                    borderRadius: AppRadius.full,
                     border: isSelected
                         ? Border.all(color: color, width: 1.5)
                         : null,
@@ -780,13 +778,10 @@ class _AddBudgetSheetState extends ConsumerState<_AddBudgetSheet> {
                       const SizedBox(width: 6),
                       Text(
                         cat.label,
-                        style: TextStyle(
-                          fontSize: 13,
+                        style: AppTextStyles.bodyS.copyWith(
                           fontWeight:
                               isSelected ? FontWeight.w600 : FontWeight.w400,
-                          color: isSelected
-                              ? color
-                              : SpendlerColors.textSecondary,
+                          color: isSelected ? color : AppColors.gray500,
                         ),
                       ),
                     ],
@@ -795,52 +790,34 @@ class _AddBudgetSheetState extends ConsumerState<_AddBudgetSheet> {
               );
             }).toList(),
           ),
-          const SizedBox(height: SpendlerSpacing.lg),
+          const SizedBox(height: AppSpacing.xl),
           // Amount field
           TextField(
             controller: _amountCtrl,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             autofocus: true,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               labelText: 'Monthly limit (\$)',
-              labelStyle: const TextStyle(color: SpendlerColors.textSecondary),
+              labelStyle: TextStyle(color: AppColors.gray500),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(SpendlerRadii.button),
-                borderSide: const BorderSide(color: SpendlerColors.separator),
+                borderRadius: AppRadius.sm,
+                borderSide: BorderSide(color: AppColors.gray200),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(SpendlerRadii.button),
-                borderSide:
-                    const BorderSide(color: SpendlerColors.accent, width: 1.5),
+                borderRadius: AppRadius.sm,
+                borderSide: BorderSide(color: AppColors.black, width: 1.5),
               ),
             ),
-            style: const TextStyle(
+            style: AppTextStyles.headingS.copyWith(
+              color: AppColors.black,
               fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: SpendlerColors.textPrimary,
             ),
           ),
-          const SizedBox(height: SpendlerSpacing.lg),
+          const SizedBox(height: AppSpacing.xl),
           // Save button
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: FilledButton(
-              onPressed: _save,
-              style: FilledButton.styleFrom(
-                backgroundColor: SpendlerColors.accent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(SpendlerRadii.button),
-                ),
-              ),
-              child: const Text(
-                'Set Budget',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
+          AppButton(
+            label: 'Set Budget',
+            onTap: _save,
           ),
         ],
       ),
@@ -923,23 +900,21 @@ class _AddGoalSheetState extends ConsumerState<_AddGoalSheet> {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(
-        left: SpendlerSpacing.screenH,
-        right: SpendlerSpacing.screenH,
-        bottom: MediaQuery.viewInsetsOf(context).bottom + SpendlerSpacing.md,
+        left: AppSpacing.lg,
+        right: AppSpacing.lg,
+        bottom: MediaQuery.viewInsetsOf(context).bottom + AppSpacing.md,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'New Goal',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: SpendlerColors.textPrimary,
+            style: AppTextStyles.headingM.copyWith(
+              color: AppColors.black,
             ),
           ),
-          const SizedBox(height: SpendlerSpacing.lg),
+          const SizedBox(height: AppSpacing.xl),
           // Icon picker
           SizedBox(
             height: 64,
@@ -947,7 +922,7 @@ class _AddGoalSheetState extends ConsumerState<_AddGoalSheet> {
               scrollDirection: Axis.horizontal,
               itemCount: _iconOptions.length,
               separatorBuilder: (_, _) =>
-                  const SizedBox(width: SpendlerSpacing.sm),
+                  const SizedBox(width: AppSpacing.xs),
               itemBuilder: (_, i) {
                 final (iconName, label) = _iconOptions[i];
                 final isSelected = iconName == _selectedIcon;
@@ -961,12 +936,12 @@ class _AddGoalSheetState extends ConsumerState<_AddGoalSheet> {
                         height: 44,
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? SpendlerColors.accent.withValues(alpha: 0.15)
-                              : SpendlerColors.progressTrack,
-                          borderRadius: BorderRadius.circular(SpendlerRadii.button),
+                              ? AppColors.black.withValues(alpha: 0.15)
+                              : AppColors.gray200,
+                          borderRadius: AppRadius.sm,
                           border: isSelected
                               ? Border.all(
-                                  color: SpendlerColors.accent, width: 1.5)
+                                  color: AppColors.black, width: 1.5)
                               : null,
                         ),
                         child: Center(
@@ -974,19 +949,19 @@ class _AddGoalSheetState extends ConsumerState<_AddGoalSheet> {
                             _resolveIcon(iconName),
                             size: 20,
                             color: isSelected
-                                ? SpendlerColors.accent
-                                : SpendlerColors.textSecondary,
+                                ? AppColors.black
+                                : AppColors.gray500,
                           ),
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         label,
-                        style: TextStyle(
+                        style: AppTextStyles.labelS.copyWith(
                           fontSize: 9,
                           color: isSelected
-                              ? SpendlerColors.accent
-                              : SpendlerColors.textTertiary,
+                              ? AppColors.black
+                              : AppColors.gray500,
                         ),
                       ),
                     ],
@@ -995,71 +970,54 @@ class _AddGoalSheetState extends ConsumerState<_AddGoalSheet> {
               },
             ),
           ),
-          const SizedBox(height: SpendlerSpacing.md),
+          const SizedBox(height: AppSpacing.md),
           // Name field
           TextField(
             controller: _nameCtrl,
             autofocus: true,
             textCapitalization: TextCapitalization.words,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               labelText: 'Goal name',
-              labelStyle: const TextStyle(color: SpendlerColors.textSecondary),
+              labelStyle: TextStyle(color: AppColors.gray500),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(SpendlerRadii.button),
-                borderSide: const BorderSide(color: SpendlerColors.separator),
+                borderRadius: AppRadius.sm,
+                borderSide: BorderSide(color: AppColors.gray200),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(SpendlerRadii.button),
-                borderSide:
-                    const BorderSide(color: SpendlerColors.accent, width: 1.5),
+                borderRadius: AppRadius.sm,
+                borderSide: BorderSide(color: AppColors.black, width: 1.5),
               ),
             ),
-            style: const TextStyle(
-              fontSize: 15,
-              color: SpendlerColors.textPrimary,
+            style: AppTextStyles.bodyM.copyWith(
+              color: AppColors.black,
             ),
           ),
-          const SizedBox(height: SpendlerSpacing.cardGap),
+          const SizedBox(height: AppSpacing.sm),
           // Target amount field
           TextField(
             controller: _amountCtrl,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               labelText: 'Target amount (\$)',
-              labelStyle: const TextStyle(color: SpendlerColors.textSecondary),
+              labelStyle: TextStyle(color: AppColors.gray500),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(SpendlerRadii.button),
-                borderSide: const BorderSide(color: SpendlerColors.separator),
+                borderRadius: AppRadius.sm,
+                borderSide: BorderSide(color: AppColors.gray200),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(SpendlerRadii.button),
-                borderSide:
-                    const BorderSide(color: SpendlerColors.accent, width: 1.5),
+                borderRadius: AppRadius.sm,
+                borderSide: BorderSide(color: AppColors.black, width: 1.5),
               ),
             ),
-            style: const TextStyle(
+            style: AppTextStyles.headingS.copyWith(
+              color: AppColors.black,
               fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: SpendlerColors.textPrimary,
             ),
           ),
-          const SizedBox(height: SpendlerSpacing.lg),
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: FilledButton(
-              onPressed: _save,
-              style: FilledButton.styleFrom(
-                backgroundColor: SpendlerColors.accent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(SpendlerRadii.button),
-                ),
-              ),
-              child: const Text(
-                'Create Goal',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-              ),
-            ),
+          const SizedBox(height: AppSpacing.xl),
+          AppButton(
+            label: 'Create Goal',
+            onTap: _save,
           ),
         ],
       ),
@@ -1107,9 +1065,9 @@ class _AddMoneySheetState extends ConsumerState<_AddMoneySheet> {
 
     return Padding(
       padding: EdgeInsets.only(
-        left: SpendlerSpacing.screenH,
-        right: SpendlerSpacing.screenH,
-        bottom: MediaQuery.viewInsetsOf(context).bottom + SpendlerSpacing.md,
+        left: AppSpacing.lg,
+        right: AppSpacing.lg,
+        bottom: MediaQuery.viewInsetsOf(context).bottom + AppSpacing.md,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -1117,61 +1075,43 @@ class _AddMoneySheetState extends ConsumerState<_AddMoneySheet> {
         children: [
           Text(
             'Add to "${widget.goal.name}"',
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: SpendlerColors.textPrimary,
+            style: AppTextStyles.headingM.copyWith(
+              color: AppColors.black,
             ),
           ),
-          const SizedBox(height: SpendlerSpacing.sm),
+          const SizedBox(height: AppSpacing.xs),
           Text(
             '\$${remaining.toStringAsFixed(0)} remaining',
-            style: const TextStyle(
-              fontSize: 13,
-              color: SpendlerColors.textSecondary,
+            style: AppTextStyles.bodyS.copyWith(
+              color: AppColors.gray500,
             ),
           ),
-          const SizedBox(height: SpendlerSpacing.lg),
+          const SizedBox(height: AppSpacing.xl),
           TextField(
             controller: _amountCtrl,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             autofocus: true,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               labelText: 'Amount (\$)',
-              labelStyle: const TextStyle(color: SpendlerColors.textSecondary),
+              labelStyle: TextStyle(color: AppColors.gray500),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(SpendlerRadii.button),
-                borderSide: const BorderSide(color: SpendlerColors.separator),
+                borderRadius: AppRadius.sm,
+                borderSide: BorderSide(color: AppColors.gray200),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(SpendlerRadii.button),
-                borderSide:
-                    const BorderSide(color: SpendlerColors.accent, width: 1.5),
+                borderRadius: AppRadius.sm,
+                borderSide: BorderSide(color: AppColors.black, width: 1.5),
               ),
             ),
-            style: const TextStyle(
+            style: AppTextStyles.headingS.copyWith(
+              color: AppColors.black,
               fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: SpendlerColors.textPrimary,
             ),
           ),
-          const SizedBox(height: SpendlerSpacing.lg),
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: FilledButton(
-              onPressed: _save,
-              style: FilledButton.styleFrom(
-                backgroundColor: SpendlerColors.onTrack,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(SpendlerRadii.button),
-                ),
-              ),
-              child: const Text(
-                'Add Money',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-              ),
-            ),
+          const SizedBox(height: AppSpacing.xl),
+          AppButton(
+            label: 'Add Money',
+            onTap: _save,
           ),
         ],
       ),
@@ -1201,24 +1141,23 @@ class _EmptyCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(
-        horizontal: SpendlerSpacing.lg,
-        vertical: SpendlerSpacing.xl,
+        horizontal: AppSpacing.xl,
+        vertical: AppSpacing.xxl,
       ),
-      decoration: BoxDecoration(
-        color: SpendlerColors.card,
-        borderRadius: BorderRadius.circular(SpendlerRadii.card),
-        boxShadow: SpendlerShadows.card,
+      decoration: const BoxDecoration(
+        color: AppColors.white,
+        borderRadius: AppRadius.lg,
+        boxShadow: AppShadows.sm,
       ),
       child: Column(
         children: [
-          PhosphorIcon(icon, size: 32, color: SpendlerColors.textTertiary),
-          const SizedBox(height: SpendlerSpacing.cardGap),
+          PhosphorIcon(icon, size: 32, color: AppColors.gray500),
+          const SizedBox(height: AppSpacing.sm),
           Text(
             message,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 14,
-              color: SpendlerColors.textSecondary,
+            style: AppTextStyles.bodyS.copyWith(
+              color: AppColors.gray500,
               height: 1.5,
             ),
           ),
@@ -1236,10 +1175,10 @@ class _LoadingCard extends StatelessWidget {
     return Container(
       height: 80,
       width: double.infinity,
-      decoration: BoxDecoration(
-        color: SpendlerColors.card,
-        borderRadius: BorderRadius.circular(SpendlerRadii.card),
-        boxShadow: SpendlerShadows.card,
+      decoration: const BoxDecoration(
+        color: AppColors.white,
+        borderRadius: AppRadius.lg,
+        boxShadow: AppShadows.sm,
       ),
       child: const Center(
         child: SizedBox(
@@ -1247,7 +1186,7 @@ class _LoadingCard extends StatelessWidget {
           height: 24,
           child: CircularProgressIndicator(
             strokeWidth: 2,
-            color: SpendlerColors.accent,
+            color: AppColors.black,
           ),
         ),
       ),

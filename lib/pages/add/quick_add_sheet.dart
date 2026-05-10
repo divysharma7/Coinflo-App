@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:finance_buddy_app/core/enums.dart';
-import 'package:finance_buddy_app/core/tokens.dart';
+import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
 
 class QuickAddSheet extends ConsumerStatefulWidget {
@@ -17,6 +17,26 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
   final _noteController = TextEditingController();
   bool _isExpense = true;
 
+  /// Maps each TransactionCategory to its accent color.
+  static const Map<TransactionCategory, Color> _categoryColors = {
+    TransactionCategory.foodAndDrink: Color(0xFFFF8A4C),
+    TransactionCategory.transport: Color(0xFF4A8FE7),
+    TransactionCategory.shopping: Color(0xFFB19CD9),
+    TransactionCategory.billsAndUtilities: Color(0xFFF59E0B),
+    TransactionCategory.healthAndWellness: Color(0xFF22C55E),
+    TransactionCategory.entertainment: Color(0xFFE91E63),
+    TransactionCategory.streaming: Color(0xFFEC407A),
+    TransactionCategory.gymFitness: Color(0xFF4CAF50),
+    TransactionCategory.productivityTools: Color(0xFF9575CD),
+    TransactionCategory.personalCare: Color(0xFFF8BBD0),
+    TransactionCategory.education: Color(0xFF5C6BC0),
+    TransactionCategory.travel: Color(0xFF14B8A6),
+    TransactionCategory.other: Color(0xFF6E6E73),
+  };
+
+  Color _colorForCategory(TransactionCategory cat) =>
+      _categoryColors[cat] ?? AppColors.gray500;
+
   @override
   void dispose() {
     _noteController.dispose();
@@ -25,10 +45,12 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final amountColor = _isExpense ? AppColors.red : AppColors.green;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Amount display — hero number style
+        // Amount display
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -36,24 +58,16 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
           children: [
             Text(
               '\$',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w400,
-                color: _isExpense ? SpendlerColors.accentRed : SpendlerColors.accentGreen,
-              ),
+              style: AppTextStyles.headingM.copyWith(color: amountColor),
             ),
-            const SizedBox(width: 4),
+            const SizedBox(width: AppSpacing.xxs),
             Text(
               _amount.isEmpty ? '0' : _amount,
-              style: TextStyle(
-                fontSize: 48,
-                fontWeight: FontWeight.bold,
-                color: _isExpense ? SpendlerColors.accentRed : SpendlerColors.accentGreen,
-              ),
+              style: AppTextStyles.displayXL.copyWith(color: amountColor),
             ),
           ],
         ),
-        const SizedBox(height: SpendlerSpacing.sm),
+        const SizedBox(height: AppSpacing.sm),
 
         // Expense/Income toggle
         SegmentedButton<bool>(
@@ -64,7 +78,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
           selected: {_isExpense},
           onSelectionChanged: (v) => setState(() => _isExpense = v.first),
         ),
-        const SizedBox(height: SpendlerSpacing.cardGap),
+        const SizedBox(height: AppSpacing.md),
 
         // Category grid
         GridView.count(
@@ -72,19 +86,19 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           childAspectRatio: 2.5,
-          mainAxisSpacing: 8,
-          crossAxisSpacing: 8,
+          mainAxisSpacing: AppSpacing.xs,
+          crossAxisSpacing: AppSpacing.xs,
           children: TransactionCategory.values.map((cat) {
             final selected = _category == cat;
-            final catColor = SpendlerColors.categoryColor(cat);
+            final catColor = _colorForCategory(cat);
             return GestureDetector(
               onTap: () => setState(() => _category = cat),
               child: Container(
                 decoration: BoxDecoration(
                   color: selected
-                      ? catColor.withValues(alpha: 0.2)
-                      : SpendlerColors.surfaceSecondary,
-                  borderRadius: BorderRadius.circular(SpendlerRadii.button),
+                      ? catColor.withValues(alpha: 0.12)
+                      : AppColors.gray100,
+                  borderRadius: AppRadius.sm,
                   border: selected
                       ? Border.all(color: catColor, width: 2)
                       : null,
@@ -93,14 +107,16 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(cat.icon, size: 16, color: selected ? catColor : SpendlerColors.textSecondary),
-                      const SizedBox(width: 4),
+                      Icon(cat.icon,
+                          size: 16,
+                          color: selected ? catColor : AppColors.gray500),
+                      const SizedBox(width: AppSpacing.xxs),
                       Text(
                         cat.label,
-                        style: TextStyle(
-                          fontWeight: selected ? FontWeight.bold : FontWeight.normal,
-                          fontSize: 13,
-                          color: selected ? catColor : SpendlerColors.textSecondary,
+                        style: AppTextStyles.bodyS.copyWith(
+                          fontWeight:
+                              selected ? FontWeight.bold : FontWeight.normal,
+                          color: selected ? catColor : AppColors.gray500,
                         ),
                       ),
                     ],
@@ -110,69 +126,55 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
             );
           }).toList(),
         ),
-        const SizedBox(height: SpendlerSpacing.cardGap),
+        const SizedBox(height: AppSpacing.md),
 
         // Note field
         TextField(
           controller: _noteController,
-          style: const TextStyle(color: SpendlerColors.textPrimary),
+          style: AppTextStyles.bodyM.copyWith(color: AppColors.black),
           decoration: InputDecoration(
             hintText: 'Note (optional)',
-            hintStyle: const TextStyle(color: SpendlerColors.textTertiary),
+            hintStyle: AppTextStyles.bodyM.copyWith(color: AppColors.gray400),
             filled: true,
-            fillColor: SpendlerColors.surfaceSecondary,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(SpendlerRadii.button),
+            fillColor: AppColors.gray100,
+            border: const OutlineInputBorder(
+              borderRadius: AppRadius.sm,
               borderSide: BorderSide.none,
             ),
             isDense: true,
           ),
         ),
-        const SizedBox(height: SpendlerSpacing.cardGap),
+        const SizedBox(height: AppSpacing.md),
 
         // Numpad
         _buildNumpad(),
-        const SizedBox(height: SpendlerSpacing.cardGap),
+        const SizedBox(height: AppSpacing.md),
 
-        // Save button — full-width bottom CTA style
-        SizedBox(
-          width: double.infinity,
-          height: 56,
-          child: FilledButton(
-            onPressed: _amount.isEmpty ? null : _save,
-            style: FilledButton.styleFrom(
-              backgroundColor: SpendlerColors.primary,
-              foregroundColor: Colors.black,
-              disabledBackgroundColor: SpendlerColors.surfaceSecondary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(SpendlerRadii.button),
-              ),
-            ),
-            child: const Text(
-              'Done',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-          ),
+        // Save button
+        AppButton(
+          label: 'Done',
+          onTap: _save,
+          disabled: _amount.isEmpty,
         ),
       ],
     );
   }
 
   Widget _buildNumpad() {
-    const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', '⌫'];
+    const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', '\u232B'];
     return GridView.count(
       crossAxisCount: 3,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       childAspectRatio: 2,
-      mainAxisSpacing: 4,
-      crossAxisSpacing: 4,
+      mainAxisSpacing: AppSpacing.xxs,
+      crossAxisSpacing: AppSpacing.xxs,
       children: keys.map((key) {
         return InkWell(
-          borderRadius: BorderRadius.circular(SpendlerRadii.button),
+          borderRadius: AppRadius.sm,
           onTap: () {
             setState(() {
-              if (key == '⌫') {
+              if (key == '\u232B') {
                 if (_amount.isNotEmpty) {
                   _amount = _amount.substring(0, _amount.length - 1);
                 }
@@ -184,18 +186,14 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
             });
           },
           child: Container(
-            decoration: BoxDecoration(
-              color: SpendlerColors.surfaceSecondary,
-              borderRadius: BorderRadius.circular(SpendlerRadii.button),
+            decoration: const BoxDecoration(
+              color: AppColors.gray100,
+              borderRadius: AppRadius.sm,
             ),
             child: Center(
               child: Text(
                 key,
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w500,
-                  color: SpendlerColors.textPrimary,
-                ),
+                style: AppTextStyles.headingM.copyWith(color: AppColors.black),
               ),
             ),
           ),

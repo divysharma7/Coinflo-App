@@ -1,134 +1,66 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
-import 'package:finance_buddy_app/core/tokens.dart';
+
+import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/pages/home/home_page.dart';
 import 'package:finance_buddy_app/pages/report/report_page.dart';
 import 'package:finance_buddy_app/pages/plan/plan_page.dart';
 import 'package:finance_buddy_app/pages/settings/settings_page.dart';
 import 'package:finance_buddy_app/pages/add/quick_add_sheet.dart';
-import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
-
-/// Shared navigation destination data used by both NavigationBar and NavigationRail.
-class _Destination {
-  const _Destination({
-    required this.icon,
-    required this.selectedIcon,
-    required this.label,
-  });
-  final IconData icon;
-  final IconData selectedIcon;
-  final String label;
-}
-
-final _destinations = [
-  _Destination(icon: PhosphorIcons.house(), selectedIcon: PhosphorIconsFill.house, label: 'Home'),
-  _Destination(icon: PhosphorIcons.chartBar(), selectedIcon: PhosphorIconsFill.chartBar, label: 'Report'),
-  _Destination(icon: PhosphorIcons.calendar(), selectedIcon: PhosphorIconsFill.calendar, label: 'Plan'),
-  _Destination(icon: PhosphorIcons.gear(), selectedIcon: PhosphorIconsFill.gear, label: 'Settings'),
-];
 
 class ShellPage extends ConsumerWidget {
   const ShellPage({super.key});
 
-  // Pages indexed 0–4; index 2 is a FAB placeholder (kept for provider compat).
   static const _pages = [
-    HomePage(),
-    ReportPage(),
-    SizedBox.shrink(),
-    PlanPage(),
-    SettingsPage(),
+    HomePage(),     // 0
+    ReportPage(),   // 1
+    PlanPage(),     // 2
+    SettingsPage(), // 3
   ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedTab = ref.watch(selectedTabProvider);
-    final width = MediaQuery.sizeOf(context).width;
-    final useRail = width >= 600;
+    // Clamp to valid range for 4-tab layout
+    final safeIndex = selectedTab.clamp(0, 3);
 
     return Scaffold(
-      body: useRail
-          ? Row(
-              children: [
-                NavigationRail(
-                  backgroundColor: SpendlerColors.surface,
-                  selectedIndex: selectedTab > 2 ? selectedTab - 1 : selectedTab,
-                  onDestinationSelected: (i) {
-                    final actualIndex = i >= 2 ? i + 1 : i;
-                    ref.read(selectedTabProvider.notifier).state = actualIndex;
-                  },
-                  labelType: NavigationRailLabelType.all,
-                  leading: FloatingActionButton(
-                    onPressed: () => _onFabPressed(context, ref),
-                    child: const Icon(Icons.add),
-                  ),
-                  destinations: [
-                    for (final d in _destinations)
-                      NavigationRailDestination(
-                        icon: Icon(d.icon, color: SpendlerColors.textTertiary),
-                        selectedIcon: Icon(d.selectedIcon, color: SpendlerColors.primary),
-                        label: Text(d.label),
-                      ),
-                  ],
-                ),
-                const VerticalDivider(thickness: 1, width: 1, color: SpendlerColors.border),
-                Expanded(
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 700),
-                      child: IndexedStack(
-                        index: selectedTab,
-                        children: _pages,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            )
-          : IndexedStack(
-              index: selectedTab,
-              children: _pages,
-            ),
-      floatingActionButton: useRail
-          ? null
-          : SizedBox(
-              width: 56,
-              height: 56,
-              child: FloatingActionButton(
-                onPressed: () => _onFabPressed(context, ref),
-                backgroundColor: SpendlerColors.primary,
-                foregroundColor: Colors.white,
-                elevation: 4,
-                shape: const CircleBorder(),
-                child: const PhosphorIcon(PhosphorIconsBold.plus, size: 28),
-              ),
-            ),
+      backgroundColor: AppColors.offWhite,
+      body: IndexedStack(
+        index: safeIndex,
+        children: _pages,
+      ),
+      floatingActionButton: SizedBox(
+        width: 56,
+        height: 56,
+        child: FloatingActionButton(
+          onPressed: () => _onFabPressed(context),
+          backgroundColor: AppColors.black,
+          foregroundColor: AppColors.white,
+          elevation: 4,
+          shape: const CircleBorder(),
+          child: const Icon(Icons.add, size: 28),
+        ),
+      ),
       floatingActionButtonLocation:
-          useRail ? null : FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: useRail
-          ? null
-          : NavigationBar(
-              selectedIndex: selectedTab > 2 ? selectedTab - 1 : selectedTab,
-              onDestinationSelected: (i) {
-                final actualIndex = i >= 2 ? i + 1 : i;
-                ref.read(selectedTabProvider.notifier).state = actualIndex;
-              },
-              destinations: [
-                for (final d in _destinations)
-                  NavigationDestination(
-                    icon: Icon(d.icon),
-                    selectedIcon: Icon(d.selectedIcon),
-                    label: d.label,
-                  ),
-              ],
-            ),
+          FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: AppBottomTabBar(
+        currentIndex: safeIndex,
+        onTap: (i) =>
+            ref.read(selectedTabProvider.notifier).state = i,
+      ),
     );
   }
 
-  void _onFabPressed(BuildContext context, WidgetRef ref) {
-    showSpendlerSheet<void>(
+  void _onFabPressed(BuildContext context) {
+    showModalBottomSheet<void>(
       context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
       builder: (_) => const QuickAddSheet(),
     );
   }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:finance_buddy_app/core/tokens.dart';
+import 'package:finance_buddy_app/design_system/design_system.dart';
 
 /// Animates a numeric value with a roll + overshoot (elasticOut) effect.
 ///
@@ -11,8 +11,8 @@ class AnimatedAmount extends StatelessWidget {
     required this.value,
     this.prefix = '\$ ',
     this.style,
-    this.duration = SpendlerMotion.numberRoll,
-    this.curve = SpendlerMotion.numberRollCurve,
+    this.duration = AppDurations.slow,
+    this.curve = Curves.elasticOut,
   });
 
   final double value;
@@ -31,10 +31,11 @@ class AnimatedAmount extends StatelessWidget {
         final formatted = _format(v);
         final effectiveStyle = style ??
             const TextStyle(
-              fontSize: SpendlerTypo.heroSize,
-              fontWeight: SpendlerTypo.heroWeight,
-              color: SpendlerColors.textPrimary,
+              fontSize: 40,
+              fontWeight: FontWeight.w700,
+              color: AppColors.black,
               height: 1,
+              fontFeatures: [FontFeature.tabularFigures()],
             );
         return Text('$prefix$formatted', style: effectiveStyle);
       },

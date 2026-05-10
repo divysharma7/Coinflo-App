@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:finance_buddy_app/core/tokens.dart';
+import 'package:finance_buddy_app/design_system/design_system.dart';
 
 /// Shows a consistent Spendler bottom sheet with drag handle, dark surface,
 /// and correct animation timing.
@@ -16,19 +16,19 @@ Future<T?> showSpendlerSheet<T>({
     context: context,
     isScrollControlled: isScrollControlled,
     isDismissible: isDismissible,
-    backgroundColor: SpendlerColors.surfaceElevated,
+    backgroundColor: AppColors.white,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(
-        top: Radius.circular(SpendlerRadii.sheet),
+        top: Radius.circular(28),
       ),
     ),
     showDragHandle: true,
     builder: (ctx) {
       return Padding(
         padding: EdgeInsets.only(
-          left: SpendlerSpacing.screenH,
-          right: SpendlerSpacing.screenH,
-          bottom: MediaQuery.viewInsetsOf(ctx).bottom + SpendlerSpacing.md,
+          left: AppSpacing.lg,
+          right: AppSpacing.lg,
+          bottom: MediaQuery.viewInsetsOf(ctx).bottom + AppSpacing.md,
         ),
         child: builder(ctx),
       );

@@ -1,8 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:finance_buddy_app/core/enums.dart';
-import 'package:finance_buddy_app/core/tokens.dart';
+import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/providers/onboarding_provider.dart';
 import 'package:finance_buddy_app/pages/penny/penny_page.dart';
@@ -39,25 +40,23 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final currencyDisplay = '${currency.code} (${currency.symbol})';
 
     return Scaffold(
-      backgroundColor: SpendlerColors.scaffold,
+      backgroundColor: AppColors.offWhite,
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 600),
             child: ListView(
               padding: const EdgeInsets.symmetric(
-                horizontal: SpendlerSpacing.screenH,
+                horizontal: AppSpacing.lg,
               ),
               children: [
                 // Title
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(0, 24, 0, 20),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 24, 0, 20),
                   child: Text(
                     'Settings',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w700,
-                      color: SpendlerColors.textPrimary,
+                    style: AppTextStyles.headingL.copyWith(
+                      color: AppColors.black,
                     ),
                   ),
                 ),
@@ -66,41 +65,39 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 GestureDetector(
                   onTap: () => _showProfileSheet(context),
                   child: Container(
-                    padding: const EdgeInsets.all(SpendlerSpacing.md),
-                    decoration: BoxDecoration(
-                      color: SpendlerColors.surface,
-                      borderRadius:
-                          BorderRadius.circular(SpendlerRadii.card),
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    decoration: const BoxDecoration(
+                      color: AppColors.white,
+                      borderRadius: AppRadius.xl,
+                      boxShadow: AppShadows.sm,
                     ),
                     child: Row(
                       children: [
                         // Avatar
                         Container(
-                          width: 48,
-                          height: 48,
+                          width: 36,
+                          height: 36,
                           decoration: const BoxDecoration(
-                            color: SpendlerColors.primary,
+                            color: AppColors.gray100,
                             shape: BoxShape.circle,
                           ),
                           child: Center(
                             child: PhosphorIcon(
                               PhosphorIcons.user(),
-                              color: Colors.white,
-                              size: 22,
+                              color: AppColors.gray600,
+                              size: 18,
                             ),
                           ),
                         ),
-                        const SizedBox(width: SpendlerSpacing.cardGap),
+                        const SizedBox(width: AppSpacing.sm),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 name,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: SpendlerColors.textPrimary,
+                                style: AppTextStyles.headingS.copyWith(
+                                  color: AppColors.black,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -108,9 +105,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               const SizedBox(height: 2),
                               Text(
                                 email,
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  color: SpendlerColors.textTertiary,
+                                style: AppTextStyles.bodyS.copyWith(
+                                  color: AppColors.gray500,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -120,7 +116,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         ),
                         PhosphorIcon(
                           PhosphorIcons.caretRight(),
-                          color: SpendlerColors.textTertiary,
+                          color: AppColors.gray500,
                           size: 18,
                         ),
                       ],
@@ -128,26 +124,29 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   ),
                 ),
 
-                const SizedBox(height: SpendlerSpacing.xl),
+                const SizedBox(height: AppSpacing.xxl),
 
                 // ─── GENERAL Section ─────────────────────
-                const Padding(
-                  padding: EdgeInsets.only(left: 4, bottom: 10),
-                  child: Text('GENERAL',
-                      style: SpendlerTextStyles.sectionLabel),
+                Padding(
+                  padding: const EdgeInsets.only(left: 4, bottom: 10),
+                  child: Text(
+                    'GENERAL',
+                    style: AppTextStyles.labelM.copyWith(
+                      color: AppColors.gray400,
+                    ),
+                  ),
                 ),
                 Container(
-                  decoration: BoxDecoration(
-                    color: SpendlerColors.surface,
-                    borderRadius:
-                        BorderRadius.circular(SpendlerRadii.card),
+                  decoration: const BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: AppRadius.xl,
                   ),
                   child: Column(
                     children: [
                       _SettingsRow(
                         icon: PhosphorIcons.lightning(),
-                        iconBg: const Color(0xFFFFF3E0),
-                        iconColor: const Color(0xFFF59E0B),
+                        iconBg: AppColors.gray100,
+                        iconColor: AppColors.gray600,
                         label: 'Ask Penny',
                         onTap: () => Navigator.push(
                           context,
@@ -158,38 +157,37 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       const _Divider(),
                       _SettingsRow(
                         icon: PhosphorIcons.crown(),
-                        iconBg: const Color(0xFFFEF3C7),
-                        iconColor: const Color(0xFFF59E0B),
+                        iconBg: AppColors.gray100,
+                        iconColor: AppColors.gray600,
                         label: 'Plans & Pricing',
                         onTap: () => _showComingSoon(),
                       ),
                       const _Divider(),
                       _SettingsRow(
                         icon: PhosphorIcons.crown(),
-                        iconBg: const Color(0xFFFEF3C7),
-                        iconColor: const Color(0xFFF59E0B),
+                        iconBg: AppColors.gray100,
+                        iconColor: AppColors.gray600,
                         label: 'Manage Subscription',
                         onTap: () => _showComingSoon(),
                       ),
                       const _Divider(),
                       _SettingsRow(
                         icon: PhosphorIcons.usersThree(),
-                        iconBg: const Color(0xFFE3F2FD),
-                        iconColor: const Color(0xFF3B82F6),
+                        iconBg: AppColors.gray100,
+                        iconColor: AppColors.gray600,
                         label: 'People & Debts',
                         onTap: () => _showComingSoon(),
                       ),
                       const _Divider(),
                       _SettingsRow(
                         icon: PhosphorIcons.currencyDollar(),
-                        iconBg: const Color(0xFFDCFCE7),
-                        iconColor: const Color(0xFF22C55E),
+                        iconBg: AppColors.gray100,
+                        iconColor: AppColors.gray600,
                         label: 'Currency',
                         trailing: Text(
                           currencyDisplay,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: SpendlerColors.textTertiary,
+                          style: AppTextStyles.bodyS.copyWith(
+                            color: AppColors.gray500,
                           ),
                         ),
                         onTap: () => _showComingSoon(),
@@ -197,48 +195,48 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       const _Divider(),
                       _SettingsRow(
                         icon: PhosphorIcons.creditCard(),
-                        iconBg: const Color(0xFFEDE7F6),
-                        iconColor: const Color(0xFF8B5CF6),
+                        iconBg: AppColors.gray100,
+                        iconColor: AppColors.gray600,
                         label: 'Accounts',
                         onTap: () => _showComingSoon(),
                       ),
                       const _Divider(),
                       _SettingsRow(
                         icon: PhosphorIcons.arrowsClockwise(),
-                        iconBg: const Color(0xFFE3F2FD),
-                        iconColor: const Color(0xFF3B82F6),
+                        iconBg: AppColors.gray100,
+                        iconColor: AppColors.gray600,
                         label: 'Subscriptions',
                         onTap: () => _showComingSoon(),
                       ),
                       const _Divider(),
                       _SettingsRow(
                         icon: PhosphorIcons.tag(),
-                        iconBg: const Color(0xFFFCE4EC),
-                        iconColor: const Color(0xFFEC4899),
+                        iconBg: AppColors.gray100,
+                        iconColor: AppColors.gray600,
                         label: 'Categories',
                         onTap: () => _showComingSoon(),
                       ),
                       const _Divider(),
                       _SettingsRow(
                         icon: PhosphorIcons.sliders(),
-                        iconBg: const Color(0xFFF5F5F7),
-                        iconColor: SpendlerColors.textSecondary,
+                        iconBg: AppColors.gray100,
+                        iconColor: AppColors.gray600,
                         label: 'Monthly Budget',
                         onTap: () => _showComingSoon(),
                       ),
                       const _Divider(),
                       _SettingsRow(
                         icon: PhosphorIcons.lightning(),
-                        iconBg: const Color(0xFFFFF3E0),
-                        iconColor: const Color(0xFFF59E0B),
+                        iconBg: AppColors.gray100,
+                        iconColor: AppColors.gray600,
                         label: 'Smart Rules',
                         onTap: () => _showComingSoon(),
                       ),
                       const _Divider(),
                       _SettingsToggleRow(
                         icon: PhosphorIcons.trendUp(),
-                        iconBg: const Color(0xFFDCFCE7),
-                        iconColor: const Color(0xFF22C55E),
+                        iconBg: AppColors.gray100,
+                        iconColor: AppColors.gray600,
                         label: 'Track Income',
                         value: trackIncome,
                         onChanged: (v) async {
@@ -249,8 +247,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       const _Divider(),
                       _SettingsToggleRow(
                         icon: PhosphorIcons.bell(),
-                        iconBg: const Color(0xFFE3F2FD),
-                        iconColor: const Color(0xFF3B82F6),
+                        iconBg: AppColors.gray100,
+                        iconColor: AppColors.gray600,
                         label: 'Notifications',
                         value: _notificationsEnabled,
                         onChanged: (v) {
@@ -261,48 +259,50 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   ),
                 ),
 
-                const SizedBox(height: SpendlerSpacing.xl),
+                const SizedBox(height: AppSpacing.xxl),
 
                 // ─── ABOUT Section ───────────────────────
-                const Padding(
-                  padding: EdgeInsets.only(left: 4, bottom: 10),
-                  child: Text('ABOUT',
-                      style: SpendlerTextStyles.sectionLabel),
+                Padding(
+                  padding: const EdgeInsets.only(left: 4, bottom: 10),
+                  child: Text(
+                    'ABOUT',
+                    style: AppTextStyles.labelM.copyWith(
+                      color: AppColors.gray400,
+                    ),
+                  ),
                 ),
                 Container(
-                  decoration: BoxDecoration(
-                    color: SpendlerColors.surface,
-                    borderRadius:
-                        BorderRadius.circular(SpendlerRadii.card),
+                  decoration: const BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: AppRadius.xl,
                   ),
                   child: Column(
                     children: [
                       _SettingsRow(
                         icon: PhosphorIcons.question(),
-                        iconBg: const Color(0xFFF5F5F7),
-                        iconColor: SpendlerColors.textSecondary,
+                        iconBg: AppColors.gray100,
+                        iconColor: AppColors.gray600,
                         label: 'Help & Support',
                         onTap: () => _showComingSoon(),
                       ),
                       const _Divider(),
                       _SettingsRow(
                         icon: PhosphorIcons.star(),
-                        iconBg: const Color(0xFFFEF3C7),
-                        iconColor: const Color(0xFFF59E0B),
+                        iconBg: AppColors.gray100,
+                        iconColor: AppColors.gray600,
                         label: 'Rate the App',
                         onTap: () => _showComingSoon(),
                       ),
                       const _Divider(),
                       _SettingsRow(
                         icon: PhosphorIcons.info(),
-                        iconBg: const Color(0xFFF5F5F7),
-                        iconColor: SpendlerColors.textSecondary,
+                        iconBg: AppColors.gray100,
+                        iconColor: AppColors.gray600,
                         label: 'Version',
-                        trailing: const Text(
+                        trailing: Text(
                           '1.0.2',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: SpendlerColors.textTertiary,
+                          style: AppTextStyles.bodyS.copyWith(
+                            color: AppColors.gray500,
                           ),
                         ),
                         showChevron: false,
@@ -311,7 +311,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   ),
                 ),
 
-                const SizedBox(height: SpendlerSpacing.xl),
+                const SizedBox(height: AppSpacing.xxl),
 
                 // ─── Log Out ─────────────────────────────
                 GestureDetector(
@@ -319,25 +319,23 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   child: Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    decoration: BoxDecoration(
-                      color: SpendlerColors.surface,
-                      borderRadius:
-                          BorderRadius.circular(SpendlerRadii.card),
+                    decoration: const BoxDecoration(
+                      color: AppColors.gray100,
+                      borderRadius: AppRadius.xl,
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Text(
                         'Log Out',
-                        style: TextStyle(
-                          fontSize: 16,
+                        style: AppTextStyles.bodyM.copyWith(
+                          color: AppColors.red,
                           fontWeight: FontWeight.w500,
-                          color: SpendlerColors.expense,
                         ),
                       ),
                     ),
                   ),
                 ),
 
-                const SizedBox(height: SpendlerSpacing.cardGap),
+                const SizedBox(height: AppSpacing.sm),
 
                 // ─── Delete Account ──────────────────────
                 GestureDetector(
@@ -345,18 +343,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   child: Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    decoration: BoxDecoration(
-                      color: SpendlerColors.surface,
-                      borderRadius:
-                          BorderRadius.circular(SpendlerRadii.card),
+                    decoration: const BoxDecoration(
+                      color: AppColors.gray100,
+                      borderRadius: AppRadius.xl,
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Text(
                         'Delete Account',
-                        style: TextStyle(
-                          fontSize: 16,
+                        style: AppTextStyles.bodyM.copyWith(
+                          color: AppColors.red,
                           fontWeight: FontWeight.w500,
-                          color: SpendlerColors.expense,
                         ),
                       ),
                     ),
@@ -416,7 +412,7 @@ class _SettingsRow extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: Padding(
         padding: const EdgeInsets.symmetric(
-          horizontal: SpendlerSpacing.md,
+          horizontal: AppSpacing.md,
           vertical: 13,
         ),
         child: Row(
@@ -427,21 +423,19 @@ class _SettingsRow extends StatelessWidget {
               height: 36,
               decoration: BoxDecoration(
                 color: iconBg,
-                borderRadius: BorderRadius.circular(10),
+                shape: BoxShape.circle,
               ),
               child: Center(
                 child: PhosphorIcon(icon, color: iconColor, size: 18),
               ),
             ),
-            const SizedBox(width: SpendlerSpacing.cardGap),
+            const SizedBox(width: AppSpacing.sm),
             // Label
             Expanded(
               child: Text(
                 label,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w400,
-                  color: SpendlerColors.textPrimary,
+                style: AppTextStyles.bodyM.copyWith(
+                  color: AppColors.black,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -449,12 +443,12 @@ class _SettingsRow extends StatelessWidget {
             ),
             if (trailing != null) ...[
               trailing!,
-              const SizedBox(width: SpendlerSpacing.sm),
+              const SizedBox(width: AppSpacing.xs),
             ],
             if (showChevron)
               PhosphorIcon(
                 PhosphorIcons.caretRight(),
-                color: SpendlerColors.textTertiary,
+                color: AppColors.gray500,
                 size: 16,
               ),
           ],
@@ -489,7 +483,7 @@ class _SettingsToggleRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(
-        horizontal: SpendlerSpacing.md,
+        horizontal: AppSpacing.md,
         vertical: 6,
       ),
       child: Row(
@@ -500,31 +494,28 @@ class _SettingsToggleRow extends StatelessWidget {
             height: 36,
             decoration: BoxDecoration(
               color: iconBg,
-              borderRadius: BorderRadius.circular(10),
+              shape: BoxShape.circle,
             ),
             child: Center(
               child: PhosphorIcon(icon, color: iconColor, size: 18),
             ),
           ),
-          const SizedBox(width: SpendlerSpacing.cardGap),
+          const SizedBox(width: AppSpacing.sm),
           // Label
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w400,
-                color: SpendlerColors.textPrimary,
+              style: AppTextStyles.bodyM.copyWith(
+                color: AppColors.black,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          Switch.adaptive(
+          CupertinoSwitch(
             value: value,
             onChanged: onChanged,
-            activeThumbColor: SpendlerColors.primary,
-            activeTrackColor: SpendlerColors.primary.withValues(alpha: 0.3),
+            activeTrackColor: AppColors.black,
           ),
         ],
       ),
@@ -543,7 +534,7 @@ class _Divider extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Padding(
       padding: EdgeInsets.only(left: 64),
-      child: Divider(height: 1, thickness: 0.5, color: SpendlerColors.border),
+      child: Divider(height: 1, thickness: 0.5, color: AppColors.gray200),
     );
   }
 }

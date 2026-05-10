@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
-import 'package:finance_buddy_app/core/tokens.dart';
+
+import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/providers/onboarding_provider.dart';
 
-/// Profile bottom sheet shown when tapping the profile card in Settings.
 class ProfileSheet extends ConsumerWidget {
   const ProfileSheet({super.key});
 
@@ -16,193 +15,148 @@ class ProfileSheet extends ConsumerWidget {
     final name = userName.valueOrNull ?? 'User';
     final email = userEmail.valueOrNull ?? 'Not set';
 
-    // Get initials (up to 2 characters)
     final parts = name.trim().split(RegExp(r'\s+'));
     final initials = parts.length >= 2
         ? '${parts[0][0]}${parts[1][0]}'.toUpperCase()
-        : (name.length >= 2 ? name.substring(0, 2).toUpperCase() : name.toUpperCase());
+        : (name.length >= 2
+            ? name.substring(0, 2).toUpperCase()
+            : name.toUpperCase());
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Header: "Profile" + close button
-        Padding(
-          padding: const EdgeInsets.only(bottom: SpendlerSpacing.lg),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Profile',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: SpendlerColors.textPrimary,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Header
+          Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Profile',
+                  style: AppTextStyles.headingM
+                      .copyWith(color: AppColors.black),
                 ),
-              ),
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: SpendlerColors.surfaceSecondary,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Center(
-                    child: Icon(
-                      Icons.close,
-                      size: 18,
-                      color: SpendlerColors.textSecondary,
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    width: 32,
+                    height: 32,
+                    decoration: const BoxDecoration(
+                      color: AppColors.gray100,
+                      borderRadius: AppRadius.sm,
+                    ),
+                    child: const Center(
+                      child: Icon(Icons.close,
+                          size: 18, color: AppColors.gray500),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
 
-        // Avatar circle with initials
-        Container(
-          width: 80,
-          height: 80,
-          decoration: const BoxDecoration(
-            color: SpendlerColors.primary,
-            shape: BoxShape.circle,
-          ),
-          child: Center(
-            child: Text(
-              initials,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 28,
-                fontWeight: FontWeight.w700,
+          // Avatar
+          Container(
+            width: 80,
+            height: 80,
+            decoration: const BoxDecoration(
+              color: AppColors.black,
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Text(
+                initials,
+                style: AppTextStyles.headingL
+                    .copyWith(color: AppColors.white),
               ),
             ),
           ),
-        ),
-        const SizedBox(height: SpendlerSpacing.md),
+          const SizedBox(height: AppSpacing.md),
 
-        // Name
-        Text(
-          name,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: SpendlerColors.textPrimary,
+          // Name
+          Text(
+            name,
+            style:
+                AppTextStyles.headingM.copyWith(color: AppColors.black),
           ),
-        ),
-        const SizedBox(height: 4),
+          const SizedBox(height: AppSpacing.xxs),
 
-        // Email
-        Text(
-          email,
-          style: const TextStyle(
-            fontSize: 14,
-            color: SpendlerColors.textTertiary,
+          // Email
+          Text(
+            email,
+            style:
+                AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
           ),
-        ),
-        const SizedBox(height: SpendlerSpacing.xl),
+          const SizedBox(height: AppSpacing.xl),
 
-        // Action items card
-        Container(
-          decoration: BoxDecoration(
-            color: SpendlerColors.surface,
-            borderRadius: BorderRadius.circular(SpendlerRadii.card),
-            border: Border.all(color: SpendlerColors.border),
-          ),
-          child: Column(
-            children: [
-              // Settings row
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                behavior: HitTestBehavior.opaque,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: SpendlerSpacing.md,
-                    vertical: 14,
-                  ),
-                  child: Row(
-                    children: [
-                      PhosphorIcon(
-                        PhosphorIcons.gear(),
-                        color: SpendlerColors.textSecondary,
-                        size: 20,
-                      ),
-                      const SizedBox(width: SpendlerSpacing.cardGap),
-                      const Expanded(
-                        child: Text(
-                          'Settings',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w400,
-                            color: SpendlerColors.textPrimary,
-                          ),
-                        ),
-                      ),
-                      PhosphorIcon(
-                        PhosphorIcons.caretRight(),
-                        color: SpendlerColors.textTertiary,
-                        size: 16,
-                      ),
-                    ],
-                  ),
+          // Action rows card
+          Container(
+            decoration: const BoxDecoration(
+              color: AppColors.white,
+              borderRadius: AppRadius.xl,
+              boxShadow: AppShadows.sm,
+            ),
+            child: Column(
+              children: [
+                // Settings row
+                _buildRow(
+                  icon: Icons.settings_outlined,
+                  label: 'Settings',
+                  onTap: () => Navigator.pop(context),
                 ),
-              ),
-              const Padding(
-                padding: EdgeInsets.only(left: 52),
-                child: Divider(
-                  height: 1,
-                  thickness: 0.5,
-                  color: SpendlerColors.border,
+                const Padding(
+                  padding: EdgeInsets.only(left: 52),
+                  child: Divider(
+                      height: 1, thickness: 0.5, color: AppColors.gray200),
                 ),
-              ),
-              // Accounts row
-              GestureDetector(
-                onTap: () {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Coming soon')),
-                  );
-                },
-                behavior: HitTestBehavior.opaque,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: SpendlerSpacing.md,
-                    vertical: 14,
-                  ),
-                  child: Row(
-                    children: [
-                      PhosphorIcon(
-                        PhosphorIcons.creditCard(),
-                        color: SpendlerColors.textSecondary,
-                        size: 20,
-                      ),
-                      const SizedBox(width: SpendlerSpacing.cardGap),
-                      const Expanded(
-                        child: Text(
-                          'Accounts',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w400,
-                            color: SpendlerColors.textPrimary,
-                          ),
-                        ),
-                      ),
-                      PhosphorIcon(
-                        PhosphorIcons.caretRight(),
-                        color: SpendlerColors.textTertiary,
-                        size: 16,
-                      ),
-                    ],
-                  ),
+                // Accounts row
+                _buildRow(
+                  icon: Icons.credit_card_outlined,
+                  label: 'Accounts',
+                  onTap: () {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Coming soon')),
+                    );
+                  },
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
 
-        const SizedBox(height: SpendlerSpacing.lg),
-      ],
+          const SizedBox(height: AppSpacing.lg),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRow({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: 14,
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: AppColors.gray500, size: 20),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Text(label, style: AppTextStyles.bodyM),
+            ),
+            const Icon(Icons.chevron_right,
+                color: AppColors.gray400, size: 20),
+          ],
+        ),
+      ),
     );
   }
 }

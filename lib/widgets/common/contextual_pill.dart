@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:finance_buddy_app/core/tokens.dart';
+import 'package:finance_buddy_app/design_system/design_system.dart';
 
 enum DeltaType { positive, negative, neutral }
 
@@ -16,9 +16,9 @@ class ContextualPill extends StatelessWidget {
   final DeltaType type;
 
   Color get _foreground => switch (type) {
-        DeltaType.positive => SpendlerColors.accentGreen,
-        DeltaType.negative => SpendlerColors.accentAmber,
-        DeltaType.neutral => SpendlerColors.accentBlue,
+        DeltaType.positive => AppColors.green,
+        DeltaType.negative => AppColors.orange,
+        DeltaType.neutral => AppColors.gray500,
       };
 
   @override
@@ -27,14 +27,14 @@ class ContextualPill extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: _foreground.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(SpendlerRadii.pill),
+        borderRadius: AppRadius.full,
       ),
       child: Text(
         text.toUpperCase(),
         style: TextStyle(
           color: _foreground,
-          fontSize: SpendlerTypo.captionSize,
-          fontWeight: SpendlerTypo.captionWeight,
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
           letterSpacing: 0.5,
         ),
       ),

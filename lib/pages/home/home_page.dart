@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:finance_buddy_app/core/tokens.dart';
+import 'package:finance_buddy_app/design_system/design_system.dart';
+import 'package:finance_buddy_app/core/enums.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/widgets/charts/weekly_bar_chart.dart';
 import 'package:finance_buddy_app/widgets/common/animated_amount.dart';
@@ -27,21 +28,21 @@ class HomePage extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const FadeSlideIn(delay: Duration.zero, child: _GreetingSection()),
-          const SizedBox(height: SpendlerSpacing.xl),
+          const SizedBox(height: AppSpacing.xxl),
           const FadeSlideIn(delay: Duration(milliseconds: 80), child: _WeeklyHeroSection()),
-          const SizedBox(height: SpendlerSpacing.xl),
+          const SizedBox(height: AppSpacing.xxl),
           const FadeSlideIn(delay: Duration(milliseconds: 160), child: _DailyBreakdownSection()),
-          const SizedBox(height: SpendlerSpacing.xl),
+          const SizedBox(height: AppSpacing.xxl),
           const FadeSlideIn(delay: Duration(milliseconds: 240), child: _CategoryBreakdownSection()),
-          const SizedBox(height: SpendlerSpacing.xl),
+          const SizedBox(height: AppSpacing.xxl),
           const FadeSlideIn(delay: Duration(milliseconds: 320), child: _ActionNeededSection()),
           const FadeSlideIn(delay: Duration(milliseconds: 360), child: _FriendsCardSection()),
           FadeSlideIn(
             delay: const Duration(milliseconds: 380),
             child: Padding(
               padding: const EdgeInsets.symmetric(
-                horizontal: SpendlerSpacing.screenH,
-                vertical: SpendlerSpacing.sm,
+                horizontal: AppSpacing.lg,
+                vertical: AppSpacing.xs,
               ),
               child: GestureDetector(
                 onTap: () => Navigator.push(
@@ -51,28 +52,27 @@ class HomePage extends ConsumerWidget {
                 child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(
-                    horizontal: SpendlerSpacing.cardPadding,
-                    vertical: SpendlerSpacing.md,
+                    horizontal: AppSpacing.md,
+                    vertical: AppSpacing.md,
                   ),
                   decoration: BoxDecoration(
-                    color: SpendlerColors.surfaceHigh,
-                    borderRadius: BorderRadius.circular(SpendlerRadii.card),
-                    border: Border.all(color: SpendlerColors.border),
+                    color: AppColors.white,
+                    borderRadius: AppRadius.xl,
+                    border: Border.all(color: AppColors.gray200),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Icon(Icons.autorenew, color: SpendlerColors.accentBlue, size: 20),
-                      SizedBox(width: 10),
+                      const Icon(Icons.autorenew, color: AppColors.black, size: 20),
+                      const SizedBox(width: 10),
                       Text(
                         'Subscriptions',
-                        style: TextStyle(
-                          color: SpendlerColors.accentBlue,
-                          fontSize: 15,
+                        style: AppTextStyles.bodyM.copyWith(
+                          color: AppColors.black,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      Spacer(),
-                      Icon(Icons.chevron_right, color: SpendlerColors.accentBlue, size: 20),
+                      const Spacer(),
+                      const Icon(Icons.chevron_right, color: AppColors.black, size: 20),
                     ],
                   ),
                 ),
@@ -83,8 +83,8 @@ class HomePage extends ConsumerWidget {
             delay: const Duration(milliseconds: 390),
             child: Padding(
               padding: const EdgeInsets.symmetric(
-                horizontal: SpendlerSpacing.screenH,
-                vertical: SpendlerSpacing.sm,
+                horizontal: AppSpacing.lg,
+                vertical: AppSpacing.xs,
               ),
               child: GestureDetector(
                 onTap: () => Navigator.push(
@@ -94,19 +94,18 @@ class HomePage extends ConsumerWidget {
                 child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(
-                    horizontal: SpendlerSpacing.cardPadding,
-                    vertical: SpendlerSpacing.md,
+                    horizontal: AppSpacing.md,
+                    vertical: AppSpacing.md,
                   ),
                   decoration: BoxDecoration(
-                    color: SpendlerColors.surfaceHigh,
-                    borderRadius: BorderRadius.circular(SpendlerRadii.card),
-                    border: Border.all(color: SpendlerColors.border),
+                    color: AppColors.white,
+                    borderRadius: AppRadius.xl,
+                    border: Border.all(color: AppColors.gray200),
                   ),
-                  child: const Text(
+                  child: Text(
                     'View monthly report \u2192',
-                    style: TextStyle(
-                      color: SpendlerColors.primary,
-                      fontSize: 15,
+                    style: AppTextStyles.bodyM.copyWith(
+                      color: AppColors.black,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -118,8 +117,8 @@ class HomePage extends ConsumerWidget {
             delay: const Duration(milliseconds: 395),
             child: Padding(
               padding: const EdgeInsets.symmetric(
-                horizontal: SpendlerSpacing.screenH,
-                vertical: SpendlerSpacing.sm,
+                horizontal: AppSpacing.lg,
+                vertical: AppSpacing.xs,
               ),
               child: GestureDetector(
                 onTap: () => Navigator.push(
@@ -129,14 +128,14 @@ class HomePage extends ConsumerWidget {
                 child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(
-                    horizontal: SpendlerSpacing.cardPadding,
-                    vertical: SpendlerSpacing.md,
+                    horizontal: AppSpacing.md,
+                    vertical: AppSpacing.md,
                   ),
                   decoration: BoxDecoration(
-                    color: SpendlerColors.primary.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(SpendlerRadii.card),
+                    color: AppColors.black.withValues(alpha: 0.08),
+                    borderRadius: AppRadius.xl,
                     border: Border.all(
-                      color: SpendlerColors.primary.withValues(alpha: 0.2),
+                      color: AppColors.black.withValues(alpha: 0.2),
                     ),
                   ),
                   child: Row(
@@ -145,14 +144,14 @@ class HomePage extends ConsumerWidget {
                         width: 28,
                         height: 28,
                         decoration: const BoxDecoration(
-                          color: SpendlerColors.primary,
+                          color: AppColors.black,
                           shape: BoxShape.circle,
                         ),
                         child: const Center(
                           child: Text(
                             'P',
                             style: TextStyle(
-                              color: SpendlerColors.scaffold,
+                              color: AppColors.offWhite,
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
                             ),
@@ -160,11 +159,10 @@ class HomePage extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      const Text(
+                      Text(
                         'Ask Penny a question \u2192',
-                        style: TextStyle(
-                          color: SpendlerColors.primary,
-                          fontSize: 15,
+                        style: AppTextStyles.bodyM.copyWith(
+                          color: AppColors.black,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -179,8 +177,8 @@ class HomePage extends ConsumerWidget {
           if (DateTime.now().weekday == DateTime.sunday)
             Padding(
               padding: const EdgeInsets.symmetric(
-                horizontal: SpendlerSpacing.screenH,
-                vertical: SpendlerSpacing.lg,
+                horizontal: AppSpacing.lg,
+                vertical: AppSpacing.xl,
               ),
               child: GestureDetector(
                 onTap: () => Navigator.push(
@@ -192,19 +190,18 @@ class HomePage extends ConsumerWidget {
                 child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(
-                    horizontal: SpendlerSpacing.cardPadding,
-                    vertical: SpendlerSpacing.md,
+                    horizontal: AppSpacing.md,
+                    vertical: AppSpacing.md,
                   ),
                   decoration: BoxDecoration(
-                    color: SpendlerColors.surfaceHigh,
-                    borderRadius: BorderRadius.circular(SpendlerRadii.card),
-                    border: Border.all(color: SpendlerColors.border),
+                    color: AppColors.white,
+                    borderRadius: AppRadius.xl,
+                    border: Border.all(color: AppColors.gray200),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Your weekly rhythm is ready \u2192',
-                    style: TextStyle(
-                      color: SpendlerColors.primary,
-                      fontSize: 15,
+                    style: AppTextStyles.bodyM.copyWith(
+                      color: AppColors.black,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -247,9 +244,9 @@ class _GreetingSection extends ConsumerWidget {
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        SpendlerSpacing.screenH,
-        MediaQuery.paddingOf(context).top + SpendlerSpacing.lg,
-        SpendlerSpacing.screenH,
+        AppSpacing.lg,
+        MediaQuery.paddingOf(context).top + AppSpacing.xl,
+        AppSpacing.lg,
         0,
       ),
       child: Column(
@@ -272,7 +269,7 @@ class _GreetingSection extends ConsumerWidget {
                     height: 40,
                     child: Icon(
                       Icons.settings_outlined,
-                      color: SpendlerColors.textSecondary,
+                      color: AppColors.gray500,
                       size: 22,
                     ),
                   ),
@@ -280,38 +277,32 @@ class _GreetingSection extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: SpendlerSpacing.sm),
+          const SizedBox(height: AppSpacing.xs),
           // Greeting with user's name
           Text(
             _greeting(userName.valueOrNull),
-            style: SpendlerTextStyles.greeting,
+            style: AppTextStyles.headingL,
           ),
-          const SizedBox(height: SpendlerSpacing.sm),
+          const SizedBox(height: AppSpacing.xs),
           // Today's pulse
           todaySpent.when(
             data: (spent) {
               if (spent == 0) {
-                return const Text(
+                return Text(
                   'Nothing spent today. A clean start.',
-                  style: TextStyle(
-                    color: SpendlerColors.textSecondary,
-                    fontSize: 15,
-                  ),
+                  style: AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
                 );
               }
               final catName = todayTopCat.valueOrNull;
               final catSuffix = catName != null ? ' Mostly $catName.' : '';
               return Text(
                 '\$${spent.toStringAsFixed(0)} spent today.$catSuffix',
-                style: const TextStyle(
-                  color: SpendlerColors.textSecondary,
-                  fontSize: 15,
-                ),
+                style: AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
               );
             },
-            loading: () => const Text(
+            loading: () => Text(
               '...',
-              style: TextStyle(color: SpendlerColors.textTertiary),
+              style: AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
             ),
             error: (_, _) => const SizedBox.shrink(),
           ),
@@ -333,7 +324,7 @@ class _WeeklyHeroSection extends ConsumerWidget {
     final delta = ref.watch(weekOverWeekDeltaProvider);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -341,7 +332,7 @@ class _WeeklyHeroSection extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('THIS WEEK', style: SpendlerTextStyles.sectionLabel),
+              Text('THIS WEEK', style: AppTextStyles.labelM.copyWith(color: AppColors.gray400)),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -349,9 +340,9 @@ class _WeeklyHeroSection extends ConsumerWidget {
                     onTap: () => ref.read(selectedWeekProvider.notifier).state =
                         weekStart.subtract(const Duration(days: 7)),
                     child: const Icon(Icons.chevron_left,
-                        color: SpendlerColors.textTertiary, size: 22),
+                        color: AppColors.gray500, size: 22),
                   ),
-                  const SizedBox(width: SpendlerSpacing.sm),
+                  const SizedBox(width: AppSpacing.xs),
                   GestureDetector(
                     onTap: () {
                       final next = weekStart.add(const Duration(days: 7));
@@ -360,13 +351,13 @@ class _WeeklyHeroSection extends ConsumerWidget {
                       }
                     },
                     child: const Icon(Icons.chevron_right,
-                        color: SpendlerColors.textTertiary, size: 22),
+                        color: AppColors.gray500, size: 22),
                   ),
                 ],
               ),
             ],
           ),
-          const SizedBox(height: SpendlerSpacing.md),
+          const SizedBox(height: AppSpacing.md),
           // Hero amount
           weeklyTxns.when(
             data: (txns) {
@@ -376,17 +367,17 @@ class _WeeklyHeroSection extends ConsumerWidget {
               return AnimatedAmount(
                 value: spent,
                 prefix: '\$',
-                style: SpendlerTextStyles.heroAmount,
-                duration: SpendlerMotion.number,
-                curve: SpendlerMotion.numberCurve,
+                style: AppTextStyles.displayXL,
+                duration: AppDurations.slow,
+                curve: Curves.elasticOut,
               );
             },
             loading: () => const AnimatedAmount(
-                value: 0, prefix: '\$', style: SpendlerTextStyles.heroAmount),
+                value: 0, prefix: '\$', style: AppTextStyles.displayXL),
             error: (_, _) => const Text('Error',
-                style: TextStyle(color: SpendlerColors.expense)),
+                style: TextStyle(color: AppColors.red)),
           ),
-          const SizedBox(height: SpendlerSpacing.sm),
+          const SizedBox(height: AppSpacing.xs),
           // Delta pill
           delta.when(
             data: (pct) {
@@ -418,24 +409,20 @@ class _DailyBreakdownSection extends ConsumerWidget {
     final weeklyTxns = ref.watch(weeklyTransactionsProvider);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.only(left: 4, bottom: SpendlerSpacing.cardGap),
-            child: Text('DAILY BREAKDOWN', style: SpendlerTextStyles.sectionLabel),
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: AppSpacing.sm),
+            child: Text('DAILY BREAKDOWN', style: AppTextStyles.labelM.copyWith(color: AppColors.gray400)),
           ),
           Container(
-            padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color(0xFF1E1E1E), SpendlerColors.surface],
-              ),
-              borderRadius: BorderRadius.circular(SpendlerRadii.card),
-              boxShadow: SpendlerShadows.card,
+            padding: const EdgeInsets.all(AppSpacing.md),
+            decoration: const BoxDecoration(
+              color: AppColors.white,
+              borderRadius: AppRadius.xl,
+              boxShadow: AppShadows.sm,
             ),
             child: weeklyTxns.when(
               data: (txns) => WeeklyBarChart(
@@ -453,13 +440,13 @@ class _DailyBreakdownSection extends ConsumerWidget {
                 height: 200,
                 child: Center(
                     child:
-                        CircularProgressIndicator(color: SpendlerColors.primary)),
+                        CircularProgressIndicator(color: AppColors.black)),
               ),
               error: (_, _) => const SizedBox(
                 height: 200,
                 child: Center(
                     child: Text('Error',
-                        style: TextStyle(color: SpendlerColors.textTertiary))),
+                        style: TextStyle(color: AppColors.gray500))),
               ),
             ),
           ),
@@ -474,23 +461,42 @@ class _DailyBreakdownSection extends ConsumerWidget {
 class _CategoryBreakdownSection extends ConsumerWidget {
   const _CategoryBreakdownSection();
 
+  static const Map<TransactionCategory, Color> _categoryHue = {
+    TransactionCategory.foodAndDrink: Color(0xFFFF8A4C),
+    TransactionCategory.transport: Color(0xFF4A8FE7),
+    TransactionCategory.shopping: Color(0xFFB19CD9),
+    TransactionCategory.billsAndUtilities: Color(0xFFF59E0B),
+    TransactionCategory.healthAndWellness: Color(0xFF22C55E),
+    TransactionCategory.entertainment: Color(0xFFE91E63),
+    TransactionCategory.streaming: Color(0xFFEC407A),
+    TransactionCategory.gymFitness: Color(0xFF4CAF50),
+    TransactionCategory.productivityTools: Color(0xFF9575CD),
+    TransactionCategory.personalCare: Color(0xFFF8BBD0),
+    TransactionCategory.education: Color(0xFF5C6BC0),
+    TransactionCategory.travel: Color(0xFF14B8A6),
+    TransactionCategory.other: Color(0xFF6E6E73),
+  };
+
+  static Color _categoryColor(TransactionCategory cat) =>
+      _categoryHue[cat] ?? const Color(0xFF6E6E73);
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final merchantCounts = ref.watch(weeklyMerchantCountsProvider);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('WHERE IT WENT', style: SpendlerTextStyles.sectionLabel),
-          const SizedBox(height: SpendlerSpacing.md),
+          Text('WHERE IT WENT', style: AppTextStyles.labelM.copyWith(color: AppColors.gray400)),
+          const SizedBox(height: AppSpacing.md),
           ref.watch(weeklyCategoryTotalsProvider).when(
             data: (sorted) {
               if (sorted.isEmpty) {
-                return const Text(
+                return Text(
                   'No spending yet this week.',
-                  style: SpendlerTextStyles.emptyState,
+                  style: AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
                 );
               }
 
@@ -517,11 +523,11 @@ class _CategoryBreakdownSection extends ConsumerWidget {
                   final pct =
                       totalSpent > 0 ? amount / totalSpent : 0.0;
                   final isDominant = i == 0;
-                  final catColor = SpendlerColors.categoryColor(cat);
+                  final catColor = _categoryColor(cat);
 
                   return Padding(
                     padding:
-                        const EdgeInsets.only(bottom: SpendlerSpacing.md),
+                        const EdgeInsets.only(bottom: AppSpacing.md),
                     child: Row(
                       children: [
                         Icon(
@@ -529,9 +535,9 @@ class _CategoryBreakdownSection extends ConsumerWidget {
                           size: 22,
                           color: isDominant
                               ? catColor
-                              : SpendlerColors.textTertiary,
+                              : AppColors.gray500,
                         ),
-                        const SizedBox(width: SpendlerSpacing.cardGap),
+                        const SizedBox(width: AppSpacing.sm),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -545,8 +551,8 @@ class _CategoryBreakdownSection extends ConsumerWidget {
                                       cat.label,
                                       style: TextStyle(
                                         color: isDominant
-                                            ? SpendlerColors.textPrimary
-                                            : SpendlerColors.textSecondary,
+                                            ? AppColors.black
+                                            : AppColors.gray500,
                                         fontSize: 15,
                                         fontWeight: isDominant
                                             ? FontWeight.w600
@@ -560,8 +566,8 @@ class _CategoryBreakdownSection extends ConsumerWidget {
                                     '\$${amount.toStringAsFixed(0)}',
                                     style: TextStyle(
                                       color: isDominant
-                                          ? SpendlerColors.textPrimary
-                                          : SpendlerColors.textTertiary,
+                                          ? AppColors.black
+                                          : AppColors.gray500,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w700,
                                     ),
@@ -570,14 +576,14 @@ class _CategoryBreakdownSection extends ConsumerWidget {
                               ),
                               const SizedBox(height: 6),
                               ClipRRect(
-                                borderRadius: BorderRadius.circular(SpendlerRadii.progressBar),
+                                borderRadius: BorderRadius.circular(3),
                                 child: LinearProgressIndicator(
                                   value: pct,
-                                  backgroundColor: SpendlerColors.border,
+                                  backgroundColor: AppColors.gray200,
                                   valueColor: AlwaysStoppedAnimation(
                                     isDominant
                                         ? catColor
-                                        : SpendlerColors.textTertiary,
+                                        : AppColors.gray500,
                                   ),
                                   minHeight: 4,
                                 ),
@@ -624,24 +630,21 @@ class _ActionNeededSection extends ConsumerWidget {
         if (list.isEmpty) return const SizedBox.shrink();
         return Padding(
           padding: const EdgeInsets.fromLTRB(
-            SpendlerSpacing.screenH,
+            AppSpacing.lg,
             0,
-            SpendlerSpacing.screenH,
-            SpendlerSpacing.xl,
+            AppSpacing.lg,
+            AppSpacing.xxl,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('ACTION NEEDED', style: SpendlerTextStyles.sectionLabel),
-              const SizedBox(height: SpendlerSpacing.md),
+              Text('ACTION NEEDED', style: AppTextStyles.labelM.copyWith(color: AppColors.gray400)),
+              const SizedBox(height: AppSpacing.md),
               Text(
                 '${list.length} transaction${list.length > 1 ? 's' : ''} need a quick look.',
-                style: const TextStyle(
-                  color: SpendlerColors.textSecondary,
-                  fontSize: 15,
-                ),
+                style: AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
               ),
-              const SizedBox(height: SpendlerSpacing.md),
+              const SizedBox(height: AppSpacing.md),
               if (list.length >= 2)
                 NeoPOPButton(
                   label: 'Confirm All (${list.length})',
@@ -650,17 +653,14 @@ class _ActionNeededSection extends ConsumerWidget {
                     await confirmAllTransactions(ref.read(repositoryProvider));
                   },
                 ),
-              const SizedBox(height: SpendlerSpacing.sm),
+              const SizedBox(height: AppSpacing.xs),
               Center(
                 child: GestureDetector(
                   onTap: () =>
                       ref.read(selectedTabProvider.notifier).state = 1,
-                  child: const Text(
+                  child: Text(
                     'Review individually →',
-                    style: TextStyle(
-                      color: SpendlerColors.textTertiary,
-                      fontSize: 13,
-                    ),
+                    style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
                   ),
                 ),
               ),
@@ -700,8 +700,8 @@ class _WeeklyInsightSection extends ConsumerWidget {
 
         return Padding(
           padding: const EdgeInsets.symmetric(
-              horizontal: SpendlerSpacing.screenH),
-          child: Text(insight, style: SpendlerTextStyles.insightBody),
+              horizontal: AppSpacing.lg),
+          child: Text(insight, style: AppTextStyles.bodyM),
         );
       },
       loading: () => const SizedBox.shrink(),
@@ -727,18 +727,14 @@ class _FriendsCardSection extends ConsumerWidget {
         }
         return Padding(
           padding: const EdgeInsets.fromLTRB(
-            SpendlerSpacing.screenH, 0, SpendlerSpacing.screenH, SpendlerSpacing.xl,
+            AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.xxl,
           ),
           child: Container(
-            padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color(0xFF1E1E1E), SpendlerColors.surface],
-              ),
-              borderRadius: BorderRadius.circular(SpendlerRadii.card),
-              boxShadow: SpendlerShadows.card,
+            padding: const EdgeInsets.all(AppSpacing.md),
+            decoration: const BoxDecoration(
+              color: AppColors.white,
+              borderRadius: AppRadius.xl,
+              boxShadow: AppShadows.sm,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -746,35 +742,44 @@ class _FriendsCardSection extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('WITH FRIENDS', style: SpendlerTextStyles.sectionLabel),
+                    Text('WITH FRIENDS', style: AppTextStyles.labelM.copyWith(color: AppColors.gray400)),
                     GestureDetector(
                       onTap: () => ref.read(selectedTabProvider.notifier).state = 3,
-                      child: const Text(
+                      child: Text(
                         'See all →',
-                        style: TextStyle(color: SpendlerColors.primary, fontSize: 12, fontWeight: FontWeight.w500),
+                        style: AppTextStyles.bodyS.copyWith(
+                          color: AppColors.black,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: SpendlerSpacing.md),
+                const SizedBox(height: AppSpacing.md),
                 if (balance.totalReceivable > 0)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 4),
                     child: Text(
                       '↓ \$${balance.totalReceivable.toStringAsFixed(0)} to collect',
-                      style: const TextStyle(color: SpendlerColors.income, fontSize: 14, fontWeight: FontWeight.w500),
+                      style: AppTextStyles.bodyS.copyWith(
+                        color: AppColors.green,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 if (balance.totalPayable > 0)
                   Text(
-                    '�� \$${balance.totalPayable.toStringAsFixed(0)} to pay back',
-                    style: const TextStyle(color: SpendlerColors.warning, fontSize: 14, fontWeight: FontWeight.w500),
+                    '↑ \$${balance.totalPayable.toStringAsFixed(0)} to pay back',
+                    style: AppTextStyles.bodyS.copyWith(
+                      color: AppColors.orange,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 contactsAsync.when(
                   data: (contacts) {
                     if (contacts.isEmpty) return const SizedBox.shrink();
                     return Padding(
-                      padding: const EdgeInsets.only(top: SpendlerSpacing.md),
+                      padding: const EdgeInsets.only(top: AppSpacing.md),
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
@@ -783,16 +788,16 @@ class _FriendsCardSection extends ConsumerWidget {
                             try {
                               chipColor = Color(int.parse(c.avatarColour.replaceFirst('#', '0xFF')));
                             } on FormatException {
-                              chipColor = SpendlerColors.textTertiary;
+                              chipColor = AppColors.gray500;
                             }
                             return Padding(
-                              padding: const EdgeInsets.only(right: SpendlerSpacing.sm),
+                              padding: const EdgeInsets.only(right: AppSpacing.xs),
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                 decoration: BoxDecoration(
-                                  color: SpendlerColors.surface,
-                                  borderRadius: BorderRadius.circular(SpendlerRadii.pill),
-                                  border: Border.all(color: SpendlerColors.border),
+                                  color: AppColors.white,
+                                  borderRadius: AppRadius.full,
+                                  border: Border.all(color: AppColors.gray200),
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -810,7 +815,7 @@ class _FriendsCardSection extends ConsumerWidget {
                                       constraints: const BoxConstraints(maxWidth: 100),
                                       child: Text(
                                         c.name,
-                                        style: const TextStyle(color: SpendlerColors.textSecondary, fontSize: 12),
+                                        style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),

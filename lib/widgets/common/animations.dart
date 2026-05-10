@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:finance_buddy_app/core/tokens.dart';
+import 'package:finance_buddy_app/design_system/design_system.dart';
 
 /// Wraps a child with a staggered fade + slide-up entrance animation.
 /// Use inside lists: each item gets a [delay] based on its index.
@@ -102,7 +102,7 @@ class _PressableCardState extends State<PressableCard>
     super.initState();
     _ctrl = AnimationController(
       vsync: this,
-      duration: SpendlerMotion.micro,
+      duration: AppDurations.fast,
       reverseDuration: const Duration(milliseconds: 200),
     );
     _scaleAnim = Tween<double>(begin: 1.0, end: widget.scale).animate(
@@ -252,9 +252,9 @@ class _ShimmerBoxState extends State<ShimmerBox>
               begin: Alignment(-1.0 + _ctrl.value * 3, 0),
               end: Alignment(-1.0 + _ctrl.value * 3 + 1, 0),
               colors: const [
-                SpendlerColors.surface,
-                SpendlerColors.border,
-                SpendlerColors.surface,
+                AppColors.white,
+                AppColors.gray200,
+                AppColors.white,
               ],
               stops: const [0.0, 0.5, 1.0],
             ),
