@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:finance_buddy_app/core/tokens.dart';
 import 'package:finance_buddy_app/providers/onboarding_provider.dart';
-import 'package:finance_buddy_app/pages/onboarding/onboarding_page.dart';
+import 'package:finance_buddy_app/pages/onboarding_v2/currency_selection_screen.dart';
 import 'package:finance_buddy_app/pages/shell_page.dart';
 
 class SplashPage extends ConsumerStatefulWidget {
@@ -63,7 +63,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
     final done = await ref.read(hasCompletedOnboardingProvider.future);
     if (!mounted) return;
 
-    final destination = done ? const ShellPage() : const OnboardingPage();
+    final destination = done ? const ShellPage() : const CurrencySelectionScreen();
     await Navigator.pushReplacement<void, void>(
       context,
       PageRouteBuilder<void>(
