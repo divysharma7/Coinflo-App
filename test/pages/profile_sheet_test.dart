@@ -14,9 +14,9 @@ void main() {
         userNameProvider.overrideWith((_) async => userName),
         userEmailProvider.overrideWith((_) async => userEmail),
       ],
-      child: MaterialApp(
+      child: const MaterialApp(
         home: Scaffold(
-          body: const ProfileSheet(),
+          body: ProfileSheet(),
         ),
       ),
     );
