@@ -198,75 +198,84 @@ class _ScreenName extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(SpendlerSpacing.xl),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          PhosphorIcon(
-            PhosphorIcons.user(),
-            color: SpendlerColors.primary,
-            size: 48,
-          ),
-          const SizedBox(height: SpendlerSpacing.lg),
-          const Text(
-            'What should we\ncall you?',
-            style: SpendlerTextStyles.onboardingHeadline,
-          ),
-          const SizedBox(height: SpendlerSpacing.lg),
-          TextField(
-            controller: controller,
-            autofocus: true,
-            style: SpendlerTextStyles.greeting,
-            cursorColor: SpendlerColors.primary,
-            decoration: const InputDecoration(
-              hintText: 'Your first name',
-              hintStyle: TextStyle(
-                color: SpendlerColors.textTertiary,
-                fontSize: 24,
-                fontWeight: FontWeight.w600,
-              ),
-              border: UnderlineInputBorder(
-                borderSide: BorderSide(color: SpendlerColors.border),
-              ),
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: SpendlerColors.border),
-              ),
-              focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: SpendlerColors.primary),
-              ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(SpendlerSpacing.xl),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: constraints.maxHeight - SpendlerSpacing.xl * 2,
             ),
-            textCapitalization: TextCapitalization.words,
-            onSubmitted: (_) => onNext(),
-          ),
-          const SizedBox(height: SpendlerSpacing.xl),
-          Align(
-            alignment: Alignment.centerRight,
-            child: GestureDetector(
-              onTap: onNext,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: SpendlerSpacing.md,
-                  vertical: SpendlerSpacing.sm,
-                ),
-                decoration: BoxDecoration(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                PhosphorIcon(
+                  PhosphorIcons.user(),
                   color: SpendlerColors.primary,
-                  borderRadius: BorderRadius.circular(SpendlerRadii.pill),
+                  size: 48,
                 ),
-                child: const Text(
-                  'Next →',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                const SizedBox(height: SpendlerSpacing.lg),
+                const Text(
+                  'What should we\ncall you?',
+                  style: SpendlerTextStyles.onboardingHeadline,
+                ),
+                const SizedBox(height: SpendlerSpacing.lg),
+                TextField(
+                  controller: controller,
+                  autofocus: true,
+                  style: SpendlerTextStyles.greeting,
+                  cursorColor: SpendlerColors.primary,
+                  decoration: const InputDecoration(
+                    hintText: 'Your first name',
+                    hintStyle: TextStyle(
+                      color: SpendlerColors.textTertiary,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    border: UnderlineInputBorder(
+                      borderSide: BorderSide(color: SpendlerColors.border),
+                    ),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: SpendlerColors.border),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: SpendlerColors.primary),
+                    ),
+                  ),
+                  textCapitalization: TextCapitalization.words,
+                  onSubmitted: (_) => onNext(),
+                ),
+                const SizedBox(height: SpendlerSpacing.xl),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: GestureDetector(
+                    onTap: onNext,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: SpendlerSpacing.md,
+                        vertical: SpendlerSpacing.sm,
+                      ),
+                      decoration: BoxDecoration(
+                        color: SpendlerColors.primary,
+                        borderRadius: BorderRadius.circular(SpendlerRadii.pill),
+                      ),
+                      child: const Text(
+                        'Next →',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -356,61 +365,70 @@ class _ScreenStart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(SpendlerSpacing.xl),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          PhosphorIcon(
-            isGuideMode
-                ? PhosphorIcons.checkCircle()
-                : PhosphorIcons.rocketLaunch(),
-            color: SpendlerColors.primary,
-            size: 48,
-          ),
-          const SizedBox(height: SpendlerSpacing.lg),
-          Text(
-            isGuideMode ? 'That\'s the whole idea.' : 'Let\'s get started.',
-            style: SpendlerTextStyles.onboardingHeadline,
-          ),
-          const SizedBox(height: SpendlerSpacing.md),
-          Text(
-            isGuideMode
-                ? 'SMS gets parsed, you confirm,\nand your weekly rhythm appears.'
-                : 'Allow SMS access and we\'ll\nhandle the rest.',
-            style: SpendlerTextStyles.onboardingBody,
-          ),
-          const SizedBox(height: SpendlerSpacing.xxl),
-          if (isGuideMode)
-            NeoPOPButton(
-              label: 'Got it',
-              onTap: () => onFinish(),
-            )
-          else ...[
-            NeoPOPButton(
-              label: 'Allow SMS Access',
-              onTap: () {
-                HapticFeedback.mediumImpact();
-                onFinish(requestSms: true);
-              },
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(SpendlerSpacing.xl),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: constraints.maxHeight - SpendlerSpacing.xl * 2,
             ),
-            const SizedBox(height: SpendlerSpacing.md),
-            Center(
-              child: TextButton(
-                onPressed: () => onFinish(requestSms: false),
-                child: const Text(
-                  'I\'ll add manually',
-                  style: TextStyle(
-                    color: SpendlerColors.textSecondary,
-                    fontSize: 14,
-                  ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                PhosphorIcon(
+                  isGuideMode
+                      ? PhosphorIcons.checkCircle()
+                      : PhosphorIcons.rocketLaunch(),
+                  color: SpendlerColors.primary,
+                  size: 48,
                 ),
-              ),
+                const SizedBox(height: SpendlerSpacing.lg),
+                Text(
+                  isGuideMode ? 'That\'s the whole idea.' : 'Let\'s get started.',
+                  style: SpendlerTextStyles.onboardingHeadline,
+                ),
+                const SizedBox(height: SpendlerSpacing.md),
+                Text(
+                  isGuideMode
+                      ? 'SMS gets parsed, you confirm,\nand your weekly rhythm appears.'
+                      : 'Allow SMS access and we\'ll\nhandle the rest.',
+                  style: SpendlerTextStyles.onboardingBody,
+                ),
+                const SizedBox(height: SpendlerSpacing.xxl),
+                if (isGuideMode)
+                  NeoPOPButton(
+                    label: 'Got it',
+                    onTap: () => onFinish(),
+                  )
+                else ...[
+                  NeoPOPButton(
+                    label: 'Allow SMS Access',
+                    onTap: () {
+                      HapticFeedback.mediumImpact();
+                      onFinish(requestSms: true);
+                    },
+                  ),
+                  const SizedBox(height: SpendlerSpacing.md),
+                  Center(
+                    child: TextButton(
+                      onPressed: () => onFinish(requestSms: false),
+                      child: const Text(
+                        'I\'ll add manually',
+                        style: TextStyle(
+                          color: SpendlerColors.textSecondary,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
             ),
-          ],
-        ],
-      ),
+          ),
+        );
+      },
     );
   }
 }

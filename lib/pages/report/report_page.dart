@@ -592,13 +592,17 @@ class _SummaryCard extends StatelessWidget {
             children: [
               Icon(icon, size: 14, color: color),
               const SizedBox(width: 4),
-              Text(
-                label,
-                style: TextStyle(
-                  color: color.withValues(alpha: 0.8),
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.5,
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color: color.withValues(alpha: 0.8),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -612,6 +616,8 @@ class _SummaryCard extends StatelessWidget {
               fontWeight: FontWeight.w700,
               fontFeatures: [FontFeature.tabularFigures()],
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -671,12 +677,16 @@ class _TransactionList extends ConsumerWidget {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              dayGroup.key,
-                              style: const TextStyle(
-                                color: SpendlerColors.textTertiary,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
+                            Flexible(
+                              child: Text(
+                                dayGroup.key,
+                                style: const TextStyle(
+                                  color: SpendlerColors.textTertiary,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             if (dayTotal > 0)

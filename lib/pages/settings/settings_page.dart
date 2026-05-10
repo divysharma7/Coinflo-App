@@ -392,11 +392,15 @@ class _EditableRow extends StatelessWidget {
                 ),
               ),
             ),
-            Text(
-              value,
-              style: const TextStyle(
-                color: SpendlerColors.textSecondary,
-                fontSize: 14,
+            Flexible(
+              child: Text(
+                value,
+                style: const TextStyle(
+                  color: SpendlerColors.textSecondary,
+                  fontSize: 14,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
             const SizedBox(width: SpendlerSpacing.sm),
@@ -452,11 +456,15 @@ class _TappableRow extends StatelessWidget {
               ),
             ),
             if (value.isNotEmpty)
-              Text(
-                value,
-                style: const TextStyle(
-                  color: SpendlerColors.textSecondary,
-                  fontSize: 14,
+              Flexible(
+                child: Text(
+                  value,
+                  style: const TextStyle(
+                    color: SpendlerColors.textSecondary,
+                    fontSize: 14,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             const SizedBox(width: SpendlerSpacing.sm),
