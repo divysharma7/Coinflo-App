@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -121,7 +122,7 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen>
     await prefs.setString('currency_symbol', _selectedCurrency.symbol);
 
     if (mounted) {
-      await Navigator.pushNamed(context, '/onboarding/step2');
+      await context.push('/onboarding/step2');
     }
   }
 

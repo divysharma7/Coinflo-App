@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:finance_buddy_app/design_system/design_system.dart';
+import 'package:finance_buddy_app/main.dart' show firebaseInitialized;
+import 'package:finance_buddy_app/providers/auth_provider.dart';
 import 'package:finance_buddy_app/providers/onboarding_provider.dart';
-import 'package:finance_buddy_app/pages/onboarding_v2/currency_selection_screen.dart';
-import 'package:finance_buddy_app/pages/shell_page.dart';
 
 class SplashPage extends ConsumerStatefulWidget {
   const SplashPage({super.key});
@@ -58,22 +59,29 @@ class _SplashPageState extends ConsumerState<SplashPage>
     // Fade in text
     await _fadeCtrl.forward();
     await Future<void>.delayed(const Duration(milliseconds: 400));
-    // Navigate
-    if (!mounted) return;
-    final done = await ref.read(hasCompletedOnboardingProvider.future);
+    // Navigate based on returning user + onboarding status
     if (!mounted) return;
 
-    final destination = done ? const ShellPage() : const CurrencySelectionScreen();
-    await Navigator.pushReplacement<void, void>(
-      context,
-      PageRouteBuilder<void>(
-        pageBuilder: (context, animation, secondaryAnimation) => destination,
-        transitionDuration: AppDurations.slow,
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(opacity: animation, child: child);
-        },
-      ),
-    );
+    final authService = ref.read(authServiceProvider);
+    final isReturning = await authService.isReturningUser();
+    final onboardingDone = await ref.read(hasCompletedOnboardingProvider.future);
+
+    if (!mounted) return;
+
+    if (isReturning && onboardingDone) {
+      // Hydrate local data from Firestore if Firebase is available
+      if (firebaseInitialized) {
+        final uid = await authService.getStoredUid();
+        if (uid != null) {
+          final firestoreService = ref.read(firestoreServiceProvider);
+          await firestoreService.hydrateLocalFromFirestore(uid);
+        }
+      }
+      if (!mounted) return;
+      context.go('/home');
+    } else {
+      context.go('/onboarding/step1');
+    }
   }
 
   @override

@@ -1,12 +1,17 @@
 import 'dart:async';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:finance_buddy_app/app.dart';
 import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/data/repositories/local/local_repository.dart';
 import 'package:finance_buddy_app/data/seed_data.dart';
+import 'package:finance_buddy_app/firebase_options.dart';
 import 'package:finance_buddy_app/services/notifications/notification_service.dart';
+
+/// Whether Firebase was successfully initialized.
+bool firebaseInitialized = false;
 
 void main() {
   runZonedGuarded(
@@ -25,6 +30,17 @@ void main() {
         debugPrint('Stack trace: $stack');
         return true;
       };
+
+      // Initialize Firebase (non-blocking — app works without it)
+      try {
+        await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform,
+        );
+        firebaseInitialized = true;
+        debugPrint('Firebase initialized successfully');
+      } catch (e) {
+        debugPrint('Firebase initialization skipped: $e');
+      }
 
       // Initialize notifications
       await NotificationService().initialize();

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -145,7 +146,7 @@ class _CategoryBudgetsScreenState extends State<CategoryBudgetsScreen>
     final prefs = await SharedPreferences.getInstance();
     final encoded = jsonEncode(_budgets.map((b) => b.toJson()).toList());
     await prefs.setString('category_budgets', encoded);
-    if (mounted) await Navigator.pushNamed(context, '/onboarding/step5');
+    if (mounted) await context.push('/onboarding/step5');
   }
 
   @override
@@ -174,7 +175,7 @@ class _CategoryBudgetsScreenState extends State<CategoryBudgetsScreen>
                 top: AppSpacing.md,
               ),
               child: GestureDetector(
-                onTap: () => Navigator.pop(context),
+                onTap: () => context.pop(),
                 child: const SizedBox(
                   width: 44,
                   height: 44,

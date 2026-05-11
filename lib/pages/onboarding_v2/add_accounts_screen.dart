@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -154,7 +155,7 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
     await prefs.setString('accounts', encoded);
 
     if (mounted) {
-      await Navigator.pushNamed(context, '/onboarding/step3');
+      await context.push('/onboarding/step3');
     }
   }
 
@@ -184,7 +185,7 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
                 top: AppSpacing.md,
               ),
               child: GestureDetector(
-                onTap: () => Navigator.pop(context),
+                onTap: () => context.pop(),
                 child: const SizedBox(
                   width: 44,
                   height: 44,

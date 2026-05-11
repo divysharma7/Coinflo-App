@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -110,7 +111,7 @@ class _MonthlyBudgetScreenState extends State<MonthlyBudgetScreen>
   Future<void> _onContinue() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('monthly_budget', _selectedAmount);
-    if (mounted) await Navigator.pushNamed(context, '/onboarding/step4');
+    if (mounted) await context.push('/onboarding/step4');
   }
 
   @override
@@ -139,7 +140,7 @@ class _MonthlyBudgetScreenState extends State<MonthlyBudgetScreen>
                 top: AppSpacing.md,
               ),
               child: GestureDetector(
-                onTap: () => Navigator.pop(context),
+                onTap: () => context.pop(),
                 child: const SizedBox(
                   width: 44,
                   height: 44,

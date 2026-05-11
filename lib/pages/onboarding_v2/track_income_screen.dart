@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:finance_buddy_app/design_system/design_system.dart';
@@ -85,7 +86,7 @@ class _TrackIncomeScreenState extends State<TrackIncomeScreen>
   Future<void> _onContinue() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('track_income', _trackIncome);
-    if (mounted) await Navigator.pushNamed(context, '/onboarding/step7');
+    if (mounted) await context.push('/onboarding/step7');
   }
 
   @override
@@ -113,7 +114,7 @@ class _TrackIncomeScreenState extends State<TrackIncomeScreen>
                 top: AppSpacing.md,
               ),
               child: GestureDetector(
-                onTap: () => Navigator.pop(context),
+                onTap: () => context.pop(),
                 child: const SizedBox(
                   width: 44,
                   height: 44,

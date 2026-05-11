@@ -1,0 +1,325 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users/{uid}
+    // Document ID: Firebase Auth UID
+    // Fields:
+    //   - email: string (required, immutable) - user's email address
+    //   - name: string (optional) - display name
+    //   - currency: string (optional) - ISO currency code e.g. "INR"
+    //   - currencySymbol: string (optional) - e.g. "₹"
+    //   - monthlyBudget: number (optional) - monthly budget amount
+    //   - trackIncome: bool (optional) - whether to track income
+    //   - notificationsEnabled: bool (optional) - push notifications
+    //   - dailyReminderEnabled: bool (optional) - daily reminder
+    //   - weeklyReportEnabled: bool (optional) - weekly report
+    //   - onboardingCompleted: bool (required) - onboarding status
+    //   - createdAt: timestamp (required, immutable) - creation time
+    //   - updatedAt: timestamp (required) - last update time
+    //
+    // Subcollection: users/{uid}/accounts/{accountId}
+    // Fields:
+    //   - id: string (required) - UUID
+    //   - name: string (required) - account name
+    //   - type: string (required) - enum: 'cash', 'upi'
+    //   - openingBalance: number (required) - starting balance
+    //   - isDeletable: bool (required)
+    //   - isSystemAccount: bool (required)
+    //   - createdAt: timestamp (required, immutable)
+    //
+    // Subcollection: users/{uid}/categoryBudgets/{budgetId}
+    // Fields:
+    //   - id: string (required) - UUID
+    //   - group: string (required) - spending category group
+    //   - monthlyLimit: number (required) - monthly limit
+    //   - createdAt: timestamp (required, immutable)
+    //
+    // Subcollection: users/{uid}/smartRules/{ruleId}
+    // Fields:
+    //   - id: string (required) - UUID
+    //   - keyword: string (required) - match keyword
+    //   - categoryName: string (required) - category name
+    //   - categoryIconCodePoint: number (required) - icon code point
+    //   - categoryColorValue: number (required) - ARGB color value
+    //   - createdAt: string (required) - ISO 8601 datetime
+    //
+    // Subcollection: users/{uid}/savingsGoals/{goalId}
+    // Fields:
+    //   - id: string (required) - UUID
+    //   - name: string (required) - goal name
+    //   - iconAsset: string (required) - asset path
+    //   - targetAmount: number (required) - target amount
+    //   - monthlyTarget: number (required) - monthly target
+    //   - targetDate: string (optional) - ISO 8601 datetime
+    //   - savedAmount: number (required) - amount saved so far
+    //   - createdAt: string (required) - ISO 8601 datetime
+    //   - lastContributionDate: string (optional) - ISO 8601 datetime
+    //
+    // Subcollection: users/{uid}/recurringPayments/{paymentId}
+    // Fields:
+    //   - id: string (required) - UUID
+    //   - name: string (required) - payment name
+    //   - categoryName: string (required) - category name
+    //   - categoryIconCodePoint: number (required) - icon code point
+    //   - categoryColorValue: number (required) - ARGB color value
+    //   - amount: number (required) - payment amount
+    //   - frequency: string (required) - enum: 'weekly', 'monthly', 'yearly'
+    //   - dueDayOfMonth: number (required) - day of month
+    //   - accountId: string (required) - references account id
+    //   - lastPaidDate: string (optional) - ISO 8601 datetime
+    //   - createdAt: string (required) - ISO 8601 datetime
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function areImmutableFieldsUnchanged(fields) {
+      return !request.resource.data.diff(resource.data).affectedKeys().hasAny(fields);
+    }
+
+    function isValidEmail(email) {
+      return email is string &&
+        email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidUserCreate(data) {
+      return hasRequiredFields(['email', 'onboardingCompleted', 'createdAt', 'updatedAt']) &&
+        hasOnlyAllowedFields([
+          'email', 'name', 'currency', 'currencySymbol', 'monthlyBudget',
+          'trackIncome', 'notificationsEnabled', 'dailyReminderEnabled',
+          'weeklyReportEnabled', 'onboardingCompleted', 'createdAt', 'updatedAt'
+        ]) &&
+        isValidEmail(data.email) &&
+        data.onboardingCompleted is bool &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp &&
+        // Optional field type checks
+        ((!('name' in data)) || (data.name is string && data.name.size() <= 100)) &&
+        ((!('currency' in data)) || (data.currency is string && data.currency.size() <= 10)) &&
+        ((!('currencySymbol' in data)) || (data.currencySymbol is string && data.currencySymbol.size() <= 5)) &&
+        ((!('monthlyBudget' in data)) || (data.monthlyBudget is number)) &&
+        ((!('trackIncome' in data)) || data.trackIncome is bool) &&
+        ((!('notificationsEnabled' in data)) || data.notificationsEnabled is bool) &&
+        ((!('dailyReminderEnabled' in data)) || data.dailyReminderEnabled is bool) &&
+        ((!('weeklyReportEnabled' in data)) || data.weeklyReportEnabled is bool);
+    }
+
+    function isValidUserUpdate(data) {
+      return hasOnlyAllowedFields([
+          'email', 'name', 'currency', 'currencySymbol', 'monthlyBudget',
+          'trackIncome', 'notificationsEnabled', 'dailyReminderEnabled',
+          'weeklyReportEnabled', 'onboardingCompleted', 'createdAt', 'updatedAt'
+        ]) &&
+        areImmutableFieldsUnchanged(['email', 'createdAt']) &&
+        data.updatedAt is timestamp &&
+        // Optional field type checks (same as create)
+        ((!('name' in data)) || (data.name is string && data.name.size() <= 100)) &&
+        ((!('currency' in data)) || (data.currency is string && data.currency.size() <= 10)) &&
+        ((!('currencySymbol' in data)) || (data.currencySymbol is string && data.currencySymbol.size() <= 5)) &&
+        ((!('monthlyBudget' in data)) || (data.monthlyBudget is number)) &&
+        ((!('trackIncome' in data)) || data.trackIncome is bool) &&
+        ((!('notificationsEnabled' in data)) || data.notificationsEnabled is bool) &&
+        ((!('dailyReminderEnabled' in data)) || data.dailyReminderEnabled is bool) &&
+        ((!('weeklyReportEnabled' in data)) || data.weeklyReportEnabled is bool) &&
+        ((!('onboardingCompleted' in data)) || data.onboardingCompleted is bool);
+    }
+
+    function isValidAccount(data) {
+      return hasRequiredFields(['id', 'name', 'type', 'openingBalance', 'isDeletable', 'isSystemAccount', 'createdAt']) &&
+        hasOnlyAllowedFields(['id', 'name', 'type', 'openingBalance', 'isDeletable', 'isSystemAccount', 'createdAt']) &&
+        data.id is string && data.id.size() <= 50 &&
+        data.name is string && data.name.size() >= 1 && data.name.size() <= 100 &&
+        data.type is string && data.type in ['cash', 'upi'] &&
+        data.openingBalance is number &&
+        data.isDeletable is bool &&
+        data.isSystemAccount is bool &&
+        data.createdAt is timestamp;
+    }
+
+    function isValidAccountUpdate(data) {
+      return hasOnlyAllowedFields(['id', 'name', 'type', 'openingBalance', 'isDeletable', 'isSystemAccount', 'createdAt']) &&
+        areImmutableFieldsUnchanged(['id', 'createdAt']) &&
+        data.name is string && data.name.size() >= 1 && data.name.size() <= 100 &&
+        data.type is string && data.type in ['cash', 'upi'] &&
+        data.openingBalance is number &&
+        data.isDeletable is bool &&
+        data.isSystemAccount is bool;
+    }
+
+    function isValidCategoryBudget(data) {
+      return hasRequiredFields(['id', 'group', 'monthlyLimit', 'createdAt']) &&
+        hasOnlyAllowedFields(['id', 'group', 'monthlyLimit', 'createdAt']) &&
+        data.id is string && data.id.size() <= 50 &&
+        data.group is string && data.group.size() >= 1 && data.group.size() <= 50 &&
+        data.monthlyLimit is number &&
+        data.createdAt is timestamp;
+    }
+
+    function isValidCategoryBudgetUpdate(data) {
+      return hasOnlyAllowedFields(['id', 'group', 'monthlyLimit', 'createdAt']) &&
+        areImmutableFieldsUnchanged(['id', 'createdAt']) &&
+        data.group is string && data.group.size() >= 1 && data.group.size() <= 50 &&
+        data.monthlyLimit is number;
+    }
+
+    function isValidSmartRule(data) {
+      return hasRequiredFields(['id', 'keyword', 'categoryName', 'categoryIconCodePoint', 'categoryColorValue', 'createdAt']) &&
+        hasOnlyAllowedFields(['id', 'keyword', 'categoryName', 'categoryIconCodePoint', 'categoryColorValue', 'createdAt']) &&
+        data.id is string && data.id.size() <= 50 &&
+        data.keyword is string && data.keyword.size() >= 1 && data.keyword.size() <= 200 &&
+        data.categoryName is string && data.categoryName.size() >= 1 && data.categoryName.size() <= 100 &&
+        data.categoryIconCodePoint is number &&
+        data.categoryColorValue is number &&
+        data.createdAt is string && data.createdAt.size() <= 50;
+    }
+
+    function isValidSmartRuleUpdate(data) {
+      return hasOnlyAllowedFields(['id', 'keyword', 'categoryName', 'categoryIconCodePoint', 'categoryColorValue', 'createdAt']) &&
+        areImmutableFieldsUnchanged(['id', 'createdAt']) &&
+        data.keyword is string && data.keyword.size() >= 1 && data.keyword.size() <= 200 &&
+        data.categoryName is string && data.categoryName.size() >= 1 && data.categoryName.size() <= 100 &&
+        data.categoryIconCodePoint is number &&
+        data.categoryColorValue is number;
+    }
+
+    function isValidSavingsGoal(data) {
+      return hasRequiredFields(['id', 'name', 'iconAsset', 'targetAmount', 'monthlyTarget', 'savedAmount', 'createdAt']) &&
+        hasOnlyAllowedFields(['id', 'name', 'iconAsset', 'targetAmount', 'monthlyTarget', 'targetDate', 'savedAmount', 'createdAt', 'lastContributionDate']) &&
+        data.id is string && data.id.size() <= 50 &&
+        data.name is string && data.name.size() >= 1 && data.name.size() <= 100 &&
+        data.iconAsset is string && data.iconAsset.size() <= 200 &&
+        data.targetAmount is number &&
+        data.monthlyTarget is number &&
+        data.savedAmount is number &&
+        data.createdAt is string && data.createdAt.size() <= 50 &&
+        ((!('targetDate' in data)) || (data.targetDate is string && data.targetDate.size() <= 50)) &&
+        ((!('lastContributionDate' in data)) || (data.lastContributionDate is string && data.lastContributionDate.size() <= 50));
+    }
+
+    function isValidSavingsGoalUpdate(data) {
+      return hasOnlyAllowedFields(['id', 'name', 'iconAsset', 'targetAmount', 'monthlyTarget', 'targetDate', 'savedAmount', 'createdAt', 'lastContributionDate']) &&
+        areImmutableFieldsUnchanged(['id', 'createdAt']) &&
+        data.name is string && data.name.size() >= 1 && data.name.size() <= 100 &&
+        data.iconAsset is string && data.iconAsset.size() <= 200 &&
+        data.targetAmount is number &&
+        data.monthlyTarget is number &&
+        data.savedAmount is number &&
+        ((!('targetDate' in data)) || (data.targetDate is string && data.targetDate.size() <= 50)) &&
+        ((!('lastContributionDate' in data)) || (data.lastContributionDate is string && data.lastContributionDate.size() <= 50));
+    }
+
+    function isValidRecurringPayment(data) {
+      return hasRequiredFields(['id', 'name', 'categoryName', 'categoryIconCodePoint', 'categoryColorValue', 'amount', 'frequency', 'dueDayOfMonth', 'accountId', 'createdAt']) &&
+        hasOnlyAllowedFields(['id', 'name', 'categoryName', 'categoryIconCodePoint', 'categoryColorValue', 'amount', 'frequency', 'dueDayOfMonth', 'accountId', 'lastPaidDate', 'createdAt']) &&
+        data.id is string && data.id.size() <= 50 &&
+        data.name is string && data.name.size() >= 1 && data.name.size() <= 100 &&
+        data.categoryName is string && data.categoryName.size() >= 1 && data.categoryName.size() <= 100 &&
+        data.categoryIconCodePoint is number &&
+        data.categoryColorValue is number &&
+        data.amount is number &&
+        data.frequency is string && data.frequency in ['weekly', 'monthly', 'yearly'] &&
+        data.dueDayOfMonth is number && data.dueDayOfMonth >= 1 && data.dueDayOfMonth <= 31 &&
+        data.accountId is string && data.accountId.size() <= 50 &&
+        data.createdAt is string && data.createdAt.size() <= 50 &&
+        ((!('lastPaidDate' in data)) || (data.lastPaidDate is string && data.lastPaidDate.size() <= 50));
+    }
+
+    function isValidRecurringPaymentUpdate(data) {
+      return hasOnlyAllowedFields(['id', 'name', 'categoryName', 'categoryIconCodePoint', 'categoryColorValue', 'amount', 'frequency', 'dueDayOfMonth', 'accountId', 'lastPaidDate', 'createdAt']) &&
+        areImmutableFieldsUnchanged(['id', 'createdAt']) &&
+        data.name is string && data.name.size() >= 1 && data.name.size() <= 100 &&
+        data.categoryName is string && data.categoryName.size() >= 1 && data.categoryName.size() <= 100 &&
+        data.categoryIconCodePoint is number &&
+        data.categoryColorValue is number &&
+        data.amount is number &&
+        data.frequency is string && data.frequency in ['weekly', 'monthly', 'yearly'] &&
+        data.dueDayOfMonth is number && data.dueDayOfMonth >= 1 && data.dueDayOfMonth <= 31 &&
+        data.accountId is string && data.accountId.size() <= 50 &&
+        ((!('lastPaidDate' in data)) || (data.lastPaidDate is string && data.lastPaidDate.size() <= 50));
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    // Default deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Users collection - owner-only access (contains PII: email)
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUserCreate(request.resource.data);
+      allow update: if isOwner(userId) && isValidUserUpdate(request.resource.data);
+      allow delete: if isOwner(userId);
+
+      // Accounts subcollection
+      match /accounts/{accountId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidAccount(request.resource.data);
+        allow update: if isOwner(userId) && isValidAccountUpdate(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+
+      // Category Budgets subcollection
+      match /categoryBudgets/{budgetId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidCategoryBudget(request.resource.data);
+        allow update: if isOwner(userId) && isValidCategoryBudgetUpdate(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+
+      // Smart Rules subcollection
+      match /smartRules/{ruleId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidSmartRule(request.resource.data);
+        allow update: if isOwner(userId) && isValidSmartRuleUpdate(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+
+      // Savings Goals subcollection
+      match /savingsGoals/{goalId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidSavingsGoal(request.resource.data);
+        allow update: if isOwner(userId) && isValidSavingsGoalUpdate(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+
+      // Recurring Payments subcollection
+      match /recurringPayments/{paymentId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidRecurringPayment(request.resource.data);
+        allow update: if isOwner(userId) && isValidRecurringPaymentUpdate(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+    }
+  }
+}

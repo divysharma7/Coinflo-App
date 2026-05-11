@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -112,7 +113,7 @@ class _StayOnTrackScreenState extends State<StayOnTrackScreen>
     await prefs.setBool('daily_reminder_enabled', _dailyReminderEnabled);
     await prefs.setBool('weekly_report_enabled', _weeklyReportEnabled);
 
-    if (mounted) await Navigator.pushNamed(context, '/onboarding/complete');
+    if (mounted) await context.push('/onboarding/complete');
   }
 
   @override
@@ -140,7 +141,7 @@ class _StayOnTrackScreenState extends State<StayOnTrackScreen>
                 top: AppSpacing.md,
               ),
               child: GestureDetector(
-                onTap: () => Navigator.pop(context),
+                onTap: () => context.pop(),
                 child: const SizedBox(
                   width: 44,
                   height: 44,

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -132,7 +133,7 @@ class _RecurringPaymentsScreenState extends State<RecurringPaymentsScreen>
     final prefs = await SharedPreferences.getInstance();
     final encoded = jsonEncode(_payments.map((p) => p.toJson()).toList());
     await prefs.setString('recurring_payments', encoded);
-    if (mounted) await Navigator.pushNamed(context, '/onboarding/step10');
+    if (mounted) await context.push('/onboarding/step10');
   }
 
   List<Map<String, String>> get _availablePresets =>
@@ -163,7 +164,7 @@ class _RecurringPaymentsScreenState extends State<RecurringPaymentsScreen>
                 top: AppSpacing.md,
               ),
               child: GestureDetector(
-                onTap: () => Navigator.pop(context),
+                onTap: () => context.pop(),
                 child: const SizedBox(
                   width: 44,
                   height: 44,

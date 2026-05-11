@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -108,7 +109,7 @@ class _SavingsGoalsScreenState extends State<SavingsGoalsScreen>
     final prefs = await SharedPreferences.getInstance();
     final encoded = jsonEncode(_goals.map((g) => g.toJson()).toList());
     await prefs.setString('savings_goals', encoded);
-    if (mounted) await Navigator.pushNamed(context, '/onboarding/step9');
+    if (mounted) await context.push('/onboarding/step9');
   }
 
   @override
@@ -136,7 +137,7 @@ class _SavingsGoalsScreenState extends State<SavingsGoalsScreen>
                 top: AppSpacing.md,
               ),
               child: GestureDetector(
-                onTap: () => Navigator.pop(context),
+                onTap: () => context.pop(),
                 child: const SizedBox(
                   width: 44,
                   height: 44,

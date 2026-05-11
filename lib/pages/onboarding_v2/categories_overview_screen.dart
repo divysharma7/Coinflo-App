@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:finance_buddy_app/constants/app_categories.dart';
 import 'package:finance_buddy_app/design_system/design_system.dart';
@@ -48,7 +49,7 @@ class _CategoriesOverviewScreenState extends State<CategoriesOverviewScreen>
   }
 
   Future<void> _onContinue() async {
-    if (mounted) await Navigator.pushNamed(context, '/onboarding/step6');
+    if (mounted) await context.push('/onboarding/step6');
   }
 
   @override
@@ -77,7 +78,7 @@ class _CategoriesOverviewScreenState extends State<CategoriesOverviewScreen>
                 top: AppSpacing.md,
               ),
               child: GestureDetector(
-                onTap: () => Navigator.pop(context),
+                onTap: () => context.pop(),
                 child: const SizedBox(
                   width: 44,
                   height: 44,

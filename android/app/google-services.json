@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "195537008902",
+    "firebase_url": "https://portfolio-11501-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "portfolio-11501",
+    "storage_bucket": "portfolio-11501.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:195537008902:android:a43d5761800a640f6b8687",
+        "android_client_info": {
+          "package_name": "com.divysharma.finance_buddy_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDgdDskk4Gga4RKxytmEA7AMNXe0AdoGkc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
