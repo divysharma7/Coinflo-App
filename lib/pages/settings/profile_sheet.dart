@@ -117,9 +117,6 @@ class ProfileSheet extends ConsumerWidget {
                   label: 'Accounts',
                   onTap: () {
                     Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Coming soon')),
-                    );
                   },
                 ),
               ],
