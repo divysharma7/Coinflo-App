@@ -20,13 +20,9 @@ class FirestoreService {
     final prefs = await SharedPreferences.getInstance();
     final batch = _db.batch();
 
-    // 1. User profile document
-    batch.set(_userDoc(uid), {
+    // 1. User profile document (exclude null values to satisfy security rules)
+    final profileData = <String, dynamic>{
       'email': email,
-      'name': prefs.getString('user_name'),
-      'currency': prefs.getString('currency_code'),
-      'currencySymbol': prefs.getString('currency_symbol'),
-      'monthlyBudget': prefs.getInt('monthly_budget'),
       'trackIncome': prefs.getBool('track_income') ?? true,
       'notificationsEnabled': prefs.getBool('notifications_enabled') ?? true,
       'dailyReminderEnabled': prefs.getBool('daily_reminder_enabled') ?? true,
@@ -34,7 +30,16 @@ class FirestoreService {
       'onboardingCompleted': true,
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
-    });
+    };
+    final name = prefs.getString('user_name');
+    if (name != null) profileData['name'] = name;
+    final currency = prefs.getString('currency_code');
+    if (currency != null) profileData['currency'] = currency;
+    final currencySymbol = prefs.getString('currency_symbol');
+    if (currencySymbol != null) profileData['currencySymbol'] = currencySymbol;
+    final monthlyBudget = prefs.getInt('monthly_budget');
+    if (monthlyBudget != null) profileData['monthlyBudget'] = monthlyBudget;
+    batch.set(_userDoc(uid), profileData);
 
     // 2. Accounts subcollection
     final accountsJson = prefs.getString('accounts');
