@@ -7,11 +7,16 @@ import 'package:finance_buddy_app/widgets/common/notification_sheet.dart';
 
 /// Bell icon with a yellow unread dot. Taps open the notification centre sheet.
 class NotificationBell extends ConsumerWidget {
-  const NotificationBell({super.key});
+  const NotificationBell({super.key, this.color});
+
+  final Color? color;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final hasUnread = ref.watch(hasUnreadNotifProvider);
+    final iconColor = color ?? (hasUnread
+        ? SpendlerColors.primary
+        : SpendlerColors.textSecondary);
 
     return GestureDetector(
       onTap: () {
@@ -38,9 +43,7 @@ class NotificationBell extends ConsumerWidget {
               hasUnread
                   ? PhosphorIconsFill.bellRinging
                   : PhosphorIcons.bell(),
-              color: hasUnread
-                  ? SpendlerColors.primary
-                  : SpendlerColors.textSecondary,
+              color: iconColor,
               size: 24,
             ),
             if (hasUnread)
