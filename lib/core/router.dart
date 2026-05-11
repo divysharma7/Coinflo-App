@@ -13,6 +13,7 @@ import 'package:finance_buddy_app/pages/onboarding_v2/savings_goals_screen.dart'
 import 'package:finance_buddy_app/pages/onboarding_v2/recurring_payments_screen.dart';
 import 'package:finance_buddy_app/pages/onboarding_v2/stay_on_track_screen.dart';
 import 'package:finance_buddy_app/pages/onboarding_v2/completion_screen.dart';
+import 'package:finance_buddy_app/pages/auth/sign_in_screen.dart';
 import 'package:finance_buddy_app/pages/shell_page.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -69,6 +70,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/onboarding/complete',
         builder: (context, state) => const CompletionScreen(),
+      ),
+
+      // ─── Auth ──────────────────────────────────────────
+      GoRoute(
+        path: '/sign-in',
+        builder: (context, state) => const SignInScreen(),
       ),
 
       // ─── Main app ────────────────────────────────────

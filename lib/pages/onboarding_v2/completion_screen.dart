@@ -368,6 +368,29 @@ class _CompletionScreenState extends ConsumerState<CompletionScreen>
               ),
             ),
 
+            // Already have an account
+            GestureDetector(
+              onTap: () => context.push('/sign-in'),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+                child: Text.rich(
+                  TextSpan(
+                    text: 'Already have an account? ',
+                    style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
+                    children: [
+                      TextSpan(
+                        text: 'Sign in',
+                        style: AppTextStyles.bodyS.copyWith(
+                          color: AppColors.black,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
             const SizedBox(height: AppSpacing.sm),
           ],
         ),
