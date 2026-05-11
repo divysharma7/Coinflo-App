@@ -7,7 +7,7 @@ import 'package:finance_buddy_app/core/tokens.dart';
 import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/providers/database_providers.dart';
 import 'package:finance_buddy_app/providers/notification_providers.dart';
-import 'package:finance_buddy_app/pages/onboarding/onboarding_page.dart';
+import 'package:finance_buddy_app/pages/onboarding_v2/currency_selection_screen.dart';
 
 /// Bottom sheet showing recent notifications and notification settings.
 class NotificationSheet extends ConsumerStatefulWidget {
@@ -215,7 +215,7 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
                   Navigator.push(
                     context,
                     MaterialPageRoute<void>(
-                      builder: (_) => const OnboardingPage(),
+                      builder: (_) => const CurrencySelectionScreen(),
                     ),
                   );
                 },
