@@ -3,14 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import 'package:finance_buddy_app/core/tokens.dart';
+import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
-import 'package:finance_buddy_app/widgets/common/animated_amount.dart';
-import 'package:finance_buddy_app/widgets/common/neo_pop_button.dart';
 import 'package:finance_buddy_app/pages/people/friend_creation_sheet.dart';
 import 'package:finance_buddy_app/pages/people/add_split_sheet.dart';
 import 'package:finance_buddy_app/pages/family/family_entry_sheet.dart';
+import 'package:finance_buddy_app/widgets/common/animated_amount.dart';
 import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 
 class PeoplePage extends ConsumerWidget {
@@ -20,115 +19,134 @@ class PeoplePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return DefaultTabController(
       length: 2,
-      child: Column(
-        children: [
-          SizedBox(height: MediaQuery.paddingOf(context).top + SpendlerSpacing.md),
-          // Header row
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH),
-            child: Row(
-              children: [
-                const Text('PEOPLE', style: SpendlerTextStyles.sectionLabel),
-                const Spacer(),
-                // + button
-                GestureDetector(
-                  onTap: () => _showAddOptions(context),
-                  child: Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: SpendlerColors.primary.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(SpendlerRadii.button),
-                    ),
-                    child: PhosphorIcon(
-                      PhosphorIcons.plus(),
-                      color: SpendlerColors.primary,
-                      size: 18,
+      child: Scaffold(
+        backgroundColor: AppColors.offWhite,
+        body: Column(
+          children: [
+            SizedBox(height: MediaQuery.paddingOf(context).top + AppSpacing.md),
+            // Header
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              child: Row(
+                children: [
+                  Text('People',
+                      style: AppTextStyles.headingL
+                          .copyWith(color: AppColors.black)),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () => _showAddOptions(context),
+                    child: Container(
+                      width: 36,
+                      height: 36,
+                      decoration: const BoxDecoration(
+                        color: AppColors.gray100,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.add,
+                          color: AppColors.black, size: 20),
                     ),
                   ),
-                ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+
+            // Tab bar
+            TabBar(
+              indicatorColor: AppColors.black,
+              labelColor: AppColors.black,
+              unselectedLabelColor: AppColors.gray400,
+              dividerColor: AppColors.gray200,
+              labelStyle: AppTextStyles.bodyM
+                  .copyWith(fontWeight: FontWeight.w600),
+              unselectedLabelStyle: AppTextStyles.bodyM,
+              tabs: const [
+                Tab(text: 'Friends'),
+                Tab(text: 'Family'),
               ],
             ),
-          ),
-          const SizedBox(height: SpendlerSpacing.md),
 
-          // Tab bar
-          const TabBar(
-            indicatorColor: SpendlerColors.primary,
-            labelColor: SpendlerColors.primary,
-            unselectedLabelColor: SpendlerColors.textTertiary,
-            dividerColor: SpendlerColors.border,
-            tabs: [
-              Tab(text: 'Friends'),
-              Tab(text: 'Family'),
-            ],
-          ),
-
-          // Tab content
-          const Expanded(
-            child: TabBarView(
-              children: [
-                _FriendsTab(),
-                _FamilyTab(),
-              ],
+            const Expanded(
+              child: TabBarView(
+                children: [
+                  _FriendsTab(),
+                  _FamilyTab(),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   void _showAddOptions(BuildContext context) {
-    showSpendlerSheet<void>(
+    showModalBottomSheet<void>(
       context: context,
-      builder: (_) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Text('ADD', style: SpendlerTextStyles.sectionLabel),
-          const SizedBox(height: SpendlerSpacing.lg),
-          _AddOptionTile(
-            icon: PhosphorIcons.userPlus(),
-            label: 'Add a friend',
-            subtitle: 'Create a new contact for splits',
-            color: SpendlerColors.primary,
-            onTap: () {
-              Navigator.pop(context);
-              showSpendlerSheet<void>(
-                context: context,
-                builder: (_) => const FriendCreationSheet(),
-              );
-            },
+      backgroundColor: AppColors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.gray300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              _AddOptionTile(
+                icon: PhosphorIcons.userPlus(),
+                label: 'Add a friend',
+                subtitle: 'Create a new contact for splits',
+                color: AppColors.black,
+                onTap: () {
+                  Navigator.pop(context);
+                  showSpendlerSheet<void>(
+                    context: context,
+                    builder: (_) => const FriendCreationSheet(),
+                  );
+                },
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              _AddOptionTile(
+                icon: PhosphorIcons.splitVertical(),
+                label: 'Add a split',
+                subtitle: 'Record money owed or owing',
+                color: AppColors.green,
+                onTap: () {
+                  Navigator.pop(context);
+                  showSpendlerSheet<void>(
+                    context: context,
+                    builder: (_) => const AddSplitSheet(),
+                  );
+                },
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              _AddOptionTile(
+                icon: PhosphorIcons.arrowsDownUp(),
+                label: 'Family entry',
+                subtitle: 'Inflow or outflow',
+                color: AppColors.orange,
+                onTap: () {
+                  Navigator.pop(context);
+                  showSpendlerSheet<void>(
+                    context: context,
+                    builder: (_) => const FamilyEntrySheet(),
+                  );
+                },
+              ),
+              const SizedBox(height: AppSpacing.md),
+            ],
           ),
-          const SizedBox(height: SpendlerSpacing.sm),
-          _AddOptionTile(
-            icon: PhosphorIcons.splitVertical(),
-            label: 'Add a split',
-            subtitle: 'Record money owed or owing',
-            color: SpendlerColors.income,
-            onTap: () {
-              Navigator.pop(context);
-              showSpendlerSheet<void>(
-                context: context,
-                builder: (_) => const AddSplitSheet(),
-              );
-            },
-          ),
-          const SizedBox(height: SpendlerSpacing.sm),
-          _AddOptionTile(
-            icon: PhosphorIcons.arrowsDownUp(),
-            label: 'Family entry',
-            subtitle: 'Inflow or outflow',
-            color: SpendlerColors.warning,
-            onTap: () {
-              Navigator.pop(context);
-              showSpendlerSheet<void>(
-                context: context,
-                builder: (_) => const FamilyEntrySheet(),
-              );
-            },
-          ),
-          const SizedBox(height: SpendlerSpacing.md),
-        ],
+        ),
       ),
     );
   }
@@ -154,10 +172,11 @@ class _AddOptionTile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
+        padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
-          color: SpendlerColors.surface,
-          borderRadius: BorderRadius.circular(SpendlerRadii.button),
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.gray200),
         ),
         child: Row(
           children: [
@@ -165,22 +184,28 @@ class _AddOptionTile extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(SpendlerRadii.button),
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
               ),
-              child: PhosphorIcon(icon, color: color, size: 20),
+              child: Icon(icon, color: color, size: 20),
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: AppSpacing.sm),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label, style: const TextStyle(color: SpendlerColors.textPrimary, fontSize: 15, fontWeight: FontWeight.w500)),
-                  Text(subtitle, style: const TextStyle(color: SpendlerColors.textTertiary, fontSize: 12)),
+                  Text(label,
+                      style: AppTextStyles.bodyM.copyWith(
+                          color: AppColors.black,
+                          fontWeight: FontWeight.w600)),
+                  Text(subtitle,
+                      style: AppTextStyles.bodyS
+                          .copyWith(color: AppColors.gray400)),
                 ],
               ),
             ),
-            PhosphorIcon(PhosphorIcons.caretRight(), color: SpendlerColors.textTertiary, size: 16),
+            const Icon(Icons.chevron_right,
+                color: AppColors.gray400, size: 20),
           ],
         ),
       ),
@@ -188,9 +213,7 @@ class _AddOptionTile extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────
-// Friends Tab
-// ─────────────────────────────────────────────────────
+// ─── Friends Tab ────────────────────────────────────────
 
 class _FriendsTab extends ConsumerWidget {
   const _FriendsTab();
@@ -201,7 +224,7 @@ class _FriendsTab extends ConsumerWidget {
     final contactsAsync = ref.watch(friendContactsProvider);
 
     return ListView(
-      padding: const EdgeInsets.all(SpendlerSpacing.screenH),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
         // Summary banner
         balanceAsync.when(
@@ -210,15 +233,12 @@ class _FriendsTab extends ConsumerWidget {
               return const SizedBox.shrink();
             }
             return Container(
-              margin: const EdgeInsets.only(bottom: SpendlerSpacing.md),
-              padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
+              margin: const EdgeInsets.only(bottom: AppSpacing.md),
+              padding: const EdgeInsets.all(AppSpacing.lg),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Color(0xFF1E1E1E), SpendlerColors.surface],
-                ),
-                borderRadius: BorderRadius.circular(SpendlerRadii.card),
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: AppShadows.sm,
               ),
               child: Row(
                 children: [
@@ -226,29 +246,36 @@ class _FriendsTab extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('TO COLLECT', style: SpendlerTextStyles.sectionLabel),
+                        Text('TO COLLECT',
+                            style: AppTextStyles.labelM
+                                .copyWith(color: AppColors.gray400)),
                         const SizedBox(height: 4),
                         AnimatedAmount(
                           value: bal.totalReceivable,
                           prefix: '\$',
-                          style: const TextStyle(color: SpendlerColors.income, fontSize: 22, fontWeight: FontWeight.w700),
+                          style: AppTextStyles.headingM
+                              .copyWith(color: AppColors.green),
                         ),
                       ],
                     ),
                   ),
-                  Container(width: 1, height: 40, color: SpendlerColors.border),
+                  Container(
+                      width: 1, height: 40, color: AppColors.gray200),
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.only(left: SpendlerSpacing.md),
+                      padding: const EdgeInsets.only(left: AppSpacing.md),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('TO PAY', style: SpendlerTextStyles.sectionLabel),
+                          Text('TO PAY',
+                              style: AppTextStyles.labelM
+                                  .copyWith(color: AppColors.gray400)),
                           const SizedBox(height: 4),
                           AnimatedAmount(
                             value: bal.totalPayable,
                             prefix: '\$',
-                            style: const TextStyle(color: SpendlerColors.warning, fontSize: 22, fontWeight: FontWeight.w700),
+                            style: AppTextStyles.headingM
+                                .copyWith(color: AppColors.orange),
                           ),
                         ],
                       ),
@@ -267,13 +294,18 @@ class _FriendsTab extends ConsumerWidget {
           data: (contacts) {
             if (contacts.isEmpty) {
               return Padding(
-                padding: const EdgeInsets.symmetric(vertical: SpendlerSpacing.xxl),
+                padding:
+                    const EdgeInsets.symmetric(vertical: AppSpacing.xxxl),
                 child: Center(
                   child: Column(
                     children: [
-                      PhosphorIcon(PhosphorIcons.usersThree(), size: 48, color: SpendlerColors.textTertiary),
-                      const SizedBox(height: SpendlerSpacing.md),
-                      const Text('Add a friend to start\ntracking splits.', style: SpendlerTextStyles.emptyState, textAlign: TextAlign.center),
+                      PhosphorIcon(PhosphorIcons.usersThree(),
+                          size: 48, color: AppColors.gray300),
+                      const SizedBox(height: AppSpacing.md),
+                      Text('Add a friend to start\ntracking splits.',
+                          style: AppTextStyles.bodyM
+                              .copyWith(color: AppColors.gray400),
+                          textAlign: TextAlign.center),
                     ],
                   ),
                 ),
@@ -282,13 +314,19 @@ class _FriendsTab extends ConsumerWidget {
             return Column(
               children: contacts
                   .map((c) => Padding(
-                        padding: const EdgeInsets.only(bottom: SpendlerSpacing.cardGap),
+                        padding:
+                            const EdgeInsets.only(bottom: AppSpacing.sm),
                         child: _FriendCard(contact: c),
                       ))
                   .toList(),
             );
           },
-          loading: () => const Center(child: Padding(padding: EdgeInsets.all(SpendlerSpacing.xl), child: CircularProgressIndicator(color: SpendlerColors.primary, strokeWidth: 2))),
+          loading: () => const Padding(
+            padding: EdgeInsets.all(AppSpacing.xl),
+            child: Center(
+                child: CircularProgressIndicator(
+                    color: AppColors.black, strokeWidth: 2)),
+          ),
           error: (_, _) => const SizedBox.shrink(),
         ),
       ],
@@ -296,67 +334,79 @@ class _FriendsTab extends ConsumerWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────
-// Friend Card
-// ─────────────────────────────────────────────────────
+// ─── Friend Card ────────────────────────────────────────
 
 class _FriendCard extends ConsumerWidget {
   const _FriendCard({required this.contact});
   final FriendContact contact;
 
-  Color _color(String hex) {
+  Color _avatarColor(String hex) {
     try {
-      return Color(int.parse('FF${hex.replaceFirst('#', '')}', radix: 16));
+      return Color(
+          int.parse('FF${hex.replaceFirst('#', '')}', radix: 16));
     } on FormatException {
-      return SpendlerColors.textTertiary;
+      return AppColors.gray400;
     }
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final splitsAsync = ref.watch(friendPendingSplitsProvider(contact.id));
-    final c = _color(contact.avatarColour);
+    final splitsAsync =
+        ref.watch(friendPendingSplitsProvider(contact.id));
+    final c = _avatarColor(contact.avatarColour);
 
     return Container(
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0xFF1E1E1E), SpendlerColors.surface],
-        ),
-        borderRadius: BorderRadius.circular(SpendlerRadii.card),
-        boxShadow: SpendlerShadows.card,
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x08000000),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         children: [
           // Header
           Padding(
-            padding: const EdgeInsets.fromLTRB(SpendlerSpacing.cardPadding, SpendlerSpacing.cardPadding, SpendlerSpacing.cardPadding, SpendlerSpacing.cardGap),
+            padding: const EdgeInsets.all(AppSpacing.md),
             child: Row(
               children: [
                 Container(
                   width: 44,
                   height: 44,
-                  decoration: BoxDecoration(color: c.withValues(alpha: 0.2), shape: BoxShape.circle),
+                  decoration: BoxDecoration(
+                      color: c.withValues(alpha: 0.15),
+                      shape: BoxShape.circle),
                   alignment: Alignment.center,
                   child: Text(
-                    contact.name.isNotEmpty ? contact.name[0].toUpperCase() : '?',
-                    style: TextStyle(color: c, fontSize: 20, fontWeight: FontWeight.w700),
+                    contact.name.isNotEmpty
+                        ? contact.name[0].toUpperCase()
+                        : '?',
+                    style: TextStyle(
+                        color: c,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700),
                   ),
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        contact.name,
-                        style: const TextStyle(color: SpendlerColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w600),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (contact.note != null && contact.note!.isNotEmpty)
-                        Text(contact.note!, style: const TextStyle(color: SpendlerColors.textTertiary, fontSize: 12)),
+                      Text(contact.name,
+                          style: AppTextStyles.bodyM.copyWith(
+                              color: AppColors.black,
+                              fontWeight: FontWeight.w600),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis),
+                      if (contact.note != null &&
+                          contact.note!.isNotEmpty)
+                        Text(contact.note!,
+                            style: AppTextStyles.bodyS
+                                .copyWith(color: AppColors.gray400)),
                     ],
                   ),
                 ),
@@ -367,48 +417,65 @@ class _FriendCard extends ConsumerWidget {
           // Balance
           splitsAsync.when(
             data: (splits) {
-              final theyOwe = splits.where((s) => s.direction == 'they_owe_me').fold(0.0, (sum, s) => sum + s.amount);
-              final iOwe = splits.where((s) => s.direction == 'i_owe_them').fold(0.0, (sum, s) => sum + s.amount);
+              final theyOwe = splits
+                  .where((s) => s.direction == 'they_owe_me')
+                  .fold(0.0, (sum, s) => sum + s.amount);
+              final iOwe = splits
+                  .where((s) => s.direction == 'i_owe_them')
+                  .fold(0.0, (sum, s) => sum + s.amount);
 
               if (theyOwe == 0 && iOwe == 0) {
                 return Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.cardPadding, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md, vertical: 12),
                   decoration: BoxDecoration(
-                    color: SpendlerColors.income.withValues(alpha: 0.06),
-                    borderRadius: const BorderRadius.vertical(bottom: Radius.circular(SpendlerRadii.card)),
+                    color: AppColors.green.withValues(alpha: 0.06),
+                    borderRadius: const BorderRadius.vertical(
+                        bottom: Radius.circular(16)),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      PhosphorIcon(PhosphorIcons.checkCircle(), color: SpendlerColors.income, size: 16),
+                      Icon(Icons.check_circle_outline,
+                          color: AppColors.green, size: 16),
                       const SizedBox(width: 6),
-                      const Text('All settled', style: TextStyle(color: SpendlerColors.income, fontSize: 13, fontWeight: FontWeight.w500)),
+                      Text('All settled',
+                          style: AppTextStyles.bodyS.copyWith(
+                              color: AppColors.green,
+                              fontWeight: FontWeight.w500)),
                     ],
                   ),
                 );
               }
 
               return Padding(
-                padding: const EdgeInsets.fromLTRB(SpendlerSpacing.cardPadding, 0, SpendlerSpacing.cardPadding, SpendlerSpacing.cardPadding),
+                padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.md, 0, AppSpacing.md, AppSpacing.md),
                 child: Column(
                   children: [
                     if (iOwe > 0)
-                      _BalanceBar(label: 'You owe', amount: iOwe, color: SpendlerColors.warning, icon: PhosphorIcons.arrowUpRight()),
+                      _BalanceBar(
+                          label: 'You owe',
+                          amount: iOwe,
+                          color: AppColors.orange),
                     if (iOwe > 0 && theyOwe > 0)
                       const SizedBox(height: 8),
                     if (theyOwe > 0)
-                      _BalanceBar(label: 'Owes you', amount: theyOwe, color: SpendlerColors.income, icon: PhosphorIcons.arrowDownLeft()),
-                    const SizedBox(height: 12),
-                    // Settlement buttons
+                      _BalanceBar(
+                          label: 'Owes you',
+                          amount: theyOwe,
+                          color: AppColors.green),
+                    const SizedBox(height: AppSpacing.sm),
                     Row(
                       children: [
                         if (iOwe > 0)
                           Expanded(
                             child: _ActionBtn(
                               label: 'I Paid',
-                              color: SpendlerColors.warning,
-                              onTap: () => _markSettled(context, ref, contact.id, 'i_owe_them', splits),
+                              color: AppColors.orange,
+                              onTap: () => _markSettled(context, ref,
+                                  contact.id, 'i_owe_them', splits),
                             ),
                           ),
                         if (iOwe > 0 && theyOwe > 0)
@@ -417,8 +484,9 @@ class _FriendCard extends ConsumerWidget {
                           Expanded(
                             child: _ActionBtn(
                               label: 'They Paid',
-                              color: SpendlerColors.income,
-                              onTap: () => _markSettled(context, ref, contact.id, 'they_owe_me', splits),
+                              color: AppColors.green,
+                              onTap: () => _markSettled(context, ref,
+                                  contact.id, 'they_owe_me', splits),
                             ),
                           ),
                       ],
@@ -427,7 +495,12 @@ class _FriendCard extends ConsumerWidget {
                 ),
               );
             },
-            loading: () => const Padding(padding: EdgeInsets.all(SpendlerSpacing.cardPadding), child: Center(child: CircularProgressIndicator(color: SpendlerColors.primary, strokeWidth: 2))),
+            loading: () => const Padding(
+              padding: EdgeInsets.all(AppSpacing.md),
+              child: Center(
+                  child: CircularProgressIndicator(
+                      color: AppColors.black, strokeWidth: 2)),
+            ),
             error: (_, _) => const SizedBox.shrink(),
           ),
         ],
@@ -435,20 +508,24 @@ class _FriendCard extends ConsumerWidget {
     );
   }
 
-  void _markSettled(BuildContext context, WidgetRef ref, int friendId, String direction, List<FriendSplit> splits) {
-    final pending = splits.where((s) => s.direction == direction).toList();
+  void _markSettled(BuildContext context, WidgetRef ref, int friendId,
+      String direction, List<FriendSplit> splits) {
+    final pending =
+        splits.where((s) => s.direction == direction).toList();
     if (pending.isEmpty) return;
 
     if (pending.length == 1) {
-      // Single item — settle directly
       HapticFeedback.mediumImpact();
       settleSplit(ref.read(repositoryProvider), pending.first.id);
       return;
     }
 
-    // Multiple items — show picker
-    showSpendlerSheet<void>(
+    showModalBottomSheet<void>(
       context: context,
+      backgroundColor: AppColors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (_) => _SettlementPicker(
         splits: pending,
         friendName: contact.name,
@@ -458,9 +535,7 @@ class _FriendCard extends ConsumerWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────
-// Settlement Picker (multi-item)
-// ─────────────────────────────────────────────────────
+// ─── Settlement Picker ──────────────────────────────────
 
 class _SettlementPicker extends ConsumerStatefulWidget {
   const _SettlementPicker({
@@ -474,7 +549,8 @@ class _SettlementPicker extends ConsumerStatefulWidget {
   final String direction;
 
   @override
-  ConsumerState<_SettlementPicker> createState() => _SettlementPickerState();
+  ConsumerState<_SettlementPicker> createState() =>
+      _SettlementPickerState();
 }
 
 class _SettlementPickerState extends ConsumerState<_SettlementPicker> {
@@ -486,91 +562,125 @@ class _SettlementPickerState extends ConsumerState<_SettlementPicker> {
         ? '${widget.friendName} paid which ones?'
         : 'You paid which ones?';
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(title.toUpperCase(), style: SpendlerTextStyles.sectionLabel),
-        const SizedBox(height: SpendlerSpacing.md),
-        ...widget.splits.map((s) {
-          final selected = _selected.contains(s.id);
-          return GestureDetector(
-            onTap: () => setState(() {
-              if (selected) {
-                _selected.remove(s.id);
-              } else {
-                _selected.add(s.id);
-              }
-            }),
-            child: Container(
-              margin: const EdgeInsets.only(bottom: SpendlerSpacing.sm),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: selected ? SpendlerColors.primary.withValues(alpha: 0.08) : SpendlerColors.surface,
-                borderRadius: BorderRadius.circular(SpendlerRadii.button),
-                border: Border.all(
-                  color: selected ? SpendlerColors.primary : SpendlerColors.border,
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.gray300,
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              child: Row(
-                children: [
-                  Icon(
-                    selected ? Icons.check_circle : Icons.circle_outlined,
-                    color: selected ? SpendlerColors.primary : SpendlerColors.textTertiary,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      '\$${s.amount.toStringAsFixed(0)}',
-                      style: const TextStyle(color: SpendlerColors.textPrimary, fontSize: 15, fontWeight: FontWeight.w500),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Text(title,
+                style: AppTextStyles.headingS
+                    .copyWith(color: AppColors.black)),
+            const SizedBox(height: AppSpacing.md),
+            ...widget.splits.map((s) {
+              final selected = _selected.contains(s.id);
+              return GestureDetector(
+                onTap: () => setState(() {
+                  if (selected) {
+                    _selected.remove(s.id);
+                  } else {
+                    _selected.add(s.id);
+                  }
+                }),
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: AppSpacing.xs),
+                  padding: const EdgeInsets.all(AppSpacing.sm),
+                  decoration: BoxDecoration(
+                    color: selected
+                        ? AppColors.black.withValues(alpha: 0.05)
+                        : AppColors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: selected
+                          ? AppColors.black
+                          : AppColors.gray200,
                     ),
                   ),
-                  Text(
-                    DateFormat('d MMM').format(s.createdAt),
-                    style: const TextStyle(color: SpendlerColors.textTertiary, fontSize: 12),
+                  child: Row(
+                    children: [
+                      Icon(
+                        selected
+                            ? Icons.check_circle
+                            : Icons.circle_outlined,
+                        color: selected
+                            ? AppColors.black
+                            : AppColors.gray300,
+                        size: 20,
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: Text(
+                          '\$${s.amount.toStringAsFixed(0)}',
+                          style: AppTextStyles.bodyM.copyWith(
+                              color: AppColors.black,
+                              fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                      Text(
+                        DateFormat('d MMM').format(s.createdAt),
+                        style: AppTextStyles.bodyS
+                            .copyWith(color: AppColors.gray400),
+                      ),
+                    ],
                   ),
-                ],
+                ),
+              );
+            }),
+            GestureDetector(
+              onTap: () => setState(() {
+                if (_selected.length == widget.splits.length) {
+                  _selected.clear();
+                } else {
+                  _selected
+                      .addAll(widget.splits.map((s) => s.id));
+                }
+              }),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: AppSpacing.sm),
+                child: Text(
+                  _selected.length == widget.splits.length
+                      ? 'Deselect all'
+                      : 'Select all',
+                  style: AppTextStyles.bodyS.copyWith(
+                      color: AppColors.black,
+                      fontWeight: FontWeight.w600),
+                ),
               ),
             ),
-          );
-        }),
-        // Mark all
-        GestureDetector(
-          onTap: () => setState(() {
-            if (_selected.length == widget.splits.length) {
-              _selected.clear();
-            } else {
-              _selected.addAll(widget.splits.map((s) => s.id));
-            }
-          }),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: SpendlerSpacing.sm),
-            child: Text(
-              _selected.length == widget.splits.length ? 'Deselect all' : 'Select all',
-              style: const TextStyle(color: SpendlerColors.primary, fontSize: 13, fontWeight: FontWeight.w500),
+            const SizedBox(height: AppSpacing.md),
+            AppButton(
+              label: 'Mark Settled (${_selected.length})',
+              onTap: _selected.isEmpty
+                  ? () {}
+                  : () async {
+                      await HapticFeedback.mediumImpact();
+                      await settleSplits(
+                          ref.read(repositoryProvider), _selected);
+                      if (context.mounted) Navigator.pop(context);
+                    },
+              disabled: _selected.isEmpty,
             ),
-          ),
+          ],
         ),
-        const SizedBox(height: SpendlerSpacing.md),
-        NeoPOPButton(
-          label: 'Mark Settled (${_selected.length})',
-          onTap: _selected.isEmpty
-              ? null
-              : () async {
-                  await HapticFeedback.mediumImpact();
-                  await settleSplits(ref.read(repositoryProvider), _selected);
-                  if (context.mounted) Navigator.pop(context);
-                },
-        ),
-      ],
+      ),
     );
   }
 }
 
-// ─────────────────────────────────────────────────────
-// Family Tab (inflows + outflows only, no investments)
-// ─────────────────────────────────────────────────────
+// ─── Family Tab ─────────────────────────────────────────
 
 class _FamilyTab extends ConsumerWidget {
   const _FamilyTab();
@@ -582,29 +692,29 @@ class _FamilyTab extends ConsumerWidget {
     final outflows = ref.watch(familyOutflowsProvider);
 
     return ListView(
-      padding: const EdgeInsets.all(SpendlerSpacing.screenH),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
         // Total card
         wealth.when(
           data: (total) => Container(
-            margin: const EdgeInsets.only(bottom: SpendlerSpacing.md),
-            padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
+            margin: const EdgeInsets.only(bottom: AppSpacing.lg),
+            padding: const EdgeInsets.all(AppSpacing.lg),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color(0xFF1E1E1E), SpendlerColors.surface],
-              ),
-              borderRadius: BorderRadius.circular(SpendlerRadii.card),
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: AppShadows.sm,
             ),
             child: Column(
               children: [
-                const Text('NET FAMILY FLOW', style: SpendlerTextStyles.sectionLabel),
-                const SizedBox(height: SpendlerSpacing.sm),
+                Text('NET FAMILY FLOW',
+                    style: AppTextStyles.labelM
+                        .copyWith(color: AppColors.gray400)),
+                const SizedBox(height: AppSpacing.sm),
                 AnimatedAmount(
                   value: total,
                   prefix: '\$',
-                  style: const TextStyle(color: SpendlerColors.warning, fontSize: 28, fontWeight: FontWeight.w700),
+                  style: AppTextStyles.headingL
+                      .copyWith(color: AppColors.orange),
                 ),
               ],
             ),
@@ -618,19 +728,21 @@ class _FamilyTab extends ConsumerWidget {
           label: 'INFLOWS',
           data: inflows,
           icon: PhosphorIconsFill.arrowCircleDown,
-          color: SpendlerColors.income,
-          titleBuilder: (e) => '\$${e.amount.toStringAsFixed(0)} from ${e.fromPerson}',
+          color: AppColors.green,
+          titleBuilder: (e) =>
+              '\$${e.amount.toStringAsFixed(0)} from ${e.fromPerson}',
           emptyText: 'No inflows yet.',
         ),
-        const SizedBox(height: SpendlerSpacing.lg),
+        const SizedBox(height: AppSpacing.lg),
 
         // Outflows
         _FamilyList(
           label: 'OUTFLOWS',
           data: outflows,
           icon: PhosphorIconsFill.arrowCircleUp,
-          color: SpendlerColors.expense,
-          titleBuilder: (e) => '\$${e.amount.toStringAsFixed(0)} to ${e.fromPerson}',
+          color: AppColors.red,
+          titleBuilder: (e) =>
+              '\$${e.amount.toStringAsFixed(0)} to ${e.fromPerson}',
           emptyText: 'No outflows yet.',
         ),
       ],
@@ -660,43 +772,56 @@ class _FamilyList extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: SpendlerTextStyles.sectionLabel),
-        const SizedBox(height: SpendlerSpacing.sm),
+        Text(label,
+            style:
+                AppTextStyles.labelM.copyWith(color: AppColors.gray400)),
+        const SizedBox(height: AppSpacing.sm),
         data.when(
           data: (list) {
             if (list.isEmpty) {
               return Padding(
-                padding: const EdgeInsets.symmetric(vertical: SpendlerSpacing.sm),
-                child: Text(emptyText, style: const TextStyle(color: SpendlerColors.textTertiary, fontSize: 13)),
+                padding:
+                    const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+                child: Text(emptyText,
+                    style: AppTextStyles.bodyS
+                        .copyWith(color: AppColors.gray400)),
               );
             }
             return Column(
               children: list.map((e) {
-                final sub = '${DateFormat('d MMM yyyy').format(e.happenedAt)}'
+                final sub =
+                    '${DateFormat('d MMM yyyy').format(e.happenedAt)}'
                     '${e.note != null && e.note!.isNotEmpty ? " · ${e.note}" : ""}';
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: SpendlerSpacing.sm),
+                  padding:
+                      const EdgeInsets.only(bottom: AppSpacing.sm),
                   child: Row(
                     children: [
                       Container(
                         width: 36,
                         height: 36,
-                        decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(SpendlerRadii.button)),
+                        decoration: BoxDecoration(
+                          color: color.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         child: Icon(icon, color: color, size: 18),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: AppSpacing.sm),
                       Expanded(
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment:
+                              CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              titleBuilder(e),
-                              style: const TextStyle(color: SpendlerColors.textPrimary, fontSize: 14, fontWeight: FontWeight.w500),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                            Text(titleBuilder(e),
+                                style: AppTextStyles.bodyM.copyWith(
+                                    color: AppColors.black,
+                                    fontWeight: FontWeight.w500),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis),
                             const SizedBox(height: 2),
-                            Text(sub, style: const TextStyle(color: SpendlerColors.textTertiary, fontSize: 12)),
+                            Text(sub,
+                                style: AppTextStyles.bodyS.copyWith(
+                                    color: AppColors.gray400)),
                           ],
                         ),
                       ),
@@ -714,27 +839,32 @@ class _FamilyList extends StatelessWidget {
   }
 }
 
-// ─── Shared small widgets ────────────────────────────
+// ─── Shared widgets ─────────────────────────────────────
 
 class _BalanceBar extends StatelessWidget {
-  const _BalanceBar({required this.label, required this.amount, required this.color, required this.icon});
+  const _BalanceBar(
+      {required this.label, required this.amount, required this.color});
   final String label;
   final double amount;
   final Color color;
-  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(color: color.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(SpendlerRadii.button)),
+      padding:
+          const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(10),
+      ),
       child: Row(
         children: [
-          PhosphorIcon(icon, size: 16, color: color),
-          const SizedBox(width: 8),
-          Text(label, style: TextStyle(color: color, fontSize: 13)),
+          Text(label,
+              style: AppTextStyles.bodyS
+                  .copyWith(color: color, fontWeight: FontWeight.w500)),
           const Spacer(),
-          Text('\$${amount.toStringAsFixed(0)}', style: TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.w700)),
+          Text('\$${amount.toStringAsFixed(0)}',
+              style: AppTextStyles.numericL.copyWith(color: color)),
         ],
       ),
     );
@@ -742,7 +872,8 @@ class _BalanceBar extends StatelessWidget {
 }
 
 class _ActionBtn extends StatelessWidget {
-  const _ActionBtn({required this.label, required this.color, required this.onTap});
+  const _ActionBtn(
+      {required this.label, required this.color, required this.onTap});
   final String label;
   final Color color;
   final VoidCallback onTap;
@@ -754,11 +885,13 @@ class _ActionBtn extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(SpendlerRadii.button),
+          borderRadius: BorderRadius.circular(10),
           border: Border.all(color: color.withValues(alpha: 0.3)),
         ),
         alignment: Alignment.center,
-        child: Text(label, style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600)),
+        child: Text(label,
+            style: AppTextStyles.bodyS.copyWith(
+                color: color, fontWeight: FontWeight.w600)),
       ),
     );
   }

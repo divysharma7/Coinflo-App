@@ -43,6 +43,8 @@ class _HeaderSection extends ConsumerWidget {
     final symbol = _currencySymbol(currency);
 
     final monthLabel = DateFormat('MMMM yyyy').format(month);
+    final name = userName.valueOrNull;
+    final hasName = name != null && name.trim().isNotEmpty;
 
     return Container(
       color: AppColors.black,
@@ -57,8 +59,20 @@ class _HeaderSection extends ConsumerWidget {
           // Top row: avatar, month picker, bell
           Row(
             children: [
-              // User initials avatar
-              _UserAvatar(userName: userName.valueOrNull),
+              // User avatar — show initials or person icon
+              hasName
+                  ? _UserAvatar(userName: name)
+                  : Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: AppColors.white.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(PhosphorIcons.user(),
+                          color: AppColors.white.withValues(alpha: 0.6),
+                          size: 18),
+                    ),
               const Spacer(),
               // Month selector
               GestureDetector(
@@ -90,7 +104,6 @@ class _HeaderSection extends ConsumerWidget {
                 ),
               ),
               const Spacer(),
-              // Notification bell
               const NotificationBell(color: AppColors.white),
             ],
           ),
@@ -98,23 +111,12 @@ class _HeaderSection extends ConsumerWidget {
           const SizedBox(height: AppSpacing.xxl),
 
           // Current balance label
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'CURRENT BALANCE',
-                style: AppTextStyles.labelM.copyWith(
-                  color: AppColors.white.withValues(alpha: 0.5),
-                  letterSpacing: 1.5,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Icon(
-                PhosphorIcons.eye(),
-                color: AppColors.white.withValues(alpha: 0.4),
-                size: 16,
-              ),
-            ],
+          Text(
+            'CURRENT BALANCE',
+            style: AppTextStyles.labelM.copyWith(
+              color: AppColors.white.withValues(alpha: 0.5),
+              letterSpacing: 1.5,
+            ),
           ),
 
           const SizedBox(height: AppSpacing.xs),
@@ -189,7 +191,8 @@ class _HeaderSection extends ConsumerWidget {
                     ),
                   ),
                   trailing: isSelected
-                      ? const Icon(Icons.check, color: AppColors.black, size: 20)
+                      ? const Icon(Icons.check,
+                          color: AppColors.black, size: 20)
                       : null,
                   onTap: () {
                     ref.read(selectedMonthProvider.notifier).state = m;
@@ -242,23 +245,30 @@ class _YourMoneyCard extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Text(
-                      'Your Money',
-                      style: AppTextStyles.headingS
-                          .copyWith(color: AppColors.black),
-                    ),
-                    const SizedBox(width: 4),
-                    Icon(PhosphorIcons.info(),
-                        size: 16, color: AppColors.gray400),
-                  ],
-                ),
                 Text(
-                  'Details >',
-                  style: AppTextStyles.bodyS.copyWith(
-                    color: AppColors.gray500,
-                    fontWeight: FontWeight.w500,
+                  'Your Money',
+                  style:
+                      AppTextStyles.headingS.copyWith(color: AppColors.black),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    // Navigate to Report tab
+                    ref.read(selectedTabProvider.notifier).state = 1;
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.gray100,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      'Details',
+                      style: AppTextStyles.bodyS.copyWith(
+                        color: AppColors.gray500,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -294,17 +304,10 @@ class _YourMoneyCard extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(height: AppSpacing.sm),
-                        Row(
-                          children: [
-                            Text(
-                              'Income',
-                              style: AppTextStyles.bodyS
-                                  .copyWith(color: AppColors.gray500),
-                            ),
-                            const SizedBox(width: 2),
-                            Icon(PhosphorIcons.info(),
-                                size: 12, color: AppColors.gray400),
-                          ],
+                        Text(
+                          'Income',
+                          style: AppTextStyles.bodyS
+                              .copyWith(color: AppColors.gray500),
                         ),
                         const SizedBox(height: 2),
                         income.when(
@@ -312,19 +315,25 @@ class _YourMoneyCard extends ConsumerWidget {
                             '$symbol${_formatNumber(val)}',
                             style: AppTextStyles.headingS,
                           ),
-                          loading: () => Text('${symbol}0',
-                              style: AppTextStyles.headingS),
-                          error: (_, _) => Text('${symbol}0',
-                              style: AppTextStyles.headingS),
+                          loading: () =>
+                              Text('${symbol}0', style: AppTextStyles.headingS),
+                          error: (_, _) =>
+                              Text('${symbol}0', style: AppTextStyles.headingS),
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          '> New this month',
-                          style: AppTextStyles.labelS.copyWith(
-                            color: AppColors.green,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 0,
+                        income.when(
+                          data: (val) => Text(
+                            val > 0 ? 'New this month' : 'No income yet',
+                            style: AppTextStyles.labelS.copyWith(
+                              color: val > 0
+                                  ? AppColors.green
+                                  : AppColors.gray400,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0,
+                            ),
                           ),
+                          loading: () => const SizedBox.shrink(),
+                          error: (_, _) => const SizedBox.shrink(),
                         ),
                       ],
                     ),
@@ -353,28 +362,21 @@ class _YourMoneyCard extends ConsumerWidget {
                               width: 80,
                               height: 80,
                               child: CustomPaint(
-                                painter: _SpentRingPainter(
-                                  progress: pct,
-                                ),
+                                painter: _SpentRingPainter(progress: pct),
                                 child: Center(
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Text(
                                         '${(pct * 100).toInt()}%',
-                                        style:
-                                            AppTextStyles.headingS.copyWith(
-                                          fontSize: 18,
-                                          height: 1,
-                                        ),
+                                        style: AppTextStyles.headingS
+                                            .copyWith(fontSize: 18, height: 1),
                                       ),
                                       Text(
                                         'SPENT',
-                                        style:
-                                            AppTextStyles.labelS.copyWith(
-                                          color: AppColors.gray400,
-                                          fontSize: 9,
-                                        ),
+                                        style: AppTextStyles.labelS.copyWith(
+                                            color: AppColors.gray400,
+                                            fontSize: 9),
                                       ),
                                     ],
                                   ),
@@ -420,34 +422,9 @@ class _TransactionsSection extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header row
-          Row(
-            children: [
-              Text('Transactions',
-                  style: AppTextStyles.headingS
-                      .copyWith(color: AppColors.black)),
-              const Spacer(),
-              Icon(PhosphorIcons.funnelSimple(),
-                  size: 20, color: AppColors.gray400),
-              const SizedBox(width: AppSpacing.sm),
-              Icon(PhosphorIcons.arrowsDownUp(),
-                  size: 20, color: AppColors.gray400),
-              const SizedBox(width: AppSpacing.sm),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.gray200),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Text(
-                  'For the Period',
-                  style: AppTextStyles.labelS
-                      .copyWith(color: AppColors.gray500, letterSpacing: 0),
-                ),
-              ),
-            ],
-          ),
+          // Header
+          Text('Transactions',
+              style: AppTextStyles.headingS.copyWith(color: AppColors.black)),
 
           const SizedBox(height: AppSpacing.lg),
 
@@ -455,16 +432,7 @@ class _TransactionsSection extends ConsumerWidget {
           txnsAsync.when(
             data: (txns) {
               if (txns.isEmpty) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.xxl),
-                  child: Center(
-                    child: Text(
-                      'No transactions this month.',
-                      style: AppTextStyles.bodyM
-                          .copyWith(color: AppColors.gray400),
-                    ),
-                  ),
-                );
+                return _buildEmptyState(symbol);
               }
 
               // Sort by date descending
@@ -483,41 +451,64 @@ class _TransactionsSection extends ConsumerWidget {
                 children: grouped.entries.map((entry) {
                   final day = entry.key;
                   final dayTxns = entry.value;
-                  final dayLabel = DateFormat('EEEE, MMMM d, yyyy').format(day);
+                  final dayLabel =
+                      DateFormat('EEEE, MMMM d').format(day);
 
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Day header
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            child: Text(
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            top: AppSpacing.sm, bottom: AppSpacing.xs),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
                               dayLabel,
-                              style: AppTextStyles.bodyS.copyWith(
-                                color: AppColors.gray400,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                              style: AppTextStyles.labelM.copyWith(
+                                  color: AppColors.gray400,
+                                  letterSpacing: 0.3),
                             ),
-                          ),
-                          Text(
-                            '${dayTxns.length} transaction${dayTxns.length > 1 ? 's' : ''}',
-                            style: AppTextStyles.bodyS
-                                .copyWith(color: AppColors.gray400),
-                          ),
-                        ],
+                            Text(
+                              '${dayTxns.length}',
+                              style: AppTextStyles.labelM
+                                  .copyWith(color: AppColors.gray300),
+                            ),
+                          ],
+                        ),
                       ),
+
+                      // Transaction rows in a card
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.white,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          children: dayTxns.asMap().entries.map((e) {
+                            final isLast = e.key == dayTxns.length - 1;
+                            return Column(
+                              children: [
+                                _TransactionRow(
+                                    transaction: e.value, symbol: symbol),
+                                if (!isLast)
+                                  Padding(
+                                    padding:
+                                        const EdgeInsets.only(left: 56),
+                                    child: Divider(
+                                      height: 1,
+                                      thickness: 0.5,
+                                      color: AppColors.gray200,
+                                    ),
+                                  ),
+                              ],
+                            );
+                          }).toList(),
+                        ),
+                      ),
+
                       const SizedBox(height: AppSpacing.sm),
-
-                      // Transaction rows
-                      ...dayTxns.map((t) => _TransactionRow(
-                            transaction: t,
-                            symbol: symbol,
-                          )),
-
-                      const SizedBox(height: AppSpacing.md),
                     ],
                   );
                 }).toList(),
@@ -532,6 +523,39 @@ class _TransactionsSection extends ConsumerWidget {
             error: (_, _) => const SizedBox.shrink(),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(String symbol) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xxxl),
+      child: Center(
+        child: Column(
+          children: [
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                color: AppColors.gray100,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Icon(PhosphorIcons.receipt(),
+                  size: 28, color: AppColors.gray300),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Text(
+              'No transactions yet',
+              style:
+                  AppTextStyles.headingS.copyWith(color: AppColors.gray500),
+            ),
+            const SizedBox(height: AppSpacing.xxs),
+            Text(
+              'Tap + to add your first expense',
+              style: AppTextStyles.bodyS.copyWith(color: AppColors.gray400),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -565,8 +589,10 @@ class _TransactionRow extends StatelessWidget {
           builder: (_) => DailyViewPage(date: transaction.happenedAt),
         ),
       ),
-      child: Container(
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
         padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
           vertical: AppSpacing.sm,
         ),
         child: Row(
@@ -576,15 +602,15 @@ class _TransactionRow extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: AppColors.offWhite,
+                color: _catBgColor(cat),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(cat.icon, size: 20, color: AppColors.gray500),
+              child: Icon(cat.iconFill, size: 18, color: _catIconColor(cat)),
             ),
 
             const SizedBox(width: AppSpacing.sm),
 
-            // Name + category pill
+            // Name + category
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -599,33 +625,10 @@ class _TransactionRow extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 2),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: _catPillColor(cat),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          cat.label,
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500,
-                            color: _catPillTextColor(cat),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        'Cash',
-                        style: AppTextStyles.labelS.copyWith(
-                          color: AppColors.gray400,
-                          letterSpacing: 0,
-                        ),
-                      ),
-                    ],
+                  Text(
+                    cat.label,
+                    style: AppTextStyles.bodyS
+                        .copyWith(color: AppColors.gray400, fontSize: 12),
                   ),
                 ],
               ),
@@ -644,7 +647,7 @@ class _TransactionRow extends StatelessWidget {
     );
   }
 
-  Color _catPillColor(TransactionCategory cat) {
+  Color _catBgColor(TransactionCategory cat) {
     switch (cat.group) {
       case TransactionCategory.foodAndDrink:
         return AppColors.catOrangeBg;
@@ -661,7 +664,7 @@ class _TransactionRow extends StatelessWidget {
     }
   }
 
-  Color _catPillTextColor(TransactionCategory cat) {
+  Color _catIconColor(TransactionCategory cat) {
     switch (cat.group) {
       case TransactionCategory.foodAndDrink:
         return AppColors.catOrangeText;
@@ -731,7 +734,6 @@ class _SpentRingPainter extends CustomPainter {
     final radius = size.width / 2 - 6;
     const strokeWidth = 8.0;
 
-    // Background ring
     final bgPaint = Paint()
       ..color = AppColors.gray200
       ..style = PaintingStyle.stroke
@@ -740,20 +742,21 @@ class _SpentRingPainter extends CustomPainter {
 
     canvas.drawCircle(center, radius, bgPaint);
 
-    // Progress arc
-    final fgPaint = Paint()
-      ..color = AppColors.black
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth
-      ..strokeCap = StrokeCap.round;
+    if (progress > 0) {
+      final fgPaint = Paint()
+        ..color = AppColors.black
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = strokeWidth
+        ..strokeCap = StrokeCap.round;
 
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius),
-      -math.pi / 2,
-      2 * math.pi * progress,
-      false,
-      fgPaint,
-    );
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius),
+        -math.pi / 2,
+        2 * math.pi * progress,
+        false,
+        fgPaint,
+      );
+    }
   }
 
   @override

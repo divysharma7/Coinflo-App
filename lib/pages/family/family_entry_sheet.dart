@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
-import 'package:finance_buddy_app/core/tokens.dart';
+import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
-import 'package:finance_buddy_app/widgets/common/neo_pop_button.dart';
 
 class FamilyEntrySheet extends ConsumerStatefulWidget {
   const FamilyEntrySheet({super.key});
@@ -33,19 +31,14 @@ class _FamilyEntrySheetState extends ConsumerState<FamilyEntrySheet> {
   InputDecoration _inputDecor(String label, {String? prefix}) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(color: SpendlerColors.textSecondary),
+      labelStyle: AppTextStyles.bodyS.copyWith(color: AppColors.gray400),
       prefixText: prefix,
-      prefixStyle: const TextStyle(color: SpendlerColors.textSecondary),
+      prefixStyle: AppTextStyles.bodyM.copyWith(color: AppColors.gray400),
       filled: true,
-      fillColor: SpendlerColors.surface,
-      border: const UnderlineInputBorder(
-        borderSide: BorderSide(color: SpendlerColors.border),
-      ),
-      enabledBorder: const UnderlineInputBorder(
-        borderSide: BorderSide(color: SpendlerColors.border),
-      ),
-      focusedBorder: UnderlineInputBorder(
-        borderSide: BorderSide(color: SpendlerColors.warning.withValues(alpha: 0.8)),
+      fillColor: AppColors.gray100,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
       ),
     );
   }
@@ -57,108 +50,82 @@ class _FamilyEntrySheetState extends ConsumerState<FamilyEntrySheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('FAMILY ENTRY', style: SpendlerTextStyles.sectionLabel),
-          const SizedBox(height: SpendlerSpacing.md),
+          Text('Family Entry',
+              style: AppTextStyles.headingS.copyWith(color: AppColors.black)),
+          const SizedBox(height: AppSpacing.lg),
 
-          SegmentedButton<_EntryType>(
-            segments: const [
-              ButtonSegment(value: _EntryType.inflow, label: Text('Inflow')),
-              ButtonSegment(value: _EntryType.outflow, label: Text('Outflow')),
-            ],
-            selected: {_type},
-            onSelectionChanged: (v) => setState(() => _type = v.first),
+          // Type toggle
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: AppColors.gray100,
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: Row(
+              children: [_EntryType.inflow, _EntryType.outflow].map((t) {
+                final selected = _type == t;
+                final label =
+                    t == _EntryType.inflow ? 'Inflow' : 'Outflow';
+                return Expanded(
+                  child: GestureDetector(
+                    onTap: () => setState(() => _type = t),
+                    child: AnimatedContainer(
+                      duration: AppDurations.fast,
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      decoration: BoxDecoration(
+                        color: selected
+                            ? AppColors.black
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(26),
+                      ),
+                      child: Center(
+                        child: Text(label,
+                            style: AppTextStyles.bodyS.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: selected
+                                    ? AppColors.white
+                                    : AppColors.gray500)),
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
           ),
-          const SizedBox(height: SpendlerSpacing.md),
+          const SizedBox(height: AppSpacing.lg),
 
           TextField(
             controller: _amountController,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            style: const TextStyle(color: SpendlerColors.textPrimary, fontSize: 18),
+            keyboardType:
+                const TextInputType.numberWithOptions(decimal: true),
+            style: AppTextStyles.headingM.copyWith(color: AppColors.black),
             decoration: _inputDecor('Amount', prefix: '\$ '),
           ),
-          const SizedBox(height: SpendlerSpacing.cardGap),
+          const SizedBox(height: AppSpacing.sm),
 
           TextField(
             controller: _fromController,
-            style: const TextStyle(color: SpendlerColors.textPrimary),
+            style: AppTextStyles.bodyM.copyWith(color: AppColors.black),
             decoration: _inputDecor(
               _type == _EntryType.inflow
                   ? 'From (Mom, Dad, etc.)'
-                  : _type == _EntryType.outflow
-                      ? 'To (person)'
-                      : 'Managed by',
+                  : 'To (person)',
             ),
           ),
-          const SizedBox(height: SpendlerSpacing.cardGap),
-
-          if (_type == _EntryType.investment) ...[
-            // Investment type as tappable tiles
-            const Text('TYPE', style: SpendlerTextStyles.sectionLabel),
-            const SizedBox(height: SpendlerSpacing.sm),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                _investTile('MF', 'Mutual Fund', PhosphorIcons.chartPieSlice()),
-                _investTile('Stocks', 'Stocks', PhosphorIcons.trendUp()),
-                _investTile('FD', 'Fixed Deposit', PhosphorIcons.vault()),
-                _investTile('Other', 'Other', PhosphorIcons.dotsThreeCircle()),
-              ],
-            ),
-            const SizedBox(height: SpendlerSpacing.cardGap),
-          ],
+          const SizedBox(height: AppSpacing.sm),
 
           TextField(
             controller: _noteController,
-            style: const TextStyle(color: SpendlerColors.textPrimary),
+            style: AppTextStyles.bodyM.copyWith(color: AppColors.black),
             decoration: _inputDecor('Note (optional)'),
           ),
-          const SizedBox(height: SpendlerSpacing.lg),
+          const SizedBox(height: AppSpacing.xl),
 
-          NeoPOPButton(
+          AppButton(
             label: 'Add Entry',
-            color: SpendlerColors.warning,
-            shadowColor: const Color(0xFF8A6B2A),
             onTap: _save,
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _investTile(String value, String label, IconData icon) {
-    final selected = _investmentType == value;
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        setState(() => _investmentType = value);
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: selected
-              ? SpendlerColors.warning.withValues(alpha: 0.15)
-              : SpendlerColors.surface,
-          borderRadius: BorderRadius.circular(SpendlerRadii.button),
-          border: selected
-              ? Border.all(color: SpendlerColors.warning, width: 1.5)
-              : Border.all(color: SpendlerColors.border),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            PhosphorIcon(icon, size: 16, color: selected ? SpendlerColors.warning : SpendlerColors.textSecondary),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                color: selected ? SpendlerColors.warning : SpendlerColors.textSecondary,
-                fontSize: 13,
-                fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -176,7 +143,8 @@ class _FamilyEntrySheetState extends ConsumerState<FamilyEntrySheet> {
       amount: amount,
       fromPerson: from,
       note: note.isEmpty ? null : note,
-      investmentType: _type == _EntryType.investment ? _investmentType : null,
+      investmentType:
+          _type == _EntryType.investment ? _investmentType : null,
     );
     if (mounted) Navigator.pop(context);
   }

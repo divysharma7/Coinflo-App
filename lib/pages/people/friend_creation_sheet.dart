@@ -2,12 +2,10 @@ import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:finance_buddy_app/core/tokens.dart';
+import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
-import 'package:finance_buddy_app/widgets/common/neo_pop_button.dart';
 
-/// Bottom sheet for adding a new friend contact.
 class FriendCreationSheet extends ConsumerStatefulWidget {
   const FriendCreationSheet({super.key});
 
@@ -21,15 +19,8 @@ class _FriendCreationSheetState extends ConsumerState<FriendCreationSheet> {
   final _noteController = TextEditingController();
 
   static const _palette = [
-    '#7B8FA1',
-    '#6B8F71',
-    '#A0785A',
-    '#C9A84C',
-    '#8E7AAF',
-    '#7A7A7A',
+    '#7B8FA1', '#6B8F71', '#A0785A', '#C9A84C', '#8E7AAF', '#7A7A7A',
   ];
-
-  /// Keeps a running index so successive adds cycle through colours.
   static int _colourIndex = 0;
 
   String _nextColour() {
@@ -45,27 +36,6 @@ class _FriendCreationSheetState extends ConsumerState<FriendCreationSheet> {
     super.dispose();
   }
 
-  InputDecoration _inputDecor(String label, {String? hint}) {
-    return InputDecoration(
-      labelText: label,
-      hintText: hint,
-      labelStyle: const TextStyle(color: SpendlerColors.textSecondary),
-      hintStyle: const TextStyle(color: SpendlerColors.textTertiary, fontSize: 13),
-      filled: true,
-      fillColor: SpendlerColors.surface,
-      border: const UnderlineInputBorder(
-        borderSide: BorderSide(color: SpendlerColors.border),
-      ),
-      enabledBorder: const UnderlineInputBorder(
-        borderSide: BorderSide(color: SpendlerColors.border),
-      ),
-      focusedBorder: UnderlineInputBorder(
-        borderSide:
-            BorderSide(color: SpendlerColors.primary.withValues(alpha: 0.8)),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -73,43 +43,48 @@ class _FriendCreationSheetState extends ConsumerState<FriendCreationSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('ADD A FRIEND', style: SpendlerTextStyles.sectionLabel),
-          const SizedBox(height: SpendlerSpacing.md),
-
-          // Name field
+          Text('Add a Friend',
+              style: AppTextStyles.headingS.copyWith(color: AppColors.black)),
+          const SizedBox(height: AppSpacing.lg),
           TextField(
             controller: _nameController,
             textCapitalization: TextCapitalization.words,
             maxLength: 30,
-            style: const TextStyle(
-              color: SpendlerColors.textPrimary,
-              fontSize: 16,
+            style: AppTextStyles.bodyM.copyWith(color: AppColors.black),
+            decoration: InputDecoration(
+              labelText: 'Name',
+              labelStyle: AppTextStyles.bodyS.copyWith(color: AppColors.gray400),
+              filled: true,
+              fillColor: AppColors.gray100,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
             ),
-            decoration: _inputDecor('Name'),
             onChanged: (_) => setState(() {}),
           ),
-          const SizedBox(height: SpendlerSpacing.cardGap),
-
-          // Note field
+          const SizedBox(height: AppSpacing.sm),
           TextField(
             controller: _noteController,
-            style: const TextStyle(
-              color: SpendlerColors.textPrimary,
-              fontSize: 14,
-            ),
-            decoration: _inputDecor(
-              'Note (optional)',
-              hint: 'roommate, college friend, etc',
+            style: AppTextStyles.bodyM.copyWith(color: AppColors.black),
+            decoration: InputDecoration(
+              labelText: 'Note (optional)',
+              hintText: 'roommate, college friend, etc',
+              labelStyle: AppTextStyles.bodyS.copyWith(color: AppColors.gray400),
+              hintStyle: AppTextStyles.bodyS.copyWith(color: AppColors.gray300),
+              filled: true,
+              fillColor: AppColors.gray100,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
             ),
           ),
-          const SizedBox(height: SpendlerSpacing.lg),
-
-          // Add Friend button
-          NeoPOPButton(
+          const SizedBox(height: AppSpacing.xl),
+          AppButton(
             label: 'Add Friend',
-            color: SpendlerColors.primary,
-            shadowColor: SpendlerColors.textTertiary,
-            onTap: _nameController.text.trim().isEmpty ? null : _save,
+            onTap: _nameController.text.trim().isEmpty ? () {} : _save,
+            disabled: _nameController.text.trim().isEmpty,
           ),
         ],
       ),

@@ -117,6 +117,7 @@ class ProfileSheet extends ConsumerWidget {
                   label: 'Accounts',
                   onTap: () {
                     Navigator.pop(context);
+                    // Navigate to settings tab which has the accounts option
                   },
                 ),
               ],
