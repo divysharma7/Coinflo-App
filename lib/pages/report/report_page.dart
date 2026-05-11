@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import 'package:finance_buddy_app/core/enums.dart';
-import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
 
@@ -23,15 +22,6 @@ enum _ReportScope { week, month, year }
 final _reportScopeProvider =
     StateProvider<_ReportScope>((ref) => _ReportScope.month);
 
-/// All transactions for the selected month.
-final _monthTransactionsProvider =
-    FutureProvider.autoDispose<List<SpendlerTransaction>>((ref) {
-  final repo = ref.watch(repositoryProvider);
-  final month = ref.watch(_reportMonthProvider);
-  return repo.getTransactionsForMonth(month);
-});
-
-/// Category totals (expenses only) for the selected month.
 final _monthCategoryTotalsProvider =
     FutureProvider.autoDispose<Map<String, double>>((ref) {
   final repo = ref.watch(repositoryProvider);
@@ -39,11 +29,19 @@ final _monthCategoryTotalsProvider =
   return repo.getCategoryTotalsForMonth(month);
 });
 
+/// Previous month category totals for delta comparison.
+final _prevMonthCategoryTotalsProvider =
+    FutureProvider.autoDispose<Map<String, double>>((ref) {
+  final repo = ref.watch(repositoryProvider);
+  final month = ref.watch(_reportMonthProvider);
+  final prev = DateTime(month.year, month.month - 1);
+  return repo.getCategoryTotalsForMonth(prev);
+});
+
 // ---------------------------------------------------------------------------
-// Helpers
+// Category colors
 // ---------------------------------------------------------------------------
 
-/// Category color map using the new design system palette.
 const Map<TransactionCategory, Color> _categoryColors = {
   TransactionCategory.foodAndDrink: Color(0xFFFF8A4C),
   TransactionCategory.transport: Color(0xFF4A8FE7),
@@ -57,20 +55,32 @@ const Map<TransactionCategory, Color> _categoryColors = {
   TransactionCategory.personalCare: Color(0xFFF8BBD0),
   TransactionCategory.education: Color(0xFF5C6BC0),
   TransactionCategory.travel: Color(0xFF14B8A6),
-  TransactionCategory.other: AppColors.gray500,
+  TransactionCategory.other: Color(0xFF6E6E6E),
 };
 
-Color _colorForCategory(TransactionCategory cat) {
-  return _categoryColors[cat] ?? AppColors.gray500;
+Color _colorForCategory(TransactionCategory cat) =>
+    _categoryColors[cat] ?? const Color(0xFF6E6E6E);
+
+String _currencySymbol(String code) {
+  switch (code.toLowerCase()) {
+    case 'inr':
+      return '\u20B9';
+    case 'usd':
+      return '\$';
+    case 'eur':
+      return '\u20AC';
+    case 'gbp':
+      return '\u00A3';
+    default:
+      return '\$';
+  }
 }
 
-String _formatCompact(double value) {
+String _formatAmount(double value) {
   if (value >= 100000) {
-    return '${(value / 100000).toStringAsFixed(1)}L';
-  } else if (value >= 1000) {
-    return '${(value / 1000).toStringAsFixed(1)}K';
+    return NumberFormat('#,##,###', 'en_IN').format(value.toInt());
   }
-  return value.toStringAsFixed(0);
+  return NumberFormat('#,###').format(value.toInt());
 }
 
 // ---------------------------------------------------------------------------
@@ -86,36 +96,28 @@ class ReportPage extends ConsumerStatefulWidget {
 
 class _ReportPageState extends ConsumerState<ReportPage> {
   int? _touchedIndex;
-  int _selectedFilterIndex = 0; // 0=Expenses, 1=Income, 2=Net
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.offWhite,
       body: SafeArea(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 700),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: AppSpacing.md),
-                _buildHeader(),
-                const SizedBox(height: AppSpacing.lg),
-                const _PeriodSelector(),
-                const SizedBox(height: AppSpacing.lg),
-                _buildMonthNavigator(),
-                const SizedBox(height: AppSpacing.lg),
-                _buildFilterCards(),
-                const SizedBox(height: AppSpacing.lg),
-                _buildSearchBar(),
-                const SizedBox(height: AppSpacing.lg),
-                _buildDonutSection(),
-                const SizedBox(height: AppSpacing.xl),
-                const _TransactionList(),
-                const SizedBox(height: 100),
-              ],
-            ),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: AppSpacing.md),
+              _buildHeader(),
+              const SizedBox(height: AppSpacing.lg),
+              const _PeriodSelector(),
+              const SizedBox(height: AppSpacing.lg),
+              _buildMonthNavigator(),
+              const SizedBox(height: AppSpacing.xl),
+              _buildDonutSection(),
+              const SizedBox(height: AppSpacing.xxl),
+              _buildCategoryBreakdown(),
+              const SizedBox(height: 100),
+            ],
           ),
         ),
       ),
@@ -130,19 +132,12 @@ class _ReportPageState extends ConsumerState<ReportPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            'Report',
-            style: AppTextStyles.headingL.copyWith(color: AppColors.black),
-          ),
+          Text('Report',
+              style: AppTextStyles.headingL.copyWith(color: AppColors.black)),
           GestureDetector(
-            onTap: () {
-              HapticFeedback.lightImpact();
-            },
-            child: const Icon(
-              Icons.download_outlined,
-              color: AppColors.black,
-              size: 24,
-            ),
+            onTap: () => HapticFeedback.lightImpact(),
+            child: const Icon(Icons.download_outlined,
+                color: AppColors.black, size: 24),
           ),
         ],
       ),
@@ -167,16 +162,11 @@ class _ReportPageState extends ConsumerState<ReportPage> {
               HapticFeedback.selectionClick();
               _navigatePeriod(-1, scope, month);
             },
-            child: const Icon(
-              Icons.chevron_left,
-              color: AppColors.gray400,
-              size: 28,
-            ),
+            child: const Icon(Icons.chevron_left,
+                color: AppColors.gray400, size: 28),
           ),
-          Text(
-            label,
-            style: AppTextStyles.headingS.copyWith(color: AppColors.black),
-          ),
+          Text(label,
+              style: AppTextStyles.headingS.copyWith(color: AppColors.black)),
           GestureDetector(
             onTap: canForward
                 ? () {
@@ -184,11 +174,9 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                     _navigatePeriod(1, scope, month);
                   }
                 : null,
-            child: Icon(
-              Icons.chevron_right,
-              color: canForward ? AppColors.gray400 : AppColors.gray200,
-              size: 28,
-            ),
+            child: Icon(Icons.chevron_right,
+                color: canForward ? AppColors.gray400 : AppColors.gray200,
+                size: 28),
           ),
         ],
       ),
@@ -222,329 +210,336 @@ class _ReportPageState extends ConsumerState<ReportPage> {
     }
   }
 
-  // --- Filter Cards ---
-
-  Widget _buildFilterCards() {
-    final txnsAsync = ref.watch(_monthTransactionsProvider);
-
-    return txnsAsync.when(
-      data: (txns) {
-        final income = txns
-            .where((t) => t.amount > 0)
-            .fold<double>(0, (s, t) => s + t.amount);
-        final expenses = txns
-            .where((t) => t.amount < 0)
-            .fold<double>(0, (s, t) => s + t.amount.abs());
-        final net = income - expenses;
-
-        final filters = [
-          _FilterData(
-            label: 'Expenses',
-            amount: expenses,
-            icon: Icons.arrow_upward_rounded,
-            iconColor: AppColors.red,
-          ),
-          _FilterData(
-            label: 'Income',
-            amount: income,
-            icon: Icons.arrow_downward_rounded,
-            iconColor: AppColors.green,
-          ),
-          _FilterData(
-            label: 'Net',
-            amount: net,
-            icon: Icons.compare_arrows_rounded,
-            iconColor: net >= 0 ? AppColors.green : AppColors.red,
-          ),
-        ];
-
-        return SizedBox(
-          height: 110,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-            itemCount: filters.length,
-            separatorBuilder: (context, index) => const SizedBox(width: AppSpacing.sm),
-            itemBuilder: (context, index) {
-              final filter = filters[index];
-              final isSelected = _selectedFilterIndex == index;
-
-              return GestureDetector(
-                onTap: () {
-                  HapticFeedback.selectionClick();
-                  setState(() => _selectedFilterIndex = index);
-                },
-                child: _FilterCard(
-                  filter: filter,
-                  isSelected: isSelected,
-                  isNet: index == 2,
-                ),
-              );
-            },
-          ),
-        );
-      },
-      loading: () => const SizedBox(
-        height: 110,
-        child: Center(
-          child: CircularProgressIndicator(color: AppColors.black),
-        ),
-      ),
-      error: (e, st) => const SizedBox.shrink(),
-    );
-  }
-
-  // --- Search Bar ---
-
-  Widget _buildSearchBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.sm,
-        ),
-        decoration: const BoxDecoration(
-          color: AppColors.gray100,
-          borderRadius: AppRadius.md,
-        ),
-        child: Row(
-          children: [
-            const Icon(
-              Icons.search_rounded,
-              color: AppColors.gray400,
-              size: 20,
-            ),
-            const SizedBox(width: AppSpacing.xs),
-            Text(
-              'Search transactions...',
-              style: AppTextStyles.bodyM.copyWith(color: AppColors.gray400),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   // --- Donut Chart ---
 
   Widget _buildDonutSection() {
     final catTotals = ref.watch(_monthCategoryTotalsProvider);
+    final budgetAsync = ref.watch(monthlyBudgetProvider);
+    final currencyAsync = ref.watch(selectedCurrencyProvider);
+    final currency = currencyAsync.valueOrNull ?? 'inr';
+    final symbol = _currencySymbol(currency);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-      child: AppCard(
-        variant: AppCardVariant.dark,
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: catTotals.when(
-          data: (data) {
-            if (data.isEmpty) {
-              return SizedBox(
+      child: catTotals.when(
+        data: (data) {
+          if (data.isEmpty) {
+            return SizedBox(
+              height: 250,
+              child: Center(
+                child: Text('No expenses this month.',
+                    style:
+                        AppTextStyles.bodyM.copyWith(color: AppColors.gray400)),
+              ),
+            );
+          }
+
+          final sorted = data.entries.toList()
+            ..sort((a, b) => b.value.compareTo(a.value));
+          final totalSpent = sorted.fold<double>(0, (s, e) => s + e.value);
+          final budgetVal = budgetAsync.valueOrNull ?? 0;
+          final pct =
+              budgetVal > 0 ? (totalSpent / budgetVal * 100).round() : 0;
+          final left = budgetVal > 0 ? (budgetVal - totalSpent).clamp(0.0, double.infinity) : 0.0;
+
+          // Pie sections
+          final sections = <PieChartSectionData>[];
+          for (int i = 0; i < sorted.length; i++) {
+            final entry = sorted[i];
+            final cat = TransactionCategory.values.firstWhere(
+              (c) => c.name == entry.key,
+              orElse: () => TransactionCategory.other,
+            );
+            final isTouched = _touchedIndex == i;
+            sections.add(PieChartSectionData(
+              value: entry.value,
+              color: _colorForCategory(cat),
+              radius: isTouched ? 32 : 26,
+              title: '',
+            ));
+          }
+
+          return Column(
+            children: [
+              // Donut chart
+              SizedBox(
                 height: 220,
-                child: Center(
-                  child: Text(
-                    'No expenses this month.',
-                    style: AppTextStyles.bodyM.copyWith(color: AppColors.gray400),
-                  ),
-                ),
-              );
-            }
-
-            final sorted = data.entries.toList()
-              ..sort((a, b) => b.value.compareTo(a.value));
-            final totalSpent =
-                sorted.fold<double>(0, (s, e) => s + e.value);
-
-            // Build sections
-            final sections = <PieChartSectionData>[];
-            for (int i = 0; i < sorted.length; i++) {
-              final entry = sorted[i];
-              final cat = TransactionCategory.values.firstWhere(
-                (c) => c.name == entry.key,
-                orElse: () => TransactionCategory.other,
-              );
-              final isTouched = _touchedIndex == i;
-
-              sections.add(PieChartSectionData(
-                value: entry.value,
-                color: _colorForCategory(cat),
-                radius: isTouched ? 28 : 22,
-                title: '',
-                borderSide: isTouched
-                    ? BorderSide(
-                        color:
-                            _colorForCategory(cat).withValues(alpha: 0.6),
-                        width: 2,
-                      )
-                    : BorderSide.none,
-              ));
-            }
-
-            // Center label
-            String centerValue;
-            String centerLabel;
-            if (_touchedIndex != null && _touchedIndex! < sorted.length) {
-              final entry = sorted[_touchedIndex!];
-              final cat = TransactionCategory.values.firstWhere(
-                (c) => c.name == entry.key,
-                orElse: () => TransactionCategory.other,
-              );
-              final pct = (entry.value / totalSpent * 100).round();
-              centerValue = '$pct%';
-              centerLabel = cat.label;
-            } else {
-              centerValue = '\$${_formatCompact(totalSpent)}';
-              centerLabel = 'Total Spent';
-            }
-
-            return LayoutBuilder(
-              builder: (context, constraints) {
-                final chartSize = constraints.maxWidth.clamp(200.0, 320.0);
-                final centerRadius = (chartSize * 0.25).clamp(40.0, 80.0);
-                return SizedBox(
-                  height: chartSize * 0.7,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      PieChart(
-                        PieChartData(
-                          sections: sections,
-                          centerSpaceRadius: centerRadius,
-                          sectionsSpace: 3,
-                          pieTouchData: PieTouchData(
-                            touchCallback: (event, response) {
-                              if (!event.isInterestedForInteractions ||
-                                  response == null ||
-                                  response.touchedSection == null) {
-                                setState(() => _touchedIndex = null);
-                                return;
-                              }
-                              setState(() => _touchedIndex = response
-                                  .touchedSection!.touchedSectionIndex);
-                            },
-                          ),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    PieChart(
+                      PieChartData(
+                        sections: sections,
+                        centerSpaceRadius: 70,
+                        sectionsSpace: 3,
+                        pieTouchData: PieTouchData(
+                          touchCallback: (event, response) {
+                            if (!event.isInterestedForInteractions ||
+                                response == null ||
+                                response.touchedSection == null) {
+                              setState(() => _touchedIndex = null);
+                              return;
+                            }
+                            setState(() => _touchedIndex =
+                                response.touchedSection!.touchedSectionIndex);
+                          },
                         ),
                       ),
-                      // Center text
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            centerValue,
-                            style: AppTextStyles.headingM.copyWith(
-                              color: AppColors.white,
-                              fontSize: _touchedIndex != null ? 22 : 20,
-                            ),
+                    ),
+                    // Center text
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '$pct%',
+                          style: AppTextStyles.displayL.copyWith(
+                            color: AppColors.black,
+                            fontSize: 36,
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            centerLabel,
-                            style: AppTextStyles.bodyS
-                                .copyWith(color: AppColors.gray400),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                );
-              },
-            );
-          },
-          loading: () => const SizedBox(
-            height: 220,
-            child: Center(
-              child: CircularProgressIndicator(color: AppColors.white),
-            ),
-          ),
-          error: (e, st) => SizedBox(
-            height: 220,
-            child: Center(
-              child: Text(
-                'Error loading data',
-                style: AppTextStyles.bodyM.copyWith(color: AppColors.red),
+                        ),
+                        Text(
+                          'of budget',
+                          style: AppTextStyles.bodyS
+                              .copyWith(color: AppColors.gray400),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ),
+
+              const SizedBox(height: AppSpacing.md),
+
+              // Category legend dots
+              Wrap(
+                spacing: AppSpacing.xs,
+                runSpacing: AppSpacing.xxs,
+                alignment: WrapAlignment.center,
+                children: sorted.map((entry) {
+                  final cat = TransactionCategory.values.firstWhere(
+                    (c) => c.name == entry.key,
+                    orElse: () => TransactionCategory.other,
+                  );
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: _colorForCategory(cat),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        cat.label,
+                        style: AppTextStyles.labelS
+                            .copyWith(color: AppColors.gray500, letterSpacing: 0),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                    ],
+                  );
+                }).toList(),
+              ),
+
+              const SizedBox(height: AppSpacing.lg),
+
+              // Spent / Left summary
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: const BoxDecoration(
+                      color: AppColors.black,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Spent $symbol${_formatAmount(totalSpent)}',
+                    style: AppTextStyles.bodyS
+                        .copyWith(color: AppColors.gray500),
+                  ),
+                  const SizedBox(width: AppSpacing.lg),
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: const BoxDecoration(
+                      color: AppColors.gray300,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Left $symbol${_formatAmount(left)}',
+                    style: AppTextStyles.bodyS
+                        .copyWith(color: AppColors.gray500),
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
+        loading: () => const SizedBox(
+          height: 250,
+          child: Center(
+              child: CircularProgressIndicator(color: AppColors.black)),
         ),
+        error: (_, _) => const SizedBox.shrink(),
       ),
     );
   }
-}
 
-// ---------------------------------------------------------------------------
-// Filter Data Model
-// ---------------------------------------------------------------------------
+  // --- By Category Breakdown ---
 
-class _FilterData {
-  const _FilterData({
-    required this.label,
-    required this.amount,
-    required this.icon,
-    required this.iconColor,
-  });
+  Widget _buildCategoryBreakdown() {
+    final catTotals = ref.watch(_monthCategoryTotalsProvider);
+    final prevTotals = ref.watch(_prevMonthCategoryTotalsProvider);
+    final currencyAsync = ref.watch(selectedCurrencyProvider);
+    final currency = currencyAsync.valueOrNull ?? 'inr';
+    final symbol = _currencySymbol(currency);
 
-  final String label;
-  final double amount;
-  final IconData icon;
-  final Color iconColor;
-}
-
-// ---------------------------------------------------------------------------
-// Filter Card
-// ---------------------------------------------------------------------------
-
-class _FilterCard extends StatelessWidget {
-  const _FilterCard({
-    required this.filter,
-    required this.isSelected,
-    required this.isNet,
-  });
-
-  final _FilterData filter;
-  final bool isSelected;
-  final bool isNet;
-
-  @override
-  Widget build(BuildContext context) {
-    final bgColor = isSelected ? AppColors.black : AppColors.white;
-    final textColor = isSelected ? AppColors.white : AppColors.black;
-    final labelColor = isSelected ? AppColors.gray300 : AppColors.gray500;
-
-    return Container(
-      width: 140,
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: AppRadius.xl,
-        boxShadow: AppShadows.sm,
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 28,
-            height: 28,
-            decoration: BoxDecoration(
-              color: filter.iconColor.withValues(alpha: 0.15),
-              borderRadius: AppRadius.full,
-            ),
-            child: Center(
-              child: Icon(filter.icon, size: 14, color: filter.iconColor),
-            ),
-          ),
-          const Spacer(),
-          Text(
-            filter.label,
-            style: AppTextStyles.bodyS.copyWith(color: labelColor),
-          ),
-          const SizedBox(height: AppSpacing.xxs),
-          Text(
-            '\$${_formatCompact(filter.amount.abs())}',
-            style: AppTextStyles.headingM.copyWith(
-              color: isNet && filter.amount >= 0 && !isSelected
-                  ? AppColors.green
-                  : textColor,
-            ),
+          Text('By Category',
+              style: AppTextStyles.headingS.copyWith(color: AppColors.black)),
+          const SizedBox(height: AppSpacing.lg),
+          catTotals.when(
+            data: (data) {
+              if (data.isEmpty) {
+                return Text('No spending data.',
+                    style: AppTextStyles.bodyM
+                        .copyWith(color: AppColors.gray400));
+              }
+
+              final sorted = data.entries.toList()
+                ..sort((a, b) => b.value.compareTo(a.value));
+              final totalSpent =
+                  sorted.fold<double>(0, (s, e) => s + e.value);
+              final prevData = prevTotals.valueOrNull ?? {};
+
+              return Column(
+                children: sorted.map((entry) {
+                  final cat = TransactionCategory.values.firstWhere(
+                    (c) => c.name == entry.key,
+                    orElse: () => TransactionCategory.other,
+                  );
+                  final amount = entry.value;
+                  final pct = totalSpent > 0 ? amount / totalSpent : 0.0;
+                  final catColor = _colorForCategory(cat);
+
+                  // Delta vs previous month
+                  final prevAmount = prevData[entry.key] ?? 0;
+                  int? delta;
+                  if (prevAmount > 0) {
+                    delta =
+                        ((amount - prevAmount) / prevAmount * 100).round();
+                  }
+
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color(0x08000000),
+                          blurRadius: 8,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        // Category icon
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: catColor.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(cat.iconFill,
+                              size: 20, color: catColor),
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
+
+                        // Name + delta
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                cat.label,
+                                style: AppTextStyles.bodyM.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.black,
+                                ),
+                              ),
+                              if (delta != null) ...[
+                                const SizedBox(height: 2),
+                                Text(
+                                  '${delta > 0 ? '\u2191' : '\u2193'} ${delta.abs()}% vs last period',
+                                  style: AppTextStyles.labelS.copyWith(
+                                    color: delta > 0
+                                        ? AppColors.red
+                                        : AppColors.green,
+                                    letterSpacing: 0,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+
+                        // Amount
+                        Text(
+                          '$symbol${_formatAmount(amount)}',
+                          style: AppTextStyles.numericL
+                              .copyWith(color: AppColors.black),
+                        ),
+
+                        const SizedBox(width: AppSpacing.sm),
+
+                        // Percentage bar
+                        SizedBox(
+                          width: 40,
+                          child: Column(
+                            children: [
+                              Text(
+                                '${(pct * 100).round()}%',
+                                style: AppTextStyles.labelS
+                                    .copyWith(color: AppColors.gray400),
+                              ),
+                              const SizedBox(height: 4),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(2),
+                                child: LinearProgressIndicator(
+                                  value: pct,
+                                  backgroundColor: AppColors.gray200,
+                                  valueColor:
+                                      AlwaysStoppedAnimation(catColor),
+                                  minHeight: 4,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              );
+            },
+            loading: () => const SizedBox.shrink(),
+            error: (_, _) => const SizedBox.shrink(),
           ),
         ],
       ),
@@ -553,7 +548,7 @@ class _FilterCard extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Period Selector (Week / Month / Year pills)
+// Period Selector
 // ---------------------------------------------------------------------------
 
 class _PeriodSelector extends ConsumerWidget {
@@ -567,9 +562,9 @@ class _PeriodSelector extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       child: Container(
         padding: const EdgeInsets.all(4),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: AppColors.gray100,
-          borderRadius: AppRadius.full,
+          borderRadius: BorderRadius.circular(30),
         ),
         child: Row(
           children: _ReportScope.values.map((scope) {
@@ -586,16 +581,15 @@ class _PeriodSelector extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
                     color: isSelected ? AppColors.black : Colors.transparent,
-                    borderRadius: AppRadius.full,
+                    borderRadius: BorderRadius.circular(26),
                   ),
                   child: Center(
                     child: Text(
                       scope.name[0].toUpperCase() + scope.name.substring(1),
                       style: AppTextStyles.bodyS.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: isSelected
-                            ? AppColors.white
-                            : AppColors.gray500,
+                        color:
+                            isSelected ? AppColors.white : AppColors.gray500,
                       ),
                     ),
                   ),
@@ -603,170 +597,6 @@ class _PeriodSelector extends ConsumerWidget {
               ),
             );
           }).toList(),
-        ),
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Transaction List (full month)
-// ---------------------------------------------------------------------------
-
-class _TransactionList extends ConsumerWidget {
-  const _TransactionList();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final txnsAsync = ref.watch(_monthTransactionsProvider);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          txnsAsync.when(
-            data: (txns) {
-              if (txns.isEmpty) {
-                return _buildEmptyState();
-              }
-
-              // Group by date
-              final grouped = <String, List<SpendlerTransaction>>{};
-              for (final t in txns) {
-                final key = DateFormat('d MMM, EEEE').format(t.happenedAt);
-                grouped.putIfAbsent(key, () => []).add(t);
-              }
-
-              return Column(
-                children: grouped.entries.map((dayGroup) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Day header
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          top: AppSpacing.md,
-                          bottom: AppSpacing.xs,
-                        ),
-                        child: Text(
-                          dayGroup.key.toUpperCase(),
-                          style: AppTextStyles.labelM
-                              .copyWith(color: AppColors.gray400),
-                        ),
-                      ),
-                      // Transactions
-                      ...dayGroup.value.asMap().entries.map((mapEntry) {
-                        final index = mapEntry.key;
-                        final t = mapEntry.value;
-                        final cat = TransactionCategory.values.firstWhere(
-                          (c) => c.name == t.category,
-                          orElse: () => TransactionCategory.other,
-                        );
-                        final catColor = _colorForCategory(cat);
-                        final isExpense = t.amount < 0;
-                        final isLast = index == dayGroup.value.length - 1;
-
-                        return Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: AppSpacing.sm),
-                              child: Row(
-                                children: [
-                                  // Category icon circle
-                                  Container(
-                                    width: 40,
-                                    height: 40,
-                                    decoration: BoxDecoration(
-                                      color:
-                                          catColor.withValues(alpha: 0.12),
-                                      borderRadius: AppRadius.full,
-                                    ),
-                                    child: Center(
-                                      child: Icon(cat.iconFill,
-                                          size: 18, color: catColor),
-                                    ),
-                                  ),
-                                  const SizedBox(width: AppSpacing.sm),
-                                  // Title
-                                  Expanded(
-                                    child: Text(
-                                      t.merchant ?? cat.label,
-                                      style: AppTextStyles.bodyM.copyWith(
-                                        color: AppColors.black,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  // Amount
-                                  Text(
-                                    '${isExpense ? '-' : '+'}\$${t.amount.abs().toStringAsFixed(0)}',
-                                    style: AppTextStyles.numericM.copyWith(
-                                      color: isExpense
-                                          ? AppColors.black
-                                          : AppColors.green,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            if (!isLast)
-                              const Divider(
-                                height: 1,
-                                thickness: 0.5,
-                                color: AppColors.gray200,
-                              ),
-                          ],
-                        );
-                      }),
-                    ],
-                  );
-                }).toList(),
-              );
-            },
-            loading: () => const SizedBox(
-              height: 100,
-              child: Center(
-                child: CircularProgressIndicator(color: AppColors.black),
-              ),
-            ),
-            error: (e, st) => const SizedBox.shrink(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xxl),
-      child: AppCard(
-        variant: AppCardVariant.light,
-        padding: const EdgeInsets.all(AppSpacing.xl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              '\u{1F4CA}',
-              style: TextStyle(fontSize: 48),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            Text(
-              'No data for this month',
-              style: AppTextStyles.headingS.copyWith(color: AppColors.black),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              "No data here. We really wish you'd found us sooner \u2014 this could've been a great month of insights! \u{1F49B}",
-              style: AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
-              textAlign: TextAlign.center,
-            ),
-          ],
         ),
       ),
     );
