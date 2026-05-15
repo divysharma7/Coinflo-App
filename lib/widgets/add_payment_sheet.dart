@@ -122,18 +122,6 @@ class _AddPaymentSheetState extends State<AddPaymentSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Handle bar
-            Center(
-              child: Container(
-                width: 36,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: AppSpacing.lg),
-                decoration: const BoxDecoration(
-                  color: AppColors.gray300,
-                  borderRadius: AppRadius.full,
-                ),
-              ),
-            ),
 
             // Header
             Row(

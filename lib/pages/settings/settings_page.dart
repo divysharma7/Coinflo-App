@@ -16,6 +16,7 @@ import 'package:finance_buddy_app/pages/people/people_page.dart';
 import 'package:finance_buddy_app/pages/subscriptions/subscriptions_page.dart';
 import 'package:finance_buddy_app/pages/settings/profile_sheet.dart';
 import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
+import 'package:finance_buddy_app/constants/faqs.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -184,19 +185,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         iconColor: AppColors.gray600,
                         label: 'Monthly Budget',
                         trailing: Text(
-                          budget != null ? '\$${budget.toStringAsFixed(0)}' : 'Not set',
+                          budget != null ? '${currency.symbol}${budget.toStringAsFixed(0)}' : 'Not set',
                           style: AppTextStyles.bodyS
                               .copyWith(color: AppColors.gray500),
                         ),
                         onTap: () => _showBudgetEditor(budget),
-                      ),
-                      const _Divider(),
-                      _SettingsRow(
-                        icon: PhosphorIcons.lightning(),
-                        iconBg: AppColors.gray100,
-                        iconColor: AppColors.gray600,
-                        label: 'Smart Rules',
-                        onTap: () => _showSmartRulesSheet(),
                       ),
                       const _Divider(),
                       _SettingsToggleRow(
@@ -317,6 +310,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   void _showAccountsSheet() async {
     final prefs = await SharedPreferences.getInstance();
+    final currencyCode = prefs.getString('currency_code') ?? 'inr';
+    final acctCurrency = Currency.values.firstWhere(
+      (c) => c.name == currencyCode,
+      orElse: () => Currency.inr,
+    );
     final accountsJson = prefs.getString('accounts');
     List<dynamic> accounts = [];
     if (accountsJson != null) {
@@ -326,7 +324,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     }
 
     if (!mounted) return;
-    showModalBottomSheet<void>(
+    await showModalBottomSheet<void>(
       context: context,
       backgroundColor: AppColors.white,
       shape: const RoundedRectangleBorder(
@@ -340,15 +338,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: AppColors.gray300,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
+                const Center(
+                  child: SizedBox(height: AppSpacing.md),
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 Row(
@@ -424,7 +415,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             ),
                           ),
                           Text(
-                            '\$${balance.toStringAsFixed(0)}',
+                            '${acctCurrency.symbol}${balance.toStringAsFixed(0)}',
                             style: AppTextStyles.numericL
                                 .copyWith(color: AppColors.black),
                           ),
@@ -455,12 +446,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox(height: AppSpacing.md),
-              Container(width: 40, height: 4,
-                  decoration: BoxDecoration(
-                      color: AppColors.gray300,
-                      borderRadius: BorderRadius.circular(2))),
-              const SizedBox(height: AppSpacing.lg),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                 child: Align(
@@ -518,12 +503,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           builder: (_, scrollController) {
             return Column(
               children: [
-                const SizedBox(height: AppSpacing.md),
-                Container(width: 40, height: 4,
-                    decoration: BoxDecoration(
-                        color: AppColors.gray300,
-                        borderRadius: BorderRadius.circular(2))),
-                const SizedBox(height: AppSpacing.lg),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                   child: Align(
@@ -597,6 +576,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               Text('Monthly Budget',
                   style: AppTextStyles.headingS
                       .copyWith(color: AppColors.black)),
+              const SizedBox(height: 4),
+              Text('This is your total spending limit across all categories for the month.',
+                  style: AppTextStyles.bodyS
+                      .copyWith(color: AppColors.gray400)),
               const SizedBox(height: AppSpacing.md),
               TextField(
                 controller: controller,
@@ -627,113 +610,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               ),
             ],
           ),
-        );
-      },
-    );
-  }
-
-  // ─── Smart Rules Sheet ─────────────────────────────────
-
-  void _showSmartRulesSheet() {
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: AppColors.white,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (_) {
-        return DraggableScrollableSheet(
-          expand: false,
-          initialChildSize: 0.5,
-          maxChildSize: 0.85,
-          builder: (_, scrollController) {
-            return FutureBuilder<SharedPreferences>(
-              future: SharedPreferences.getInstance(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(
-                      child: CircularProgressIndicator(color: AppColors.black));
-                }
-                final prefs = snapshot.data!;
-                final rulesJson = prefs.getString('smart_rules');
-                List<dynamic> rules = [];
-                if (rulesJson != null) {
-                  try {
-                    rules = List<dynamic>.from(jsonDecode(rulesJson) as List);
-                  } catch (_) {}
-                }
-
-                return Column(
-                  children: [
-                    const SizedBox(height: AppSpacing.md),
-                    Container(width: 40, height: 4,
-                        decoration: BoxDecoration(
-                            color: AppColors.gray300,
-                            borderRadius: BorderRadius.circular(2))),
-                    const SizedBox(height: AppSpacing.lg),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Smart Rules',
-                              style: AppTextStyles.headingS
-                                  .copyWith(color: AppColors.black)),
-                          Text('${rules.length} rules',
-                              style: AppTextStyles.bodyS
-                                  .copyWith(color: AppColors.gray400)),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    Expanded(
-                      child: rules.isEmpty
-                          ? Center(
-                              child: Text('No smart rules configured.',
-                                  style: AppTextStyles.bodyM
-                                      .copyWith(color: AppColors.gray400)))
-                          : ListView.builder(
-                              controller: scrollController,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: AppSpacing.md),
-                              itemCount: rules.length,
-                              itemBuilder: (_, i) {
-                                final rule =
-                                    rules[i] as Map<String, dynamic>;
-                                return ListTile(
-                                  leading: Container(
-                                    width: 36,
-                                    height: 36,
-                                    decoration: const BoxDecoration(
-                                      color: AppColors.gray100,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Center(
-                                      child: PhosphorIcon(
-                                        PhosphorIcons.lightning(),
-                                        color: AppColors.gray600,
-                                        size: 18,
-                                      ),
-                                    ),
-                                  ),
-                                  title: Text(
-                                      rule['keyword'] as String? ?? '',
-                                      style: AppTextStyles.bodyM.copyWith(
-                                          fontWeight: FontWeight.w500)),
-                                  subtitle: Text(
-                                      rule['categoryName'] as String? ?? '',
-                                      style: AppTextStyles.bodyS
-                                          .copyWith(color: AppColors.gray400)),
-                                );
-                              },
-                            ),
-                    ),
-                  ],
-                );
-              },
-            );
-          },
         );
       },
     );
@@ -824,7 +700,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   final prefs = await SharedPreferences.getInstance();
                   await prefs.clear();
                   if (mounted) context.go('/onboarding/step1');
-                } catch (e) {
+                } on Exception catch (e) {
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Failed to delete account: $e')),
@@ -862,39 +738,6 @@ class _HelpSupportSheet extends StatefulWidget {
 }
 
 class _HelpSupportSheetState extends State<_HelpSupportSheet> {
-  static const _faqs = [
-    {
-      'q': 'How do I add a transaction?',
-      'a':
-          'Tap the + button at the bottom of the screen. Enter the amount, pick a category, add an optional note, and tap Done.',
-    },
-    {
-      'q': 'How do I set a monthly budget?',
-      'a':
-          'Go to Settings > Monthly Budget. Enter your target amount and tap Save. Your spending ring on the home screen will track progress.',
-    },
-    {
-      'q': 'How do I track splits with friends?',
-      'a':
-          'Go to Settings > People & Debts. Add a friend first, then add a split. You can mark splits as settled when paid.',
-    },
-    {
-      'q': 'Can I change the currency?',
-      'a':
-          'Yes! Go to Settings > Currency and pick your preferred currency. All amounts will display in the selected currency.',
-    },
-    {
-      'q': 'How does the smart rules feature work?',
-      'a':
-          'Smart rules auto-categorize transactions based on keywords. When a transaction matches a keyword, it gets assigned the rule\'s category automatically.',
-    },
-    {
-      'q': 'Is my data synced across devices?',
-      'a':
-          'If you created an account during onboarding, your data syncs to the cloud. Sign in on a new device to restore it.',
-    },
-  ];
-
   int? _expandedFaq;
 
   @override
@@ -906,16 +749,7 @@ class _HelpSupportSheetState extends State<_HelpSupportSheet> {
       builder: (_, scrollController) {
         return Column(
           children: [
-            const SizedBox(height: AppSpacing.md),
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.gray300,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: AppSpacing.lg),
+            const SizedBox(height: AppSpacing.sm),
             Padding(
               padding:
                   const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
@@ -941,7 +775,7 @@ class _HelpSupportSheetState extends State<_HelpSupportSheet> {
                     onTap: () {
                       launchUrl(
                         Uri.parse(
-                            'mailto:divysharma029@gmail.com?subject=Spendler%20Support'),
+                            'mailto:divysharma029@gmail.com?subject=CoinFlo%20Support'),
                         mode: LaunchMode.externalApplication,
                       );
                     },
@@ -952,7 +786,7 @@ class _HelpSupportSheetState extends State<_HelpSupportSheet> {
                   _helpTile(
                     icon: PhosphorIcons.bug(),
                     title: 'Report a Bug',
-                    subtitle: 'Help us improve Spendler',
+                    subtitle: 'Help us improve CoinFlo',
                     onTap: () {
                       Navigator.pop(context);
                       showDialog<void>(
@@ -969,8 +803,8 @@ class _HelpSupportSheetState extends State<_HelpSupportSheet> {
                           .copyWith(color: AppColors.gray400)),
                   const SizedBox(height: AppSpacing.sm),
 
-                  ...List.generate(_faqs.length, (i) {
-                    final faq = _faqs[i];
+                  ...List.generate(kFaqs.length, (i) {
+                    final faq = kFaqs[i];
                     final expanded = _expandedFaq == i;
                     return Container(
                       margin:
@@ -1035,7 +869,7 @@ class _HelpSupportSheetState extends State<_HelpSupportSheet> {
 
                   const SizedBox(height: AppSpacing.lg),
                   Center(
-                    child: Text('Spendler v1.0.2',
+                    child: Text('CoinFlo v1.0.2',
                         style: AppTextStyles.bodyS
                             .copyWith(color: AppColors.gray300)),
                   ),

@@ -142,7 +142,6 @@ enum TransactionCategory {
   }
 }
 
-enum TransactionSource { smsAuto, manual }
 
 enum TransactionStatus { unconfirmed, confirmed }
 

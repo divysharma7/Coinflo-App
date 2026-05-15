@@ -219,8 +219,8 @@ service cloud.firestore {
         data.monthlyTarget is number &&
         data.savedAmount is number &&
         data.createdAt is string && data.createdAt.size() <= 50 &&
-        ((!('targetDate' in data)) || (data.targetDate is string && data.targetDate.size() <= 50)) &&
-        ((!('lastContributionDate' in data)) || (data.lastContributionDate is string && data.lastContributionDate.size() <= 50));
+        ((!('targetDate' in data)) || data.targetDate == null || (data.targetDate is string && data.targetDate.size() <= 50)) &&
+        ((!('lastContributionDate' in data)) || data.lastContributionDate == null || (data.lastContributionDate is string && data.lastContributionDate.size() <= 50));
     }
 
     function isValidSavingsGoalUpdate(data) {
@@ -231,8 +231,8 @@ service cloud.firestore {
         data.targetAmount is number &&
         data.monthlyTarget is number &&
         data.savedAmount is number &&
-        ((!('targetDate' in data)) || (data.targetDate is string && data.targetDate.size() <= 50)) &&
-        ((!('lastContributionDate' in data)) || (data.lastContributionDate is string && data.lastContributionDate.size() <= 50));
+        ((!('targetDate' in data)) || data.targetDate == null || (data.targetDate is string && data.targetDate.size() <= 50)) &&
+        ((!('lastContributionDate' in data)) || data.lastContributionDate == null || (data.lastContributionDate is string && data.lastContributionDate.size() <= 50));
     }
 
     function isValidRecurringPayment(data) {
@@ -248,7 +248,7 @@ service cloud.firestore {
         data.dueDayOfMonth is number && data.dueDayOfMonth >= 1 && data.dueDayOfMonth <= 31 &&
         data.accountId is string && data.accountId.size() <= 50 &&
         data.createdAt is string && data.createdAt.size() <= 50 &&
-        ((!('lastPaidDate' in data)) || (data.lastPaidDate is string && data.lastPaidDate.size() <= 50));
+        ((!('lastPaidDate' in data)) || data.lastPaidDate == null || (data.lastPaidDate is string && data.lastPaidDate.size() <= 50));
     }
 
     function isValidRecurringPaymentUpdate(data) {
@@ -262,7 +262,7 @@ service cloud.firestore {
         data.frequency is string && data.frequency in ['weekly', 'monthly', 'yearly'] &&
         data.dueDayOfMonth is number && data.dueDayOfMonth >= 1 && data.dueDayOfMonth <= 31 &&
         data.accountId is string && data.accountId.size() <= 50 &&
-        ((!('lastPaidDate' in data)) || (data.lastPaidDate is string && data.lastPaidDate.size() <= 50));
+        ((!('lastPaidDate' in data)) || data.lastPaidDate == null || (data.lastPaidDate is string && data.lastPaidDate.size() <= 50));
     }
 
     // ===============================================================

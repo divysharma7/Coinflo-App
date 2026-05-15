@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:finance_buddy_app/core/tokens.dart';
+import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/widgets/common/contextual_pill.dart';
 
 void main() {
@@ -29,7 +29,7 @@ void main() {
     ));
 
     final textWidget = tester.widget<Text>(find.text('+10%'));
-    expect(textWidget.style?.color, SpendlerColors.accentGreen);
+    expect(textWidget.style?.color, AppColors.green);
   });
 
   testWidgets('negative type uses accentAmber color',
@@ -40,7 +40,7 @@ void main() {
     ));
 
     final textWidget = tester.widget<Text>(find.text('-5%'));
-    expect(textWidget.style?.color, SpendlerColors.accentAmber);
+    expect(textWidget.style?.color, AppColors.orange);
   });
 
   testWidgets('neutral type uses accentBlue color',
@@ -51,6 +51,6 @@ void main() {
     ));
 
     final textWidget = tester.widget<Text>(find.text('STABLE'));
-    expect(textWidget.style?.color, SpendlerColors.accentBlue);
+    expect(textWidget.style?.color, AppColors.gray500);
   });
 }

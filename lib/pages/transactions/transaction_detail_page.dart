@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:finance_buddy_app/core/enums.dart';
-import 'package:finance_buddy_app/core/tokens.dart';
+import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/pages/transactions/split_flow_sheet.dart';
@@ -78,7 +78,16 @@ class _TransactionDetailPageState
 
   Future<void> _saveChanges(int id) async {
     final amount = double.tryParse(_amountCtrl.text.trim());
-    if (amount == null || amount <= 0) return;
+    if (amount == null || amount <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a valid amount'),
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
 
     final happenedAt = DateTime(
       _date.year, _date.month, _date.day,
@@ -107,12 +116,12 @@ class _TransactionDetailPageState
   InputDecoration _inputDecor(String label) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(color: SpendlerColors.textSecondary, fontSize: 13),
+      labelStyle: const TextStyle(color: AppColors.gray500, fontSize: 13),
       filled: true,
-      fillColor: SpendlerColors.surface,
-      border: const UnderlineInputBorder(borderSide: BorderSide(color: SpendlerColors.border)),
-      enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: SpendlerColors.border)),
-      focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: SpendlerColors.primary)),
+      fillColor: AppColors.white,
+      border: const UnderlineInputBorder(borderSide: BorderSide(color: AppColors.gray200)),
+      enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: AppColors.gray200)),
+      focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: AppColors.black)),
     );
   }
 
@@ -136,7 +145,7 @@ class _TransactionDetailPageState
             ? TextButton(
                 onPressed: _cancelEdit,
                 child: const Text('Cancel',
-                    style: TextStyle(color: SpendlerColors.textSecondary)),
+                    style: TextStyle(color: AppColors.gray500)),
               )
             : null,
         title: Text(_editing ? 'Edit' : ''),
@@ -146,7 +155,7 @@ class _TransactionDetailPageState
               data: (t) => t != null
                   ? IconButton(
                       icon: PhosphorIcon(PhosphorIcons.pencilSimple(),
-                          color: SpendlerColors.textSecondary),
+                          color: AppColors.gray500),
                       onPressed: () => _enterEditMode(t),
                     )
                   : null,
@@ -161,15 +170,15 @@ class _TransactionDetailPageState
           if (t == null) {
             return const Center(
               child: Text('Transaction not found',
-                  style: TextStyle(color: SpendlerColors.textTertiary)),
+                  style: TextStyle(color: AppColors.gray400)),
             );
           }
           return _editing ? _buildEditMode(t) : _buildReadMode(t);
         },
         loading: () => const Center(
-            child: CircularProgressIndicator(color: SpendlerColors.primary)),
+            child: CircularProgressIndicator(color: AppColors.black)),
         error: (_, _) => const Center(
-            child: Text('Error', style: TextStyle(color: SpendlerColors.expense))),
+            child: Text('Error', style: TextStyle(color: AppColors.red))),
           ),
         ),
       ),
@@ -183,11 +192,11 @@ class _TransactionDetailPageState
       (c) => c.name == t.category,
       orElse: () => TransactionCategory.foodAndDrink,
     );
-    final catColor = SpendlerColors.categoryColor(cat);
+    final catColor = AppColors.categoryColor(cat);
     final isUnconfirmed = t.status == 'unconfirmed';
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(SpendlerSpacing.screenH),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -196,7 +205,7 @@ class _TransactionDetailPageState
             backgroundColor: catColor.withValues(alpha: 0.15),
             child: Icon(cat.iconFill, color: catColor, size: 32),
           ),
-          const SizedBox(height: SpendlerSpacing.md),
+          const SizedBox(height: AppSpacing.md),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -206,14 +215,14 @@ class _TransactionDetailPageState
                 t.amount < 0 ? '-\$' : '+\$',
                 style: TextStyle(
                   fontSize: 20, fontWeight: FontWeight.w400,
-                  color: t.amount < 0 ? SpendlerColors.expense : SpendlerColors.income,
+                  color: t.amount < 0 ? AppColors.red : AppColors.green,
                 ),
               ),
               Text(
                 t.amount.abs().toStringAsFixed(0),
                 style: TextStyle(
                   fontSize: 40, fontWeight: FontWeight.bold,
-                  color: t.amount < 0 ? SpendlerColors.expense : SpendlerColors.income,
+                  color: t.amount < 0 ? AppColors.red : AppColors.green,
                 ),
               ),
             ],
@@ -221,36 +230,36 @@ class _TransactionDetailPageState
           const SizedBox(height: 4),
           Text(
             t.merchant ?? cat.label,
-            style: SpendlerTextStyles.merchantName.copyWith(fontSize: 20),
+            style: AppTextStyles.bodyM.copyWith(fontSize: 20),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
           Text(
             DateFormat('EEEE, d MMM yyyy • h:mm a').format(t.happenedAt),
-            style: const TextStyle(color: SpendlerColors.textTertiary),
+            style: const TextStyle(color: AppColors.gray400),
           ),
           if (t.note != null && t.note!.isNotEmpty) ...[
             const SizedBox(height: 8),
-            Text(t.note!, style: const TextStyle(color: SpendlerColors.textSecondary)),
+            Text(t.note!, style: const TextStyle(color: AppColors.gray500)),
           ],
-          const SizedBox(height: SpendlerSpacing.lg),
+          const SizedBox(height: AppSpacing.lg),
 
           // Details card
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
+            padding: const EdgeInsets.all(AppSpacing.md),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 begin: Alignment.topCenter, end: Alignment.bottomCenter,
-                colors: [Color(0xFF1E1E1E), SpendlerColors.surface],
+                colors: [Color(0xFF1E1E1E), AppColors.white],
               ),
-              borderRadius: BorderRadius.circular(SpendlerRadii.card),
-              boxShadow: SpendlerShadows.card,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: AppShadows.sm,
             ),
             child: Column(
               children: [
                 _detailRow('Category', cat.label),
-                _detailRow('Source', t.source == 'sms_auto' ? 'SMS Auto' : 'Manual'),
+                _detailRow('Source', 'Manual'),
                 _detailRow('Status', isUnconfirmed ? 'Unconfirmed' : 'Confirmed'),
                 if (t.isSplit) ...[
                   _detailRow('Split', '${t.splitCount} people'),
@@ -261,7 +270,7 @@ class _TransactionDetailPageState
               ],
             ),
           ),
-          const SizedBox(height: SpendlerSpacing.lg),
+          const SizedBox(height: AppSpacing.lg),
 
           // Actions
           if (isUnconfirmed) ...[
@@ -276,8 +285,8 @@ class _TransactionDetailPageState
                 icon: const Icon(Icons.check),
                 label: const Text('Confirm This'),
                 style: FilledButton.styleFrom(
-                  backgroundColor: SpendlerColors.primary, foregroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(SpendlerRadii.button)),
+                  backgroundColor: AppColors.black, foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
             ),
@@ -298,9 +307,9 @@ class _TransactionDetailPageState
                 icon: const Icon(Icons.group),
                 label: const Text('Split This'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: SpendlerColors.textPrimary,
-                  side: const BorderSide(color: SpendlerColors.border),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(SpendlerRadii.button)),
+                  foregroundColor: AppColors.black,
+                  side: const BorderSide(color: AppColors.gray200),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
             ),
@@ -326,8 +335,8 @@ class _TransactionDetailPageState
                   if (mounted) Navigator.pop(context);
                 }
               },
-              icon: const Icon(Icons.delete_outline, color: SpendlerColors.expense),
-              label: const Text('Delete', style: TextStyle(color: SpendlerColors.expense)),
+              icon: const Icon(Icons.delete_outline, color: AppColors.red),
+              label: const Text('Delete', style: TextStyle(color: AppColors.red)),
             ),
           ),
         ],
@@ -339,7 +348,7 @@ class _TransactionDetailPageState
 
   Widget _buildEditMode(SpendlerTransaction t) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(SpendlerSpacing.screenH),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -355,29 +364,29 @@ class _TransactionDetailPageState
               _hasChanges = true;
             }),
           ),
-          const SizedBox(height: SpendlerSpacing.lg),
+          const SizedBox(height: AppSpacing.lg),
 
           // Amount
           TextField(
             controller: _amountCtrl,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            style: SpendlerTextStyles.greeting,
-            cursorColor: SpendlerColors.primary,
+            style: AppTextStyles.headingL,
+            cursorColor: AppColors.black,
             decoration: _inputDecor('Amount'),
             onChanged: (_) => _hasChanges = true,
           ),
-          const SizedBox(height: SpendlerSpacing.md),
+          const SizedBox(height: AppSpacing.md),
 
           // Merchant
           TextField(
             controller: _merchantCtrl,
             textCapitalization: TextCapitalization.words,
-            style: const TextStyle(color: SpendlerColors.textPrimary, fontSize: 16),
-            cursorColor: SpendlerColors.primary,
+            style: const TextStyle(color: AppColors.black, fontSize: 16),
+            cursorColor: AppColors.black,
             decoration: _inputDecor('Merchant'),
             onChanged: (_) => _hasChanges = true,
           ),
-          const SizedBox(height: SpendlerSpacing.md),
+          const SizedBox(height: AppSpacing.md),
 
           // Category picker
           GestureDetector(
@@ -385,21 +394,21 @@ class _TransactionDetailPageState
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
               decoration: const BoxDecoration(
-                color: SpendlerColors.surface,
-                border: Border(bottom: BorderSide(color: SpendlerColors.border)),
+                color: AppColors.white,
+                border: Border(bottom: BorderSide(color: AppColors.gray200)),
               ),
               child: Row(
                 children: [
-                  Icon(_category.iconFill, color: SpendlerColors.categoryColor(_category), size: 20),
+                  Icon(_category.iconFill, color: AppColors.categoryColor(_category), size: 20),
                   const SizedBox(width: 10),
-                  Text(_category.label, style: const TextStyle(color: SpendlerColors.textPrimary, fontSize: 16)),
+                  Text(_category.label, style: const TextStyle(color: AppColors.black, fontSize: 16)),
                   const Spacer(),
-                  PhosphorIcon(PhosphorIcons.caretDown(), color: SpendlerColors.textTertiary, size: 16),
+                  PhosphorIcon(PhosphorIcons.caretDown(), color: AppColors.gray400, size: 16),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: SpendlerSpacing.md),
+          const SizedBox(height: AppSpacing.md),
 
           // Date + Time row
           Row(
@@ -418,21 +427,21 @@ class _TransactionDetailPageState
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                     decoration: const BoxDecoration(
-                      color: SpendlerColors.surface,
-                      border: Border(bottom: BorderSide(color: SpendlerColors.border)),
+                      color: AppColors.white,
+                      border: Border(bottom: BorderSide(color: AppColors.gray200)),
                     ),
                     child: Row(
                       children: [
-                        PhosphorIcon(PhosphorIcons.calendar(), color: SpendlerColors.textSecondary, size: 18),
+                        PhosphorIcon(PhosphorIcons.calendar(), color: AppColors.gray500, size: 18),
                         const SizedBox(width: 8),
                         Text(DateFormat('d MMM yyyy').format(_date),
-                            style: const TextStyle(color: SpendlerColors.textPrimary, fontSize: 14)),
+                            style: const TextStyle(color: AppColors.black, fontSize: 14)),
                       ],
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: SpendlerSpacing.sm),
+              const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: GestureDetector(
                   onTap: () async {
@@ -445,15 +454,15 @@ class _TransactionDetailPageState
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                     decoration: const BoxDecoration(
-                      color: SpendlerColors.surface,
-                      border: Border(bottom: BorderSide(color: SpendlerColors.border)),
+                      color: AppColors.white,
+                      border: Border(bottom: BorderSide(color: AppColors.gray200)),
                     ),
                     child: Row(
                       children: [
-                        PhosphorIcon(PhosphorIcons.clock(), color: SpendlerColors.textSecondary, size: 18),
+                        PhosphorIcon(PhosphorIcons.clock(), color: AppColors.gray500, size: 18),
                         const SizedBox(width: 8),
                         Text(_time.format(context),
-                            style: const TextStyle(color: SpendlerColors.textPrimary, fontSize: 14)),
+                            style: const TextStyle(color: AppColors.black, fontSize: 14)),
                       ],
                     ),
                   ),
@@ -461,23 +470,23 @@ class _TransactionDetailPageState
               ),
             ],
           ),
-          const SizedBox(height: SpendlerSpacing.md),
+          const SizedBox(height: AppSpacing.md),
 
           // Note
           TextField(
             controller: _noteCtrl,
-            style: const TextStyle(color: SpendlerColors.textPrimary),
-            cursorColor: SpendlerColors.primary,
+            style: const TextStyle(color: AppColors.black),
+            cursorColor: AppColors.black,
             maxLength: 200,
             decoration: _inputDecor('Note (optional)'),
             onChanged: (_) => _hasChanges = true,
           ),
 
           // Source (read-only)
-          const SizedBox(height: SpendlerSpacing.md),
-          _detailRow('Source', t.source == 'sms_auto' ? 'SMS Auto' : 'Manual'),
+          const SizedBox(height: AppSpacing.md),
+          _detailRow('Source', 'Manual'),
 
-          const SizedBox(height: SpendlerSpacing.xl),
+          const SizedBox(height: AppSpacing.xl),
 
           // Save button
           NeoPOPButton(
@@ -495,25 +504,25 @@ class _TransactionDetailPageState
       builder: (_) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('CATEGORY', style: SpendlerTextStyles.sectionLabel),
-          const SizedBox(height: SpendlerSpacing.md),
+          const Text('CATEGORY', style: AppTextStyles.labelM),
+          const SizedBox(height: AppSpacing.md),
           ...TransactionCategory.values.map((cat) {
             final selected = _category == cat;
-            final catColor = SpendlerColors.categoryColor(cat);
+            final catColor = AppColors.categoryColor(cat);
             return ListTile(
               leading: Icon(
                 selected ? cat.iconFill : cat.icon,
-                color: selected ? catColor : SpendlerColors.textTertiary,
+                color: selected ? catColor : AppColors.gray400,
               ),
               title: Text(
                 cat.label,
                 style: TextStyle(
-                  color: selected ? SpendlerColors.textPrimary : SpendlerColors.textSecondary,
+                  color: selected ? AppColors.black : AppColors.gray500,
                   fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                 ),
               ),
               trailing: selected
-                  ? const Icon(Icons.check, color: SpendlerColors.primary, size: 20)
+                  ? const Icon(Icons.check, color: AppColors.black, size: 20)
                   : null,
               onTap: () {
                 setState(() { _category = cat; _hasChanges = true; });
@@ -521,7 +530,7 @@ class _TransactionDetailPageState
               },
             );
           }),
-          const SizedBox(height: SpendlerSpacing.md),
+          const SizedBox(height: AppSpacing.md),
         ],
       ),
     );
@@ -533,8 +542,8 @@ class _TransactionDetailPageState
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: SpendlerColors.textTertiary)),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.w500, color: SpendlerColors.textPrimary)),
+          Text(label, style: const TextStyle(color: AppColors.gray400)),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.w500, color: AppColors.black)),
         ],
       ),
     );

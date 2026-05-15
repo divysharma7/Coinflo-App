@@ -212,7 +212,9 @@ class _AddSplitSheetState extends ConsumerState<AddSplitSheet> {
     if (amount == null ||
         amount <= 0 ||
         _selectedFriend == null ||
-        _whoPaid == null) return;
+        _whoPaid == null) {
+      return;
+    }
 
     await HapticFeedback.mediumImpact();
     await insertSplit(

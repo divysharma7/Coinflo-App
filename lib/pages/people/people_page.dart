@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/data/db.dart';
+import 'package:drift/drift.dart' as drift;
 import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/pages/people/friend_creation_sheet.dart';
 import 'package:finance_buddy_app/pages/people/add_split_sheet.dart';
@@ -93,15 +94,6 @@ class PeoplePage extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.gray300,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.lg),
               _AddOptionTile(
                 icon: PhosphorIcons.userPlus(),
                 label: 'Add a friend',
@@ -355,7 +347,9 @@ class _FriendCard extends ConsumerWidget {
         ref.watch(friendPendingSplitsProvider(contact.id));
     final c = _avatarColor(contact.avatarColour);
 
-    return Container(
+    return GestureDetector(
+      onLongPress: () => _showFriendActions(context, ref),
+      child: Container(
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -437,7 +431,7 @@ class _FriendCard extends ConsumerWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.check_circle_outline,
+                      const Icon(Icons.check_circle_outline,
                           color: AppColors.green, size: 16),
                       const SizedBox(width: 6),
                       Text('All settled',
@@ -505,6 +499,85 @@ class _FriendCard extends ConsumerWidget {
           ),
         ],
       ),
+      ),
+    );
+  }
+
+  void _showFriendActions(BuildContext context, WidgetRef ref) {
+    HapticFeedback.mediumImpact();
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                contact.name,
+                style: AppTextStyles.headingS.copyWith(color: AppColors.black),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              _FriendActionTile(
+                icon: PhosphorIcons.pencilSimple(),
+                label: 'Edit',
+                color: AppColors.black,
+                onTap: () {
+                  Navigator.pop(context);
+                  showSpendlerSheet<void>(
+                    context: context,
+                    builder: (_) => _EditFriendSheet(contact: contact),
+                  );
+                },
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              _FriendActionTile(
+                icon: PhosphorIcons.trash(),
+                label: 'Delete',
+                color: AppColors.red,
+                onTap: () {
+                  Navigator.pop(context);
+                  _confirmDelete(context, ref);
+                },
+              ),
+              const SizedBox(height: AppSpacing.md),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _confirmDelete(BuildContext context, WidgetRef ref) {
+    showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Remove friend?'),
+        content: Text(
+          'Remove ${contact.name}? This won\'t delete their splits.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              final db = ref.read(databaseProvider);
+              (db.delete(db.friendContacts)
+                    ..where((c) => c.id.equals(contact.id)))
+                  .go();
+              Navigator.pop(context);
+            },
+            child: const Text('Remove',
+                style: TextStyle(color: AppColors.red)),
+          ),
+        ],
+      ),
     );
   }
 
@@ -569,17 +642,6 @@ class _SettlementPickerState extends ConsumerState<_SettlementPicker> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.gray300,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: AppSpacing.lg),
             Text(title,
                 style: AppTextStyles.headingS
                     .copyWith(color: AppColors.black)),
@@ -894,5 +956,161 @@ class _ActionBtn extends StatelessWidget {
                 color: color, fontWeight: FontWeight.w600)),
       ),
     );
+  }
+}
+
+// ─── Friend Action Tile ────────────────────────────────
+
+class _FriendActionTile extends StatelessWidget {
+  const _FriendActionTile({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.gray200),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: color, size: 20),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Text(label,
+                  style: AppTextStyles.bodyM.copyWith(
+                      color: color, fontWeight: FontWeight.w600)),
+            ),
+            Icon(Icons.chevron_right, color: color.withValues(alpha: 0.5), size: 20),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Edit Friend Sheet ─────────────────────────────────
+
+class _EditFriendSheet extends ConsumerStatefulWidget {
+  const _EditFriendSheet({required this.contact});
+  final FriendContact contact;
+
+  @override
+  ConsumerState<_EditFriendSheet> createState() => _EditFriendSheetState();
+}
+
+class _EditFriendSheetState extends ConsumerState<_EditFriendSheet> {
+  late final TextEditingController _nameController;
+  late final TextEditingController _noteController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.contact.name);
+    _noteController = TextEditingController(text: widget.contact.note ?? '');
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _noteController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('Edit Friend',
+              style: AppTextStyles.headingS.copyWith(color: AppColors.black)),
+          const SizedBox(height: AppSpacing.lg),
+          TextField(
+            controller: _nameController,
+            textCapitalization: TextCapitalization.words,
+            maxLength: 30,
+            style: AppTextStyles.bodyM.copyWith(color: AppColors.black),
+            decoration: InputDecoration(
+              labelText: 'Name',
+              labelStyle:
+                  AppTextStyles.bodyS.copyWith(color: AppColors.gray400),
+              filled: true,
+              fillColor: AppColors.gray100,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+            ),
+            onChanged: (_) => setState(() {}),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          TextField(
+            controller: _noteController,
+            style: AppTextStyles.bodyM.copyWith(color: AppColors.black),
+            decoration: InputDecoration(
+              labelText: 'Note (optional)',
+              hintText: 'roommate, college friend, etc',
+              labelStyle:
+                  AppTextStyles.bodyS.copyWith(color: AppColors.gray400),
+              hintStyle:
+                  AppTextStyles.bodyS.copyWith(color: AppColors.gray300),
+              filled: true,
+              fillColor: AppColors.gray100,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          AppButton(
+            label: 'Save Changes',
+            onTap: _nameController.text.trim().isEmpty ? () {} : _save,
+            disabled: _nameController.text.trim().isEmpty,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _save() async {
+    final name = _nameController.text.trim();
+    if (name.isEmpty) return;
+
+    await HapticFeedback.mediumImpact();
+    final db = ref.read(databaseProvider);
+    final note = _noteController.text.trim();
+
+    await (db.update(db.friendContacts)
+          ..where((c) => c.id.equals(widget.contact.id)))
+        .write(FriendContactsCompanion(
+      name: drift.Value(name),
+      note: drift.Value(note.isEmpty ? null : note),
+    ));
+
+    if (mounted) Navigator.pop(context);
   }
 }

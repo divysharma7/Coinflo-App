@@ -8,7 +8,6 @@ import 'package:finance_buddy_app/pages/onboarding_v2/monthly_budget_screen.dart
 import 'package:finance_buddy_app/pages/onboarding_v2/category_budgets_screen.dart';
 import 'package:finance_buddy_app/pages/onboarding_v2/categories_overview_screen.dart';
 import 'package:finance_buddy_app/pages/onboarding_v2/track_income_screen.dart';
-import 'package:finance_buddy_app/pages/onboarding_v2/smart_rules_screen.dart';
 import 'package:finance_buddy_app/pages/onboarding_v2/savings_goals_screen.dart';
 import 'package:finance_buddy_app/pages/onboarding_v2/recurring_payments_screen.dart';
 import 'package:finance_buddy_app/pages/onboarding_v2/stay_on_track_screen.dart';
@@ -53,18 +52,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/onboarding/step7',
-        builder: (context, state) => const SmartRulesScreen(),
-      ),
-      GoRoute(
-        path: '/onboarding/step8',
         builder: (context, state) => const SavingsGoalsScreen(),
       ),
       GoRoute(
-        path: '/onboarding/step9',
+        path: '/onboarding/step8',
         builder: (context, state) => const RecurringPaymentsScreen(),
       ),
       GoRoute(
-        path: '/onboarding/step10',
+        path: '/onboarding/step9',
         builder: (context, state) => const StayOnTrackScreen(),
       ),
       GoRoute(

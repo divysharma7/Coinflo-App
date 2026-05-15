@@ -109,7 +109,7 @@ class _SavingsGoalsScreenState extends State<SavingsGoalsScreen>
     final prefs = await SharedPreferences.getInstance();
     final encoded = jsonEncode(_goals.map((g) => g.toJson()).toList());
     await prefs.setString('savings_goals', encoded);
-    if (mounted) await context.push('/onboarding/step9');
+    if (mounted) await context.push('/onboarding/step8');
   }
 
   @override

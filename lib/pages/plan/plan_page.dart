@@ -115,10 +115,13 @@ class _HeroHeader extends ConsumerWidget {
                       ),
                     );
                   },
-                  loading: () => Text(
-                    'Loading...',
-                    style: AppTextStyles.bodyM.copyWith(
-                      color: AppColors.gray400,
+                  loading: () => Container(
+                    height: 16,
+                    width: 160,
+                    margin: const EdgeInsets.only(top: 2),
+                    decoration: BoxDecoration(
+                      color: AppColors.white.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                   error: (_, _) => const SizedBox.shrink(),
@@ -267,18 +270,31 @@ class _BudgetCard extends StatelessWidget {
     final progress = budget.monthlyLimit > 0
         ? (spent / budget.monthlyLimit).clamp(0.0, 1.5)
         : 0.0;
+    final percent = budget.monthlyLimit > 0
+        ? (spent / budget.monthlyLimit * 100)
+        : 0.0;
     final isOver = spent > budget.monthlyLimit;
+    final isCritical = percent > 150;
     final categoryColor = _categoryColor(category);
-    final barColor = isOver ? AppColors.red : categoryColor;
+    final barColor = isCritical
+        ? AppColors.red
+        : isOver
+            ? AppColors.orange
+            : categoryColor;
 
     return GestureDetector(
       onLongPress: () => _showDeleteDialog(context),
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.md),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: AppRadius.lg,
           boxShadow: AppShadows.sm,
+          border: isCritical
+              ? Border.all(color: AppColors.red.withValues(alpha: 0.4), width: 1.5)
+              : isOver
+                  ? Border.all(color: AppColors.orange.withValues(alpha: 0.3), width: 1)
+                  : null,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -289,32 +305,65 @@ class _BudgetCard extends StatelessWidget {
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: categoryColor.withValues(alpha: 0.12),
+                    color: isOver
+                        ? barColor.withValues(alpha: 0.12)
+                        : categoryColor.withValues(alpha: 0.12),
                     borderRadius: AppRadius.sm,
                   ),
                   child: Center(
                     child: PhosphorIcon(
                       category.iconFill,
                       size: 18,
-                      color: categoryColor,
+                      color: isOver ? barColor : categoryColor,
                     ),
                   ),
                 ),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
-                  child: Text(
-                    category.label,
-                    style: AppTextStyles.bodyM.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.black,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        category.label,
+                        style: AppTextStyles.bodyM.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.black,
+                        ),
+                      ),
+                      if (isOver)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Row(
+                            children: [
+                              PhosphorIcon(
+                                isCritical
+                                    ? PhosphorIconsFill.warning
+                                    : PhosphorIcons.warning(),
+                                size: 12,
+                                color: barColor,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                isCritical
+                                    ? 'Way over budget (${percent.toStringAsFixed(0)}%)'
+                                    : 'Over budget (${percent.toStringAsFixed(0)}%)',
+                                style: AppTextStyles.labelS.copyWith(
+                                  color: barColor,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
                   ),
                 ),
                 Text(
                   '\$${spent.toStringAsFixed(0)} / \$${budget.monthlyLimit.toStringAsFixed(0)}',
                   style: AppTextStyles.bodyS.copyWith(
                     fontWeight: FontWeight.w500,
-                    color: isOver ? AppColors.red : AppColors.gray500,
+                    color: isOver ? barColor : AppColors.gray500,
                   ),
                 ),
               ],
@@ -329,10 +378,12 @@ class _BudgetCard extends StatelessWidget {
                   children: [
                     // Track
                     Container(
-                      decoration: const BoxDecoration(
-                        color: AppColors.gray200,
+                      decoration: BoxDecoration(
+                        color: isOver
+                            ? barColor.withValues(alpha: 0.15)
+                            : AppColors.gray200,
                         borderRadius:
-                            BorderRadius.all(Radius.circular(3)),
+                            const BorderRadius.all(Radius.circular(3)),
                       ),
                     ),
                     // Fill
@@ -355,7 +406,8 @@ class _BudgetCard extends StatelessWidget {
               Text(
                 '\$${(spent - budget.monthlyLimit).toStringAsFixed(0)} over limit',
                 style: AppTextStyles.labelS.copyWith(
-                  color: AppColors.red,
+                  color: barColor,
+                  fontWeight: isCritical ? FontWeight.w700 : FontWeight.w400,
                 ),
               ),
             ],
@@ -513,7 +565,7 @@ class _GoalsSection extends ConsumerWidget {
   }
 }
 
-class _GoalCard extends StatelessWidget {
+class _GoalCard extends StatefulWidget {
   const _GoalCard({
     required this.goal,
     required this.onAddMoney,
@@ -523,6 +575,21 @@ class _GoalCard extends StatelessWidget {
   final SavingsGoal goal;
   final VoidCallback onAddMoney;
   final VoidCallback onDelete;
+
+  @override
+  State<_GoalCard> createState() => _GoalCardState();
+}
+
+class _GoalCardState extends State<_GoalCard>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _celebrationCtrl;
+  late final Animation<double> _scaleAnim;
+  late final Animation<double> _glowAnim;
+
+  static const _goldColor = Color(0xFFFBBF24); // amber-400
+  static const _goldDark = Color(0xFFF59E0B); // amber-500
+
+  bool get _isCompleted => widget.goal.currentAmount >= widget.goal.targetAmount;
 
   IconData _resolveIcon(String iconName) {
     switch (iconName) {
@@ -548,20 +615,73 @@ class _GoalCard extends StatelessWidget {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _celebrationCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1800),
+    );
+    _scaleAnim = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.03), weight: 50),
+      TweenSequenceItem(tween: Tween(begin: 1.03, end: 1.0), weight: 50),
+    ]).animate(CurvedAnimation(
+      parent: _celebrationCtrl,
+      curve: Curves.easeInOut,
+    ));
+    _glowAnim = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0.0, end: 0.25), weight: 50),
+      TweenSequenceItem(tween: Tween(begin: 0.25, end: 0.0), weight: 50),
+    ]).animate(CurvedAnimation(
+      parent: _celebrationCtrl,
+      curve: Curves.easeInOut,
+    ));
+
+    if (_isCompleted) {
+      _celebrationCtrl.repeat();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant _GoalCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (_isCompleted && !_celebrationCtrl.isAnimating) {
+      _celebrationCtrl.repeat();
+    } else if (!_isCompleted && _celebrationCtrl.isAnimating) {
+      _celebrationCtrl.stop();
+      _celebrationCtrl.reset();
+    }
+  }
+
+  @override
+  void dispose() {
+    _celebrationCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final goal = widget.goal;
     final progress = goal.targetAmount > 0
         ? (goal.currentAmount / goal.targetAmount).clamp(0.0, 1.0)
         : 0.0;
     final remaining = goal.targetAmount - goal.currentAmount;
 
-    return GestureDetector(
+    final ringFg = _isCompleted ? _goldDark : AppColors.black;
+    final ringBg = _isCompleted ? _goldColor.withValues(alpha: 0.25) : AppColors.gray200;
+
+    Widget card = GestureDetector(
       onLongPress: () => _showDeleteDialog(context),
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.md),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: AppColors.white,
-          borderRadius: AppRadius.lg,
-          boxShadow: AppShadows.sm,
+          borderRadius: const BorderRadius.all(Radius.circular(16)),
+          boxShadow: const [
+            ...AppShadows.sm,
+          ],
+          border: _isCompleted
+              ? Border.all(color: _goldColor.withValues(alpha: 0.6), width: 1.5)
+              : null,
         ),
         child: Row(
           children: [
@@ -573,15 +693,21 @@ class _GoalCard extends StatelessWidget {
                 painter: _GoalRingPainter(
                   progress: progress,
                   strokeWidth: 5,
-                  foregroundColor: AppColors.black,
-                  backgroundColor: AppColors.gray200,
+                  foregroundColor: ringFg,
+                  backgroundColor: ringBg,
                 ),
                 child: Center(
-                  child: PhosphorIcon(
-                    _resolveIcon(goal.iconName),
-                    size: 22,
-                    color: AppColors.black,
-                  ),
+                  child: _isCompleted
+                      ? const PhosphorIcon(
+                          PhosphorIconsFill.trophy,
+                          size: 24,
+                          color: _goldDark,
+                        )
+                      : PhosphorIcon(
+                          _resolveIcon(goal.iconName),
+                          size: 22,
+                          color: AppColors.black,
+                        ),
                 ),
               ),
             ),
@@ -590,57 +716,127 @@ class _GoalCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    goal.name,
-                    style: AppTextStyles.bodyM.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.black,
-                    ),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          goal.name,
+                          style: AppTextStyles.bodyM.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.black,
+                          ),
+                        ),
+                      ),
+                      if (_isCompleted) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: _goldColor.withValues(alpha: 0.18),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const PhosphorIcon(
+                                PhosphorIconsFill.star,
+                                size: 12,
+                                color: _goldDark,
+                              ),
+                              const SizedBox(width: 3),
+                              Text(
+                                'Goal reached!',
+                                style: AppTextStyles.labelS.copyWith(
+                                  color: _goldDark,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                   const SizedBox(height: 4),
                   Text(
                     '\$${goal.currentAmount.toStringAsFixed(0)} of \$${goal.targetAmount.toStringAsFixed(0)}',
                     style: AppTextStyles.bodyS.copyWith(
-                      color: AppColors.gray500,
+                      color: _isCompleted ? _goldDark : AppColors.gray500,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     remaining > 0
                         ? '\$${remaining.toStringAsFixed(0)} to go'
-                        : 'Goal reached!',
+                        : 'Congratulations!',
                     style: AppTextStyles.labelS.copyWith(
                       color: remaining > 0
                           ? AppColors.gray500
-                          : AppColors.green,
+                          : _goldDark,
+                      fontWeight: remaining > 0
+                          ? FontWeight.w400
+                          : FontWeight.w600,
                     ),
                   ),
                 ],
               ),
             ),
             // Add money button
-            GestureDetector(
-              onTap: onAddMoney,
-              child: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: AppColors.black.withValues(alpha: 0.1),
-                  borderRadius: AppRadius.sm,
-                ),
-                child: Center(
-                  child: Icon(
-                    PhosphorIcons.plus(),
-                    size: 20,
-                    color: AppColors.black,
+            if (!_isCompleted)
+              GestureDetector(
+                onTap: widget.onAddMoney,
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: AppColors.black.withValues(alpha: 0.1),
+                    borderRadius: AppRadius.sm,
+                  ),
+                  child: Center(
+                    child: Icon(
+                      PhosphorIcons.plus(),
+                      size: 20,
+                      color: AppColors.black,
+                    ),
                   ),
                 ),
               ),
-            ),
           ],
         ),
       ),
     );
+
+    // Wrap in animated scale + glow when completed
+    if (_isCompleted) {
+      card = AnimatedBuilder(
+        animation: _celebrationCtrl,
+        builder: (context, child) {
+          return Transform.scale(
+            scale: _scaleAnim.value,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.all(Radius.circular(16)),
+                boxShadow: [
+                  BoxShadow(
+                    color: _goldColor.withValues(alpha: _glowAnim.value),
+                    blurRadius: 16,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: child,
+            ),
+          );
+        },
+        child: card,
+      );
+    }
+
+    return card;
   }
 
   void _showDeleteDialog(BuildContext context) {
@@ -657,7 +853,7 @@ class _GoalCard extends StatelessWidget {
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
-              onDelete();
+              widget.onDelete();
             },
             child: const Text('Delete', style: TextStyle(color: AppColors.red)),
           ),
@@ -1167,28 +1363,120 @@ class _EmptyCard extends StatelessWidget {
   }
 }
 
-class _LoadingCard extends StatelessWidget {
+class _LoadingCard extends StatefulWidget {
   const _LoadingCard();
+
+  @override
+  State<_LoadingCard> createState() => _LoadingCardState();
+}
+
+class _LoadingCardState extends State<_LoadingCard>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _shimmerCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _shimmerCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _shimmerCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _shimmerCtrl,
+      builder: (context, child) {
+        final shimmerValue = _shimmerCtrl.value;
+        final baseColor = AppColors.gray200;
+        final highlightColor = AppColors.gray100;
+        final color = Color.lerp(
+          baseColor,
+          highlightColor,
+          (0.5 + 0.5 * (shimmerValue * 2 - 1).abs()).clamp(0.0, 1.0),
+        )!;
+        return Column(
+          children: [
+            _SkeletonCard(color: color),
+            const SizedBox(height: AppSpacing.sm),
+            _SkeletonCard(color: color),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _SkeletonCard extends StatelessWidget {
+  const _SkeletonCard({required this.color});
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 80,
       width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.md),
       decoration: const BoxDecoration(
         color: AppColors.white,
         borderRadius: AppRadius.lg,
         boxShadow: AppShadows.sm,
       ),
-      child: const Center(
-        child: SizedBox(
-          width: 24,
-          height: 24,
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-            color: AppColors.black,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              // Icon placeholder
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: AppRadius.sm,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              // Title placeholder
+              Expanded(
+                child: Container(
+                  height: 14,
+                  width: 100,
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: BorderRadius.circular(7),
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.xl),
+              // Amount placeholder
+              Container(
+                height: 12,
+                width: 60,
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ),
+            ],
           ),
-        ),
+          const SizedBox(height: AppSpacing.sm),
+          // Progress bar placeholder
+          Container(
+            height: 6,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(3),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:finance_buddy_app/core/tokens.dart';
+import 'package:finance_buddy_app/design_system/design_system.dart';
 
 /// Animated circular progress ring (Health Ring) for the "My Page" feature.
 ///
@@ -13,8 +13,8 @@ class HealthRing extends StatefulWidget {
     required this.progress,
     this.size = 120,
     this.strokeWidth = 8,
-    this.foregroundColor = SpendlerColors.primary,
-    this.backgroundColor = SpendlerColors.border,
+    this.foregroundColor = AppColors.black,
+    this.backgroundColor = AppColors.gray200,
     this.label,
   });
 
@@ -108,7 +108,7 @@ class _HealthRingState extends State<HealthRing>
                     Text(
                       '${(value * 100).round()}%',
                       style: const TextStyle(
-                        color: SpendlerColors.textPrimary,
+                        color: AppColors.black,
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
                       ),
@@ -117,7 +117,7 @@ class _HealthRingState extends State<HealthRing>
                       Text(
                         widget.label!,
                         style: const TextStyle(
-                          color: SpendlerColors.textTertiary,
+                          color: AppColors.gray400,
                           fontSize: 11,
                         ),
                       ),

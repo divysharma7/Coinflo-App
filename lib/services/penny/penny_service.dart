@@ -11,6 +11,9 @@ class PennyService {
 
   final BaseRepository _repo;
 
+  /// Financial context summary injected per-query from providers.
+  String? _financialContext;
+
   static final _currencyFmt = NumberFormat.currency(
     locale: 'en_IN',
     symbol: '\u20B9',
@@ -18,8 +21,14 @@ class PennyService {
   );
 
   /// Process a user query and return Penny's markdown-formatted answer.
-  Future<String> ask(String query) async {
+  ///
+  /// [context] is an optional financial summary injected from providers
+  /// (monthly spending, top categories, budget status). When present it is
+  /// appended to the fallback response so the user still gets useful info
+  /// even when no specific handler matches.
+  Future<String> ask(String query, {String? context}) async {
     final q = query.trim().toLowerCase();
+    _financialContext = context;
 
     // Try each handler in priority order; first match wins.
     final handlers = <Future<String?> Function()>[
@@ -435,24 +444,45 @@ class PennyService {
       return null;
     }
 
-    return "I can help you understand your spending! Try asking me:\n\n"
-        "- *How much did I spend today?*\n"
-        "- *What's my spending this month?*\n"
-        "- *Show me a category breakdown*\n"
-        "- *What's my biggest expense?*\n"
-        "- *How do I compare to last week?*\n"
-        "- *Month over month comparison*\n"
-        "- *Who are my top merchants?*\n"
-        "- *What's my daily average?*\n"
-        "- *Any pending splits?*\n\n"
-        "Just ask in plain English — I'll crunch the numbers!";
+    final buf = StringBuffer()
+      ..writeln("I can help you understand your spending! Try asking me:")
+      ..writeln()
+      ..writeln("- *How much did I spend today?*")
+      ..writeln("- *What's my spending this month?*")
+      ..writeln("- *Show me a category breakdown*")
+      ..writeln("- *What's my biggest expense?*")
+      ..writeln("- *How do I compare to last week?*")
+      ..writeln("- *Month over month comparison*")
+      ..writeln("- *Who are my top merchants?*")
+      ..writeln("- *What's my daily average?*")
+      ..writeln("- *Any pending splits?*")
+      ..writeln()
+      ..write("Just ask in plain English — I'll crunch the numbers!");
+
+    if (_financialContext != null && _financialContext!.isNotEmpty) {
+      buf.writeln();
+      buf.writeln();
+      buf.write('**Your snapshot:** $_financialContext');
+    }
+
+    return buf.toString().trimRight();
   }
 
   String _fallback() {
-    return "Hmm, I'm not sure I follow that one! Try asking about your "
-        "spending — like *\"how much did I spend today?\"* or "
-        "*\"show me a category breakdown\"*. "
-        "Type **help** to see everything I can do!";
+    final buf = StringBuffer()
+      ..write("Hmm, I'm not sure I follow that one! Try asking about your "
+          "spending — like *\"how much did I spend today?\"* or "
+          "*\"show me a category breakdown\"*. "
+          "Type **help** to see everything I can do!");
+
+    // Append financial context so the user still gets something useful.
+    if (_financialContext != null && _financialContext!.isNotEmpty) {
+      buf.writeln();
+      buf.writeln();
+      buf.write('Here\'s a quick snapshot: $_financialContext');
+    }
+
+    return buf.toString();
   }
 
   // ─── Utilities ─────────────────────────────────────────

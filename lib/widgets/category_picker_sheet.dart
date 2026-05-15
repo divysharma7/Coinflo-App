@@ -54,18 +54,6 @@ class _CategoryPickerSheetState extends State<CategoryPickerSheet> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Handle bar
-          Center(
-            child: Container(
-              width: 36,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: AppSpacing.md),
-              decoration: const BoxDecoration(
-                color: AppColors.gray300,
-                borderRadius: AppRadius.full,
-              ),
-            ),
-          ),
 
           // Header
           Padding(

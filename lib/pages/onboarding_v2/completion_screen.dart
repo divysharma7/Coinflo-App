@@ -112,53 +112,48 @@ class _CompletionScreenState extends ConsumerState<CompletionScreen>
     });
 
     try {
-      // Sign up with Firebase (required)
-      final authService = ref.read(authServiceProvider);
-      final user = await authService.signUpWithEmail(email, password);
-
-      if (user == null) {
-        setState(() {
-          _errorMessage = 'Account creation failed. Please try again.';
-          _isLoading = false;
-        });
-        return;
+      // Try Firebase signup — but continue without it
+      bool firebaseSignupFailed = false;
+      try {
+        final authService = ref.read(authServiceProvider);
+        final user = await authService.signUpWithEmail(email, password);
+        if (user != null) {
+          final firestoreService = ref.read(firestoreServiceProvider);
+          await firestoreService.createUserWithOnboardingData(
+            uid: user.uid,
+            email: email,
+          );
+        }
+      } on FirebaseAuthException catch (e) {
+        debugPrint('Firebase signup skipped: ${e.message}');
+        firebaseSignupFailed = true;
+      } on Exception catch (e) {
+        // Firestore or other errors — continue with local-only mode
+        debugPrint('Firestore sync failed: $e');
+        firebaseSignupFailed = true;
       }
 
-      // Sync all onboarding data to Firestore
-      final firestoreService = ref.read(firestoreServiceProvider);
-      await firestoreService.createUserWithOnboardingData(
-        uid: user.uid,
-        email: email,
-      );
-
-      // Mark onboarding complete locally
+      // Mark onboarding complete locally and save email
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('onboarding_completed', true);
+      await prefs.setString('user_email', email);
 
-      if (mounted) context.go('/home');
-    } on FirebaseAuthException catch (e) {
-      setState(() {
-        _errorMessage = _friendlyAuthError(e.code);
-        _isLoading = false;
-      });
+      if (mounted) {
+        if (firebaseSignupFailed) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                  'Account created locally. Cloud backup unavailable.'),
+            ),
+          );
+        }
+        context.go('/home');
+      }
     } on Exception catch (e) {
       setState(() {
         _errorMessage = e.toString();
         _isLoading = false;
       });
-    }
-  }
-
-  String _friendlyAuthError(String code) {
-    switch (code) {
-      case 'email-already-in-use':
-        return 'This email is already registered. Try signing in instead.';
-      case 'invalid-email':
-        return 'Please enter a valid email address.';
-      case 'weak-password':
-        return 'Password is too weak. Use at least 6 characters.';
-      default:
-        return 'Something went wrong. Please try again.';
     }
   }
 

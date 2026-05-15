@@ -1,9 +1,18 @@
+import 'dart:async';
+
+import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:finance_buddy_app/core/enums.dart';
+import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
-import 'package:finance_buddy_app/providers/onboarding_provider.dart';
+import 'package:finance_buddy_app/services/notifications/notification_service.dart';
+import 'package:finance_buddy_app/services/notifications/spending_alert_service.dart';
+import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 
 class QuickAddSheet extends ConsumerStatefulWidget {
   const QuickAddSheet({super.key});
@@ -13,10 +22,21 @@ class QuickAddSheet extends ConsumerStatefulWidget {
 }
 
 class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
-  String _amount = '';
+  final _amountController = TextEditingController();
   TransactionCategory _category = TransactionCategory.foodAndDrink;
   final _noteController = TextEditingController();
+  final _noteFocus = FocusNode();
+  final _amountFocus = FocusNode();
   bool _isExpense = true;
+  bool _aiSuggested = false;
+  bool _classifying = false;
+  bool _hasTyped = false;
+  bool _saving = false;
+  bool _noteFieldFocused = false;
+  DateTime _selectedDate = DateTime.now();
+  Timer? _debounce;
+
+  static const Color _aiPurple = Color(0xFF8B5CF6);
 
   static const Map<TransactionCategory, Color> _categoryColors = {
     TransactionCategory.foodAndDrink: Color(0xFFFF8A4C),
@@ -39,22 +59,155 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
 
   String _currencySymbol(String code) {
     switch (code.toLowerCase()) {
-      case 'inr':
-        return '\u20B9';
-      case 'usd':
-        return '\$';
-      case 'eur':
-        return '\u20AC';
-      case 'gbp':
-        return '\u00A3';
-      default:
-        return '\$';
+      case 'inr': return '\u20B9';
+      case 'usd': return '\$';
+      case 'eur': return '\u20AC';
+      case 'gbp': return '\u00A3';
+      default: return '\$';
     }
   }
 
   @override
+  void initState() {
+    super.initState();
+    _amountController.addListener(() => setState(() {}));
+    _noteFocus.addListener(() {
+      setState(() => _noteFieldFocused = _noteFocus.hasFocus);
+    });
+  }
+
+  void _onNoteChanged(String text) {
+    _debounce?.cancel();
+    if (!_hasTyped && text.trim().isNotEmpty) {
+      setState(() => _hasTyped = true);
+    }
+    if (text.trim().length < 3) {
+      setState(() {
+        _aiSuggested = false;
+        _classifying = false;
+      });
+      return;
+    }
+    setState(() => _classifying = true);
+    _debounce = Timer(const Duration(milliseconds: 600), () async {
+      final classifier = ref.read(categoryClassifierProvider);
+      final result = await classifier.classify(text.trim());
+      if (mounted && result != null && _noteController.text.trim() == text.trim()) {
+        setState(() {
+          _category = result;
+          _aiSuggested = true;
+          _classifying = false;
+        });
+      } else if (mounted) {
+        setState(() => _classifying = false);
+      }
+    });
+  }
+
+  void _showCategoryPicker() {
+    showSpendlerSheet<void>(
+      context: context,
+      builder: (_) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text('CATEGORY', style: AppTextStyles.labelM),
+          const SizedBox(height: AppSpacing.md),
+          ...TransactionCategory.groups.map((cat) {
+            final selected = _category == cat;
+            final catColor = _colorForCategory(cat);
+            return ListTile(
+              leading: Icon(
+                selected ? cat.iconFill : cat.icon,
+                color: selected ? catColor : AppColors.gray500,
+              ),
+              title: Text(
+                cat.label,
+                style: TextStyle(
+                  color: selected ? AppColors.black : AppColors.gray500,
+                  fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                ),
+              ),
+              trailing: selected
+                  ? const Icon(Icons.check, color: AppColors.black, size: 20)
+                  : null,
+              onTap: () {
+                setState(() {
+                  _category = cat;
+                  _aiSuggested = false;
+                });
+                Navigator.pop(context);
+              },
+            );
+          }),
+          const SizedBox(height: AppSpacing.md),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null) {
+      setState(() => _selectedDate = picked);
+    }
+  }
+
+  void _onNumpadTap(String key) {
+    HapticFeedback.lightImpact();
+    final text = _amountController.text;
+    final sel = _amountController.selection;
+    // Ensure we have a valid cursor position
+    final cursor = sel.isValid && sel.isCollapsed
+        ? sel.baseOffset
+        : text.length;
+
+    setState(() {
+      if (key == '\u232B') {
+        if (cursor > 0) {
+          final newText = text.substring(0, cursor - 1) + text.substring(cursor);
+          _amountController.text = newText;
+          _amountController.selection =
+              TextSelection.collapsed(offset: cursor - 1);
+        }
+      } else if (key == '.') {
+        if (!text.contains('.')) {
+          final newText = '${text.substring(0, cursor)}.${text.substring(cursor)}';
+          _amountController.text = newText;
+          _amountController.selection =
+              TextSelection.collapsed(offset: cursor + 1);
+        }
+      } else {
+        // Cap at 2 decimal places
+        if (text.contains('.')) {
+          final dotIndex = text.indexOf('.');
+          // Only restrict if cursor is after the dot
+          if (cursor > dotIndex) {
+            final decimals = text.substring(dotIndex + 1);
+            if (decimals.length >= 2) return;
+          }
+        }
+        // Cap at reasonable length (10 digits)
+        if (text.replaceAll('.', '').length >= 10) return;
+        final newText = text.substring(0, cursor) + key + text.substring(cursor);
+        _amountController.text = newText;
+        _amountController.selection =
+            TextSelection.collapsed(offset: cursor + 1);
+      }
+    });
+  }
+
+  @override
   void dispose() {
+    _debounce?.cancel();
+    _amountController.dispose();
+    _amountFocus.dispose();
     _noteController.dispose();
+    _noteFocus.dispose();
     super.dispose();
   }
 
@@ -65,6 +218,10 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
     final symbol = _currencySymbol(currency);
     final amountColor = _isExpense ? AppColors.red : AppColors.green;
     final bottomPad = MediaQuery.of(context).viewInsets.bottom;
+    final catColor = _colorForCategory(_category);
+    final isToday = _selectedDate.year == DateTime.now().year &&
+        _selectedDate.month == DateTime.now().month &&
+        _selectedDate.day == DateTime.now().day;
 
     return Padding(
       padding: EdgeInsets.only(bottom: bottomPad),
@@ -72,19 +229,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
         height: MediaQuery.of(context).size.height * 0.88,
         child: Column(
           children: [
-            // Drag handle
-            const SizedBox(height: AppSpacing.sm),
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.gray300,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-
-            // Amount display
+            // Amount display — tappable with cursor
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -93,9 +238,28 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                 Text(symbol,
                     style: AppTextStyles.headingM.copyWith(color: amountColor)),
                 const SizedBox(width: AppSpacing.xxs),
-                Text(
-                  _amount.isEmpty ? '0' : _amount,
-                  style: AppTextStyles.displayXL.copyWith(color: amountColor),
+                IntrinsicWidth(
+                  child: TextField(
+                    controller: _amountController,
+                    focusNode: _amountFocus,
+                    readOnly: true,
+                    showCursor: true,
+                    cursorColor: amountColor,
+                    style: AppTextStyles.displayXL.copyWith(color: amountColor),
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      isCollapsed: true,
+                      hintText: '0',
+                      hintStyle: AppTextStyles.displayXL
+                          .copyWith(color: amountColor.withValues(alpha: 0.4)),
+                    ),
+                    onTap: () {
+                      // Ensure numpad is visible when tapping amount
+                      if (_noteFieldFocused) {
+                        _noteFocus.unfocus();
+                      }
+                    },
+                  ),
                 ),
               ],
             ),
@@ -105,65 +269,62 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
             _buildToggle(),
             const SizedBox(height: AppSpacing.md),
 
-            // Scrollable content: categories + note
+            // Scrollable middle section
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Category chips
-                    Wrap(
-                      spacing: AppSpacing.xs,
-                      runSpacing: AppSpacing.xs,
-                      children: TransactionCategory.values.map((cat) {
-                        final selected = _category == cat;
-                        final catColor = _colorForCategory(cat);
-                        return GestureDetector(
-                          onTap: () => setState(() => _category = cat),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
-                            decoration: BoxDecoration(
-                              color: selected
-                                  ? catColor.withValues(alpha: 0.12)
-                                  : AppColors.gray100,
-                              borderRadius: BorderRadius.circular(20),
-                              border: selected
-                                  ? Border.all(color: catColor, width: 1.5)
-                                  : null,
+                    // Date picker row
+                    GestureDetector(
+                      onTap: _pickDate,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: AppColors.gray100,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            PhosphorIcon(PhosphorIcons.calendar(),
+                                size: 18, color: AppColors.gray500),
+                            const SizedBox(width: 10),
+                            Text(
+                              isToday
+                                  ? 'Today'
+                                  : DateFormat('EEE, d MMM yyyy')
+                                      .format(_selectedDate),
+                              style: AppTextStyles.bodyM.copyWith(
+                                color: isToday
+                                    ? AppColors.gray500
+                                    : AppColors.black,
+                                fontWeight:
+                                    isToday ? FontWeight.w400 : FontWeight.w500,
+                              ),
                             ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(cat.icon,
-                                    size: 16,
-                                    color: selected ? catColor : AppColors.gray500),
-                                const SizedBox(width: AppSpacing.xxs),
-                                Text(
-                                  cat.label,
-                                  style: AppTextStyles.bodyS.copyWith(
-                                    fontWeight: selected
-                                        ? FontWeight.w600
-                                        : FontWeight.w400,
-                                    color: selected ? catColor : AppColors.gray500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }).toList(),
+                            const Spacer(),
+                            PhosphorIcon(PhosphorIcons.caretDown(),
+                                size: 14, color: AppColors.gray400),
+                          ],
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: AppSpacing.lg),
+                    const SizedBox(height: AppSpacing.sm),
 
-                    // Note field
+                    // Note / merchant field
                     TextField(
                       controller: _noteController,
-                      style: AppTextStyles.bodyM.copyWith(color: AppColors.black),
+                      focusNode: _noteFocus,
+                      onChanged: _onNoteChanged,
+                      textCapitalization: TextCapitalization.sentences,
+                      style:
+                          AppTextStyles.bodyM.copyWith(color: AppColors.black),
                       decoration: InputDecoration(
-                        hintText: 'Note (optional)',
-                        hintStyle:
-                            AppTextStyles.bodyM.copyWith(color: AppColors.gray400),
+                        hintText: 'What was this for?',
+                        hintStyle: AppTextStyles.bodyM
+                            .copyWith(color: AppColors.gray400),
                         filled: true,
                         fillColor: AppColors.gray100,
                         border: OutlineInputBorder(
@@ -171,30 +332,109 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                           borderSide: BorderSide.none,
                         ),
                         isDense: true,
+                        suffixIcon: _classifying
+                            ? const Padding(
+                                padding: EdgeInsets.all(12),
+                                child: SizedBox(
+                                  width: 18, height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: AppColors.gray400,
+                                  ),
+                                ),
+                              )
+                            : null,
                       ),
                     ),
+                    const SizedBox(height: AppSpacing.md),
+
+                    // Category label + chip
+                    Text('Category',
+                        style: AppTextStyles.labelS
+                            .copyWith(color: AppColors.gray400)),
+                    const SizedBox(height: AppSpacing.xs),
+                    GestureDetector(
+                      onTap: _showCategoryPicker,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 250),
+                        curve: Curves.easeOut,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: _aiSuggested || _hasTyped
+                              ? catColor.withValues(alpha: 0.10)
+                              : AppColors.gray100,
+                          borderRadius: BorderRadius.circular(24),
+                          border: _aiSuggested || _hasTyped
+                              ? Border.all(
+                                  color: catColor.withValues(alpha: 0.3))
+                              : null,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (_aiSuggested) ...[
+                              PhosphorIcon(
+                                PhosphorIcons.sparkle(
+                                    PhosphorIconsStyle.fill),
+                                size: 14,
+                                color: _aiPurple,
+                              ),
+                              const SizedBox(width: 6),
+                            ],
+                            Icon(_category.iconFill, size: 16, color: catColor),
+                            const SizedBox(width: 6),
+                            Text(
+                              _category.label,
+                              style: AppTextStyles.bodyM.copyWith(
+                                fontWeight: _aiSuggested || _hasTyped
+                                    ? FontWeight.w600
+                                    : FontWeight.w400,
+                                color: _aiSuggested || _hasTyped
+                                    ? catColor
+                                    : AppColors.gray500,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            PhosphorIcon(PhosphorIcons.caretDown(),
+                                size: 14, color: AppColors.gray400),
+                          ],
+                        ),
+                      ),
+                    ),
+
                     const SizedBox(height: AppSpacing.md),
                   ],
                 ),
               ),
             ),
 
-            // Numpad + Done button pinned at bottom
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-              child: _buildNumpad(),
-            ),
-            const SizedBox(height: AppSpacing.sm),
+            // Numpad — hidden when text field is focused
+            if (!_noteFieldFocused) ...[
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                child: _buildNumpad(),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+            ],
+
+            // Done button
             Padding(
               padding: const EdgeInsets.fromLTRB(
                   AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.md),
               child: SizedBox(
                 width: double.infinity,
-                child: AppButton(
-                  label: 'Done',
-                  onTap: _save,
-                  disabled: _amount.isEmpty,
-                ),
+                height: 52,
+                child: _saving
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                            color: AppColors.black, strokeWidth: 2.5))
+                    : AppButton(
+                        label: 'Done',
+                        onTap: _save,
+                        disabled: _amountController.text.isEmpty,
+                      ),
               ),
             ),
             SizedBox(height: MediaQuery.of(context).padding.bottom),
@@ -272,19 +512,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
       children: keys.map((key) {
         return InkWell(
           borderRadius: BorderRadius.circular(12),
-          onTap: () {
-            setState(() {
-              if (key == '\u232B') {
-                if (_amount.isNotEmpty) {
-                  _amount = _amount.substring(0, _amount.length - 1);
-                }
-              } else if (key == '.') {
-                if (!_amount.contains('.')) _amount += '.';
-              } else {
-                _amount += key;
-              }
-            });
-          },
+          onTap: () => _onNumpadTap(key),
           child: Container(
             decoration: BoxDecoration(
               color: AppColors.gray100,
@@ -303,16 +531,101 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
   }
 
   Future<void> _save() async {
-    final amount = double.tryParse(_amount);
-    if (amount == null || amount <= 0) return;
+    final amount = double.tryParse(_amountController.text);
+    if (amount == null || amount <= 0 || _saving) return;
 
+    setState(() => _saving = true);
+    await HapticFeedback.mediumImpact();
+
+    final repo = ref.read(repositoryProvider);
+
+    // ── Duplicate detection ──────────────────────────────
+    try {
+      final todayTxns = await repo.getTransactionsForDay(DateTime.now());
+      final duplicate = todayTxns.any((t) {
+        if (t.category != _category.name) return false;
+        final existingAmt = t.amount.abs();
+        return (existingAmt - amount).abs() <= amount * 0.01;
+      });
+
+      if (duplicate && mounted) {
+        final symbol = _currencySymbol(
+            ref.read(selectedCurrencyProvider).valueOrNull ?? 'inr');
+        final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Possible duplicate'),
+            content: Text(
+              'A similar ${_category.label} expense of $symbol${amount.toStringAsFixed(amount.truncateToDouble() == amount ? 0 : 2)} was already added today. Add anyway?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: const Text('Add anyway'),
+              ),
+            ],
+          ),
+        );
+        if (confirmed != true) {
+          setState(() => _saving = false);
+          return;
+        }
+      }
+    } on Exception catch (_) {
+      // Best-effort — proceed with save on error.
+    }
+
+    // ── Insert transaction ───────────────────────────────
     final note = _noteController.text.trim();
-    await insertManualTransaction(
-      ref.read(repositoryProvider),
-      amount: _isExpense ? -amount : amount,
-      category: _category.name,
-      note: note.isEmpty ? null : note,
-    );
-    if (mounted) Navigator.pop(context);
+    final merchant = note.isNotEmpty ? note : null;
+
+    await repo.insertTransaction(
+          SpendlerTransactionsCompanion.insert(
+            amount: _isExpense ? -amount : amount,
+            category: _category.name,
+            merchant: drift.Value(merchant),
+            note: drift.Value(merchant),
+            happenedAt: drift.Value(_selectedDate),
+            source: const drift.Value('manual'),
+            status: const drift.Value('confirmed'),
+          ),
+        );
+
+    // ── Spending alerts (fire-and-forget) ────────────────
+    unawaited(SpendingAlertService.instance.checkBudgetAlerts(
+      repo,
+      NotificationService(),
+    ));
+
+    // Refresh all data providers
+    ref.invalidate(monthlyTransactionsForHomeProvider);
+    ref.invalidate(allTransactionsProvider);
+    ref.invalidate(todaySpendingProvider);
+    ref.invalidate(todayTopCategoryProvider);
+    ref.invalidate(dailySpendingForWeekProvider);
+    ref.invalidate(lastMonthExpenseProvider);
+    ref.invalidate(weeklyTotalsForMonthProvider);
+    ref.invalidate(monthlyTotalsForYearProvider);
+    ref.invalidate(yearlyTotalsProvider);
+    ref.invalidate(monthlyCategorySpendingProvider);
+
+    if (mounted) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${_isExpense ? "Expense" : "Income"} of ${_currencySymbol(ref.read(selectedCurrencyProvider).valueOrNull ?? "inr")}${amount.toStringAsFixed(amount.truncateToDouble() == amount ? 0 : 2)} added',
+          ),
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+    }
   }
 }

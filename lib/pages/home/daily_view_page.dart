@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:finance_buddy_app/core/enums.dart';
-import 'package:finance_buddy_app/core/tokens.dart';
+import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/widgets/common/amount_text.dart';
 import 'package:finance_buddy_app/widgets/common/empty_state.dart';
@@ -13,10 +13,22 @@ class DailyViewPage extends ConsumerWidget {
 
   const DailyViewPage({super.key, required this.date});
 
+  static String _currencySymbol(String code) {
+    switch (code.toLowerCase()) {
+      case 'inr': return '\u20B9';
+      case 'usd': return '\$';
+      case 'eur': return '\u20AC';
+      case 'gbp': return '\u00A3';
+      case 'jpy': return '\u00A5';
+      default: return '\$';
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final txns = ref.watch(dailyTransactionsProvider(date));
     final dayName = DateFormat('EEEE').format(date);
+    final symbol = _currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
 
     return Scaffold(
       appBar: AppBar(title: Text(dayName)),
@@ -26,9 +38,9 @@ class DailyViewPage extends ConsumerWidget {
           child: txns.when(
         data: (list) {
           if (list.isEmpty) {
-            return const EmptyState(
+            return EmptyState(
               icon: Icons.check_circle_outline,
-              message: '\$0 spent this day.',
+              message: '${symbol}0 spent this day.',
               subtitle: 'No transactions recorded.',
             );
           }
@@ -39,13 +51,13 @@ class DailyViewPage extends ConsumerWidget {
             children: [
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(SpendlerSpacing.lg),
-                color: SpendlerColors.surface,
+                padding: const EdgeInsets.all(AppSpacing.xl),
+                color: AppColors.white,
                 child: Column(
                   children: [
-                    const Text('TOTAL SPENT', style: SpendlerTextStyles.sectionLabel),
-                    const SizedBox(height: SpendlerSpacing.sm),
-                    HeroAmount(amount: total, amountSize: 36, symbolSize: 18),
+                    const Text('TOTAL SPENT', style: AppTextStyles.labelM),
+                    const SizedBox(height: AppSpacing.xs),
+                    HeroAmount(amount: total, symbol: symbol, amountSize: 36, symbolSize: 18),
                   ],
                 ),
               ),
@@ -58,7 +70,7 @@ class DailyViewPage extends ConsumerWidget {
                       (c) => c.name == t.category,
                       orElse: () => TransactionCategory.foodAndDrink,
                     );
-                    final catColor = SpendlerColors.categoryColor(cat);
+                    final catColor = AppColors.categoryColor(cat);
                     return ListTile(
                       leading: CircleAvatar(
                         backgroundColor: catColor.withValues(alpha: 0.15),
@@ -66,13 +78,13 @@ class DailyViewPage extends ConsumerWidget {
                       ),
                       title: Text(
                         t.merchant ?? cat.label,
-                        style: SpendlerTextStyles.merchantName,
+                        style: AppTextStyles.bodyM,
                       ),
                       subtitle: Text(
                         DateFormat('h:mm a').format(t.happenedAt),
-                        style: const TextStyle(color: SpendlerColors.textTertiary, fontSize: 12),
+                        style: const TextStyle(color: AppColors.gray400, fontSize: 12),
                       ),
-                      trailing: AmountText(amount: t.amount),
+                      trailing: AmountText(amount: t.amount, symbol: symbol),
                     );
                   },
                 ),
@@ -81,10 +93,10 @@ class DailyViewPage extends ConsumerWidget {
           );
         },
         loading: () => const Center(
-          child: CircularProgressIndicator(color: SpendlerColors.primary),
+          child: CircularProgressIndicator(color: AppColors.black),
         ),
         error: (_, _) => const Center(
-          child: Text('Error loading', style: TextStyle(color: SpendlerColors.expense)),
+          child: Text('Error loading', style: TextStyle(color: AppColors.red)),
         ),
           ),
         ),

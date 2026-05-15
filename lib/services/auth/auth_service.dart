@@ -17,7 +17,7 @@ class AuthService {
   User? get currentUser {
     try {
       return _firebaseAuth.currentUser;
-    } catch (_) {
+    } on Exception catch (_) {
       return null;
     }
   }
@@ -26,7 +26,7 @@ class AuthService {
   Stream<User?> get authStateChanges {
     try {
       return _firebaseAuth.authStateChanges();
-    } catch (_) {
+    } on Exception catch (_) {
       return const Stream.empty();
     }
   }
@@ -98,7 +98,7 @@ class AuthService {
   Future<void> signOut() async {
     try {
       await _firebaseAuth.signOut();
-    } catch (_) {}
+    } on Exception catch (_) {}
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_authTokenKey);
     await prefs.remove(_userUidKey);

@@ -49,3 +49,12 @@ devtools_options.yaml
 
 # Claude Code worktrees
 .claude/worktrees/
+
+# APK builds
+*.apk
+
+# Design exports
+figma_screens/
+
+# Android build reports
+android/build/

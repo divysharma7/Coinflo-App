@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:finance_buddy_app/core/tokens.dart';
+import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/widgets/common/animated_amount.dart';
 import 'package:finance_buddy_app/widgets/common/contextual_pill.dart';
 
@@ -36,23 +36,32 @@ class HeroAmount extends StatelessWidget {
           children: [
             Text(
               symbol,
-              style: SpendlerTextStyles.heroSymbol.copyWith(fontSize: symbolSize),
+              style: TextStyle(
+                fontSize: symbolSize,
+                fontWeight: FontWeight.w300,
+                color: AppColors.gray500,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
             ),
             const SizedBox(width: 2),
             AnimatedAmount(
               value: amount,
               prefix: '',
-              style: SpendlerTextStyles.heroAmount.copyWith(
+              style: TextStyle(
                 fontSize: amountSize,
+                fontWeight: FontWeight.w700,
+                color: AppColors.black,
+                fontFeatures: const [FontFeature.tabularFigures()],
                 letterSpacing: amountSize > 40 ? -2.0 : -1.0,
+                height: 1,
               ),
-              duration: SpendlerMotion.number,
-              curve: SpendlerMotion.numberCurve,
+              duration: AppDurations.base,
+              curve: Curves.easeOut,
             ),
           ],
         ),
         if (deltaText != null) ...[
-          const SizedBox(height: SpendlerSpacing.sm),
+          const SizedBox(height: AppSpacing.xs),
           ContextualPill(text: deltaText!, type: deltaType),
         ],
       ],

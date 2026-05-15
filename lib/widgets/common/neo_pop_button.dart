@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:finance_buddy_app/core/tokens.dart';
+import 'package:finance_buddy_app/design_system/design_system.dart';
 
 /// A Cred-style NeoPOP button with a physical press effect.
 ///
@@ -12,8 +12,8 @@ class NeoPOPButton extends StatefulWidget {
     super.key,
     required this.label,
     required this.onTap,
-    this.color = SpendlerColors.primary,
-    this.shadowColor = SpendlerColors.textTertiary,
+    this.color = AppColors.black,
+    this.shadowColor = AppColors.gray400,
     this.textColor = Colors.black,
     this.offset = 4.0,
   });
@@ -39,10 +39,10 @@ class _NeoPOPButtonState extends State<NeoPOPButton>
     super.initState();
     _ctrl = AnimationController(
       vsync: this,
-      duration: SpendlerMotion.neoPopPress,
+      duration: AppDurations.fast,
     );
     _anim = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _ctrl, curve: SpendlerMotion.neoPopCurve),
+      CurvedAnimation(parent: _ctrl, curve: Curves.easeOut),
     );
   }
 
@@ -85,7 +85,7 @@ class _NeoPOPButtonState extends State<NeoPOPButton>
                   child: Container(
                     decoration: BoxDecoration(
                       color: widget.shadowColor,
-                      borderRadius: BorderRadius.circular(SpendlerRadii.button),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                 ),
@@ -99,7 +99,7 @@ class _NeoPOPButtonState extends State<NeoPOPButton>
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color: widget.color,
-                      borderRadius: BorderRadius.circular(SpendlerRadii.button),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
                       widget.label.toUpperCase(),

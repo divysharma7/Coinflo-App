@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import 'package:finance_buddy_app/core/tokens.dart';
+import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/providers/penny_providers.dart';
 
 /// Ask Penny — an AI chat assistant that answers questions about
@@ -33,21 +33,29 @@ class _PennyPageState extends ConsumerState<PennyPage> {
     super.dispose();
   }
 
+  /// Whether the user is currently near the bottom of the chat list
+  /// (within ~100px). Used to decide if we should auto-scroll.
+  bool get _isNearBottom {
+    if (!_scrollController.hasClients) return true;
+    final pos = _scrollController.position;
+    return pos.maxScrollExtent - pos.pixels <= 100;
+  }
+
   void _send([String? text]) {
     final msg = text ?? _controller.text.trim();
     if (msg.isEmpty) return;
     _controller.clear();
     ref.read(pennyChatProvider.notifier).send(msg);
-    // Scroll to bottom after a frame so new messages are laid out
-    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+    // User just sent a message — always scroll to bottom
+    WidgetsBinding.instance.addPostFrameCallback((_) => _forceScrollToBottom());
   }
 
-  void _scrollToBottom() {
+  void _forceScrollToBottom() {
     if (_scrollController.hasClients) {
       _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
-        duration: SpendlerMotion.transition,
-        curve: SpendlerMotion.surfaceCurve,
+        duration: AppDurations.base,
+        curve: Curves.easeOutCubic,
       );
     }
   }
@@ -58,18 +66,22 @@ class _PennyPageState extends ConsumerState<PennyPage> {
     final isProcessing = ref.watch(pennyProcessingProvider);
     final hasMessages = messages.length > 1; // more than just the welcome message
 
-    // Auto-scroll when new messages arrive
+    // Auto-scroll when new messages arrive, but only if user is near the bottom.
+    // If they've scrolled up to read history, don't yank them down.
     ref.listen<List<PennyMessage>>(pennyChatProvider, (_, _) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+      final wasNearBottom = _isNearBottom;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (wasNearBottom) _forceScrollToBottom();
+      });
     });
 
     return Scaffold(
-      backgroundColor: SpendlerColors.scaffold,
+      backgroundColor: AppColors.offWhite,
       appBar: AppBar(
-        backgroundColor: SpendlerColors.scaffold,
+        backgroundColor: AppColors.offWhite,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
-          icon: PhosphorIcon(PhosphorIcons.caretLeft(), color: SpendlerColors.textPrimary),
+          icon: PhosphorIcon(PhosphorIcons.caretLeft(), color: AppColors.black),
           onPressed: () => Navigator.pop(context),
         ),
         title: Column(
@@ -78,7 +90,7 @@ class _PennyPageState extends ConsumerState<PennyPage> {
             const Text(
               'Ask Penny',
               style: TextStyle(
-                color: SpendlerColors.textPrimary,
+                color: AppColors.black,
                 fontSize: 17,
                 fontWeight: FontWeight.w600,
               ),
@@ -86,7 +98,7 @@ class _PennyPageState extends ConsumerState<PennyPage> {
             Text(
               '${messages.length > 1 ? messages.length - 1 : 0} transactions loaded',
               style: const TextStyle(
-                color: SpendlerColors.textTertiary,
+                color: AppColors.gray400,
                 fontSize: 12,
                 fontWeight: FontWeight.w400,
               ),
@@ -106,8 +118,8 @@ class _PennyPageState extends ConsumerState<PennyPage> {
                 ? ListView.builder(
                     controller: _scrollController,
                     padding: const EdgeInsets.symmetric(
-                      horizontal: SpendlerSpacing.screenH,
-                      vertical: SpendlerSpacing.sm,
+                      horizontal: AppSpacing.lg,
+                      vertical: AppSpacing.xs,
                     ),
                     itemCount: messages.length + (isProcessing ? 1 : 0),
                     itemBuilder: (context, index) {
@@ -156,8 +168,8 @@ class _EmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(
-        horizontal: SpendlerSpacing.screenH,
-        vertical: SpendlerSpacing.xl,
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.xxl,
       ),
       child: Column(
         children: [
@@ -168,7 +180,7 @@ class _EmptyState extends StatelessWidget {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: SpendlerColors.primary,
+              color: AppColors.black,
               borderRadius: BorderRadius.circular(18),
             ),
             child: Center(
@@ -179,7 +191,7 @@ class _EmptyState extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: SpendlerSpacing.lg),
+          const SizedBox(height: AppSpacing.xl),
 
           // Title
           const Text(
@@ -187,10 +199,10 @@ class _EmptyState extends StatelessWidget {
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w700,
-              color: SpendlerColors.textPrimary,
+              color: AppColors.black,
             ),
           ),
-          const SizedBox(height: SpendlerSpacing.sm),
+          const SizedBox(height: AppSpacing.xs),
 
           // Subtitle
           const Text(
@@ -198,37 +210,37 @@ class _EmptyState extends StatelessWidget {
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
-              color: SpendlerColors.textTertiary,
+              color: AppColors.gray400,
               height: 1.5,
             ),
           ),
-          const SizedBox(height: SpendlerSpacing.xl),
+          const SizedBox(height: AppSpacing.xxl),
 
           // Suggestions label
           const Align(
             alignment: Alignment.centerLeft,
             child: Text(
               'SUGGESTIONS',
-              style: SpendlerTextStyles.sectionLabel,
+              style: AppTextStyles.labelM,
             ),
           ),
-          const SizedBox(height: SpendlerSpacing.cardGap),
+          const SizedBox(height: AppSpacing.sm),
 
           // Suggestion cards
           ...suggestions.map((s) => Padding(
-                padding: const EdgeInsets.only(bottom: SpendlerSpacing.sm),
+                padding: const EdgeInsets.only(bottom: AppSpacing.xs),
                 child: GestureDetector(
                   onTap: () => onSuggestionTap(s),
                   child: Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(
-                      horizontal: SpendlerSpacing.md,
+                      horizontal: AppSpacing.md,
                       vertical: 14,
                     ),
                     decoration: BoxDecoration(
-                      color: SpendlerColors.surface,
-                      borderRadius: BorderRadius.circular(SpendlerRadii.button),
-                      border: Border.all(color: SpendlerColors.border),
+                      color: AppColors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.gray200),
                     ),
                     child: Row(
                       children: [
@@ -238,13 +250,13 @@ class _EmptyState extends StatelessWidget {
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w400,
-                              color: SpendlerColors.textPrimary,
+                              color: AppColors.black,
                             ),
                           ),
                         ),
                         PhosphorIcon(
                           PhosphorIcons.caretRight(),
-                          color: SpendlerColors.textTertiary,
+                          color: AppColors.gray400,
                           size: 16,
                         ),
                       ],
@@ -268,27 +280,27 @@ class _UserBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(
-        top: SpendlerSpacing.xs,
-        bottom: SpendlerSpacing.xs,
+        top: AppSpacing.xxs,
+        bottom: AppSpacing.xxs,
         left: 64,
       ),
       child: Align(
         alignment: Alignment.centerRight,
         child: Container(
           padding: const EdgeInsets.symmetric(
-            horizontal: SpendlerSpacing.md,
-            vertical: SpendlerSpacing.cardGap,
+            horizontal: AppSpacing.md,
+            vertical: AppSpacing.sm,
           ),
           decoration: const BoxDecoration(
-            color: SpendlerColors.primary,
+            color: AppColors.black,
             borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(SpendlerRadii.card),
-              topRight: Radius.circular(SpendlerRadii.card),
-              bottomLeft: Radius.circular(SpendlerRadii.card),
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+              bottomLeft: Radius.circular(20),
               bottomRight: Radius.zero, // squared corner
             ),
             border: Border.fromBorderSide(
-              BorderSide(color: SpendlerColors.border, width: 1),
+              BorderSide(color: AppColors.gray200, width: 1),
             ),
           ),
           child: Text(
@@ -316,15 +328,15 @@ class _AssistantBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(
-        top: SpendlerSpacing.sm,
-        bottom: SpendlerSpacing.sm,
+        top: AppSpacing.xs,
+        bottom: AppSpacing.xs,
       ),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(SpendlerSpacing.md),
+        padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
-          color: SpendlerColors.scaffold,
-          borderRadius: BorderRadius.circular(SpendlerRadii.card),
+          color: AppColors.offWhite,
+          borderRadius: BorderRadius.circular(20),
         ),
         child: _MarkdownText(text: text),
       ),
@@ -361,7 +373,7 @@ class _MarkdownText extends StatelessWidget {
             children: [
               const Padding(
                 padding: EdgeInsets.only(top: 7),
-                child: Icon(Icons.circle, size: 5, color: SpendlerColors.textPrimary),
+                child: Icon(Icons.circle, size: 5, color: AppColors.black),
               ),
               const SizedBox(width: 8),
               Expanded(child: _buildRichLine(content)),
@@ -384,7 +396,7 @@ class _MarkdownText extends StatelessWidget {
               Text(
                 '$number.',
                 style: const TextStyle(
-                  color: SpendlerColors.textPrimary,
+                  color: AppColors.black,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                   height: 1.5,
@@ -458,7 +470,7 @@ class _MarkdownText extends StatelessWidget {
   }
 
   static const _baseStyle = TextStyle(
-    color: SpendlerColors.textPrimary,
+    color: AppColors.black,
     fontSize: 14,
     fontWeight: FontWeight.w400,
     height: 1.5,
@@ -497,15 +509,15 @@ class _TypingIndicatorState extends State<_TypingIndicator>
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(
-        top: SpendlerSpacing.sm,
-        bottom: SpendlerSpacing.sm,
+        top: AppSpacing.xs,
+        bottom: AppSpacing.xs,
       ),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(SpendlerSpacing.md),
+        padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
-          color: SpendlerColors.scaffold,
-          borderRadius: BorderRadius.circular(SpendlerRadii.card),
+          color: AppColors.offWhite,
+          borderRadius: BorderRadius.circular(20),
         ),
         child: AnimatedBuilder(
           animation: _anim,
@@ -524,7 +536,7 @@ class _TypingIndicatorState extends State<_TypingIndicator>
                       width: 8,
                       height: 8,
                       decoration: const BoxDecoration(
-                        color: SpendlerColors.textTertiary,
+                        color: AppColors.gray400,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -559,15 +571,15 @@ class _InputBar extends StatelessWidget {
     final bottomPadding = MediaQuery.paddingOf(context).bottom;
     return Container(
       padding: EdgeInsets.only(
-        left: SpendlerSpacing.screenH,
-        right: SpendlerSpacing.screenH,
-        top: SpendlerSpacing.sm,
-        bottom: SpendlerSpacing.sm + bottomPadding,
+        left: AppSpacing.lg,
+        right: AppSpacing.lg,
+        top: AppSpacing.xs,
+        bottom: AppSpacing.xs + bottomPadding,
       ),
       decoration: const BoxDecoration(
-        color: SpendlerColors.scaffold,
+        color: AppColors.offWhite,
         border: Border(
-          top: BorderSide(color: SpendlerColors.border, width: 0.5),
+          top: BorderSide(color: AppColors.gray200, width: 0.5),
         ),
       ),
       child: Row(
@@ -575,27 +587,27 @@ class _InputBar extends StatelessWidget {
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                color: SpendlerColors.surfaceHigh,
-                borderRadius: BorderRadius.circular(SpendlerRadii.pill),
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(100),
               ),
               child: TextField(
                 controller: controller,
                 focusNode: focusNode,
                 style: const TextStyle(
-                  color: SpendlerColors.textPrimary,
+                  color: AppColors.black,
                   fontSize: 15,
                 ),
                 decoration: const InputDecoration(
                   hintText: 'Ask about your finances...',
                   hintStyle: TextStyle(
-                    color: SpendlerColors.textTertiary,
+                    color: AppColors.gray400,
                     fontSize: 15,
                     fontWeight: FontWeight.w400,
                   ),
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.symmetric(
-                    horizontal: SpendlerSpacing.md,
-                    vertical: SpendlerSpacing.cardGap,
+                    horizontal: AppSpacing.md,
+                    vertical: AppSpacing.sm,
                   ),
                 ),
                 textCapitalization: TextCapitalization.sentences,
@@ -605,7 +617,7 @@ class _InputBar extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: SpendlerSpacing.sm),
+          const SizedBox(width: AppSpacing.xs),
           // Circular black send button
           GestureDetector(
             onTap: isProcessing ? null : onSend,
@@ -614,17 +626,17 @@ class _InputBar extends StatelessWidget {
               height: 40,
               decoration: BoxDecoration(
                 color: isProcessing
-                    ? SpendlerColors.surfaceHigh
-                    : SpendlerColors.primary,
+                    ? AppColors.white
+                    : AppColors.black,
                 shape: BoxShape.circle,
-                border: Border.all(color: SpendlerColors.border, width: 1),
+                border: Border.all(color: AppColors.gray200, width: 1),
               ),
               child: Center(
                 child: PhosphorIcon(
                   PhosphorIcons.arrowUp(PhosphorIconsStyle.bold),
                   size: 20,
                   color: isProcessing
-                      ? SpendlerColors.textTertiary
+                      ? AppColors.gray400
                       : Colors.white,
                 ),
               ),

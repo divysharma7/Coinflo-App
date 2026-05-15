@@ -148,7 +148,7 @@ final weeklyMerchantCountsProvider =
 // ─── Computed providers ─────────────────────────────
 
 /// Sorted category totals from weekly transactions.
-/// Centralizes category aggregation used in home_page, my_page, sunday_digest.
+/// Centralizes category aggregation used in home_page.
 final weeklyCategoryTotalsProvider =
     Provider.autoDispose<AsyncValue<List<MapEntry<TransactionCategory, double>>>>((ref) {
   final weeklyTxns = ref.watch(weeklyTransactionsProvider);
@@ -210,6 +210,33 @@ final monthlyExpenseProvider = Provider.autoDispose<AsyncValue<double>>((ref) {
             .where((t) => t.amount < 0)
             .fold<double>(0, (s, t) => s + t.amount.abs()),
       );
+});
+
+/// Last month's total expense for comparison.
+final lastMonthExpenseProvider = FutureProvider.autoDispose<double>((ref) async {
+  final repo = ref.watch(repositoryProvider);
+  final month = ref.watch(selectedMonthProvider);
+  final prev = DateTime(month.year, month.month - 1);
+  final txns = await repo.getTransactionsForMonth(prev);
+  return txns
+      .where((t) => t.amount < 0)
+      .fold<double>(0, (s, t) => s + t.amount.abs());
+});
+
+/// Top 3 spending categories for the selected month.
+final topCategoriesProvider =
+    Provider.autoDispose<AsyncValue<List<MapEntry<String, double>>>>((ref) {
+  return ref.watch(monthlyTransactionsForHomeProvider).whenData((txns) {
+    final totals = <String, double>{};
+    for (final t in txns) {
+      if (t.amount < 0) {
+        totals[t.category] = (totals[t.category] ?? 0) + t.amount.abs();
+      }
+    }
+    final sorted = totals.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    return sorted.take(3).toList();
+  });
 });
 
 // ─── Mutation helpers ───────────────────────────────

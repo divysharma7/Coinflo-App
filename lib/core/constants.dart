@@ -1,16 +1,15 @@
 class AppConstants {
   AppConstants._();
 
-  static const String appName = 'Spendler';
+  static const String appName = 'CoinFlo';
   static const String tagline = 'Track your spending habits.';
 
   // Notification channel
-  static const String notificationChannelId = 'spendler_reminders';
-  static const String notificationChannelName = 'Spendler Reminders';
+  static const String notificationChannelId = 'coinflo_reminders';
+  static const String notificationChannelName = 'CoinFlo Reminders';
   static const String notificationChannelDescription = 'Transaction alerts and weekly digests';
 
   // Notification IDs
-  static const int notifTransactionDetectedBase = 1000;
   static const int notifEveningCheckin = 200;
   static const int notifSundayDigest = 300;
 
@@ -19,7 +18,4 @@ class AppConstants {
   static const int eveningCheckinMinute = 0;
   static const int sundayDigestHour = 19;
   static const int sundayDigestMinute = 0;
-
-  // SMS batch threshold
-  static const int smsBatchThreshold = 3;
 }

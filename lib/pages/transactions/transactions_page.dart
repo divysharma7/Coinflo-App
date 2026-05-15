@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:finance_buddy_app/core/enums.dart';
-import 'package:finance_buddy_app/core/tokens.dart';
+import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/widgets/common/amount_text.dart';
@@ -14,68 +14,169 @@ import 'package:finance_buddy_app/pages/transactions/transaction_detail_page.dar
 import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 import 'package:finance_buddy_app/widgets/common/animations.dart';
 
-class TransactionsPage extends ConsumerWidget {
+class TransactionsPage extends ConsumerStatefulWidget {
   const TransactionsPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<TransactionsPage> createState() => _TransactionsPageState();
+}
+
+class _TransactionsPageState extends ConsumerState<TransactionsPage> {
+  final _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  static String _currencySymbol(String code) {
+    switch (code.toLowerCase()) {
+      case 'inr': return '\u20B9';
+      case 'usd': return '\$';
+      case 'eur': return '\u20AC';
+      case 'gbp': return '\u00A3';
+      case 'jpy': return '\u00A5';
+      default: return '\$';
+    }
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  /// Returns true if [t] matches the current [_searchQuery].
+  bool _matchesSearch(SpendlerTransaction t) {
+    if (_searchQuery.isEmpty) return true;
+    final q = _searchQuery.toLowerCase();
+    final merchant = (t.merchant ?? '').toLowerCase();
+    final note = (t.note ?? '').toLowerCase();
+    final catLabel = TransactionCategory.values
+        .firstWhere(
+          (c) => c.name == t.category,
+          orElse: () => TransactionCategory.other,
+        )
+        .label
+        .toLowerCase();
+    return merchant.contains(q) || note.contains(q) || catLabel.contains(q);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final filters = ref.watch(transactionFiltersProvider);
     final txns = ref.watch(filteredTransactionsProvider);
 
     return Column(
       children: [
-        SizedBox(height: MediaQuery.paddingOf(context).top + SpendlerSpacing.md),
+        SizedBox(height: MediaQuery.paddingOf(context).top + AppSpacing.md),
 
         // Header + filter button
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
           child: Row(
             children: [
-              const Text('TRANSACTIONS', style: SpendlerTextStyles.sectionLabel),
+              const Text('TRANSACTIONS', style: AppTextStyles.labelM),
               const Spacer(),
-              GestureDetector(
-                onTap: () => _showFilterSheet(context, ref),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: filters.hasAnyFilter
-                        ? SpendlerColors.primary.withValues(alpha: 0.12)
-                        : SpendlerColors.surface,
-                    borderRadius: BorderRadius.circular(SpendlerRadii.pill),
-                    border: Border.all(
-                      color: filters.hasAnyFilter ? SpendlerColors.primary : SpendlerColors.border,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      PhosphorIcon(
-                        PhosphorIcons.funnel(),
-                        size: 14,
-                        color: filters.hasAnyFilter ? SpendlerColors.primary : SpendlerColors.textSecondary,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        filters.hasAnyFilter ? 'Filtered' : 'Filter',
-                        style: TextStyle(
-                          color: filters.hasAnyFilter ? SpendlerColors.primary : SpendlerColors.textSecondary,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  GestureDetector(
+                    onTap: () => _showFilterSheet(context, ref),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: filters.hasAnyFilter
+                            ? AppColors.black.withValues(alpha: 0.12)
+                            : AppColors.white,
+                        borderRadius: BorderRadius.circular(100),
+                        border: Border.all(
+                          color: filters.hasAnyFilter ? AppColors.black : AppColors.gray200,
                         ),
                       ),
-                    ],
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          PhosphorIcon(
+                            PhosphorIcons.funnel(),
+                            size: 14,
+                            color: filters.hasAnyFilter ? AppColors.black : AppColors.gray500,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            filters.hasAnyFilter ? 'Filtered' : 'Filter',
+                            style: TextStyle(
+                              color: filters.hasAnyFilter ? AppColors.black : AppColors.gray500,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
+                  if (filters.hasAnyFilter)
+                    Positioned(
+                      top: -6,
+                      right: -6,
+                      child: Container(
+                        width: 18,
+                        height: 18,
+                        decoration: const BoxDecoration(
+                          color: AppColors.black,
+                          shape: BoxShape.circle,
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          '${_activeFilterCount(filters)}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            height: 1,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ],
           ),
         ),
-        const SizedBox(height: SpendlerSpacing.sm),
+        const SizedBox(height: AppSpacing.sm),
+
+        // Search bar
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          child: TextField(
+            controller: _searchController,
+            onChanged: (v) => setState(() => _searchQuery = v.trim()),
+            style: const TextStyle(fontSize: 14, color: AppColors.black),
+            decoration: InputDecoration(
+              hintText: 'Search by merchant, note, or category',
+              hintStyle: const TextStyle(fontSize: 13, color: AppColors.gray400),
+              prefixIcon: const Icon(Icons.search, size: 20, color: AppColors.gray400),
+              suffixIcon: _searchQuery.isNotEmpty
+                  ? GestureDetector(
+                      onTap: () {
+                        _searchController.clear();
+                        setState(() => _searchQuery = '');
+                      },
+                      child: const Icon(Icons.close, size: 18, color: AppColors.gray400),
+                    )
+                  : null,
+              filled: true,
+              fillColor: AppColors.gray100,
+              contentPadding: const EdgeInsets.symmetric(vertical: 10),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(100),
+                borderSide: BorderSide.none,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.sm),
 
         // Active filter chips
         if (filters.hasAnyFilter)
           Padding(
-            padding: const EdgeInsets.fromLTRB(SpendlerSpacing.screenH, 0, SpendlerSpacing.screenH, SpendlerSpacing.sm),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.sm),
             child: Row(
               children: [
                 Expanded(
@@ -115,7 +216,7 @@ class TransactionsPage extends ConsumerWidget {
                   onTap: () => ref.read(transactionFiltersProvider.notifier).state = TransactionFilters.empty,
                   child: const Padding(
                     padding: EdgeInsets.only(left: 8),
-                    child: Text('Clear all', style: TextStyle(color: SpendlerColors.primary, fontSize: 12, fontWeight: FontWeight.w500)),
+                    child: Text('Clear all', style: TextStyle(color: AppColors.black, fontSize: 12, fontWeight: FontWeight.w500)),
                   ),
                 ),
               ],
@@ -126,30 +227,58 @@ class TransactionsPage extends ConsumerWidget {
         Expanded(
           child: txns.when(
             data: (list) {
-              if (list.isEmpty) {
-                return const EmptyState(
+              final filtered = _searchQuery.isEmpty
+                  ? list
+                  : list.where(_matchesSearch).toList();
+
+              if (filtered.isEmpty) {
+                return EmptyState(
                   icon: Icons.receipt_long,
-                  message: 'No transactions match these filters.',
-                  subtitle: 'Try adjusting your filters.',
+                  message: _searchQuery.isNotEmpty
+                      ? 'No transactions match your search.'
+                      : 'No transactions match these filters.',
+                  subtitle: _searchQuery.isNotEmpty
+                      ? 'Try a different search term.'
+                      : 'Try adjusting your filters.',
                 );
               }
 
-              final unconfirmed = list.where((t) => t.status == 'unconfirmed').toList();
-              final confirmed = list.where((t) => t.status != 'unconfirmed').toList();
+              final unconfirmed = filtered.where((t) => t.status == 'unconfirmed').toList();
+              final confirmed = filtered.where((t) => t.status != 'unconfirmed').toList();
 
               final items = <Widget>[];
 
               // Confirm All
               if (unconfirmed.length >= 2) {
                 items.add(Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.screenH, vertical: SpendlerSpacing.sm),
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
                   child: NeoPOPButton(
                     label: 'Confirm All (${unconfirmed.length})',
                     onTap: () async {
-                      await HapticFeedback.mediumImpact();
-                      final repo = ref.read(repositoryProvider);
-                      await repo.confirmAllUnconfirmed();
-                      await HapticFeedback.heavyImpact();
+                      final didConfirm = await showDialog<bool>(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                          title: Text(
+                            'Confirm all ${unconfirmed.length} unconfirmed transactions?',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, false),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, true),
+                              child: const Text('Confirm'),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (didConfirm == true) {
+                        await HapticFeedback.mediumImpact();
+                        final repo = ref.read(repositoryProvider);
+                        await repo.confirmAllUnconfirmed();
+                        await HapticFeedback.heavyImpact();
+                      }
                     },
                   ),
                 ));
@@ -157,18 +286,18 @@ class TransactionsPage extends ConsumerWidget {
 
               if (unconfirmed.isNotEmpty) {
                 items.add(const Padding(
-                  padding: EdgeInsets.fromLTRB(SpendlerSpacing.screenH, SpendlerSpacing.sm, SpendlerSpacing.screenH, SpendlerSpacing.xs),
-                  child: Text('UNCONFIRMED', style: SpendlerTextStyles.sectionLabel),
+                  padding: EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xs),
+                  child: Text('UNCONFIRMED', style: AppTextStyles.labelM),
                 ));
                 for (final t in unconfirmed) {
                   items.add(_buildTile(context, t, isUnconfirmed: true));
                 }
-                items.add(const Divider(color: SpendlerColors.border));
+                items.add(const Divider(color: AppColors.gray200));
               }
               if (confirmed.isNotEmpty) {
                 items.add(const Padding(
-                  padding: EdgeInsets.fromLTRB(SpendlerSpacing.screenH, SpendlerSpacing.sm, SpendlerSpacing.screenH, SpendlerSpacing.xs),
-                  child: Text('CONFIRMED', style: SpendlerTextStyles.sectionLabel),
+                  padding: EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xs),
+                  child: Text('CONFIRMED', style: AppTextStyles.labelM),
                 ));
                 for (final t in confirmed) {
                   items.add(_buildTile(context, t));
@@ -181,8 +310,8 @@ class TransactionsPage extends ConsumerWidget {
                 itemBuilder: (context, index) => items[index],
               );
             },
-            loading: () => const Center(child: CircularProgressIndicator(color: SpendlerColors.primary)),
-            error: (_, _) => const Center(child: Text('Error loading', style: TextStyle(color: SpendlerColors.expense))),
+            loading: () => const Center(child: CircularProgressIndicator(color: AppColors.black)),
+            error: (_, _) => const Center(child: Text('Error loading', style: TextStyle(color: AppColors.red))),
           ),
         ),
       ],
@@ -194,7 +323,7 @@ class TransactionsPage extends ConsumerWidget {
       (c) => c.name == t.category,
       orElse: () => TransactionCategory.foodAndDrink,
     );
-    final catColor = SpendlerColors.categoryColor(cat);
+    final catColor = AppColors.categoryColor(cat);
     final isSent = t.amount < 0;
 
     return PressableCard(
@@ -207,14 +336,14 @@ class TransactionsPage extends ConsumerWidget {
         );
       },
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.cardGap, vertical: 2),
-        padding: const EdgeInsets.symmetric(horizontal: SpendlerSpacing.cardGap, vertical: 10),
+        margin: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 2),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 10),
         decoration: BoxDecoration(
-          color: isUnconfirmed ? SpendlerColors.warning.withValues(alpha: 0.06) : null,
+          color: isUnconfirmed ? const Color(0xFFF59E0B).withValues(alpha: 0.06) : null,
           border: isUnconfirmed
-              ? const Border(left: BorderSide(color: SpendlerColors.warning, width: 3))
+              ? const Border(left: BorderSide(color: Color(0xFFF59E0B), width: 3))
               : null,
-          borderRadius: BorderRadius.circular(SpendlerRadii.button),
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
           children: [
@@ -222,7 +351,7 @@ class TransactionsPage extends ConsumerWidget {
               backgroundColor: catColor.withValues(alpha: 0.15),
               child: Icon(cat.iconFill, color: catColor, size: 20),
             ),
-            const SizedBox(width: SpendlerSpacing.cardGap),
+            const SizedBox(width: AppSpacing.sm),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -232,7 +361,7 @@ class TransactionsPage extends ConsumerWidget {
                       Expanded(
                         child: Text(
                           t.merchant ?? cat.label,
-                          style: SpendlerTextStyles.merchantName,
+                          style: AppTextStyles.bodyM,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -240,20 +369,45 @@ class TransactionsPage extends ConsumerWidget {
                       PhosphorIcon(
                         isSent ? PhosphorIcons.arrowUpRight() : PhosphorIcons.arrowDownLeft(),
                         size: 14,
-                        color: isSent ? SpendlerColors.expense : SpendlerColors.income,
+                        color: isSent ? AppColors.red : AppColors.green,
                       ),
                     ],
                   ),
                   const SizedBox(height: 2),
                   Text(
                     DateFormat('d MMM, h:mm a').format(t.happenedAt),
-                    style: const TextStyle(fontSize: 12, color: SpendlerColors.textTertiary),
+                    style: const TextStyle(fontSize: 12, color: AppColors.gray400),
                   ),
                 ],
               ),
             ),
             const SizedBox(width: 8),
-            AmountText(amount: t.amount.toDouble()),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                AmountText(
+                  amount: t.amount.toDouble(),
+                  symbol: _currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr'),
+                ),
+                if (isUnconfirmed)
+                  Container(
+                    margin: const EdgeInsets.only(top: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                    child: const Text(
+                      'Pending',
+                      style: TextStyle(
+                        color: Color(0xFFF59E0B),
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ],
         ),
       ),
@@ -267,14 +421,23 @@ class TransactionsPage extends ConsumerWidget {
     );
   }
 
+  static int _activeFilterCount(TransactionFilters filters) {
+    int count = 0;
+    if (filters.direction != DirectionFilter.all) count++;
+    if (filters.amount != AmountFilter.all) count++;
+    if (filters.date != DateFilter.all) count++;
+    if (filters.category != null) count++;
+    return count;
+  }
+
   static String _amountLabel(AmountFilter f) {
     switch (f) {
       case AmountFilter.upto200:
-        return '≤ \$200';
+        return '\u2264 \$200';
       case AmountFilter.range200to500:
-        return '\$200–500';
+        return '\$200\u2013500';
       case AmountFilter.range500to2000:
-        return '\$500–2K';
+        return '\$500\u20132K';
       case AmountFilter.above2000:
         return '> \$2K';
       case AmountFilter.all:
@@ -314,24 +477,24 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('FILTERS', style: SpendlerTextStyles.sectionLabel),
+              const Text('FILTERS', style: AppTextStyles.labelM),
               GestureDetector(
                 onTap: () => setState(() => _draft = TransactionFilters.empty),
-                child: const Text('Clear all', style: TextStyle(color: SpendlerColors.primary, fontSize: 12, fontWeight: FontWeight.w500)),
+                child: const Text('Clear all', style: TextStyle(color: AppColors.black, fontSize: 12, fontWeight: FontWeight.w500)),
               ),
             ],
           ),
-          const SizedBox(height: SpendlerSpacing.lg),
+          const SizedBox(height: AppSpacing.lg),
 
           // ── Direction ──
-          const Text('PAYMENT TYPE', style: SpendlerTextStyles.sectionLabel),
-          const SizedBox(height: SpendlerSpacing.sm),
+          const Text('PAYMENT TYPE', style: AppTextStyles.labelM),
+          const SizedBox(height: AppSpacing.sm),
           Row(
             children: [
               _FilterTile(
                 icon: PhosphorIcons.arrowUpRight(),
                 label: 'Money Sent',
-                color: SpendlerColors.expense,
+                color: AppColors.red,
                 selected: _draft.direction == DirectionFilter.sent,
                 onTap: () => setState(() => _draft = _draft.copyWith(
                   direction: _draft.direction == DirectionFilter.sent
@@ -339,11 +502,11 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
                       : DirectionFilter.sent,
                 )),
               ),
-              const SizedBox(width: SpendlerSpacing.sm),
+              const SizedBox(width: AppSpacing.sm),
               _FilterTile(
                 icon: PhosphorIcons.arrowDownLeft(),
                 label: 'Money Received',
-                color: SpendlerColors.income,
+                color: AppColors.green,
                 selected: _draft.direction == DirectionFilter.received,
                 onTap: () => setState(() => _draft = _draft.copyWith(
                   direction: _draft.direction == DirectionFilter.received
@@ -353,11 +516,11 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
               ),
             ],
           ),
-          const SizedBox(height: SpendlerSpacing.lg),
+          const SizedBox(height: AppSpacing.lg),
 
           // ── Amount ──
-          const Text('AMOUNT', style: SpendlerTextStyles.sectionLabel),
-          const SizedBox(height: SpendlerSpacing.sm),
+          const Text('AMOUNT', style: AppTextStyles.labelM),
+          const SizedBox(height: AppSpacing.sm),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -368,11 +531,11 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
               _ChipOption(label: '> \$2,000', selected: _draft.amount == AmountFilter.above2000, onTap: () => setState(() => _draft = _draft.copyWith(amount: _draft.amount == AmountFilter.above2000 ? AmountFilter.all : AmountFilter.above2000))),
             ],
           ),
-          const SizedBox(height: SpendlerSpacing.lg),
+          const SizedBox(height: AppSpacing.lg),
 
           // ── Date ──
-          const Text('DATE', style: SpendlerTextStyles.sectionLabel),
-          const SizedBox(height: SpendlerSpacing.sm),
+          const Text('DATE', style: AppTextStyles.labelM),
+          const SizedBox(height: AppSpacing.sm),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -381,11 +544,11 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
               _ChipOption(label: 'Last 90 days', selected: _draft.date == DateFilter.last90, onTap: () => setState(() => _draft = _draft.copyWith(date: _draft.date == DateFilter.last90 ? DateFilter.all : DateFilter.last90))),
             ],
           ),
-          const SizedBox(height: SpendlerSpacing.lg),
+          const SizedBox(height: AppSpacing.lg),
 
           // ── Category ──
-          const Text('CATEGORY', style: SpendlerTextStyles.sectionLabel),
-          const SizedBox(height: SpendlerSpacing.sm),
+          const Text('CATEGORY', style: AppTextStyles.labelM),
+          const SizedBox(height: AppSpacing.sm),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -401,7 +564,7 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
               );
             }).toList(),
           ),
-          const SizedBox(height: SpendlerSpacing.xl),
+          const SizedBox(height: AppSpacing.xl),
 
           // ── Apply ──
           NeoPOPButton(
@@ -411,7 +574,7 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
               Navigator.pop(context);
             },
           ),
-          const SizedBox(height: SpendlerSpacing.md),
+          const SizedBox(height: AppSpacing.md),
         ],
       ),
     );
@@ -439,25 +602,25 @@ class _FilterTile extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: AnimatedContainer(
-          duration: SpendlerMotion.micro,
+          duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.symmetric(vertical: 14),
           decoration: BoxDecoration(
-            color: selected ? color.withValues(alpha: 0.1) : SpendlerColors.surface,
-            borderRadius: BorderRadius.circular(SpendlerRadii.button),
+            color: selected ? color.withValues(alpha: 0.1) : AppColors.white,
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: selected ? color : SpendlerColors.border,
+              color: selected ? color : AppColors.gray200,
               width: selected ? 1.5 : 1,
             ),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              PhosphorIcon(icon, size: 18, color: selected ? color : SpendlerColors.textSecondary),
+              PhosphorIcon(icon, size: 18, color: selected ? color : AppColors.gray500),
               const SizedBox(width: 8),
               Text(
                 label,
                 style: TextStyle(
-                  color: selected ? color : SpendlerColors.textPrimary,
+                  color: selected ? color : AppColors.black,
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                 ),
@@ -488,16 +651,16 @@ class _ChipOption extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: selected ? SpendlerColors.primary.withValues(alpha: 0.12) : SpendlerColors.surface,
-          borderRadius: BorderRadius.circular(SpendlerRadii.pill),
+          color: selected ? AppColors.black.withValues(alpha: 0.12) : AppColors.white,
+          borderRadius: BorderRadius.circular(100),
           border: Border.all(
-            color: selected ? SpendlerColors.primary : SpendlerColors.border,
+            color: selected ? AppColors.black : AppColors.gray200,
           ),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: selected ? SpendlerColors.primary : SpendlerColors.textSecondary,
+            color: selected ? AppColors.black : AppColors.gray500,
             fontSize: 13,
             fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
           ),
@@ -518,17 +681,17 @@ class _ActiveChip extends StatelessWidget {
       margin: const EdgeInsets.only(right: 6),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: SpendlerColors.primary.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(SpendlerRadii.pill),
+        color: AppColors.black.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(100),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(label, style: const TextStyle(color: SpendlerColors.primary, fontSize: 11, fontWeight: FontWeight.w500)),
+          Text(label, style: const TextStyle(color: AppColors.black, fontSize: 11, fontWeight: FontWeight.w500)),
           const SizedBox(width: 4),
           GestureDetector(
             onTap: onRemove,
-            child: PhosphorIcon(PhosphorIcons.x(), size: 12, color: SpendlerColors.primary),
+            child: PhosphorIcon(PhosphorIcons.x(), size: 12, color: AppColors.black),
           ),
         ],
       ),

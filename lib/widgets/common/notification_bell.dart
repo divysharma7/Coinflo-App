@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import 'package:finance_buddy_app/core/tokens.dart';
+import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/providers/notification_providers.dart';
 import 'package:finance_buddy_app/widgets/common/notification_sheet.dart';
 
@@ -15,18 +15,18 @@ class NotificationBell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final hasUnread = ref.watch(hasUnreadNotifProvider);
     final iconColor = color ?? (hasUnread
-        ? SpendlerColors.primary
-        : SpendlerColors.textSecondary);
+        ? AppColors.black
+        : AppColors.gray500);
 
     return GestureDetector(
       onTap: () {
         showModalBottomSheet<void>(
           context: context,
           isScrollControlled: true,
-          backgroundColor: SpendlerColors.surfaceHigh,
+          backgroundColor: AppColors.white,
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(
-              top: Radius.circular(SpendlerRadii.sheet),
+              top: Radius.circular(24),
             ),
           ),
           showDragHandle: true,
@@ -54,7 +54,7 @@ class NotificationBell extends ConsumerWidget {
                   width: 8,
                   height: 8,
                   decoration: const BoxDecoration(
-                    color: SpendlerColors.primary,
+                    color: AppColors.black,
                     shape: BoxShape.circle,
                   ),
                 ),

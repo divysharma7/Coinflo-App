@@ -16,7 +16,7 @@ class SpendlerTransactions extends Table {
   TextColumn get merchant => text().nullable()();
   TextColumn get note => text().nullable()();
   DateTimeColumn get happenedAt => dateTime().withDefault(currentDateAndTime)();
-  TextColumn get source => text().withDefault(const Constant('manual'))(); // sms_auto / manual
+  TextColumn get source => text().withDefault(const Constant('manual'))();
   TextColumn get status => text().withDefault(const Constant('confirmed'))(); // unconfirmed / confirmed
   BoolColumn get isSplit => boolean().withDefault(const Constant(false))();
   IntColumn get splitCount => integer().nullable()();

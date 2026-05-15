@@ -133,7 +133,7 @@ class _RecurringPaymentsScreenState extends State<RecurringPaymentsScreen>
     final prefs = await SharedPreferences.getInstance();
     final encoded = jsonEncode(_payments.map((p) => p.toJson()).toList());
     await prefs.setString('recurring_payments', encoded);
-    if (mounted) await context.push('/onboarding/step10');
+    if (mounted) await context.push('/onboarding/step9');
   }
 
   List<Map<String, String>> get _availablePresets =>

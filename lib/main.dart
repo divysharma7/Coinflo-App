@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:finance_buddy_app/app.dart';
 import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/data/repositories/local/local_repository.dart';
-import 'package:finance_buddy_app/data/seed_data.dart';
 import 'package:finance_buddy_app/firebase_options.dart';
 import 'package:finance_buddy_app/services/notifications/notification_service.dart';
 
@@ -38,21 +37,17 @@ void main() {
         );
         firebaseInitialized = true;
         debugPrint('Firebase initialized successfully');
-      } catch (e) {
+      } on Exception catch (e) {
         debugPrint('Firebase initialization skipped: $e');
       }
 
       // Initialize notifications
       await NotificationService().initialize();
 
-      // Seed dummy data on first launch
-      final db = SpendlerDatabase();
-      await SeedData.seedIfNeeded(db);
-
       // Purge notifications older than 30 days
+      final db = SpendlerDatabase();
       final repo = LocalRepository(db);
       await repo.purgeOlderThan(30);
-
       await db.close();
 
       runApp(const SpendlerApp());

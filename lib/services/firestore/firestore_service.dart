@@ -69,42 +69,29 @@ class FirestoreService {
       }
     }
 
-    // 4. Smart rules subcollection
-    final rulesJson = prefs.getString('smart_rules');
-    if (rulesJson != null) {
-      final rules =
-          (jsonDecode(rulesJson) as List).cast<Map<String, dynamic>>();
-      for (final rule in rules) {
-        final docRef = _userDoc(uid).collection('smartRules').doc(rule['id'] as String);
-        batch.set(docRef, {
-          ...rule,
-        });
-      }
-    }
-
-    // 5. Savings goals subcollection
+    // 4. Savings goals subcollection
     final goalsJson = prefs.getString('savings_goals');
     if (goalsJson != null) {
       final goals =
           (jsonDecode(goalsJson) as List).cast<Map<String, dynamic>>();
       for (final goal in goals) {
+        final cleanGoal = Map<String, dynamic>.from(goal)
+          ..removeWhere((_, v) => v == null);
         final docRef = _userDoc(uid).collection('savingsGoals').doc(goal['id'] as String);
-        batch.set(docRef, {
-          ...goal,
-        });
+        batch.set(docRef, cleanGoal);
       }
     }
 
-    // 6. Recurring payments subcollection
+    // 5. Recurring payments subcollection
     final paymentsJson = prefs.getString('recurring_payments');
     if (paymentsJson != null) {
       final payments =
           (jsonDecode(paymentsJson) as List).cast<Map<String, dynamic>>();
       for (final payment in payments) {
+        final cleanPayment = Map<String, dynamic>.from(payment)
+          ..removeWhere((_, v) => v == null);
         final docRef = _userDoc(uid).collection('recurringPayments').doc(payment['id'] as String);
-        batch.set(docRef, {
-          ...payment,
-        });
+        batch.set(docRef, cleanPayment);
       }
     }
 
@@ -167,13 +154,6 @@ class FirestoreService {
     if (budgetsSnap.docs.isNotEmpty) {
       final budgetsList = budgetsSnap.docs.map((d) => d.data()).toList();
       await prefs.setString('category_budgets', jsonEncode(budgetsList));
-    }
-
-    // Smart rules
-    final rulesSnap = await _userDoc(uid).collection('smartRules').get();
-    if (rulesSnap.docs.isNotEmpty) {
-      final rulesList = rulesSnap.docs.map((d) => d.data()).toList();
-      await prefs.setString('smart_rules', jsonEncode(rulesList));
     }
 
     // Savings goals

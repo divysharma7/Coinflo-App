@@ -117,7 +117,7 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen>
 
   Future<void> _onContinue() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('currency_code', _selectedCurrency.code);
+    await prefs.setString('currency_code', _selectedCurrency.code.toLowerCase());
     await prefs.setString('currency_name', _selectedCurrency.name);
     await prefs.setString('currency_symbol', _selectedCurrency.symbol);
 

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:finance_buddy_app/core/enums.dart';
-import 'package:finance_buddy_app/core/tokens.dart';
+import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/widgets/common/empty_state.dart';
@@ -17,22 +17,22 @@ class SubscriptionsPage extends ConsumerWidget {
     final monthlyTotal = ref.watch(subscriptionMonthlyTotalProvider);
 
     return Scaffold(
-      backgroundColor: SpendlerColors.scaffold,
+      backgroundColor: AppColors.offWhite,
       appBar: AppBar(
         title: const Text(
           'Subscriptions',
           style: TextStyle(
-            color: SpendlerColors.textPrimary,
+            color: AppColors.black,
             fontWeight: FontWeight.w600,
           ),
         ),
-        backgroundColor: SpendlerColors.scaffold,
+        backgroundColor: AppColors.offWhite,
         elevation: 0,
         scrolledUnderElevation: 0,
-        iconTheme: const IconThemeData(color: SpendlerColors.textPrimary),
+        iconTheme: const IconThemeData(color: AppColors.black),
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: SpendlerColors.accent,
+        backgroundColor: AppColors.black,
         onPressed: () => _showAddSheet(context, ref),
         child: const Icon(Icons.add, color: Colors.white),
       ),
@@ -50,15 +50,15 @@ class SubscriptionsPage extends ConsumerWidget {
           }
           return ListView(
             padding: const EdgeInsets.fromLTRB(
-              SpendlerSpacing.screenH,
-              SpendlerSpacing.sm,
-              SpendlerSpacing.screenH,
+              AppSpacing.lg,
+              AppSpacing.xs,
+              AppSpacing.lg,
               100,
             ),
             children: [
               // ── Monthly cost summary ──
               _MonthlySummaryCard(monthlyTotal: monthlyTotal, count: subs.where((s) => s.isActive).length),
-              const SizedBox(height: SpendlerSpacing.lg),
+              const SizedBox(height: AppSpacing.xl),
 
               // ── Subscription cards ──
               for (final sub in subs) ...[
@@ -69,16 +69,16 @@ class SubscriptionsPage extends ConsumerWidget {
                   },
                   onDelete: () => _confirmDelete(context, ref, sub),
                 ),
-                const SizedBox(height: SpendlerSpacing.cardGap),
+                const SizedBox(height: AppSpacing.sm),
               ],
             ],
           );
         },
         loading: () => const Center(
-          child: CircularProgressIndicator(color: SpendlerColors.accent),
+          child: CircularProgressIndicator(color: AppColors.black),
         ),
         error: (_, _) => const Center(
-          child: Text('Something went wrong', style: TextStyle(color: SpendlerColors.textSecondary)),
+          child: Text('Something went wrong', style: TextStyle(color: AppColors.gray500)),
         ),
           ),
         ),
@@ -102,7 +102,7 @@ class SubscriptionsPage extends ConsumerWidget {
               ref.read(repositoryProvider).deleteSubscription(sub.id);
               Navigator.pop(context);
             },
-            child: const Text('Delete', style: TextStyle(color: SpendlerColors.destructive)),
+            child: const Text('Delete', style: TextStyle(color: AppColors.red)),
           ),
         ],
       ),
@@ -113,9 +113,9 @@ class SubscriptionsPage extends ConsumerWidget {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: SpendlerColors.card,
+      backgroundColor: AppColors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(SpendlerRadii.card)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (_) => const _AddSubscriptionSheet(),
     );
@@ -134,11 +134,11 @@ class _MonthlySummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(SpendlerSpacing.lg),
+      padding: const EdgeInsets.all(AppSpacing.xl),
       decoration: BoxDecoration(
-        color: SpendlerColors.card,
-        borderRadius: BorderRadius.circular(SpendlerRadii.card),
-        border: Border.all(color: SpendlerColors.cardBorder),
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.gray200),
       ),
       child: Column(
         children: [
@@ -147,37 +147,37 @@ class _MonthlySummaryCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
-              color: SpendlerColors.textTertiary,
+              color: AppColors.gray400,
               letterSpacing: 1.5,
             ),
           ),
-          const SizedBox(height: SpendlerSpacing.sm),
+          const SizedBox(height: AppSpacing.xs),
           monthlyTotal.when(
             data: (total) => Text(
               '\$${total.toStringAsFixed(0)}',
               style: const TextStyle(
                 fontSize: 40,
                 fontWeight: FontWeight.w700,
-                color: SpendlerColors.textPrimary,
+                color: AppColors.black,
                 fontFeatures: [FontFeature.tabularFigures()],
                 letterSpacing: -1.5,
               ),
             ),
             loading: () => const Text(
               '...',
-              style: TextStyle(fontSize: 40, color: SpendlerColors.textTertiary),
+              style: TextStyle(fontSize: 40, color: AppColors.gray400),
             ),
             error: (_, _) => const Text(
               '—',
-              style: TextStyle(fontSize: 40, color: SpendlerColors.destructive),
+              style: TextStyle(fontSize: 40, color: AppColors.red),
             ),
           ),
-          const SizedBox(height: SpendlerSpacing.xs),
+          const SizedBox(height: AppSpacing.xxs),
           Text(
             '$count active subscription${count == 1 ? '' : 's'}',
             style: const TextStyle(
               fontSize: 13,
-              color: SpendlerColors.textSecondary,
+              color: AppColors.gray500,
             ),
           ),
         ],
@@ -199,6 +199,79 @@ class _SubscriptionCard extends StatelessWidget {
   final VoidCallback onToggle;
   final VoidCallback onDelete;
 
+  Widget _buildBillingDateRow() {
+    if (!subscription.isActive) {
+      return const Text(
+        'Paused',
+        style: TextStyle(
+          fontSize: 12,
+          color: AppColors.gray400,
+          fontStyle: FontStyle.italic,
+        ),
+      );
+    }
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final billing = DateTime(
+      subscription.nextBillingDate.year,
+      subscription.nextBillingDate.month,
+      subscription.nextBillingDate.day,
+    );
+    final daysUntil = billing.difference(today).inDays;
+
+    final dateText = 'Next: ${DateFormat('d MMM yyyy').format(subscription.nextBillingDate)}';
+
+    if (daysUntil > 7 || daysUntil < 0) {
+      return Text(
+        dateText,
+        style: const TextStyle(
+          fontSize: 12,
+          color: AppColors.gray400,
+        ),
+      );
+    }
+
+    // Billing is within 7 days — show urgency badge
+    final badgeColor = daysUntil <= 2 ? const Color(0xFFE53935) : const Color(0xFFEF6C00);
+    final String badgeLabel;
+    if (daysUntil == 0) {
+      badgeLabel = 'Due today';
+    } else if (daysUntil == 1) {
+      badgeLabel = 'Due tomorrow';
+    } else {
+      badgeLabel = 'Due in $daysUntil days';
+    }
+
+    return Row(
+      children: [
+        Text(
+          dateText,
+          style: const TextStyle(
+            fontSize: 12,
+            color: AppColors.gray400,
+          ),
+        ),
+        const SizedBox(width: 6),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          decoration: BoxDecoration(
+            color: badgeColor.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Text(
+            badgeLabel,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: badgeColor,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final cat = TransactionCategory.values.firstWhere(
@@ -206,20 +279,20 @@ class _SubscriptionCard extends StatelessWidget {
       orElse: () => TransactionCategory.other,
     );
     final catColor = subscription.isActive
-        ? SpendlerColors.categoryColor(cat)
-        : SpendlerColors.paused;
+        ? AppColors.categoryColor(cat)
+        : AppColors.gray400;
     final cycle = BillingCycle.values.firstWhere(
       (c) => c.name == subscription.billingCycle,
       orElse: () => BillingCycle.monthly,
     );
 
     return Container(
-      padding: const EdgeInsets.all(SpendlerSpacing.cardPadding),
+      padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: SpendlerColors.card,
-        borderRadius: BorderRadius.circular(SpendlerRadii.card),
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: subscription.isActive ? catColor.withValues(alpha: 0.3) : SpendlerColors.cardBorder,
+          color: subscription.isActive ? catColor.withValues(alpha: 0.3) : AppColors.gray200,
         ),
       ),
       child: Row(
@@ -230,11 +303,11 @@ class _SubscriptionCard extends StatelessWidget {
             height: 44,
             decoration: BoxDecoration(
               color: catColor.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(SpendlerRadii.button),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(cat.icon, color: catColor, size: 22),
           ),
-          const SizedBox(width: SpendlerSpacing.md),
+          const SizedBox(width: AppSpacing.md),
 
           // Name + details
           Expanded(
@@ -247,8 +320,8 @@ class _SubscriptionCard extends StatelessWidget {
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                     color: subscription.isActive
-                        ? SpendlerColors.textPrimary
-                        : SpendlerColors.textTertiary,
+                        ? AppColors.black
+                        : AppColors.gray400,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -258,34 +331,23 @@ class _SubscriptionCard extends StatelessWidget {
                   '\$${subscription.amount.toStringAsFixed(0)}${cycle.shortLabel} · ${cat.label}',
                   style: const TextStyle(
                     fontSize: 13,
-                    color: SpendlerColors.textSecondary,
+                    color: AppColors.gray500,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
-                Text(
-                  subscription.isActive
-                      ? 'Next: ${DateFormat('d MMM yyyy').format(subscription.nextBillingDate)}'
-                      : 'Paused',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: subscription.isActive
-                        ? SpendlerColors.textTertiary
-                        : SpendlerColors.paused,
-                    fontStyle: subscription.isActive ? FontStyle.normal : FontStyle.italic,
-                  ),
-                ),
+                _buildBillingDateRow(),
               ],
             ),
           ),
 
-          // Actions
+          // Actions column
           IconButton(
             onPressed: onToggle,
             icon: Icon(
               subscription.isActive ? PhosphorIcons.pause() : PhosphorIcons.play(),
-              color: subscription.isActive ? SpendlerColors.warning : SpendlerColors.success,
+              color: subscription.isActive ? const Color(0xFFF59E0B) : AppColors.green,
               size: 20,
             ),
             tooltip: subscription.isActive ? 'Pause' : 'Resume',
@@ -294,7 +356,7 @@ class _SubscriptionCard extends StatelessWidget {
             onPressed: onDelete,
             icon: Icon(
               PhosphorIcons.trash(),
-              color: SpendlerColors.destructive.withValues(alpha: 0.7),
+              color: AppColors.red.withValues(alpha: 0.7),
               size: 20,
             ),
             tooltip: 'Delete',
@@ -332,38 +394,27 @@ class _AddSubscriptionSheetState extends ConsumerState<_AddSubscriptionSheet> {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        SpendlerSpacing.lg,
-        SpendlerSpacing.lg,
-        SpendlerSpacing.lg,
-        MediaQuery.of(context).viewInsets.bottom + SpendlerSpacing.lg,
+        AppSpacing.xl,
+        AppSpacing.xl,
+        AppSpacing.xl,
+        MediaQuery.of(context).viewInsets.bottom + AppSpacing.xl,
       ),
       child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Handle
-            Center(
-              child: Container(
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: SpendlerColors.textTertiary.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: SpendlerSpacing.lg),
+            const SizedBox(height: AppSpacing.sm),
 
             const Text(
               'Add Subscription',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
-                color: SpendlerColors.textPrimary,
+                color: AppColors.black,
               ),
             ),
-            const SizedBox(height: SpendlerSpacing.lg),
+            const SizedBox(height: AppSpacing.xl),
 
             // Name
             TextField(
@@ -371,7 +422,7 @@ class _AddSubscriptionSheetState extends ConsumerState<_AddSubscriptionSheet> {
               decoration: _inputDecoration('Name (e.g. Netflix)'),
               textCapitalization: TextCapitalization.words,
             ),
-            const SizedBox(height: SpendlerSpacing.md),
+            const SizedBox(height: AppSpacing.md),
 
             // Amount
             TextField(
@@ -379,7 +430,7 @@ class _AddSubscriptionSheetState extends ConsumerState<_AddSubscriptionSheet> {
               decoration: _inputDecoration('Amount (\$)'),
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
             ),
-            const SizedBox(height: SpendlerSpacing.md),
+            const SizedBox(height: AppSpacing.md),
 
             // Billing Cycle
             _SelectorRow(
@@ -388,7 +439,7 @@ class _AddSubscriptionSheetState extends ConsumerState<_AddSubscriptionSheet> {
               selected: _cycle.index,
               onSelected: (i) => setState(() => _cycle = BillingCycle.values[i]),
             ),
-            const SizedBox(height: SpendlerSpacing.md),
+            const SizedBox(height: AppSpacing.md),
 
             // Category
             _SelectorRow(
@@ -397,46 +448,46 @@ class _AddSubscriptionSheetState extends ConsumerState<_AddSubscriptionSheet> {
               selected: _category.index,
               onSelected: (i) => setState(() => _category = TransactionCategory.values[i]),
             ),
-            const SizedBox(height: SpendlerSpacing.md),
+            const SizedBox(height: AppSpacing.md),
 
             // Next billing date
             GestureDetector(
               onTap: _pickDate,
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: SpendlerSpacing.md,
+                  horizontal: AppSpacing.md,
                   vertical: 14,
                 ),
                 decoration: BoxDecoration(
-                  border: Border.all(color: SpendlerColors.cardBorder),
-                  borderRadius: BorderRadius.circular(SpendlerRadii.button),
+                  border: Border.all(color: AppColors.gray200),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.calendar_today, size: 18, color: SpendlerColors.textSecondary),
-                    const SizedBox(width: SpendlerSpacing.sm),
+                    const Icon(Icons.calendar_today, size: 18, color: AppColors.gray500),
+                    const SizedBox(width: AppSpacing.xs),
                     Text(
                       'Next billing: ${DateFormat('d MMM yyyy').format(_nextDate)}',
                       style: const TextStyle(
                         fontSize: 14,
-                        color: SpendlerColors.textPrimary,
+                        color: AppColors.black,
                       ),
                     ),
                   ],
                 ),
               ),
             ),
-            const SizedBox(height: SpendlerSpacing.lg),
+            const SizedBox(height: AppSpacing.xl),
 
             // Save button
             SizedBox(
               height: 48,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: SpendlerColors.accent,
+                  backgroundColor: AppColors.black,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(SpendlerRadii.button),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   elevation: 0,
                 ),
@@ -444,7 +495,7 @@ class _AddSubscriptionSheetState extends ConsumerState<_AddSubscriptionSheet> {
                 child: const Text('Save', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
               ),
             ),
-            const SizedBox(height: SpendlerSpacing.sm),
+            const SizedBox(height: AppSpacing.xs),
           ],
         ),
       ),
@@ -454,23 +505,23 @@ class _AddSubscriptionSheetState extends ConsumerState<_AddSubscriptionSheet> {
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(color: SpendlerColors.textTertiary),
+      hintStyle: const TextStyle(color: AppColors.gray400),
       filled: true,
-      fillColor: SpendlerColors.scaffold,
+      fillColor: AppColors.offWhite,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(SpendlerRadii.button),
-        borderSide: const BorderSide(color: SpendlerColors.cardBorder),
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppColors.gray200),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(SpendlerRadii.button),
-        borderSide: const BorderSide(color: SpendlerColors.cardBorder),
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppColors.gray200),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(SpendlerRadii.button),
-        borderSide: const BorderSide(color: SpendlerColors.accent),
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppColors.black),
       ),
       contentPadding: const EdgeInsets.symmetric(
-        horizontal: SpendlerSpacing.md,
+        horizontal: AppSpacing.md,
         vertical: 14,
       ),
     );
@@ -529,13 +580,13 @@ class _SelectorRow extends StatelessWidget {
           style: const TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w500,
-            color: SpendlerColors.textSecondary,
+            color: AppColors.gray500,
           ),
         ),
-        const SizedBox(height: SpendlerSpacing.xs),
+        const SizedBox(height: AppSpacing.xxs),
         Wrap(
-          spacing: SpendlerSpacing.sm,
-          runSpacing: SpendlerSpacing.sm,
+          spacing: AppSpacing.xs,
+          runSpacing: AppSpacing.xs,
           children: [
             for (var i = 0; i < options.length; i++)
               GestureDetector(
@@ -544,11 +595,11 @@ class _SelectorRow extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
                     color: i == selected
-                        ? SpendlerColors.accent.withValues(alpha: 0.1)
-                        : SpendlerColors.scaffold,
-                    borderRadius: BorderRadius.circular(SpendlerRadii.pill),
+                        ? AppColors.black.withValues(alpha: 0.1)
+                        : AppColors.offWhite,
+                    borderRadius: BorderRadius.circular(100),
                     border: Border.all(
-                      color: i == selected ? SpendlerColors.accent : SpendlerColors.cardBorder,
+                      color: i == selected ? AppColors.black : AppColors.gray200,
                     ),
                   ),
                   child: Text(
@@ -556,7 +607,7 @@ class _SelectorRow extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: i == selected ? FontWeight.w600 : FontWeight.w400,
-                      color: i == selected ? SpendlerColors.accent : SpendlerColors.textSecondary,
+                      color: i == selected ? AppColors.black : AppColors.gray500,
                     ),
                   ),
                 ),

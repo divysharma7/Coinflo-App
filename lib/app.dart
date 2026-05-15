@@ -18,7 +18,7 @@ class SpendlerApp extends StatelessWidget {
           final router = ref.watch(routerProvider);
 
           return MaterialApp.router(
-            title: 'Spendler',
+            title: 'CoinFlo',
             debugShowCheckedModeBanner: false,
             themeMode: ThemeMode.light,
             theme: ThemeData.light(useMaterial3: true).copyWith(

@@ -239,6 +239,30 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                     ),
             ),
 
+            // Navigate to onboarding / account creation
+            GestureDetector(
+              onTap: () => context.go('/onboarding/step1'),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+                child: Text.rich(
+                  TextSpan(
+                    text: "Don't have an account? ",
+                    style:
+                        AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
+                    children: [
+                      TextSpan(
+                        text: 'Start fresh',
+                        style: AppTextStyles.bodyS.copyWith(
+                          color: AppColors.black,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
             const SizedBox(height: AppSpacing.sm),
           ],
         ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:finance_buddy_app/core/enums.dart';
 
 class AppColors {
   AppColors._();
@@ -38,4 +39,24 @@ class AppColors {
   static const Color catGreenText = Color(0xFF15803D);
   static const Color catGrayBg = Color(0xFFF3F4F6);
   static const Color catGrayText = Color(0xFF374151);
+
+  // Category accent colours (migrated from tokens.dart)
+  static const Map<TransactionCategory, Color> categoryHue = {
+    TransactionCategory.foodAndDrink: Color(0xFFFF8A4C),
+    TransactionCategory.transport: Color(0xFF4A8FE7),
+    TransactionCategory.shopping: Color(0xFFB19CD9),
+    TransactionCategory.billsAndUtilities: Color(0xFFF59E0B),
+    TransactionCategory.healthAndWellness: Color(0xFF22C55E),
+    TransactionCategory.entertainment: Color(0xFFE91E63),
+    TransactionCategory.streaming: Color(0xFFEC407A),
+    TransactionCategory.gymFitness: Color(0xFF4CAF50),
+    TransactionCategory.productivityTools: Color(0xFF9575CD),
+    TransactionCategory.personalCare: Color(0xFFF8BBD0),
+    TransactionCategory.education: Color(0xFF5C6BC0),
+    TransactionCategory.travel: Color(0xFF14B8A6),
+    TransactionCategory.other: Color(0xFF6E6E73),
+  };
+
+  static Color categoryColor(TransactionCategory cat) =>
+      categoryHue[cat] ?? const Color(0xFF6E6E73);
 }

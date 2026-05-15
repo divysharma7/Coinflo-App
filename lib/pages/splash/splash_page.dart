@@ -1,8 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:finance_buddy_app/design_system/design_system.dart';
-import 'package:finance_buddy_app/main.dart' show firebaseInitialized;
 import 'package:finance_buddy_app/providers/auth_provider.dart';
 import 'package:finance_buddy_app/providers/onboarding_provider.dart';
 
@@ -59,28 +60,33 @@ class _SplashPageState extends ConsumerState<SplashPage>
     // Fade in text
     await _fadeCtrl.forward();
     await Future<void>.delayed(const Duration(milliseconds: 400));
-    // Navigate based on returning user + onboarding status
     if (!mounted) return;
 
-    final authService = ref.read(authServiceProvider);
-    final isReturning = await authService.isReturningUser();
-    final onboardingDone = await ref.read(hasCompletedOnboardingProvider.future);
+    if (kDebugMode) {
+      // ── Debug mode: skip auth but respect onboarding ──
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('auth_token', 'test_hardcoded_token');
+      await prefs.setString('user_uid', 'test_user_123');
 
-    if (!mounted) return;
-
-    if (isReturning && onboardingDone) {
-      // Hydrate local data from Firestore if Firebase is available
-      if (firebaseInitialized) {
-        final uid = await authService.getStoredUid();
-        if (uid != null) {
-          final firestoreService = ref.read(firestoreServiceProvider);
-          await firestoreService.hydrateLocalFromFirestore(uid);
-        }
-      }
+      final onboardingDone = prefs.getBool('onboarding_completed') ?? false;
       if (!mounted) return;
-      context.go('/home');
+
+      if (onboardingDone) {
+        context.go('/home');
+      } else {
+        context.go('/onboarding/step1');
+      }
     } else {
-      context.go('/onboarding/step1');
+      // ── Release mode: real auth flow ──
+      final isReturning = await ref.read(isReturningUserProvider.future);
+      final onboardingDone = await ref.read(hasCompletedOnboardingProvider.future);
+      if (!mounted) return;
+
+      if (isReturning && onboardingDone) {
+        context.go('/home');
+      } else {
+        context.go('/onboarding/step1');
+      }
     }
   }
 
@@ -127,7 +133,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
             FadeTransition(
               opacity: _wordmarkFade,
               child: Text(
-                'SPENDLER',
+                'COINFLO',
                 style: AppTextStyles.headingL.copyWith(
                   color: AppColors.black,
                   letterSpacing: 4,

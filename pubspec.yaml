@@ -1,5 +1,5 @@
 name: finance_buddy_app
-description: "Spendler — Track your spending habits"
+description: "CoinFlo — Track your spending habits"
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -29,8 +29,8 @@ dependencies:
   # Charts
   fl_chart: ^0.70.2
 
-  # SMS
-  another_telephony: ^0.4.1
+  # AI
+  firebase_ai: ^2.3.0
 
   # Notifications
   flutter_local_notifications: ^18.0.1
