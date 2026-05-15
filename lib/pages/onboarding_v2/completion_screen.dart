@@ -4,6 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'dart:convert';
+
+import 'package:drift/drift.dart' as drift;
+import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/providers/auth_provider.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
@@ -147,6 +151,12 @@ class _CompletionScreenState extends ConsumerState<CompletionScreen>
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('onboarding_completed', true);
       await prefs.setString('user_email', email);
+
+      // Sync onboarding data from SharedPreferences into the Drift database
+      // so Plan page (which reads from Drift) shows the user's budgets and goals.
+      final repo = ref.read(repositoryProvider);
+      await _syncBudgetsToDrift(prefs, repo);
+      await _syncGoalsToDrift(prefs, repo);
 
       // Refresh providers so home page reads the freshly-saved onboarding data
       ref.invalidate(monthlyBudgetProvider);
@@ -477,5 +487,48 @@ class _CompletionScreenState extends ConsumerState<CompletionScreen>
         ),
       ],
     );
+  }
+
+  /// Insert onboarding category budgets from SharedPreferences into Drift.
+  Future<void> _syncBudgetsToDrift(SharedPreferences prefs, dynamic repo) async {
+    final json = prefs.getString('category_budgets');
+    if (json == null) return;
+    try {
+      final list = (jsonDecode(json) as List).cast<Map<String, dynamic>>();
+      for (final b in list) {
+        // Onboarding model uses 'group', Drift uses 'category'.
+        final category = b['group'] as String? ?? '';
+        final limit = (b['monthlyLimit'] as num?)?.toDouble() ?? 0;
+        if (category.isEmpty || limit <= 0) continue;
+        await repo.insertBudget(CategoryBudgetsCompanion(
+          category: drift.Value(category),
+          monthlyLimit: drift.Value(limit),
+        ));
+      }
+    } on Exception catch (e) {
+      debugPrint('Budget sync to Drift failed: $e');
+    }
+  }
+
+  /// Insert onboarding savings goals from SharedPreferences into Drift.
+  Future<void> _syncGoalsToDrift(SharedPreferences prefs, dynamic repo) async {
+    final json = prefs.getString('savings_goals');
+    if (json == null) return;
+    try {
+      final list = (jsonDecode(json) as List).cast<Map<String, dynamic>>();
+      for (final g in list) {
+        final name = g['name'] as String? ?? '';
+        final target = (g['targetAmount'] as num?)?.toDouble() ?? 0;
+        final icon = g['iconAsset'] as String? ?? 'star';
+        if (name.isEmpty || target <= 0) continue;
+        await repo.insertGoal(SavingsGoalsCompanion(
+          name: drift.Value(name),
+          targetAmount: drift.Value(target),
+          iconName: drift.Value(icon),
+        ));
+      }
+    } on Exception catch (e) {
+      debugPrint('Goals sync to Drift failed: $e');
+    }
   }
 }
