@@ -110,7 +110,7 @@ class _MonthlyBudgetScreenState extends State<MonthlyBudgetScreen>
 
   Future<void> _onContinue() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('monthly_budget', _selectedAmount);
+    await prefs.setDouble('monthly_budget', _selectedAmount.toDouble());
     if (mounted) await context.push('/onboarding/step4');
   }
 

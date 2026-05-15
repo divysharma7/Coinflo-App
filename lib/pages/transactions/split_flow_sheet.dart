@@ -24,6 +24,18 @@ class SplitFlowSheet extends ConsumerStatefulWidget {
 }
 
 class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
+  String get _sym {
+    final code = ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr';
+    switch (code.toLowerCase()) {
+      case 'inr': return '\u20B9';
+      case 'usd': return '\$';
+      case 'eur': return '\u20AC';
+      case 'gbp': return '\u00A3';
+      case 'jpy': return '\u00A5';
+      default: return '\$';
+    }
+  }
+
   _SplitMode? _mode;
 
   // ── Equal split state ──
@@ -138,7 +150,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
             icon: PhosphorIcons.divide(),
             label: 'Equal Split',
             sublabel: _mode != null
-                ? '\$${(_equalMyShare).toStringAsFixed(0)} each'
+                ? '$_sym${(_equalMyShare).toStringAsFixed(0)} each'
                 : null,
           ),
         ),
@@ -291,10 +303,10 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
           child: Column(
             children: [
               _summaryRow(
-                  'Your share', '\$${_equalMyShare.toStringAsFixed(0)}'),
+                  'Your share', '$_sym${_equalMyShare.toStringAsFixed(0)}'),
               const SizedBox(height: AppSpacing.sm),
               _summaryRow(
-                  'Others owe you', '\$${_equalOthersOwe.toStringAsFixed(0)}'),
+                  'Others owe you', '$_sym${_equalOthersOwe.toStringAsFixed(0)}'),
             ],
           ),
         ),
@@ -448,7 +460,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            '\$${remaining.toStringAsFixed(0)} still unallocated',
+            '$_sym${remaining.toStringAsFixed(0)} still unallocated',
           ),
           backgroundColor: const Color(0xFFF59E0B),
           behavior: SnackBarBehavior.floating,
@@ -488,7 +500,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
               fontSize: 18,
               fontWeight: FontWeight.w600,
             ),
-            decoration: _inputDecor('Amount', prefix: '\$ '),
+            decoration: _inputDecor('Amount', prefix: '$_sym '),
           ),
         ],
       ),
@@ -555,7 +567,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
               fontSize: 18,
               fontWeight: FontWeight.w600,
             ),
-            decoration: _inputDecor('Amount', prefix: '\$ '),
+            decoration: _inputDecor('Amount', prefix: '$_sym '),
           ),
         ],
       ),
@@ -592,7 +604,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
         runSpacing: AppSpacing.xs,
         children: [
           Text(
-            '\$${widget.totalAmount.toStringAsFixed(0)} total',
+            '$_sym${widget.totalAmount.toStringAsFixed(0)} total',
             style: const TextStyle(
               color: AppColors.gray500,
               fontSize: 13,
@@ -606,7 +618,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
             ),
           ),
           Text(
-            'Allocated: \$${_customAllocated.toStringAsFixed(0)}',
+            'Allocated: $_sym${_customAllocated.toStringAsFixed(0)}',
             style: const TextStyle(
               color: AppColors.gray500,
               fontSize: 13,
@@ -623,7 +635,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Remaining: \$${remaining.toStringAsFixed(0)}',
+                'Remaining: $_sym${remaining.toStringAsFixed(0)}',
                 style: TextStyle(
                   color: statusColor,
                   fontSize: 13,

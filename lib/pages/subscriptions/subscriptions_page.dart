@@ -8,6 +8,19 @@ import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/widgets/common/empty_state.dart';
 
+import 'package:flutter_animate/flutter_animate.dart';
+
+String _currencySymbol(String code) {
+  switch (code.toLowerCase()) {
+    case 'inr': return '\u20B9';
+    case 'usd': return '\$';
+    case 'eur': return '\u20AC';
+    case 'gbp': return '\u00A3';
+    case 'jpy': return '\u00A5';
+    default: return '\$';
+  }
+}
+
 class SubscriptionsPage extends ConsumerWidget {
   const SubscriptionsPage({super.key});
 
@@ -15,6 +28,7 @@ class SubscriptionsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final subsAsync = ref.watch(allSubscriptionsProvider);
     final monthlyTotal = ref.watch(subscriptionMonthlyTotalProvider);
+    final sym = _currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
 
     return Scaffold(
       backgroundColor: AppColors.offWhite,
@@ -57,18 +71,20 @@ class SubscriptionsPage extends ConsumerWidget {
             ),
             children: [
               // ── Monthly cost summary ──
-              _MonthlySummaryCard(monthlyTotal: monthlyTotal, count: subs.where((s) => s.isActive).length),
+              _MonthlySummaryCard(monthlyTotal: monthlyTotal, count: subs.where((s) => s.isActive).length, symbol: sym),
               const SizedBox(height: AppSpacing.xl),
 
               // ── Subscription cards ──
-              for (final sub in subs) ...[
+              for (int i = 0; i < subs.length; i++) ...[
                 _SubscriptionCard(
-                  subscription: sub,
+                  subscription: subs[i],
+                  symbol: sym,
                   onToggle: () {
-                    ref.read(repositoryProvider).toggleSubscriptionActive(sub.id, !sub.isActive);
+                    ref.read(repositoryProvider).toggleSubscriptionActive(subs[i].id, !subs[i].isActive);
                   },
-                  onDelete: () => _confirmDelete(context, ref, sub),
-                ),
+                  onDelete: () => _confirmDelete(context, ref, subs[i]),
+                ).animate().fadeIn(delay: Duration(milliseconds: 40 * i), duration: 300.ms)
+                    .slideX(begin: 0.05, delay: Duration(milliseconds: 40 * i), duration: 300.ms),
                 const SizedBox(height: AppSpacing.sm),
               ],
             ],
@@ -125,10 +141,11 @@ class SubscriptionsPage extends ConsumerWidget {
 // ─── Monthly Summary Card ─────────────────────────────
 
 class _MonthlySummaryCard extends StatelessWidget {
-  const _MonthlySummaryCard({required this.monthlyTotal, required this.count});
+  const _MonthlySummaryCard({required this.monthlyTotal, required this.count, required this.symbol});
 
   final AsyncValue<double> monthlyTotal;
   final int count;
+  final String symbol;
 
   @override
   Widget build(BuildContext context) {
@@ -154,7 +171,7 @@ class _MonthlySummaryCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.xs),
           monthlyTotal.when(
             data: (total) => Text(
-              '\$${total.toStringAsFixed(0)}',
+              '$symbol${total.toStringAsFixed(0)}',
               style: const TextStyle(
                 fontSize: 40,
                 fontWeight: FontWeight.w700,
@@ -193,11 +210,13 @@ class _SubscriptionCard extends StatelessWidget {
     required this.subscription,
     required this.onToggle,
     required this.onDelete,
+    required this.symbol,
   });
 
   final Subscription subscription;
   final VoidCallback onToggle;
   final VoidCallback onDelete;
+  final String symbol;
 
   Widget _buildBillingDateRow() {
     if (!subscription.isActive) {
@@ -328,7 +347,7 @@ class _SubscriptionCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '\$${subscription.amount.toStringAsFixed(0)}${cycle.shortLabel} · ${cat.label}',
+                  '$symbol${subscription.amount.toStringAsFixed(0)}${cycle.shortLabel} · ${cat.label}',
                   style: const TextStyle(
                     fontSize: 13,
                     color: AppColors.gray500,

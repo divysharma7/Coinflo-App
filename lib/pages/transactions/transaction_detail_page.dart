@@ -187,6 +187,19 @@ class _TransactionDetailPageState
 
   // ─── Read Mode ─────────────────────────────────────
 
+  String get _sym => _currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
+
+  static String _currencySymbol(String code) {
+    switch (code.toLowerCase()) {
+      case 'inr': return '\u20B9';
+      case 'usd': return '\$';
+      case 'eur': return '\u20AC';
+      case 'gbp': return '\u00A3';
+      case 'jpy': return '\u00A5';
+      default: return '\$';
+    }
+  }
+
   Widget _buildReadMode(SpendlerTransaction t) {
     final cat = TransactionCategory.values.firstWhere(
       (c) => c.name == t.category,
@@ -212,7 +225,7 @@ class _TransactionDetailPageState
             textBaseline: TextBaseline.alphabetic,
             children: [
               Text(
-                t.amount < 0 ? '-\$' : '+\$',
+                t.amount < 0 ? '-$_sym' : '+$_sym',
                 style: TextStyle(
                   fontSize: 20, fontWeight: FontWeight.w400,
                   color: t.amount < 0 ? AppColors.red : AppColors.green,
@@ -263,8 +276,8 @@ class _TransactionDetailPageState
                 _detailRow('Status', isUnconfirmed ? 'Unconfirmed' : 'Confirmed'),
                 if (t.isSplit) ...[
                   _detailRow('Split', '${t.splitCount} people'),
-                  _detailRow('My Share', '\$${t.splitMyShare?.toStringAsFixed(0) ?? "—"}'),
-                  _detailRow('Pending', '\$${t.splitPendingAmount?.toStringAsFixed(0) ?? "0"}'),
+                  _detailRow('My Share', '$_sym${t.splitMyShare?.toStringAsFixed(0) ?? "—"}'),
+                  _detailRow('Pending', '$_sym${t.splitPendingAmount?.toStringAsFixed(0) ?? "0"}'),
                   _detailRow('Settled', t.splitSettled ? 'Yes' : 'No'),
                 ],
               ],

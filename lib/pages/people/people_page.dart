@@ -12,6 +12,18 @@ import 'package:finance_buddy_app/pages/people/add_split_sheet.dart';
 import 'package:finance_buddy_app/pages/family/family_entry_sheet.dart';
 import 'package:finance_buddy_app/widgets/common/animated_amount.dart';
 import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+
+String _currencySymbol(String code) {
+  switch (code.toLowerCase()) {
+    case 'inr': return '\u20B9';
+    case 'usd': return '\$';
+    case 'eur': return '\u20AC';
+    case 'gbp': return '\u00A3';
+    case 'jpy': return '\u00A5';
+    default: return '\$';
+  }
+}
 
 class PeoplePage extends ConsumerWidget {
   const PeoplePage({super.key});
@@ -212,6 +224,7 @@ class _FriendsTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final sym = _currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
     final balanceAsync = ref.watch(totalFriendBalanceProvider);
     final contactsAsync = ref.watch(friendContactsProvider);
 
@@ -244,7 +257,7 @@ class _FriendsTab extends ConsumerWidget {
                         const SizedBox(height: 4),
                         AnimatedAmount(
                           value: bal.totalReceivable,
-                          prefix: '\$',
+                          prefix: sym,
                           style: AppTextStyles.headingM
                               .copyWith(color: AppColors.green),
                         ),
@@ -265,7 +278,7 @@ class _FriendsTab extends ConsumerWidget {
                           const SizedBox(height: 4),
                           AnimatedAmount(
                             value: bal.totalPayable,
-                            prefix: '\$',
+                            prefix: sym,
                             style: AppTextStyles.headingM
                                 .copyWith(color: AppColors.orange),
                           ),
@@ -305,11 +318,13 @@ class _FriendsTab extends ConsumerWidget {
             }
             return Column(
               children: contacts
-                  .map((c) => Padding(
+                  .asMap().entries
+                  .map((entry) => Padding(
                         padding:
                             const EdgeInsets.only(bottom: AppSpacing.sm),
-                        child: _FriendCard(contact: c),
-                      ))
+                        child: _FriendCard(contact: entry.value),
+                      ).animate().fadeIn(delay: Duration(milliseconds: 40 * entry.key), duration: 300.ms)
+                          .slideX(begin: 0.05, delay: Duration(milliseconds: 40 * entry.key), duration: 300.ms))
                   .toList(),
             );
           },
@@ -343,6 +358,7 @@ class _FriendCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final sym = _currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
     final splitsAsync =
         ref.watch(friendPendingSplitsProvider(contact.id));
     final c = _avatarColor(contact.avatarColour);
@@ -452,14 +468,16 @@ class _FriendCard extends ConsumerWidget {
                       _BalanceBar(
                           label: 'You owe',
                           amount: iOwe,
-                          color: AppColors.orange),
+                          color: AppColors.orange,
+                          symbol: sym),
                     if (iOwe > 0 && theyOwe > 0)
                       const SizedBox(height: 8),
                     if (theyOwe > 0)
                       _BalanceBar(
                           label: 'Owes you',
                           amount: theyOwe,
-                          color: AppColors.green),
+                          color: AppColors.green,
+                          symbol: sym),
                     const SizedBox(height: AppSpacing.sm),
                     Row(
                       children: [
@@ -631,6 +649,7 @@ class _SettlementPickerState extends ConsumerState<_SettlementPicker> {
 
   @override
   Widget build(BuildContext context) {
+    final sym = _currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
     final title = widget.direction == 'they_owe_me'
         ? '${widget.friendName} paid which ones?'
         : 'You paid which ones?';
@@ -684,7 +703,7 @@ class _SettlementPickerState extends ConsumerState<_SettlementPicker> {
                       const SizedBox(width: AppSpacing.sm),
                       Expanded(
                         child: Text(
-                          '\$${s.amount.toStringAsFixed(0)}',
+                          '$sym${s.amount.toStringAsFixed(0)}',
                           style: AppTextStyles.bodyM.copyWith(
                               color: AppColors.black,
                               fontWeight: FontWeight.w500),
@@ -752,6 +771,7 @@ class _FamilyTab extends ConsumerWidget {
     final wealth = ref.watch(totalFamilyWealthProvider);
     final inflows = ref.watch(familyInflowsProvider);
     final outflows = ref.watch(familyOutflowsProvider);
+    final sym = _currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
 
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -774,7 +794,7 @@ class _FamilyTab extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.sm),
                 AnimatedAmount(
                   value: total,
-                  prefix: '\$',
+                  prefix: sym,
                   style: AppTextStyles.headingL
                       .copyWith(color: AppColors.orange),
                 ),
@@ -792,7 +812,7 @@ class _FamilyTab extends ConsumerWidget {
           icon: PhosphorIconsFill.arrowCircleDown,
           color: AppColors.green,
           titleBuilder: (e) =>
-              '\$${e.amount.toStringAsFixed(0)} from ${e.fromPerson}',
+              '$sym${e.amount.toStringAsFixed(0)} from ${e.fromPerson}',
           emptyText: 'No inflows yet.',
         ),
         const SizedBox(height: AppSpacing.lg),
@@ -804,7 +824,7 @@ class _FamilyTab extends ConsumerWidget {
           icon: PhosphorIconsFill.arrowCircleUp,
           color: AppColors.red,
           titleBuilder: (e) =>
-              '\$${e.amount.toStringAsFixed(0)} to ${e.fromPerson}',
+              '$sym${e.amount.toStringAsFixed(0)} to ${e.fromPerson}',
           emptyText: 'No outflows yet.',
         ),
       ],
@@ -905,10 +925,11 @@ class _FamilyList extends StatelessWidget {
 
 class _BalanceBar extends StatelessWidget {
   const _BalanceBar(
-      {required this.label, required this.amount, required this.color});
+      {required this.label, required this.amount, required this.color, required this.symbol});
   final String label;
   final double amount;
   final Color color;
+  final String symbol;
 
   @override
   Widget build(BuildContext context) {
@@ -925,7 +946,7 @@ class _BalanceBar extends StatelessWidget {
               style: AppTextStyles.bodyS
                   .copyWith(color: color, fontWeight: FontWeight.w500)),
           const Spacer(),
-          Text('\$${amount.toStringAsFixed(0)}',
+          Text('$symbol${amount.toStringAsFixed(0)}',
               style: AppTextStyles.numericL.copyWith(color: color)),
         ],
       ),

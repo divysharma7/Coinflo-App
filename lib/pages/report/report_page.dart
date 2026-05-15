@@ -1,4 +1,5 @@
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -111,19 +112,26 @@ class _ReportPageState extends ConsumerState<ReportPage> {
               const SizedBox(height: AppSpacing.lg),
               _buildPeriodNavigator(),
               const SizedBox(height: AppSpacing.xl),
-              _buildBarChartSection(scope, symbol),
+              _buildBarChartSection(scope, symbol)
+                  .animate().fadeIn(duration: 400.ms).slideY(begin: 0.05, duration: 400.ms),
               const SizedBox(height: AppSpacing.lg),
-              _ProjectionCard(symbol: symbol),
+              _ProjectionCard(symbol: symbol)
+                  .animate().fadeIn(delay: 80.ms, duration: 400.ms).slideY(begin: 0.05, delay: 80.ms, duration: 400.ms),
               const SizedBox(height: AppSpacing.lg),
-              _buildBudgetVsActual(symbol),
+              _buildBudgetVsActual(symbol)
+                  .animate().fadeIn(delay: 160.ms, duration: 400.ms).slideY(begin: 0.05, delay: 160.ms, duration: 400.ms),
               const SizedBox(height: AppSpacing.lg),
-              const _SavingsGoalsSection(),
+              const _SavingsGoalsSection()
+                  .animate().fadeIn(delay: 240.ms, duration: 400.ms).slideY(begin: 0.05, delay: 240.ms, duration: 400.ms),
               const SizedBox(height: AppSpacing.lg),
-              _StreakBadge(symbol: symbol),
+              _StreakBadge(symbol: symbol)
+                  .animate().fadeIn(delay: 320.ms, duration: 400.ms).slideY(begin: 0.05, delay: 320.ms, duration: 400.ms),
               const SizedBox(height: AppSpacing.lg),
-              _buildDonutSection(symbol),
+              _buildDonutSection(symbol)
+                  .animate().fadeIn(delay: 400.ms, duration: 400.ms).slideY(begin: 0.05, delay: 400.ms, duration: 400.ms),
               const SizedBox(height: AppSpacing.xxl),
-              _buildCategoryBreakdown(symbol),
+              _buildCategoryBreakdown(symbol)
+                  .animate().fadeIn(delay: 480.ms, duration: 400.ms).slideY(begin: 0.05, delay: 480.ms, duration: 400.ms),
               const SizedBox(height: 100),
             ],
           ),

@@ -13,6 +13,7 @@ import 'package:finance_buddy_app/widgets/common/neo_pop_button.dart';
 import 'package:finance_buddy_app/pages/transactions/transaction_detail_page.dart';
 import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 import 'package:finance_buddy_app/widgets/common/animations.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class TransactionsPage extends ConsumerStatefulWidget {
   const TransactionsPage({super.key});
@@ -284,13 +285,17 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                 ));
               }
 
+              var tileIndex = 0;
               if (unconfirmed.isNotEmpty) {
                 items.add(const Padding(
                   padding: EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xs),
                   child: Text('UNCONFIRMED', style: AppTextStyles.labelM),
-                ));
+                ).animate().fadeIn(duration: 200.ms).slideX(begin: -0.1, duration: 200.ms));
                 for (final t in unconfirmed) {
-                  items.add(_buildTile(context, t, isUnconfirmed: true));
+                  final delay = Duration(milliseconds: 30 * tileIndex);
+                  items.add(_buildTile(context, t, isUnconfirmed: true)
+                      .animate().fadeIn(delay: delay, duration: 300.ms).slideX(begin: 0.05, delay: delay, duration: 300.ms));
+                  if (tileIndex < 20) tileIndex++;
                 }
                 items.add(const Divider(color: AppColors.gray200));
               }
@@ -298,9 +303,12 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                 items.add(const Padding(
                   padding: EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xs),
                   child: Text('CONFIRMED', style: AppTextStyles.labelM),
-                ));
+                ).animate().fadeIn(duration: 200.ms).slideX(begin: -0.1, duration: 200.ms));
                 for (final t in confirmed) {
-                  items.add(_buildTile(context, t));
+                  final delay = Duration(milliseconds: 30 * tileIndex);
+                  items.add(_buildTile(context, t)
+                      .animate().fadeIn(delay: delay, duration: 300.ms).slideX(begin: 0.05, delay: delay, duration: 300.ms));
+                  if (tileIndex < 20) tileIndex++;
                 }
               }
               items.add(const SizedBox(height: 80));
@@ -430,16 +438,17 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
     return count;
   }
 
-  static String _amountLabel(AmountFilter f) {
+  String _amountLabel(AmountFilter f) {
+    final s = _currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
     switch (f) {
       case AmountFilter.upto200:
-        return '\u2264 \$200';
+        return '\u2264 ${s}200';
       case AmountFilter.range200to500:
-        return '\$200\u2013500';
+        return '${s}200\u2013500';
       case AmountFilter.range500to2000:
-        return '\$500\u20132K';
+        return '${s}500\u20132K';
       case AmountFilter.above2000:
-        return '> \$2K';
+        return '> ${s}2K';
       case AmountFilter.all:
         return '';
     }
@@ -458,6 +467,18 @@ class _FilterSheet extends ConsumerStatefulWidget {
 }
 
 class _FilterSheetState extends ConsumerState<_FilterSheet> {
+  String get _sym {
+    final code = ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr';
+    switch (code.toLowerCase()) {
+      case 'inr': return '\u20B9';
+      case 'usd': return '\$';
+      case 'eur': return '\u20AC';
+      case 'gbp': return '\u00A3';
+      case 'jpy': return '\u00A5';
+      default: return '\$';
+    }
+  }
+
   late TransactionFilters _draft;
 
   @override
@@ -525,10 +546,10 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
             spacing: 8,
             runSpacing: 8,
             children: [
-              _ChipOption(label: '≤ \$200', selected: _draft.amount == AmountFilter.upto200, onTap: () => setState(() => _draft = _draft.copyWith(amount: _draft.amount == AmountFilter.upto200 ? AmountFilter.all : AmountFilter.upto200))),
-              _ChipOption(label: '\$200 – 500', selected: _draft.amount == AmountFilter.range200to500, onTap: () => setState(() => _draft = _draft.copyWith(amount: _draft.amount == AmountFilter.range200to500 ? AmountFilter.all : AmountFilter.range200to500))),
-              _ChipOption(label: '\$500 – 2,000', selected: _draft.amount == AmountFilter.range500to2000, onTap: () => setState(() => _draft = _draft.copyWith(amount: _draft.amount == AmountFilter.range500to2000 ? AmountFilter.all : AmountFilter.range500to2000))),
-              _ChipOption(label: '> \$2,000', selected: _draft.amount == AmountFilter.above2000, onTap: () => setState(() => _draft = _draft.copyWith(amount: _draft.amount == AmountFilter.above2000 ? AmountFilter.all : AmountFilter.above2000))),
+              _ChipOption(label: '≤ ${_sym}200', selected: _draft.amount == AmountFilter.upto200, onTap: () => setState(() => _draft = _draft.copyWith(amount: _draft.amount == AmountFilter.upto200 ? AmountFilter.all : AmountFilter.upto200))),
+              _ChipOption(label: '${_sym}200 – 500', selected: _draft.amount == AmountFilter.range200to500, onTap: () => setState(() => _draft = _draft.copyWith(amount: _draft.amount == AmountFilter.range200to500 ? AmountFilter.all : AmountFilter.range200to500))),
+              _ChipOption(label: '${_sym}500 – 2,000', selected: _draft.amount == AmountFilter.range500to2000, onTap: () => setState(() => _draft = _draft.copyWith(amount: _draft.amount == AmountFilter.range500to2000 ? AmountFilter.all : AmountFilter.range500to2000))),
+              _ChipOption(label: '> ${_sym}2,000', selected: _draft.amount == AmountFilter.above2000, onTap: () => setState(() => _draft = _draft.copyWith(amount: _draft.amount == AmountFilter.above2000 ? AmountFilter.all : AmountFilter.above2000))),
             ],
           ),
           const SizedBox(height: AppSpacing.lg),

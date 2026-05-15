@@ -37,7 +37,8 @@ class FirestoreService {
     if (currency != null) profileData['currency'] = currency;
     final currencySymbol = prefs.getString('currency_symbol');
     if (currencySymbol != null) profileData['currencySymbol'] = currencySymbol;
-    final monthlyBudget = prefs.getInt('monthly_budget');
+    final monthlyBudget = prefs.getDouble('monthly_budget') ??
+        prefs.getInt('monthly_budget')?.toDouble();
     if (monthlyBudget != null) profileData['monthlyBudget'] = monthlyBudget;
     batch.set(_userDoc(uid), profileData);
 
@@ -126,7 +127,7 @@ class FirestoreService {
       await prefs.setString('user_name', profile['name'] as String);
     }
     if (profile['monthlyBudget'] != null) {
-      await prefs.setInt('monthly_budget', profile['monthlyBudget'] as int);
+      await prefs.setDouble('monthly_budget', (profile['monthlyBudget'] as num).toDouble());
     }
     if (profile['trackIncome'] != null) {
       await prefs.setBool('track_income', profile['trackIncome'] as bool);

@@ -13,6 +13,7 @@ import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/services/notifications/notification_service.dart';
 import 'package:finance_buddy_app/services/notifications/spending_alert_service.dart';
 import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class QuickAddSheet extends ConsumerStatefulWidget {
   const QuickAddSheet({super.key});
@@ -262,7 +263,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                   ),
                 ),
               ],
-            ),
+            ).animate().fadeIn(duration: 300.ms).slideY(begin: -0.1, duration: 300.ms),
             const SizedBox(height: AppSpacing.sm),
 
             // Expense/Income toggle
@@ -403,7 +404,6 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                       ),
                     ),
 
-                    const SizedBox(height: AppSpacing.md),
                   ],
                 ),
               ),
@@ -509,7 +509,9 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
       childAspectRatio: 2.2,
       mainAxisSpacing: AppSpacing.xxs,
       crossAxisSpacing: AppSpacing.xxs,
-      children: keys.map((key) {
+      children: keys.asMap().entries.map((entry) {
+        final key = entry.value;
+        final i = entry.key;
         return InkWell(
           borderRadius: BorderRadius.circular(12),
           onTap: () => _onNumpadTap(key),
@@ -525,7 +527,8 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
               ),
             ),
           ),
-        );
+        ).animate().fadeIn(delay: Duration(milliseconds: 20 * i), duration: 200.ms)
+            .scale(begin: const Offset(0.85, 0.85), delay: Duration(milliseconds: 20 * i), duration: 200.ms);
       }).toList(),
     );
   }

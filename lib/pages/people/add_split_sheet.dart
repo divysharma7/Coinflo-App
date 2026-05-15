@@ -14,6 +14,18 @@ class AddSplitSheet extends ConsumerStatefulWidget {
 }
 
 class _AddSplitSheetState extends ConsumerState<AddSplitSheet> {
+  static String _sym(WidgetRef ref) {
+    final code = ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr';
+    switch (code.toLowerCase()) {
+      case 'inr': return '\u20B9';
+      case 'usd': return '\$';
+      case 'eur': return '\u20AC';
+      case 'gbp': return '\u00A3';
+      case 'jpy': return '\u00A5';
+      default: return '\$';
+    }
+  }
+
   String? _whoPaid;
   FriendContact? _selectedFriend;
   final _amountCtrl = TextEditingController();
@@ -158,7 +170,7 @@ class _AddSplitSheetState extends ConsumerState<AddSplitSheet> {
             style: AppTextStyles.headingM.copyWith(color: AppColors.black),
             decoration: InputDecoration(
               labelText: 'Amount',
-              prefixText: '\$ ',
+              prefixText: '${_sym(ref)} ',
               prefixStyle:
                   AppTextStyles.headingM.copyWith(color: AppColors.gray400),
               labelStyle:

@@ -6,6 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/providers/auth_provider.dart';
+import 'package:finance_buddy_app/providers/providers.dart';
+import 'package:lottie/lottie.dart';
 
 class CompletionScreen extends ConsumerStatefulWidget {
   const CompletionScreen({super.key});
@@ -24,6 +26,7 @@ class _CompletionScreenState extends ConsumerState<CompletionScreen>
   late final Animation<Offset> _cardSlide;
   late final Animation<double> _buttonFade;
 
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
@@ -87,6 +90,7 @@ class _CompletionScreenState extends ConsumerState<CompletionScreen>
   @override
   void dispose() {
     _enterController.dispose();
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -110,6 +114,12 @@ class _CompletionScreenState extends ConsumerState<CompletionScreen>
       _isLoading = true;
       _errorMessage = null;
     });
+
+    // Save name to local storage before Firebase sync picks it up
+    final name = _nameController.text.trim();
+    if (name.isNotEmpty) {
+      await saveUserName(name);
+    }
 
     try {
       // Try Firebase signup — but continue without it
@@ -137,6 +147,13 @@ class _CompletionScreenState extends ConsumerState<CompletionScreen>
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('onboarding_completed', true);
       await prefs.setString('user_email', email);
+
+      // Refresh providers so home page reads the freshly-saved onboarding data
+      ref.invalidate(monthlyBudgetProvider);
+      ref.invalidate(selectedCurrencyProvider);
+      ref.invalidate(userNameProvider);
+      ref.invalidate(userEmailProvider);
+      ref.invalidate(hasCompletedOnboardingProvider);
 
       if (mounted) {
         if (firebaseSignupFailed) {
@@ -208,18 +225,16 @@ class _CompletionScreenState extends ConsumerState<CompletionScreen>
                   children: [
                     const SizedBox(height: AppSpacing.xl),
 
-                    // Checkmark icon
+                    // Checkmark animation
                     ScaleTransition(
                       scale: _checkScale,
-                      child: Container(
+                      child: SizedBox(
                         width: 80,
                         height: 80,
-                        decoration: const BoxDecoration(
-                          color: AppColors.black,
-                          borderRadius: AppRadius.xl,
+                        child: Lottie.asset(
+                          'assets/lottie/onboarding_done.json',
+                          repeat: false,
                         ),
-                        child: const Icon(Icons.check,
-                            color: AppColors.white, size: 40),
                       ),
                     ),
 
@@ -258,6 +273,16 @@ class _CompletionScreenState extends ConsumerState<CompletionScreen>
                         opacity: _cardFade,
                         child: Column(
                           children: [
+                            // Name field
+                            _buildTextField(
+                              controller: _nameController,
+                              hint: 'What should we call you?',
+                              icon: Icons.person_outline,
+                              keyboardType: TextInputType.name,
+                            ),
+
+                            const SizedBox(height: AppSpacing.md),
+
                             // Email field
                             _buildTextField(
                               controller: _emailController,

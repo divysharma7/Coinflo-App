@@ -80,7 +80,7 @@ class _CategoryBudgetsScreenState extends State<CategoryBudgetsScreen>
   Future<void> _loadData() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _totalMonthlyBudget = prefs.getInt('monthly_budget') ?? 5000;
+      _totalMonthlyBudget = (prefs.getDouble('monthly_budget') ?? prefs.getInt('monthly_budget') ?? 5000).toInt();
       _currencySymbol = prefs.getString('currency_symbol') ?? '₹';
     });
   }

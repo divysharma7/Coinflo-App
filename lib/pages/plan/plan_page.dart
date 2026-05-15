@@ -8,8 +8,21 @@ import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/widgets/common/animations.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:lottie/lottie.dart';
 
 // ─── Category color helper ────────────────────────────
+
+String _currencySymbol(String code) {
+  switch (code.toLowerCase()) {
+    case 'inr': return '\u20B9';
+    case 'usd': return '\$';
+    case 'eur': return '\u20AC';
+    case 'gbp': return '\u00A3';
+    case 'jpy': return '\u00A5';
+    default: return '\$';
+  }
+}
 
 Color _categoryColor(TransactionCategory cat) {
   const map = <TransactionCategory, Color>{
@@ -45,9 +58,11 @@ class PlanPage extends ConsumerWidget {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const SizedBox(height: AppSpacing.xl),
-                const _BudgetsSection(),
+                const _BudgetsSection()
+                    .animate().fadeIn(duration: 400.ms).slideY(begin: 0.05, duration: 400.ms),
                 const SizedBox(height: AppSpacing.xxl),
-                const _GoalsSection(),
+                const _GoalsSection()
+                    .animate().fadeIn(delay: 120.ms, duration: 400.ms).slideY(begin: 0.05, delay: 120.ms, duration: 400.ms),
                 const SizedBox(height: AppSpacing.xxxl),
               ]),
             ),
@@ -65,6 +80,7 @@ class _HeroHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final sym = _currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
     return SliverToBoxAdapter(
       child: Container(
         decoration: const BoxDecoration(
@@ -105,8 +121,8 @@ class _HeroHeader extends ConsumerWidget {
                     }
                     return Text(
                       status.remaining >= 0
-                          ? '\$${status.remaining.toStringAsFixed(0)} left this month'
-                          : '\$${status.remaining.abs().toStringAsFixed(0)} over budget',
+                          ? '$sym${status.remaining.toStringAsFixed(0)} left this month'
+                          : '$sym${status.remaining.abs().toStringAsFixed(0)} over budget',
                       style: AppTextStyles.bodyM.copyWith(
                         color: status.isOverBudget
                             ? AppColors.red
@@ -144,6 +160,7 @@ class _BudgetsSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final budgets = ref.watch(budgetsProvider);
     final spending = ref.watch(monthlyCategorySpendingProvider);
+    final sym = _currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,6 +228,7 @@ class _BudgetsSection extends ConsumerWidget {
                           budget: budgetList[i],
                           spent: spendingMap[budgetList[i].category] ?? 0,
                           onDelete: () => _deleteBudget(ref, budgetList[i].id),
+                          symbol: sym,
                         ),
                       ),
                       if (i < budgetList.length - 1)
@@ -255,11 +273,13 @@ class _BudgetCard extends StatelessWidget {
     required this.budget,
     required this.spent,
     required this.onDelete,
+    required this.symbol,
   });
 
   final CategoryBudget budget;
   final double spent;
   final VoidCallback onDelete;
+  final String symbol;
 
   @override
   Widget build(BuildContext context) {
@@ -360,7 +380,7 @@ class _BudgetCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '\$${spent.toStringAsFixed(0)} / \$${budget.monthlyLimit.toStringAsFixed(0)}',
+                  '$symbol${spent.toStringAsFixed(0)} / $symbol${budget.monthlyLimit.toStringAsFixed(0)}',
                   style: AppTextStyles.bodyS.copyWith(
                     fontWeight: FontWeight.w500,
                     color: isOver ? barColor : AppColors.gray500,
@@ -404,7 +424,7 @@ class _BudgetCard extends StatelessWidget {
             if (isOver) ...[
               const SizedBox(height: AppSpacing.xs),
               Text(
-                '\$${(spent - budget.monthlyLimit).toStringAsFixed(0)} over limit',
+                '$symbol${(spent - budget.monthlyLimit).toStringAsFixed(0)} over limit',
                 style: AppTextStyles.labelS.copyWith(
                   color: barColor,
                   fontWeight: isCritical ? FontWeight.w700 : FontWeight.w400,
@@ -449,6 +469,7 @@ class _GoalsSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final goals = ref.watch(goalsProvider);
+    final sym = _currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -514,6 +535,7 @@ class _GoalsSection extends ConsumerWidget {
                       goal: goalList[i],
                       onAddMoney: () => _showAddMoneySheet(context, ref, goalList[i]),
                       onDelete: () => _deleteGoal(ref, goalList[i].id),
+                      symbol: sym,
                     ),
                   ),
                   if (i < goalList.length - 1)
@@ -570,11 +592,13 @@ class _GoalCard extends StatefulWidget {
     required this.goal,
     required this.onAddMoney,
     required this.onDelete,
+    required this.symbol,
   });
 
   final SavingsGoal goal;
   final VoidCallback onAddMoney;
   final VoidCallback onDelete;
+  final String symbol;
 
   @override
   State<_GoalCard> createState() => _GoalCardState();
@@ -763,7 +787,7 @@ class _GoalCardState extends State<_GoalCard>
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '\$${goal.currentAmount.toStringAsFixed(0)} of \$${goal.targetAmount.toStringAsFixed(0)}',
+                    '${widget.symbol}${goal.currentAmount.toStringAsFixed(0)} of ${widget.symbol}${goal.targetAmount.toStringAsFixed(0)}',
                     style: AppTextStyles.bodyS.copyWith(
                       color: _isCompleted ? _goldDark : AppColors.gray500,
                     ),
@@ -771,7 +795,7 @@ class _GoalCardState extends State<_GoalCard>
                   const SizedBox(height: 2),
                   Text(
                     remaining > 0
-                        ? '\$${remaining.toStringAsFixed(0)} to go'
+                        ? '${widget.symbol}${remaining.toStringAsFixed(0)} to go'
                         : 'Congratulations!',
                     style: AppTextStyles.labelS.copyWith(
                       color: remaining > 0
@@ -833,6 +857,22 @@ class _GoalCardState extends State<_GoalCard>
           );
         },
         child: card,
+      );
+      // Add confetti Lottie overlay
+      card = Stack(
+        clipBehavior: Clip.none,
+        children: [
+          card,
+          Positioned.fill(
+            child: IgnorePointer(
+              child: Lottie.asset(
+                'assets/lottie/confetti.json',
+                repeat: false,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+        ],
       );
     }
 
@@ -1277,7 +1317,7 @@ class _AddMoneySheetState extends ConsumerState<_AddMoneySheet> {
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            '\$${remaining.toStringAsFixed(0)} remaining',
+            '${_currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr')}${remaining.toStringAsFixed(0)} remaining',
             style: AppTextStyles.bodyS.copyWith(
               color: AppColors.gray500,
             ),

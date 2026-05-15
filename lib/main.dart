@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:finance_buddy_app/app.dart';
 import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/data/repositories/local/local_repository.dart';
@@ -16,6 +17,10 @@ void main() {
   runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
+
+      // Configure flutter_animate defaults
+      Animate.defaultDuration = const Duration(milliseconds: 250);
+      Animate.defaultCurve = Curves.easeOutCubic;
 
       // Log Flutter framework errors
       FlutterError.onError = (FlutterErrorDetails details) {

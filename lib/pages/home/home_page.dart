@@ -11,22 +11,29 @@ import 'package:finance_buddy_app/widgets/common/notification_bell.dart';
 import 'package:finance_buddy_app/widgets/charts/spend_bar_chart.dart';
 import 'package:finance_buddy_app/widgets/common/animated_progress_bar.dart';
 import 'package:finance_buddy_app/pages/home/daily_view_page.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return const CustomScrollView(
+    return CustomScrollView(
       slivers: [
-        SliverToBoxAdapter(child: _HeaderSection()),
-        SliverToBoxAdapter(child: _BudgetProgressBar()),
-        SliverToBoxAdapter(child: _QuickStatsRow()),
-        SliverToBoxAdapter(child: _DailySpendChart()),
-        SliverToBoxAdapter(child: _TopCategoriesSection()),
-        SliverToBoxAdapter(child: _SavingsGoalsSection()),
-        SliverToBoxAdapter(child: _RecentTransactionsSection()),
-        SliverToBoxAdapter(child: SizedBox(height: 100)),
+        const SliverToBoxAdapter(child: _HeaderSection()),
+        SliverToBoxAdapter(child: const _BudgetProgressBar()
+            .animate().fadeIn(duration: 400.ms).slideY(begin: 0.05, duration: 400.ms)),
+        SliverToBoxAdapter(child: const _QuickStatsRow()
+            .animate().fadeIn(delay: 80.ms, duration: 400.ms).slideY(begin: 0.05, duration: 400.ms, delay: 80.ms)),
+        SliverToBoxAdapter(child: const _DailySpendChart()
+            .animate().fadeIn(delay: 160.ms, duration: 400.ms).slideY(begin: 0.05, duration: 400.ms, delay: 160.ms)),
+        SliverToBoxAdapter(child: const _TopCategoriesSection()
+            .animate().fadeIn(delay: 240.ms, duration: 400.ms).slideY(begin: 0.05, duration: 400.ms, delay: 240.ms)),
+        SliverToBoxAdapter(child: const _SavingsGoalsSection()
+            .animate().fadeIn(delay: 320.ms, duration: 400.ms).slideY(begin: 0.05, duration: 400.ms, delay: 320.ms)),
+        SliverToBoxAdapter(child: const _RecentTransactionsSection()
+            .animate().fadeIn(delay: 400.ms, duration: 400.ms).slideY(begin: 0.05, duration: 400.ms, delay: 400.ms)),
+        const SliverToBoxAdapter(child: SizedBox(height: 100)),
       ],
     );
   }
@@ -172,7 +179,10 @@ class _BudgetProgressBar extends ConsumerWidget {
       child: expense.when(
         data: (spent) {
           if (budgetVal == null || budgetVal <= 0) {
-            return _noBudgetCard(context, ref);
+            return GestureDetector(
+              onTap: () => ref.read(selectedTabProvider.notifier).state = 2,
+              child: _noBudgetCard(context, ref),
+            );
           }
           final pct = (spent / budgetVal).clamp(0.0, 1.0);
           final remaining = (budgetVal - spent).clamp(0.0, double.infinity);
@@ -313,7 +323,7 @@ class _QuickStatsRow extends ConsumerWidget {
               ),
               icon: PhosphorIcons.sun(),
               color: AppColors.black,
-            ),
+            ).animate().fadeIn(delay: 0.ms, duration: 300.ms).slideX(begin: 0.1, duration: 300.ms),
           ),
           const SizedBox(width: AppSpacing.sm),
 
@@ -328,7 +338,7 @@ class _QuickStatsRow extends ConsumerWidget {
               ),
               icon: PhosphorIcons.calendarBlank(),
               color: AppColors.black,
-            ),
+            ).animate().fadeIn(delay: 60.ms, duration: 300.ms).slideX(begin: 0.1, duration: 300.ms, delay: 60.ms),
           ),
           const SizedBox(width: AppSpacing.sm),
 
