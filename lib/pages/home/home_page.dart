@@ -11,7 +11,10 @@ import 'package:finance_buddy_app/widgets/common/notification_bell.dart';
 import 'package:finance_buddy_app/widgets/charts/spend_bar_chart.dart';
 import 'package:finance_buddy_app/widgets/common/animated_progress_bar.dart';
 import 'package:finance_buddy_app/pages/home/daily_view_page.dart';
+import 'package:finance_buddy_app/pages/import/widgets/import_prompt_banner.dart';
+import 'package:finance_buddy_app/providers/import_provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:go_router/go_router.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -31,6 +34,8 @@ class HomePage extends ConsumerWidget {
             .animate().fadeIn(delay: 240.ms, duration: 400.ms).slideY(begin: 0.05, duration: 400.ms, delay: 240.ms)),
         SliverToBoxAdapter(child: const _SavingsGoalsSection()
             .animate().fadeIn(delay: 320.ms, duration: 400.ms).slideY(begin: 0.05, duration: 400.ms, delay: 320.ms)),
+        SliverToBoxAdapter(child: const _ImportBannerSection()
+            .animate().fadeIn(delay: 360.ms, duration: 400.ms).slideY(begin: 0.05, duration: 400.ms, delay: 360.ms)),
         SliverToBoxAdapter(child: const _RecentTransactionsSection()
             .animate().fadeIn(delay: 400.ms, duration: 400.ms).slideY(begin: 0.05, duration: 400.ms, delay: 400.ms)),
         const SliverToBoxAdapter(child: SizedBox(height: 100)),
@@ -740,6 +745,33 @@ class _SavingsGoalsSection extends ConsumerWidget {
                 ),
             ],
           ),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
+    );
+  }
+}
+
+// ─── Import Prompt Banner (shown when < 10 transactions) ──
+
+class _ImportBannerSection extends ConsumerWidget {
+  const _ImportBannerSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final txnsAsync = ref.watch(allTransactionsProvider);
+    return txnsAsync.when(
+      data: (txns) {
+        if (txns.length >= 10) return const SizedBox.shrink();
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.md,
+          ),
+          child: ImportPromptBanner(onTap: () {
+            ref.read(importFlowControllerProvider.notifier).setSource(ImportSource.homeBanner);
+            context.push('/import');
+          }),
         );
       },
       loading: () => const SizedBox.shrink(),

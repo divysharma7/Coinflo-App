@@ -190,6 +190,91 @@ class $SpendlerTransactionsTable extends SpendlerTransactions
     requiredDuringInsert: false,
     defaultValue: currentDateAndTime,
   );
+  static const VerificationMeta _rawHashMeta = const VerificationMeta(
+    'rawHash',
+  );
+  @override
+  late final GeneratedColumn<String> rawHash = GeneratedColumn<String>(
+    'raw_hash',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _merchantTokenMeta = const VerificationMeta(
+    'merchantToken',
+  );
+  @override
+  late final GeneratedColumn<String> merchantToken = GeneratedColumn<String>(
+    'merchant_token',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _categorizationSourceMeta =
+      const VerificationMeta('categorizationSource');
+  @override
+  late final GeneratedColumn<String> categorizationSource =
+      GeneratedColumn<String>(
+        'categorization_source',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _categorizationConfidenceMeta =
+      const VerificationMeta('categorizationConfidence');
+  @override
+  late final GeneratedColumn<double> categorizationConfidence =
+      GeneratedColumn<double>(
+        'categorization_confidence',
+        aliasedName,
+        true,
+        type: DriftSqlType.double,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _importBatchIdMeta = const VerificationMeta(
+    'importBatchId',
+  );
+  @override
+  late final GeneratedColumn<String> importBatchId = GeneratedColumn<String>(
+    'import_batch_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isAnomalyMeta = const VerificationMeta(
+    'isAnomaly',
+  );
+  @override
+  late final GeneratedColumn<bool> isAnomaly = GeneratedColumn<bool>(
+    'is_anomaly',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_anomaly" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _isRecurringMeta = const VerificationMeta(
+    'isRecurring',
+  );
+  @override
+  late final GeneratedColumn<bool> isRecurring = GeneratedColumn<bool>(
+    'is_recurring',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_recurring" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -208,6 +293,13 @@ class $SpendlerTransactionsTable extends SpendlerTransactions
     ledgerType,
     syncId,
     createdAt,
+    rawHash,
+    merchantToken,
+    categorizationSource,
+    categorizationConfidence,
+    importBatchId,
+    isAnomaly,
+    isRecurring,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -327,6 +419,63 @@ class $SpendlerTransactionsTable extends SpendlerTransactions
         createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
       );
     }
+    if (data.containsKey('raw_hash')) {
+      context.handle(
+        _rawHashMeta,
+        rawHash.isAcceptableOrUnknown(data['raw_hash']!, _rawHashMeta),
+      );
+    }
+    if (data.containsKey('merchant_token')) {
+      context.handle(
+        _merchantTokenMeta,
+        merchantToken.isAcceptableOrUnknown(
+          data['merchant_token']!,
+          _merchantTokenMeta,
+        ),
+      );
+    }
+    if (data.containsKey('categorization_source')) {
+      context.handle(
+        _categorizationSourceMeta,
+        categorizationSource.isAcceptableOrUnknown(
+          data['categorization_source']!,
+          _categorizationSourceMeta,
+        ),
+      );
+    }
+    if (data.containsKey('categorization_confidence')) {
+      context.handle(
+        _categorizationConfidenceMeta,
+        categorizationConfidence.isAcceptableOrUnknown(
+          data['categorization_confidence']!,
+          _categorizationConfidenceMeta,
+        ),
+      );
+    }
+    if (data.containsKey('import_batch_id')) {
+      context.handle(
+        _importBatchIdMeta,
+        importBatchId.isAcceptableOrUnknown(
+          data['import_batch_id']!,
+          _importBatchIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_anomaly')) {
+      context.handle(
+        _isAnomalyMeta,
+        isAnomaly.isAcceptableOrUnknown(data['is_anomaly']!, _isAnomalyMeta),
+      );
+    }
+    if (data.containsKey('is_recurring')) {
+      context.handle(
+        _isRecurringMeta,
+        isRecurring.isAcceptableOrUnknown(
+          data['is_recurring']!,
+          _isRecurringMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -400,6 +549,34 @@ class $SpendlerTransactionsTable extends SpendlerTransactions
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
       )!,
+      rawHash: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}raw_hash'],
+      ),
+      merchantToken: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}merchant_token'],
+      ),
+      categorizationSource: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}categorization_source'],
+      ),
+      categorizationConfidence: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}categorization_confidence'],
+      ),
+      importBatchId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}import_batch_id'],
+      ),
+      isAnomaly: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_anomaly'],
+      )!,
+      isRecurring: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_recurring'],
+      )!,
     );
   }
 
@@ -427,6 +604,13 @@ class SpendlerTransaction extends DataClass
   final String ledgerType;
   final String? syncId;
   final DateTime createdAt;
+  final String? rawHash;
+  final String? merchantToken;
+  final String? categorizationSource;
+  final double? categorizationConfidence;
+  final String? importBatchId;
+  final bool isAnomaly;
+  final bool isRecurring;
   const SpendlerTransaction({
     required this.id,
     required this.amount,
@@ -444,6 +628,13 @@ class SpendlerTransaction extends DataClass
     required this.ledgerType,
     this.syncId,
     required this.createdAt,
+    this.rawHash,
+    this.merchantToken,
+    this.categorizationSource,
+    this.categorizationConfidence,
+    this.importBatchId,
+    required this.isAnomaly,
+    required this.isRecurring,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -476,6 +667,25 @@ class SpendlerTransaction extends DataClass
       map['sync_id'] = Variable<String>(syncId);
     }
     map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || rawHash != null) {
+      map['raw_hash'] = Variable<String>(rawHash);
+    }
+    if (!nullToAbsent || merchantToken != null) {
+      map['merchant_token'] = Variable<String>(merchantToken);
+    }
+    if (!nullToAbsent || categorizationSource != null) {
+      map['categorization_source'] = Variable<String>(categorizationSource);
+    }
+    if (!nullToAbsent || categorizationConfidence != null) {
+      map['categorization_confidence'] = Variable<double>(
+        categorizationConfidence,
+      );
+    }
+    if (!nullToAbsent || importBatchId != null) {
+      map['import_batch_id'] = Variable<String>(importBatchId);
+    }
+    map['is_anomaly'] = Variable<bool>(isAnomaly);
+    map['is_recurring'] = Variable<bool>(isRecurring);
     return map;
   }
 
@@ -507,6 +717,23 @@ class SpendlerTransaction extends DataClass
           ? const Value.absent()
           : Value(syncId),
       createdAt: Value(createdAt),
+      rawHash: rawHash == null && nullToAbsent
+          ? const Value.absent()
+          : Value(rawHash),
+      merchantToken: merchantToken == null && nullToAbsent
+          ? const Value.absent()
+          : Value(merchantToken),
+      categorizationSource: categorizationSource == null && nullToAbsent
+          ? const Value.absent()
+          : Value(categorizationSource),
+      categorizationConfidence: categorizationConfidence == null && nullToAbsent
+          ? const Value.absent()
+          : Value(categorizationConfidence),
+      importBatchId: importBatchId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(importBatchId),
+      isAnomaly: Value(isAnomaly),
+      isRecurring: Value(isRecurring),
     );
   }
 
@@ -534,6 +761,17 @@ class SpendlerTransaction extends DataClass
       ledgerType: serializer.fromJson<String>(json['ledgerType']),
       syncId: serializer.fromJson<String?>(json['syncId']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      rawHash: serializer.fromJson<String?>(json['rawHash']),
+      merchantToken: serializer.fromJson<String?>(json['merchantToken']),
+      categorizationSource: serializer.fromJson<String?>(
+        json['categorizationSource'],
+      ),
+      categorizationConfidence: serializer.fromJson<double?>(
+        json['categorizationConfidence'],
+      ),
+      importBatchId: serializer.fromJson<String?>(json['importBatchId']),
+      isAnomaly: serializer.fromJson<bool>(json['isAnomaly']),
+      isRecurring: serializer.fromJson<bool>(json['isRecurring']),
     );
   }
   @override
@@ -556,6 +794,15 @@ class SpendlerTransaction extends DataClass
       'ledgerType': serializer.toJson<String>(ledgerType),
       'syncId': serializer.toJson<String?>(syncId),
       'createdAt': serializer.toJson<DateTime>(createdAt),
+      'rawHash': serializer.toJson<String?>(rawHash),
+      'merchantToken': serializer.toJson<String?>(merchantToken),
+      'categorizationSource': serializer.toJson<String?>(categorizationSource),
+      'categorizationConfidence': serializer.toJson<double?>(
+        categorizationConfidence,
+      ),
+      'importBatchId': serializer.toJson<String?>(importBatchId),
+      'isAnomaly': serializer.toJson<bool>(isAnomaly),
+      'isRecurring': serializer.toJson<bool>(isRecurring),
     };
   }
 
@@ -576,6 +823,13 @@ class SpendlerTransaction extends DataClass
     String? ledgerType,
     Value<String?> syncId = const Value.absent(),
     DateTime? createdAt,
+    Value<String?> rawHash = const Value.absent(),
+    Value<String?> merchantToken = const Value.absent(),
+    Value<String?> categorizationSource = const Value.absent(),
+    Value<double?> categorizationConfidence = const Value.absent(),
+    Value<String?> importBatchId = const Value.absent(),
+    bool? isAnomaly,
+    bool? isRecurring,
   }) => SpendlerTransaction(
     id: id ?? this.id,
     amount: amount ?? this.amount,
@@ -595,6 +849,21 @@ class SpendlerTransaction extends DataClass
     ledgerType: ledgerType ?? this.ledgerType,
     syncId: syncId.present ? syncId.value : this.syncId,
     createdAt: createdAt ?? this.createdAt,
+    rawHash: rawHash.present ? rawHash.value : this.rawHash,
+    merchantToken: merchantToken.present
+        ? merchantToken.value
+        : this.merchantToken,
+    categorizationSource: categorizationSource.present
+        ? categorizationSource.value
+        : this.categorizationSource,
+    categorizationConfidence: categorizationConfidence.present
+        ? categorizationConfidence.value
+        : this.categorizationConfidence,
+    importBatchId: importBatchId.present
+        ? importBatchId.value
+        : this.importBatchId,
+    isAnomaly: isAnomaly ?? this.isAnomaly,
+    isRecurring: isRecurring ?? this.isRecurring,
   );
   SpendlerTransaction copyWithCompanion(SpendlerTransactionsCompanion data) {
     return SpendlerTransaction(
@@ -626,6 +895,23 @@ class SpendlerTransaction extends DataClass
           : this.ledgerType,
       syncId: data.syncId.present ? data.syncId.value : this.syncId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      rawHash: data.rawHash.present ? data.rawHash.value : this.rawHash,
+      merchantToken: data.merchantToken.present
+          ? data.merchantToken.value
+          : this.merchantToken,
+      categorizationSource: data.categorizationSource.present
+          ? data.categorizationSource.value
+          : this.categorizationSource,
+      categorizationConfidence: data.categorizationConfidence.present
+          ? data.categorizationConfidence.value
+          : this.categorizationConfidence,
+      importBatchId: data.importBatchId.present
+          ? data.importBatchId.value
+          : this.importBatchId,
+      isAnomaly: data.isAnomaly.present ? data.isAnomaly.value : this.isAnomaly,
+      isRecurring: data.isRecurring.present
+          ? data.isRecurring.value
+          : this.isRecurring,
     );
   }
 
@@ -647,13 +933,20 @@ class SpendlerTransaction extends DataClass
           ..write('splitSettled: $splitSettled, ')
           ..write('ledgerType: $ledgerType, ')
           ..write('syncId: $syncId, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('rawHash: $rawHash, ')
+          ..write('merchantToken: $merchantToken, ')
+          ..write('categorizationSource: $categorizationSource, ')
+          ..write('categorizationConfidence: $categorizationConfidence, ')
+          ..write('importBatchId: $importBatchId, ')
+          ..write('isAnomaly: $isAnomaly, ')
+          ..write('isRecurring: $isRecurring')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     id,
     amount,
     category,
@@ -670,7 +963,14 @@ class SpendlerTransaction extends DataClass
     ledgerType,
     syncId,
     createdAt,
-  );
+    rawHash,
+    merchantToken,
+    categorizationSource,
+    categorizationConfidence,
+    importBatchId,
+    isAnomaly,
+    isRecurring,
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -690,7 +990,14 @@ class SpendlerTransaction extends DataClass
           other.splitSettled == this.splitSettled &&
           other.ledgerType == this.ledgerType &&
           other.syncId == this.syncId &&
-          other.createdAt == this.createdAt);
+          other.createdAt == this.createdAt &&
+          other.rawHash == this.rawHash &&
+          other.merchantToken == this.merchantToken &&
+          other.categorizationSource == this.categorizationSource &&
+          other.categorizationConfidence == this.categorizationConfidence &&
+          other.importBatchId == this.importBatchId &&
+          other.isAnomaly == this.isAnomaly &&
+          other.isRecurring == this.isRecurring);
 }
 
 class SpendlerTransactionsCompanion
@@ -711,6 +1018,13 @@ class SpendlerTransactionsCompanion
   final Value<String> ledgerType;
   final Value<String?> syncId;
   final Value<DateTime> createdAt;
+  final Value<String?> rawHash;
+  final Value<String?> merchantToken;
+  final Value<String?> categorizationSource;
+  final Value<double?> categorizationConfidence;
+  final Value<String?> importBatchId;
+  final Value<bool> isAnomaly;
+  final Value<bool> isRecurring;
   const SpendlerTransactionsCompanion({
     this.id = const Value.absent(),
     this.amount = const Value.absent(),
@@ -728,6 +1042,13 @@ class SpendlerTransactionsCompanion
     this.ledgerType = const Value.absent(),
     this.syncId = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.rawHash = const Value.absent(),
+    this.merchantToken = const Value.absent(),
+    this.categorizationSource = const Value.absent(),
+    this.categorizationConfidence = const Value.absent(),
+    this.importBatchId = const Value.absent(),
+    this.isAnomaly = const Value.absent(),
+    this.isRecurring = const Value.absent(),
   });
   SpendlerTransactionsCompanion.insert({
     this.id = const Value.absent(),
@@ -746,6 +1067,13 @@ class SpendlerTransactionsCompanion
     this.ledgerType = const Value.absent(),
     this.syncId = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.rawHash = const Value.absent(),
+    this.merchantToken = const Value.absent(),
+    this.categorizationSource = const Value.absent(),
+    this.categorizationConfidence = const Value.absent(),
+    this.importBatchId = const Value.absent(),
+    this.isAnomaly = const Value.absent(),
+    this.isRecurring = const Value.absent(),
   }) : amount = Value(amount),
        category = Value(category);
   static Insertable<SpendlerTransaction> custom({
@@ -765,6 +1093,13 @@ class SpendlerTransactionsCompanion
     Expression<String>? ledgerType,
     Expression<String>? syncId,
     Expression<DateTime>? createdAt,
+    Expression<String>? rawHash,
+    Expression<String>? merchantToken,
+    Expression<String>? categorizationSource,
+    Expression<double>? categorizationConfidence,
+    Expression<String>? importBatchId,
+    Expression<bool>? isAnomaly,
+    Expression<bool>? isRecurring,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -784,6 +1119,15 @@ class SpendlerTransactionsCompanion
       if (ledgerType != null) 'ledger_type': ledgerType,
       if (syncId != null) 'sync_id': syncId,
       if (createdAt != null) 'created_at': createdAt,
+      if (rawHash != null) 'raw_hash': rawHash,
+      if (merchantToken != null) 'merchant_token': merchantToken,
+      if (categorizationSource != null)
+        'categorization_source': categorizationSource,
+      if (categorizationConfidence != null)
+        'categorization_confidence': categorizationConfidence,
+      if (importBatchId != null) 'import_batch_id': importBatchId,
+      if (isAnomaly != null) 'is_anomaly': isAnomaly,
+      if (isRecurring != null) 'is_recurring': isRecurring,
     });
   }
 
@@ -804,6 +1148,13 @@ class SpendlerTransactionsCompanion
     Value<String>? ledgerType,
     Value<String?>? syncId,
     Value<DateTime>? createdAt,
+    Value<String?>? rawHash,
+    Value<String?>? merchantToken,
+    Value<String?>? categorizationSource,
+    Value<double?>? categorizationConfidence,
+    Value<String?>? importBatchId,
+    Value<bool>? isAnomaly,
+    Value<bool>? isRecurring,
   }) {
     return SpendlerTransactionsCompanion(
       id: id ?? this.id,
@@ -822,6 +1173,14 @@ class SpendlerTransactionsCompanion
       ledgerType: ledgerType ?? this.ledgerType,
       syncId: syncId ?? this.syncId,
       createdAt: createdAt ?? this.createdAt,
+      rawHash: rawHash ?? this.rawHash,
+      merchantToken: merchantToken ?? this.merchantToken,
+      categorizationSource: categorizationSource ?? this.categorizationSource,
+      categorizationConfidence:
+          categorizationConfidence ?? this.categorizationConfidence,
+      importBatchId: importBatchId ?? this.importBatchId,
+      isAnomaly: isAnomaly ?? this.isAnomaly,
+      isRecurring: isRecurring ?? this.isRecurring,
     );
   }
 
@@ -876,6 +1235,31 @@ class SpendlerTransactionsCompanion
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
+    if (rawHash.present) {
+      map['raw_hash'] = Variable<String>(rawHash.value);
+    }
+    if (merchantToken.present) {
+      map['merchant_token'] = Variable<String>(merchantToken.value);
+    }
+    if (categorizationSource.present) {
+      map['categorization_source'] = Variable<String>(
+        categorizationSource.value,
+      );
+    }
+    if (categorizationConfidence.present) {
+      map['categorization_confidence'] = Variable<double>(
+        categorizationConfidence.value,
+      );
+    }
+    if (importBatchId.present) {
+      map['import_batch_id'] = Variable<String>(importBatchId.value);
+    }
+    if (isAnomaly.present) {
+      map['is_anomaly'] = Variable<bool>(isAnomaly.value);
+    }
+    if (isRecurring.present) {
+      map['is_recurring'] = Variable<bool>(isRecurring.value);
+    }
     return map;
   }
 
@@ -897,7 +1281,14 @@ class SpendlerTransactionsCompanion
           ..write('splitSettled: $splitSettled, ')
           ..write('ledgerType: $ledgerType, ')
           ..write('syncId: $syncId, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('rawHash: $rawHash, ')
+          ..write('merchantToken: $merchantToken, ')
+          ..write('categorizationSource: $categorizationSource, ')
+          ..write('categorizationConfidence: $categorizationConfidence, ')
+          ..write('importBatchId: $importBatchId, ')
+          ..write('isAnomaly: $isAnomaly, ')
+          ..write('isRecurring: $isRecurring')
           ..write(')'))
         .toString();
   }
@@ -5397,6 +5788,1647 @@ class SmartRulesCompanion extends UpdateCompanion<SmartRule> {
   }
 }
 
+class $MerchantMappingsTable extends MerchantMappings
+    with TableInfo<$MerchantMappingsTable, MerchantMapping> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MerchantMappingsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _merchantTokenMeta = const VerificationMeta(
+    'merchantToken',
+  );
+  @override
+  late final GeneratedColumn<String> merchantToken = GeneratedColumn<String>(
+    'merchant_token',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _categoryMeta = const VerificationMeta(
+    'category',
+  );
+  @override
+  late final GeneratedColumn<String> category = GeneratedColumn<String>(
+    'category',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+    'source',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _confidenceMeta = const VerificationMeta(
+    'confidence',
+  );
+  @override
+  late final GeneratedColumn<double> confidence = GeneratedColumn<double>(
+    'confidence',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _useCountMeta = const VerificationMeta(
+    'useCount',
+  );
+  @override
+  late final GeneratedColumn<int> useCount = GeneratedColumn<int>(
+    'use_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    merchantToken,
+    category,
+    source,
+    confidence,
+    createdAt,
+    updatedAt,
+    useCount,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'merchant_mappings';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<MerchantMapping> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('merchant_token')) {
+      context.handle(
+        _merchantTokenMeta,
+        merchantToken.isAcceptableOrUnknown(
+          data['merchant_token']!,
+          _merchantTokenMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_merchantTokenMeta);
+    }
+    if (data.containsKey('category')) {
+      context.handle(
+        _categoryMeta,
+        category.isAcceptableOrUnknown(data['category']!, _categoryMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_categoryMeta);
+    }
+    if (data.containsKey('source')) {
+      context.handle(
+        _sourceMeta,
+        source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceMeta);
+    }
+    if (data.containsKey('confidence')) {
+      context.handle(
+        _confidenceMeta,
+        confidence.isAcceptableOrUnknown(data['confidence']!, _confidenceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_confidenceMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('use_count')) {
+      context.handle(
+        _useCountMeta,
+        useCount.isAcceptableOrUnknown(data['use_count']!, _useCountMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MerchantMapping map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MerchantMapping(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      merchantToken: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}merchant_token'],
+      )!,
+      category: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}category'],
+      )!,
+      source: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source'],
+      )!,
+      confidence: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}confidence'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      useCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}use_count'],
+      )!,
+    );
+  }
+
+  @override
+  $MerchantMappingsTable createAlias(String alias) {
+    return $MerchantMappingsTable(attachedDatabase, alias);
+  }
+}
+
+class MerchantMapping extends DataClass implements Insertable<MerchantMapping> {
+  final String id;
+  final String merchantToken;
+  final String category;
+  final String source;
+  final double confidence;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final int useCount;
+  const MerchantMapping({
+    required this.id,
+    required this.merchantToken,
+    required this.category,
+    required this.source,
+    required this.confidence,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.useCount,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['merchant_token'] = Variable<String>(merchantToken);
+    map['category'] = Variable<String>(category);
+    map['source'] = Variable<String>(source);
+    map['confidence'] = Variable<double>(confidence);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    map['use_count'] = Variable<int>(useCount);
+    return map;
+  }
+
+  MerchantMappingsCompanion toCompanion(bool nullToAbsent) {
+    return MerchantMappingsCompanion(
+      id: Value(id),
+      merchantToken: Value(merchantToken),
+      category: Value(category),
+      source: Value(source),
+      confidence: Value(confidence),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      useCount: Value(useCount),
+    );
+  }
+
+  factory MerchantMapping.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MerchantMapping(
+      id: serializer.fromJson<String>(json['id']),
+      merchantToken: serializer.fromJson<String>(json['merchantToken']),
+      category: serializer.fromJson<String>(json['category']),
+      source: serializer.fromJson<String>(json['source']),
+      confidence: serializer.fromJson<double>(json['confidence']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      useCount: serializer.fromJson<int>(json['useCount']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'merchantToken': serializer.toJson<String>(merchantToken),
+      'category': serializer.toJson<String>(category),
+      'source': serializer.toJson<String>(source),
+      'confidence': serializer.toJson<double>(confidence),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'useCount': serializer.toJson<int>(useCount),
+    };
+  }
+
+  MerchantMapping copyWith({
+    String? id,
+    String? merchantToken,
+    String? category,
+    String? source,
+    double? confidence,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    int? useCount,
+  }) => MerchantMapping(
+    id: id ?? this.id,
+    merchantToken: merchantToken ?? this.merchantToken,
+    category: category ?? this.category,
+    source: source ?? this.source,
+    confidence: confidence ?? this.confidence,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    useCount: useCount ?? this.useCount,
+  );
+  MerchantMapping copyWithCompanion(MerchantMappingsCompanion data) {
+    return MerchantMapping(
+      id: data.id.present ? data.id.value : this.id,
+      merchantToken: data.merchantToken.present
+          ? data.merchantToken.value
+          : this.merchantToken,
+      category: data.category.present ? data.category.value : this.category,
+      source: data.source.present ? data.source.value : this.source,
+      confidence: data.confidence.present
+          ? data.confidence.value
+          : this.confidence,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      useCount: data.useCount.present ? data.useCount.value : this.useCount,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MerchantMapping(')
+          ..write('id: $id, ')
+          ..write('merchantToken: $merchantToken, ')
+          ..write('category: $category, ')
+          ..write('source: $source, ')
+          ..write('confidence: $confidence, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('useCount: $useCount')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    merchantToken,
+    category,
+    source,
+    confidence,
+    createdAt,
+    updatedAt,
+    useCount,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MerchantMapping &&
+          other.id == this.id &&
+          other.merchantToken == this.merchantToken &&
+          other.category == this.category &&
+          other.source == this.source &&
+          other.confidence == this.confidence &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.useCount == this.useCount);
+}
+
+class MerchantMappingsCompanion extends UpdateCompanion<MerchantMapping> {
+  final Value<String> id;
+  final Value<String> merchantToken;
+  final Value<String> category;
+  final Value<String> source;
+  final Value<double> confidence;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> useCount;
+  final Value<int> rowid;
+  const MerchantMappingsCompanion({
+    this.id = const Value.absent(),
+    this.merchantToken = const Value.absent(),
+    this.category = const Value.absent(),
+    this.source = const Value.absent(),
+    this.confidence = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.useCount = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MerchantMappingsCompanion.insert({
+    required String id,
+    required String merchantToken,
+    required String category,
+    required String source,
+    required double confidence,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.useCount = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       merchantToken = Value(merchantToken),
+       category = Value(category),
+       source = Value(source),
+       confidence = Value(confidence),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<MerchantMapping> custom({
+    Expression<String>? id,
+    Expression<String>? merchantToken,
+    Expression<String>? category,
+    Expression<String>? source,
+    Expression<double>? confidence,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? useCount,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (merchantToken != null) 'merchant_token': merchantToken,
+      if (category != null) 'category': category,
+      if (source != null) 'source': source,
+      if (confidence != null) 'confidence': confidence,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (useCount != null) 'use_count': useCount,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MerchantMappingsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? merchantToken,
+    Value<String>? category,
+    Value<String>? source,
+    Value<double>? confidence,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? useCount,
+    Value<int>? rowid,
+  }) {
+    return MerchantMappingsCompanion(
+      id: id ?? this.id,
+      merchantToken: merchantToken ?? this.merchantToken,
+      category: category ?? this.category,
+      source: source ?? this.source,
+      confidence: confidence ?? this.confidence,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      useCount: useCount ?? this.useCount,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (merchantToken.present) {
+      map['merchant_token'] = Variable<String>(merchantToken.value);
+    }
+    if (category.present) {
+      map['category'] = Variable<String>(category.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (confidence.present) {
+      map['confidence'] = Variable<double>(confidence.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (useCount.present) {
+      map['use_count'] = Variable<int>(useCount.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MerchantMappingsCompanion(')
+          ..write('id: $id, ')
+          ..write('merchantToken: $merchantToken, ')
+          ..write('category: $category, ')
+          ..write('source: $source, ')
+          ..write('confidence: $confidence, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('useCount: $useCount, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CorrectionEventsTable extends CorrectionEvents
+    with TableInfo<$CorrectionEventsTable, CorrectionEvent> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CorrectionEventsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _transactionIdMeta = const VerificationMeta(
+    'transactionId',
+  );
+  @override
+  late final GeneratedColumn<String> transactionId = GeneratedColumn<String>(
+    'transaction_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _previousCategoryMeta = const VerificationMeta(
+    'previousCategory',
+  );
+  @override
+  late final GeneratedColumn<String> previousCategory = GeneratedColumn<String>(
+    'previous_category',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _newCategoryMeta = const VerificationMeta(
+    'newCategory',
+  );
+  @override
+  late final GeneratedColumn<String> newCategory = GeneratedColumn<String>(
+    'new_category',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _previousSourceMeta = const VerificationMeta(
+    'previousSource',
+  );
+  @override
+  late final GeneratedColumn<String> previousSource = GeneratedColumn<String>(
+    'previous_source',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _correctedAtMeta = const VerificationMeta(
+    'correctedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> correctedAt = GeneratedColumn<DateTime>(
+    'corrected_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _backfillCountMeta = const VerificationMeta(
+    'backfillCount',
+  );
+  @override
+  late final GeneratedColumn<int> backfillCount = GeneratedColumn<int>(
+    'backfill_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    transactionId,
+    previousCategory,
+    newCategory,
+    previousSource,
+    correctedAt,
+    backfillCount,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'correction_events';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CorrectionEvent> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('transaction_id')) {
+      context.handle(
+        _transactionIdMeta,
+        transactionId.isAcceptableOrUnknown(
+          data['transaction_id']!,
+          _transactionIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_transactionIdMeta);
+    }
+    if (data.containsKey('previous_category')) {
+      context.handle(
+        _previousCategoryMeta,
+        previousCategory.isAcceptableOrUnknown(
+          data['previous_category']!,
+          _previousCategoryMeta,
+        ),
+      );
+    }
+    if (data.containsKey('new_category')) {
+      context.handle(
+        _newCategoryMeta,
+        newCategory.isAcceptableOrUnknown(
+          data['new_category']!,
+          _newCategoryMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_newCategoryMeta);
+    }
+    if (data.containsKey('previous_source')) {
+      context.handle(
+        _previousSourceMeta,
+        previousSource.isAcceptableOrUnknown(
+          data['previous_source']!,
+          _previousSourceMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_previousSourceMeta);
+    }
+    if (data.containsKey('corrected_at')) {
+      context.handle(
+        _correctedAtMeta,
+        correctedAt.isAcceptableOrUnknown(
+          data['corrected_at']!,
+          _correctedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_correctedAtMeta);
+    }
+    if (data.containsKey('backfill_count')) {
+      context.handle(
+        _backfillCountMeta,
+        backfillCount.isAcceptableOrUnknown(
+          data['backfill_count']!,
+          _backfillCountMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CorrectionEvent map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CorrectionEvent(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      transactionId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}transaction_id'],
+      )!,
+      previousCategory: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}previous_category'],
+      ),
+      newCategory: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}new_category'],
+      )!,
+      previousSource: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}previous_source'],
+      )!,
+      correctedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}corrected_at'],
+      )!,
+      backfillCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}backfill_count'],
+      )!,
+    );
+  }
+
+  @override
+  $CorrectionEventsTable createAlias(String alias) {
+    return $CorrectionEventsTable(attachedDatabase, alias);
+  }
+}
+
+class CorrectionEvent extends DataClass implements Insertable<CorrectionEvent> {
+  final String id;
+  final String transactionId;
+  final String? previousCategory;
+  final String newCategory;
+  final String previousSource;
+  final DateTime correctedAt;
+  final int backfillCount;
+  const CorrectionEvent({
+    required this.id,
+    required this.transactionId,
+    this.previousCategory,
+    required this.newCategory,
+    required this.previousSource,
+    required this.correctedAt,
+    required this.backfillCount,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['transaction_id'] = Variable<String>(transactionId);
+    if (!nullToAbsent || previousCategory != null) {
+      map['previous_category'] = Variable<String>(previousCategory);
+    }
+    map['new_category'] = Variable<String>(newCategory);
+    map['previous_source'] = Variable<String>(previousSource);
+    map['corrected_at'] = Variable<DateTime>(correctedAt);
+    map['backfill_count'] = Variable<int>(backfillCount);
+    return map;
+  }
+
+  CorrectionEventsCompanion toCompanion(bool nullToAbsent) {
+    return CorrectionEventsCompanion(
+      id: Value(id),
+      transactionId: Value(transactionId),
+      previousCategory: previousCategory == null && nullToAbsent
+          ? const Value.absent()
+          : Value(previousCategory),
+      newCategory: Value(newCategory),
+      previousSource: Value(previousSource),
+      correctedAt: Value(correctedAt),
+      backfillCount: Value(backfillCount),
+    );
+  }
+
+  factory CorrectionEvent.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CorrectionEvent(
+      id: serializer.fromJson<String>(json['id']),
+      transactionId: serializer.fromJson<String>(json['transactionId']),
+      previousCategory: serializer.fromJson<String?>(json['previousCategory']),
+      newCategory: serializer.fromJson<String>(json['newCategory']),
+      previousSource: serializer.fromJson<String>(json['previousSource']),
+      correctedAt: serializer.fromJson<DateTime>(json['correctedAt']),
+      backfillCount: serializer.fromJson<int>(json['backfillCount']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'transactionId': serializer.toJson<String>(transactionId),
+      'previousCategory': serializer.toJson<String?>(previousCategory),
+      'newCategory': serializer.toJson<String>(newCategory),
+      'previousSource': serializer.toJson<String>(previousSource),
+      'correctedAt': serializer.toJson<DateTime>(correctedAt),
+      'backfillCount': serializer.toJson<int>(backfillCount),
+    };
+  }
+
+  CorrectionEvent copyWith({
+    String? id,
+    String? transactionId,
+    Value<String?> previousCategory = const Value.absent(),
+    String? newCategory,
+    String? previousSource,
+    DateTime? correctedAt,
+    int? backfillCount,
+  }) => CorrectionEvent(
+    id: id ?? this.id,
+    transactionId: transactionId ?? this.transactionId,
+    previousCategory: previousCategory.present
+        ? previousCategory.value
+        : this.previousCategory,
+    newCategory: newCategory ?? this.newCategory,
+    previousSource: previousSource ?? this.previousSource,
+    correctedAt: correctedAt ?? this.correctedAt,
+    backfillCount: backfillCount ?? this.backfillCount,
+  );
+  CorrectionEvent copyWithCompanion(CorrectionEventsCompanion data) {
+    return CorrectionEvent(
+      id: data.id.present ? data.id.value : this.id,
+      transactionId: data.transactionId.present
+          ? data.transactionId.value
+          : this.transactionId,
+      previousCategory: data.previousCategory.present
+          ? data.previousCategory.value
+          : this.previousCategory,
+      newCategory: data.newCategory.present
+          ? data.newCategory.value
+          : this.newCategory,
+      previousSource: data.previousSource.present
+          ? data.previousSource.value
+          : this.previousSource,
+      correctedAt: data.correctedAt.present
+          ? data.correctedAt.value
+          : this.correctedAt,
+      backfillCount: data.backfillCount.present
+          ? data.backfillCount.value
+          : this.backfillCount,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CorrectionEvent(')
+          ..write('id: $id, ')
+          ..write('transactionId: $transactionId, ')
+          ..write('previousCategory: $previousCategory, ')
+          ..write('newCategory: $newCategory, ')
+          ..write('previousSource: $previousSource, ')
+          ..write('correctedAt: $correctedAt, ')
+          ..write('backfillCount: $backfillCount')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    transactionId,
+    previousCategory,
+    newCategory,
+    previousSource,
+    correctedAt,
+    backfillCount,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CorrectionEvent &&
+          other.id == this.id &&
+          other.transactionId == this.transactionId &&
+          other.previousCategory == this.previousCategory &&
+          other.newCategory == this.newCategory &&
+          other.previousSource == this.previousSource &&
+          other.correctedAt == this.correctedAt &&
+          other.backfillCount == this.backfillCount);
+}
+
+class CorrectionEventsCompanion extends UpdateCompanion<CorrectionEvent> {
+  final Value<String> id;
+  final Value<String> transactionId;
+  final Value<String?> previousCategory;
+  final Value<String> newCategory;
+  final Value<String> previousSource;
+  final Value<DateTime> correctedAt;
+  final Value<int> backfillCount;
+  final Value<int> rowid;
+  const CorrectionEventsCompanion({
+    this.id = const Value.absent(),
+    this.transactionId = const Value.absent(),
+    this.previousCategory = const Value.absent(),
+    this.newCategory = const Value.absent(),
+    this.previousSource = const Value.absent(),
+    this.correctedAt = const Value.absent(),
+    this.backfillCount = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CorrectionEventsCompanion.insert({
+    required String id,
+    required String transactionId,
+    this.previousCategory = const Value.absent(),
+    required String newCategory,
+    required String previousSource,
+    required DateTime correctedAt,
+    this.backfillCount = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       transactionId = Value(transactionId),
+       newCategory = Value(newCategory),
+       previousSource = Value(previousSource),
+       correctedAt = Value(correctedAt);
+  static Insertable<CorrectionEvent> custom({
+    Expression<String>? id,
+    Expression<String>? transactionId,
+    Expression<String>? previousCategory,
+    Expression<String>? newCategory,
+    Expression<String>? previousSource,
+    Expression<DateTime>? correctedAt,
+    Expression<int>? backfillCount,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (transactionId != null) 'transaction_id': transactionId,
+      if (previousCategory != null) 'previous_category': previousCategory,
+      if (newCategory != null) 'new_category': newCategory,
+      if (previousSource != null) 'previous_source': previousSource,
+      if (correctedAt != null) 'corrected_at': correctedAt,
+      if (backfillCount != null) 'backfill_count': backfillCount,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CorrectionEventsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? transactionId,
+    Value<String?>? previousCategory,
+    Value<String>? newCategory,
+    Value<String>? previousSource,
+    Value<DateTime>? correctedAt,
+    Value<int>? backfillCount,
+    Value<int>? rowid,
+  }) {
+    return CorrectionEventsCompanion(
+      id: id ?? this.id,
+      transactionId: transactionId ?? this.transactionId,
+      previousCategory: previousCategory ?? this.previousCategory,
+      newCategory: newCategory ?? this.newCategory,
+      previousSource: previousSource ?? this.previousSource,
+      correctedAt: correctedAt ?? this.correctedAt,
+      backfillCount: backfillCount ?? this.backfillCount,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (transactionId.present) {
+      map['transaction_id'] = Variable<String>(transactionId.value);
+    }
+    if (previousCategory.present) {
+      map['previous_category'] = Variable<String>(previousCategory.value);
+    }
+    if (newCategory.present) {
+      map['new_category'] = Variable<String>(newCategory.value);
+    }
+    if (previousSource.present) {
+      map['previous_source'] = Variable<String>(previousSource.value);
+    }
+    if (correctedAt.present) {
+      map['corrected_at'] = Variable<DateTime>(correctedAt.value);
+    }
+    if (backfillCount.present) {
+      map['backfill_count'] = Variable<int>(backfillCount.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CorrectionEventsCompanion(')
+          ..write('id: $id, ')
+          ..write('transactionId: $transactionId, ')
+          ..write('previousCategory: $previousCategory, ')
+          ..write('newCategory: $newCategory, ')
+          ..write('previousSource: $previousSource, ')
+          ..write('correctedAt: $correctedAt, ')
+          ..write('backfillCount: $backfillCount, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ImportBatchesTable extends ImportBatches
+    with TableInfo<$ImportBatchesTable, ImportBatch> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ImportBatchesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _bankNameMeta = const VerificationMeta(
+    'bankName',
+  );
+  @override
+  late final GeneratedColumn<String> bankName = GeneratedColumn<String>(
+    'bank_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fileNameMeta = const VerificationMeta(
+    'fileName',
+  );
+  @override
+  late final GeneratedColumn<String> fileName = GeneratedColumn<String>(
+    'file_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _importedAtMeta = const VerificationMeta(
+    'importedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> importedAt = GeneratedColumn<DateTime>(
+    'imported_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _transactionCountMeta = const VerificationMeta(
+    'transactionCount',
+  );
+  @override
+  late final GeneratedColumn<int> transactionCount = GeneratedColumn<int>(
+    'transaction_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _categorizedCountMeta = const VerificationMeta(
+    'categorizedCount',
+  );
+  @override
+  late final GeneratedColumn<int> categorizedCount = GeneratedColumn<int>(
+    'categorized_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _uncategorizedCountMeta =
+      const VerificationMeta('uncategorizedCount');
+  @override
+  late final GeneratedColumn<int> uncategorizedCount = GeneratedColumn<int>(
+    'uncategorized_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _duplicateCountMeta = const VerificationMeta(
+    'duplicateCount',
+  );
+  @override
+  late final GeneratedColumn<int> duplicateCount = GeneratedColumn<int>(
+    'duplicate_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _errorMessageMeta = const VerificationMeta(
+    'errorMessage',
+  );
+  @override
+  late final GeneratedColumn<String> errorMessage = GeneratedColumn<String>(
+    'error_message',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    bankName,
+    fileName,
+    importedAt,
+    transactionCount,
+    categorizedCount,
+    uncategorizedCount,
+    duplicateCount,
+    status,
+    errorMessage,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'import_batches';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ImportBatch> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('bank_name')) {
+      context.handle(
+        _bankNameMeta,
+        bankName.isAcceptableOrUnknown(data['bank_name']!, _bankNameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_bankNameMeta);
+    }
+    if (data.containsKey('file_name')) {
+      context.handle(
+        _fileNameMeta,
+        fileName.isAcceptableOrUnknown(data['file_name']!, _fileNameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_fileNameMeta);
+    }
+    if (data.containsKey('imported_at')) {
+      context.handle(
+        _importedAtMeta,
+        importedAt.isAcceptableOrUnknown(data['imported_at']!, _importedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_importedAtMeta);
+    }
+    if (data.containsKey('transaction_count')) {
+      context.handle(
+        _transactionCountMeta,
+        transactionCount.isAcceptableOrUnknown(
+          data['transaction_count']!,
+          _transactionCountMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_transactionCountMeta);
+    }
+    if (data.containsKey('categorized_count')) {
+      context.handle(
+        _categorizedCountMeta,
+        categorizedCount.isAcceptableOrUnknown(
+          data['categorized_count']!,
+          _categorizedCountMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_categorizedCountMeta);
+    }
+    if (data.containsKey('uncategorized_count')) {
+      context.handle(
+        _uncategorizedCountMeta,
+        uncategorizedCount.isAcceptableOrUnknown(
+          data['uncategorized_count']!,
+          _uncategorizedCountMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_uncategorizedCountMeta);
+    }
+    if (data.containsKey('duplicate_count')) {
+      context.handle(
+        _duplicateCountMeta,
+        duplicateCount.isAcceptableOrUnknown(
+          data['duplicate_count']!,
+          _duplicateCountMeta,
+        ),
+      );
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_statusMeta);
+    }
+    if (data.containsKey('error_message')) {
+      context.handle(
+        _errorMessageMeta,
+        errorMessage.isAcceptableOrUnknown(
+          data['error_message']!,
+          _errorMessageMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ImportBatch map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ImportBatch(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      bankName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}bank_name'],
+      )!,
+      fileName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}file_name'],
+      )!,
+      importedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}imported_at'],
+      )!,
+      transactionCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}transaction_count'],
+      )!,
+      categorizedCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}categorized_count'],
+      )!,
+      uncategorizedCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}uncategorized_count'],
+      )!,
+      duplicateCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}duplicate_count'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      errorMessage: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}error_message'],
+      ),
+    );
+  }
+
+  @override
+  $ImportBatchesTable createAlias(String alias) {
+    return $ImportBatchesTable(attachedDatabase, alias);
+  }
+}
+
+class ImportBatch extends DataClass implements Insertable<ImportBatch> {
+  final String id;
+  final String bankName;
+  final String fileName;
+  final DateTime importedAt;
+  final int transactionCount;
+  final int categorizedCount;
+  final int uncategorizedCount;
+  final int duplicateCount;
+  final String status;
+  final String? errorMessage;
+  const ImportBatch({
+    required this.id,
+    required this.bankName,
+    required this.fileName,
+    required this.importedAt,
+    required this.transactionCount,
+    required this.categorizedCount,
+    required this.uncategorizedCount,
+    required this.duplicateCount,
+    required this.status,
+    this.errorMessage,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['bank_name'] = Variable<String>(bankName);
+    map['file_name'] = Variable<String>(fileName);
+    map['imported_at'] = Variable<DateTime>(importedAt);
+    map['transaction_count'] = Variable<int>(transactionCount);
+    map['categorized_count'] = Variable<int>(categorizedCount);
+    map['uncategorized_count'] = Variable<int>(uncategorizedCount);
+    map['duplicate_count'] = Variable<int>(duplicateCount);
+    map['status'] = Variable<String>(status);
+    if (!nullToAbsent || errorMessage != null) {
+      map['error_message'] = Variable<String>(errorMessage);
+    }
+    return map;
+  }
+
+  ImportBatchesCompanion toCompanion(bool nullToAbsent) {
+    return ImportBatchesCompanion(
+      id: Value(id),
+      bankName: Value(bankName),
+      fileName: Value(fileName),
+      importedAt: Value(importedAt),
+      transactionCount: Value(transactionCount),
+      categorizedCount: Value(categorizedCount),
+      uncategorizedCount: Value(uncategorizedCount),
+      duplicateCount: Value(duplicateCount),
+      status: Value(status),
+      errorMessage: errorMessage == null && nullToAbsent
+          ? const Value.absent()
+          : Value(errorMessage),
+    );
+  }
+
+  factory ImportBatch.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ImportBatch(
+      id: serializer.fromJson<String>(json['id']),
+      bankName: serializer.fromJson<String>(json['bankName']),
+      fileName: serializer.fromJson<String>(json['fileName']),
+      importedAt: serializer.fromJson<DateTime>(json['importedAt']),
+      transactionCount: serializer.fromJson<int>(json['transactionCount']),
+      categorizedCount: serializer.fromJson<int>(json['categorizedCount']),
+      uncategorizedCount: serializer.fromJson<int>(json['uncategorizedCount']),
+      duplicateCount: serializer.fromJson<int>(json['duplicateCount']),
+      status: serializer.fromJson<String>(json['status']),
+      errorMessage: serializer.fromJson<String?>(json['errorMessage']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'bankName': serializer.toJson<String>(bankName),
+      'fileName': serializer.toJson<String>(fileName),
+      'importedAt': serializer.toJson<DateTime>(importedAt),
+      'transactionCount': serializer.toJson<int>(transactionCount),
+      'categorizedCount': serializer.toJson<int>(categorizedCount),
+      'uncategorizedCount': serializer.toJson<int>(uncategorizedCount),
+      'duplicateCount': serializer.toJson<int>(duplicateCount),
+      'status': serializer.toJson<String>(status),
+      'errorMessage': serializer.toJson<String?>(errorMessage),
+    };
+  }
+
+  ImportBatch copyWith({
+    String? id,
+    String? bankName,
+    String? fileName,
+    DateTime? importedAt,
+    int? transactionCount,
+    int? categorizedCount,
+    int? uncategorizedCount,
+    int? duplicateCount,
+    String? status,
+    Value<String?> errorMessage = const Value.absent(),
+  }) => ImportBatch(
+    id: id ?? this.id,
+    bankName: bankName ?? this.bankName,
+    fileName: fileName ?? this.fileName,
+    importedAt: importedAt ?? this.importedAt,
+    transactionCount: transactionCount ?? this.transactionCount,
+    categorizedCount: categorizedCount ?? this.categorizedCount,
+    uncategorizedCount: uncategorizedCount ?? this.uncategorizedCount,
+    duplicateCount: duplicateCount ?? this.duplicateCount,
+    status: status ?? this.status,
+    errorMessage: errorMessage.present ? errorMessage.value : this.errorMessage,
+  );
+  ImportBatch copyWithCompanion(ImportBatchesCompanion data) {
+    return ImportBatch(
+      id: data.id.present ? data.id.value : this.id,
+      bankName: data.bankName.present ? data.bankName.value : this.bankName,
+      fileName: data.fileName.present ? data.fileName.value : this.fileName,
+      importedAt: data.importedAt.present
+          ? data.importedAt.value
+          : this.importedAt,
+      transactionCount: data.transactionCount.present
+          ? data.transactionCount.value
+          : this.transactionCount,
+      categorizedCount: data.categorizedCount.present
+          ? data.categorizedCount.value
+          : this.categorizedCount,
+      uncategorizedCount: data.uncategorizedCount.present
+          ? data.uncategorizedCount.value
+          : this.uncategorizedCount,
+      duplicateCount: data.duplicateCount.present
+          ? data.duplicateCount.value
+          : this.duplicateCount,
+      status: data.status.present ? data.status.value : this.status,
+      errorMessage: data.errorMessage.present
+          ? data.errorMessage.value
+          : this.errorMessage,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ImportBatch(')
+          ..write('id: $id, ')
+          ..write('bankName: $bankName, ')
+          ..write('fileName: $fileName, ')
+          ..write('importedAt: $importedAt, ')
+          ..write('transactionCount: $transactionCount, ')
+          ..write('categorizedCount: $categorizedCount, ')
+          ..write('uncategorizedCount: $uncategorizedCount, ')
+          ..write('duplicateCount: $duplicateCount, ')
+          ..write('status: $status, ')
+          ..write('errorMessage: $errorMessage')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    bankName,
+    fileName,
+    importedAt,
+    transactionCount,
+    categorizedCount,
+    uncategorizedCount,
+    duplicateCount,
+    status,
+    errorMessage,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ImportBatch &&
+          other.id == this.id &&
+          other.bankName == this.bankName &&
+          other.fileName == this.fileName &&
+          other.importedAt == this.importedAt &&
+          other.transactionCount == this.transactionCount &&
+          other.categorizedCount == this.categorizedCount &&
+          other.uncategorizedCount == this.uncategorizedCount &&
+          other.duplicateCount == this.duplicateCount &&
+          other.status == this.status &&
+          other.errorMessage == this.errorMessage);
+}
+
+class ImportBatchesCompanion extends UpdateCompanion<ImportBatch> {
+  final Value<String> id;
+  final Value<String> bankName;
+  final Value<String> fileName;
+  final Value<DateTime> importedAt;
+  final Value<int> transactionCount;
+  final Value<int> categorizedCount;
+  final Value<int> uncategorizedCount;
+  final Value<int> duplicateCount;
+  final Value<String> status;
+  final Value<String?> errorMessage;
+  final Value<int> rowid;
+  const ImportBatchesCompanion({
+    this.id = const Value.absent(),
+    this.bankName = const Value.absent(),
+    this.fileName = const Value.absent(),
+    this.importedAt = const Value.absent(),
+    this.transactionCount = const Value.absent(),
+    this.categorizedCount = const Value.absent(),
+    this.uncategorizedCount = const Value.absent(),
+    this.duplicateCount = const Value.absent(),
+    this.status = const Value.absent(),
+    this.errorMessage = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ImportBatchesCompanion.insert({
+    required String id,
+    required String bankName,
+    required String fileName,
+    required DateTime importedAt,
+    required int transactionCount,
+    required int categorizedCount,
+    required int uncategorizedCount,
+    this.duplicateCount = const Value.absent(),
+    required String status,
+    this.errorMessage = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       bankName = Value(bankName),
+       fileName = Value(fileName),
+       importedAt = Value(importedAt),
+       transactionCount = Value(transactionCount),
+       categorizedCount = Value(categorizedCount),
+       uncategorizedCount = Value(uncategorizedCount),
+       status = Value(status);
+  static Insertable<ImportBatch> custom({
+    Expression<String>? id,
+    Expression<String>? bankName,
+    Expression<String>? fileName,
+    Expression<DateTime>? importedAt,
+    Expression<int>? transactionCount,
+    Expression<int>? categorizedCount,
+    Expression<int>? uncategorizedCount,
+    Expression<int>? duplicateCount,
+    Expression<String>? status,
+    Expression<String>? errorMessage,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (bankName != null) 'bank_name': bankName,
+      if (fileName != null) 'file_name': fileName,
+      if (importedAt != null) 'imported_at': importedAt,
+      if (transactionCount != null) 'transaction_count': transactionCount,
+      if (categorizedCount != null) 'categorized_count': categorizedCount,
+      if (uncategorizedCount != null) 'uncategorized_count': uncategorizedCount,
+      if (duplicateCount != null) 'duplicate_count': duplicateCount,
+      if (status != null) 'status': status,
+      if (errorMessage != null) 'error_message': errorMessage,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ImportBatchesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? bankName,
+    Value<String>? fileName,
+    Value<DateTime>? importedAt,
+    Value<int>? transactionCount,
+    Value<int>? categorizedCount,
+    Value<int>? uncategorizedCount,
+    Value<int>? duplicateCount,
+    Value<String>? status,
+    Value<String?>? errorMessage,
+    Value<int>? rowid,
+  }) {
+    return ImportBatchesCompanion(
+      id: id ?? this.id,
+      bankName: bankName ?? this.bankName,
+      fileName: fileName ?? this.fileName,
+      importedAt: importedAt ?? this.importedAt,
+      transactionCount: transactionCount ?? this.transactionCount,
+      categorizedCount: categorizedCount ?? this.categorizedCount,
+      uncategorizedCount: uncategorizedCount ?? this.uncategorizedCount,
+      duplicateCount: duplicateCount ?? this.duplicateCount,
+      status: status ?? this.status,
+      errorMessage: errorMessage ?? this.errorMessage,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (bankName.present) {
+      map['bank_name'] = Variable<String>(bankName.value);
+    }
+    if (fileName.present) {
+      map['file_name'] = Variable<String>(fileName.value);
+    }
+    if (importedAt.present) {
+      map['imported_at'] = Variable<DateTime>(importedAt.value);
+    }
+    if (transactionCount.present) {
+      map['transaction_count'] = Variable<int>(transactionCount.value);
+    }
+    if (categorizedCount.present) {
+      map['categorized_count'] = Variable<int>(categorizedCount.value);
+    }
+    if (uncategorizedCount.present) {
+      map['uncategorized_count'] = Variable<int>(uncategorizedCount.value);
+    }
+    if (duplicateCount.present) {
+      map['duplicate_count'] = Variable<int>(duplicateCount.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (errorMessage.present) {
+      map['error_message'] = Variable<String>(errorMessage.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ImportBatchesCompanion(')
+          ..write('id: $id, ')
+          ..write('bankName: $bankName, ')
+          ..write('fileName: $fileName, ')
+          ..write('importedAt: $importedAt, ')
+          ..write('transactionCount: $transactionCount, ')
+          ..write('categorizedCount: $categorizedCount, ')
+          ..write('uncategorizedCount: $uncategorizedCount, ')
+          ..write('duplicateCount: $duplicateCount, ')
+          ..write('status: $status, ')
+          ..write('errorMessage: $errorMessage, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$SpendlerDatabase extends GeneratedDatabase {
   _$SpendlerDatabase(QueryExecutor e) : super(e);
   $SpendlerDatabaseManager get managers => $SpendlerDatabaseManager(this);
@@ -5418,6 +7450,13 @@ abstract class _$SpendlerDatabase extends GeneratedDatabase {
   late final $SavingsGoalsTable savingsGoals = $SavingsGoalsTable(this);
   late final $UserAccountsTable userAccounts = $UserAccountsTable(this);
   late final $SmartRulesTable smartRules = $SmartRulesTable(this);
+  late final $MerchantMappingsTable merchantMappings = $MerchantMappingsTable(
+    this,
+  );
+  late final $CorrectionEventsTable correctionEvents = $CorrectionEventsTable(
+    this,
+  );
+  late final $ImportBatchesTable importBatches = $ImportBatchesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5435,6 +7474,9 @@ abstract class _$SpendlerDatabase extends GeneratedDatabase {
     savingsGoals,
     userAccounts,
     smartRules,
+    merchantMappings,
+    correctionEvents,
+    importBatches,
   ];
 }
 
@@ -5456,6 +7498,13 @@ typedef $$SpendlerTransactionsTableCreateCompanionBuilder =
       Value<String> ledgerType,
       Value<String?> syncId,
       Value<DateTime> createdAt,
+      Value<String?> rawHash,
+      Value<String?> merchantToken,
+      Value<String?> categorizationSource,
+      Value<double?> categorizationConfidence,
+      Value<String?> importBatchId,
+      Value<bool> isAnomaly,
+      Value<bool> isRecurring,
     });
 typedef $$SpendlerTransactionsTableUpdateCompanionBuilder =
     SpendlerTransactionsCompanion Function({
@@ -5475,6 +7524,13 @@ typedef $$SpendlerTransactionsTableUpdateCompanionBuilder =
       Value<String> ledgerType,
       Value<String?> syncId,
       Value<DateTime> createdAt,
+      Value<String?> rawHash,
+      Value<String?> merchantToken,
+      Value<String?> categorizationSource,
+      Value<double?> categorizationConfidence,
+      Value<String?> importBatchId,
+      Value<bool> isAnomaly,
+      Value<bool> isRecurring,
     });
 
 class $$SpendlerTransactionsTableFilterComposer
@@ -5563,6 +7619,41 @@ class $$SpendlerTransactionsTableFilterComposer
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get rawHash => $composableBuilder(
+    column: $table.rawHash,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get merchantToken => $composableBuilder(
+    column: $table.merchantToken,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get categorizationSource => $composableBuilder(
+    column: $table.categorizationSource,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get categorizationConfidence => $composableBuilder(
+    column: $table.categorizationConfidence,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get importBatchId => $composableBuilder(
+    column: $table.importBatchId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isAnomaly => $composableBuilder(
+    column: $table.isAnomaly,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isRecurring => $composableBuilder(
+    column: $table.isRecurring,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -5655,6 +7746,41 @@ class $$SpendlerTransactionsTableOrderingComposer
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get rawHash => $composableBuilder(
+    column: $table.rawHash,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get merchantToken => $composableBuilder(
+    column: $table.merchantToken,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get categorizationSource => $composableBuilder(
+    column: $table.categorizationSource,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get categorizationConfidence => $composableBuilder(
+    column: $table.categorizationConfidence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get importBatchId => $composableBuilder(
+    column: $table.importBatchId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isAnomaly => $composableBuilder(
+    column: $table.isAnomaly,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isRecurring => $composableBuilder(
+    column: $table.isRecurring,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$SpendlerTransactionsTableAnnotationComposer
@@ -5725,6 +7851,37 @@ class $$SpendlerTransactionsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<String> get rawHash =>
+      $composableBuilder(column: $table.rawHash, builder: (column) => column);
+
+  GeneratedColumn<String> get merchantToken => $composableBuilder(
+    column: $table.merchantToken,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get categorizationSource => $composableBuilder(
+    column: $table.categorizationSource,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get categorizationConfidence => $composableBuilder(
+    column: $table.categorizationConfidence,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get importBatchId => $composableBuilder(
+    column: $table.importBatchId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isAnomaly =>
+      $composableBuilder(column: $table.isAnomaly, builder: (column) => column);
+
+  GeneratedColumn<bool> get isRecurring => $composableBuilder(
+    column: $table.isRecurring,
+    builder: (column) => column,
+  );
 }
 
 class $$SpendlerTransactionsTableTableManager
@@ -5786,6 +7943,13 @@ class $$SpendlerTransactionsTableTableManager
                 Value<String> ledgerType = const Value.absent(),
                 Value<String?> syncId = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<String?> rawHash = const Value.absent(),
+                Value<String?> merchantToken = const Value.absent(),
+                Value<String?> categorizationSource = const Value.absent(),
+                Value<double?> categorizationConfidence = const Value.absent(),
+                Value<String?> importBatchId = const Value.absent(),
+                Value<bool> isAnomaly = const Value.absent(),
+                Value<bool> isRecurring = const Value.absent(),
               }) => SpendlerTransactionsCompanion(
                 id: id,
                 amount: amount,
@@ -5803,6 +7967,13 @@ class $$SpendlerTransactionsTableTableManager
                 ledgerType: ledgerType,
                 syncId: syncId,
                 createdAt: createdAt,
+                rawHash: rawHash,
+                merchantToken: merchantToken,
+                categorizationSource: categorizationSource,
+                categorizationConfidence: categorizationConfidence,
+                importBatchId: importBatchId,
+                isAnomaly: isAnomaly,
+                isRecurring: isRecurring,
               ),
           createCompanionCallback:
               ({
@@ -5822,6 +7993,13 @@ class $$SpendlerTransactionsTableTableManager
                 Value<String> ledgerType = const Value.absent(),
                 Value<String?> syncId = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<String?> rawHash = const Value.absent(),
+                Value<String?> merchantToken = const Value.absent(),
+                Value<String?> categorizationSource = const Value.absent(),
+                Value<double?> categorizationConfidence = const Value.absent(),
+                Value<String?> importBatchId = const Value.absent(),
+                Value<bool> isAnomaly = const Value.absent(),
+                Value<bool> isRecurring = const Value.absent(),
               }) => SpendlerTransactionsCompanion.insert(
                 id: id,
                 amount: amount,
@@ -5839,6 +8017,13 @@ class $$SpendlerTransactionsTableTableManager
                 ledgerType: ledgerType,
                 syncId: syncId,
                 createdAt: createdAt,
+                rawHash: rawHash,
+                merchantToken: merchantToken,
+                categorizationSource: categorizationSource,
+                categorizationConfidence: categorizationConfidence,
+                importBatchId: importBatchId,
+                isAnomaly: isAnomaly,
+                isRecurring: isRecurring,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -8326,6 +10511,850 @@ typedef $$SmartRulesTableProcessedTableManager =
       SmartRule,
       PrefetchHooks Function()
     >;
+typedef $$MerchantMappingsTableCreateCompanionBuilder =
+    MerchantMappingsCompanion Function({
+      required String id,
+      required String merchantToken,
+      required String category,
+      required String source,
+      required double confidence,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<int> useCount,
+      Value<int> rowid,
+    });
+typedef $$MerchantMappingsTableUpdateCompanionBuilder =
+    MerchantMappingsCompanion Function({
+      Value<String> id,
+      Value<String> merchantToken,
+      Value<String> category,
+      Value<String> source,
+      Value<double> confidence,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> useCount,
+      Value<int> rowid,
+    });
+
+class $$MerchantMappingsTableFilterComposer
+    extends Composer<_$SpendlerDatabase, $MerchantMappingsTable> {
+  $$MerchantMappingsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get merchantToken => $composableBuilder(
+    column: $table.merchantToken,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get useCount => $composableBuilder(
+    column: $table.useCount,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$MerchantMappingsTableOrderingComposer
+    extends Composer<_$SpendlerDatabase, $MerchantMappingsTable> {
+  $$MerchantMappingsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get merchantToken => $composableBuilder(
+    column: $table.merchantToken,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get useCount => $composableBuilder(
+    column: $table.useCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$MerchantMappingsTableAnnotationComposer
+    extends Composer<_$SpendlerDatabase, $MerchantMappingsTable> {
+  $$MerchantMappingsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get merchantToken => $composableBuilder(
+    column: $table.merchantToken,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get category =>
+      $composableBuilder(column: $table.category, builder: (column) => column);
+
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+
+  GeneratedColumn<double> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get useCount =>
+      $composableBuilder(column: $table.useCount, builder: (column) => column);
+}
+
+class $$MerchantMappingsTableTableManager
+    extends
+        RootTableManager<
+          _$SpendlerDatabase,
+          $MerchantMappingsTable,
+          MerchantMapping,
+          $$MerchantMappingsTableFilterComposer,
+          $$MerchantMappingsTableOrderingComposer,
+          $$MerchantMappingsTableAnnotationComposer,
+          $$MerchantMappingsTableCreateCompanionBuilder,
+          $$MerchantMappingsTableUpdateCompanionBuilder,
+          (
+            MerchantMapping,
+            BaseReferences<
+              _$SpendlerDatabase,
+              $MerchantMappingsTable,
+              MerchantMapping
+            >,
+          ),
+          MerchantMapping,
+          PrefetchHooks Function()
+        > {
+  $$MerchantMappingsTableTableManager(
+    _$SpendlerDatabase db,
+    $MerchantMappingsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MerchantMappingsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MerchantMappingsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MerchantMappingsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> merchantToken = const Value.absent(),
+                Value<String> category = const Value.absent(),
+                Value<String> source = const Value.absent(),
+                Value<double> confidence = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> useCount = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => MerchantMappingsCompanion(
+                id: id,
+                merchantToken: merchantToken,
+                category: category,
+                source: source,
+                confidence: confidence,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                useCount: useCount,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String merchantToken,
+                required String category,
+                required String source,
+                required double confidence,
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<int> useCount = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => MerchantMappingsCompanion.insert(
+                id: id,
+                merchantToken: merchantToken,
+                category: category,
+                source: source,
+                confidence: confidence,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                useCount: useCount,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$MerchantMappingsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SpendlerDatabase,
+      $MerchantMappingsTable,
+      MerchantMapping,
+      $$MerchantMappingsTableFilterComposer,
+      $$MerchantMappingsTableOrderingComposer,
+      $$MerchantMappingsTableAnnotationComposer,
+      $$MerchantMappingsTableCreateCompanionBuilder,
+      $$MerchantMappingsTableUpdateCompanionBuilder,
+      (
+        MerchantMapping,
+        BaseReferences<
+          _$SpendlerDatabase,
+          $MerchantMappingsTable,
+          MerchantMapping
+        >,
+      ),
+      MerchantMapping,
+      PrefetchHooks Function()
+    >;
+typedef $$CorrectionEventsTableCreateCompanionBuilder =
+    CorrectionEventsCompanion Function({
+      required String id,
+      required String transactionId,
+      Value<String?> previousCategory,
+      required String newCategory,
+      required String previousSource,
+      required DateTime correctedAt,
+      Value<int> backfillCount,
+      Value<int> rowid,
+    });
+typedef $$CorrectionEventsTableUpdateCompanionBuilder =
+    CorrectionEventsCompanion Function({
+      Value<String> id,
+      Value<String> transactionId,
+      Value<String?> previousCategory,
+      Value<String> newCategory,
+      Value<String> previousSource,
+      Value<DateTime> correctedAt,
+      Value<int> backfillCount,
+      Value<int> rowid,
+    });
+
+class $$CorrectionEventsTableFilterComposer
+    extends Composer<_$SpendlerDatabase, $CorrectionEventsTable> {
+  $$CorrectionEventsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get transactionId => $composableBuilder(
+    column: $table.transactionId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get previousCategory => $composableBuilder(
+    column: $table.previousCategory,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get newCategory => $composableBuilder(
+    column: $table.newCategory,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get previousSource => $composableBuilder(
+    column: $table.previousSource,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get correctedAt => $composableBuilder(
+    column: $table.correctedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get backfillCount => $composableBuilder(
+    column: $table.backfillCount,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CorrectionEventsTableOrderingComposer
+    extends Composer<_$SpendlerDatabase, $CorrectionEventsTable> {
+  $$CorrectionEventsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get transactionId => $composableBuilder(
+    column: $table.transactionId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get previousCategory => $composableBuilder(
+    column: $table.previousCategory,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get newCategory => $composableBuilder(
+    column: $table.newCategory,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get previousSource => $composableBuilder(
+    column: $table.previousSource,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get correctedAt => $composableBuilder(
+    column: $table.correctedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get backfillCount => $composableBuilder(
+    column: $table.backfillCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CorrectionEventsTableAnnotationComposer
+    extends Composer<_$SpendlerDatabase, $CorrectionEventsTable> {
+  $$CorrectionEventsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get transactionId => $composableBuilder(
+    column: $table.transactionId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get previousCategory => $composableBuilder(
+    column: $table.previousCategory,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get newCategory => $composableBuilder(
+    column: $table.newCategory,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get previousSource => $composableBuilder(
+    column: $table.previousSource,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get correctedAt => $composableBuilder(
+    column: $table.correctedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get backfillCount => $composableBuilder(
+    column: $table.backfillCount,
+    builder: (column) => column,
+  );
+}
+
+class $$CorrectionEventsTableTableManager
+    extends
+        RootTableManager<
+          _$SpendlerDatabase,
+          $CorrectionEventsTable,
+          CorrectionEvent,
+          $$CorrectionEventsTableFilterComposer,
+          $$CorrectionEventsTableOrderingComposer,
+          $$CorrectionEventsTableAnnotationComposer,
+          $$CorrectionEventsTableCreateCompanionBuilder,
+          $$CorrectionEventsTableUpdateCompanionBuilder,
+          (
+            CorrectionEvent,
+            BaseReferences<
+              _$SpendlerDatabase,
+              $CorrectionEventsTable,
+              CorrectionEvent
+            >,
+          ),
+          CorrectionEvent,
+          PrefetchHooks Function()
+        > {
+  $$CorrectionEventsTableTableManager(
+    _$SpendlerDatabase db,
+    $CorrectionEventsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CorrectionEventsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CorrectionEventsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CorrectionEventsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> transactionId = const Value.absent(),
+                Value<String?> previousCategory = const Value.absent(),
+                Value<String> newCategory = const Value.absent(),
+                Value<String> previousSource = const Value.absent(),
+                Value<DateTime> correctedAt = const Value.absent(),
+                Value<int> backfillCount = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CorrectionEventsCompanion(
+                id: id,
+                transactionId: transactionId,
+                previousCategory: previousCategory,
+                newCategory: newCategory,
+                previousSource: previousSource,
+                correctedAt: correctedAt,
+                backfillCount: backfillCount,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String transactionId,
+                Value<String?> previousCategory = const Value.absent(),
+                required String newCategory,
+                required String previousSource,
+                required DateTime correctedAt,
+                Value<int> backfillCount = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CorrectionEventsCompanion.insert(
+                id: id,
+                transactionId: transactionId,
+                previousCategory: previousCategory,
+                newCategory: newCategory,
+                previousSource: previousSource,
+                correctedAt: correctedAt,
+                backfillCount: backfillCount,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CorrectionEventsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SpendlerDatabase,
+      $CorrectionEventsTable,
+      CorrectionEvent,
+      $$CorrectionEventsTableFilterComposer,
+      $$CorrectionEventsTableOrderingComposer,
+      $$CorrectionEventsTableAnnotationComposer,
+      $$CorrectionEventsTableCreateCompanionBuilder,
+      $$CorrectionEventsTableUpdateCompanionBuilder,
+      (
+        CorrectionEvent,
+        BaseReferences<
+          _$SpendlerDatabase,
+          $CorrectionEventsTable,
+          CorrectionEvent
+        >,
+      ),
+      CorrectionEvent,
+      PrefetchHooks Function()
+    >;
+typedef $$ImportBatchesTableCreateCompanionBuilder =
+    ImportBatchesCompanion Function({
+      required String id,
+      required String bankName,
+      required String fileName,
+      required DateTime importedAt,
+      required int transactionCount,
+      required int categorizedCount,
+      required int uncategorizedCount,
+      Value<int> duplicateCount,
+      required String status,
+      Value<String?> errorMessage,
+      Value<int> rowid,
+    });
+typedef $$ImportBatchesTableUpdateCompanionBuilder =
+    ImportBatchesCompanion Function({
+      Value<String> id,
+      Value<String> bankName,
+      Value<String> fileName,
+      Value<DateTime> importedAt,
+      Value<int> transactionCount,
+      Value<int> categorizedCount,
+      Value<int> uncategorizedCount,
+      Value<int> duplicateCount,
+      Value<String> status,
+      Value<String?> errorMessage,
+      Value<int> rowid,
+    });
+
+class $$ImportBatchesTableFilterComposer
+    extends Composer<_$SpendlerDatabase, $ImportBatchesTable> {
+  $$ImportBatchesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get bankName => $composableBuilder(
+    column: $table.bankName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get fileName => $composableBuilder(
+    column: $table.fileName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get importedAt => $composableBuilder(
+    column: $table.importedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get transactionCount => $composableBuilder(
+    column: $table.transactionCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get categorizedCount => $composableBuilder(
+    column: $table.categorizedCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get uncategorizedCount => $composableBuilder(
+    column: $table.uncategorizedCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get duplicateCount => $composableBuilder(
+    column: $table.duplicateCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get errorMessage => $composableBuilder(
+    column: $table.errorMessage,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ImportBatchesTableOrderingComposer
+    extends Composer<_$SpendlerDatabase, $ImportBatchesTable> {
+  $$ImportBatchesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get bankName => $composableBuilder(
+    column: $table.bankName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get fileName => $composableBuilder(
+    column: $table.fileName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get importedAt => $composableBuilder(
+    column: $table.importedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get transactionCount => $composableBuilder(
+    column: $table.transactionCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get categorizedCount => $composableBuilder(
+    column: $table.categorizedCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get uncategorizedCount => $composableBuilder(
+    column: $table.uncategorizedCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get duplicateCount => $composableBuilder(
+    column: $table.duplicateCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get errorMessage => $composableBuilder(
+    column: $table.errorMessage,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ImportBatchesTableAnnotationComposer
+    extends Composer<_$SpendlerDatabase, $ImportBatchesTable> {
+  $$ImportBatchesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get bankName =>
+      $composableBuilder(column: $table.bankName, builder: (column) => column);
+
+  GeneratedColumn<String> get fileName =>
+      $composableBuilder(column: $table.fileName, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get importedAt => $composableBuilder(
+    column: $table.importedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get transactionCount => $composableBuilder(
+    column: $table.transactionCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get categorizedCount => $composableBuilder(
+    column: $table.categorizedCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get uncategorizedCount => $composableBuilder(
+    column: $table.uncategorizedCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get duplicateCount => $composableBuilder(
+    column: $table.duplicateCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get errorMessage => $composableBuilder(
+    column: $table.errorMessage,
+    builder: (column) => column,
+  );
+}
+
+class $$ImportBatchesTableTableManager
+    extends
+        RootTableManager<
+          _$SpendlerDatabase,
+          $ImportBatchesTable,
+          ImportBatch,
+          $$ImportBatchesTableFilterComposer,
+          $$ImportBatchesTableOrderingComposer,
+          $$ImportBatchesTableAnnotationComposer,
+          $$ImportBatchesTableCreateCompanionBuilder,
+          $$ImportBatchesTableUpdateCompanionBuilder,
+          (
+            ImportBatch,
+            BaseReferences<
+              _$SpendlerDatabase,
+              $ImportBatchesTable,
+              ImportBatch
+            >,
+          ),
+          ImportBatch,
+          PrefetchHooks Function()
+        > {
+  $$ImportBatchesTableTableManager(
+    _$SpendlerDatabase db,
+    $ImportBatchesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ImportBatchesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ImportBatchesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ImportBatchesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> bankName = const Value.absent(),
+                Value<String> fileName = const Value.absent(),
+                Value<DateTime> importedAt = const Value.absent(),
+                Value<int> transactionCount = const Value.absent(),
+                Value<int> categorizedCount = const Value.absent(),
+                Value<int> uncategorizedCount = const Value.absent(),
+                Value<int> duplicateCount = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<String?> errorMessage = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ImportBatchesCompanion(
+                id: id,
+                bankName: bankName,
+                fileName: fileName,
+                importedAt: importedAt,
+                transactionCount: transactionCount,
+                categorizedCount: categorizedCount,
+                uncategorizedCount: uncategorizedCount,
+                duplicateCount: duplicateCount,
+                status: status,
+                errorMessage: errorMessage,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String bankName,
+                required String fileName,
+                required DateTime importedAt,
+                required int transactionCount,
+                required int categorizedCount,
+                required int uncategorizedCount,
+                Value<int> duplicateCount = const Value.absent(),
+                required String status,
+                Value<String?> errorMessage = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ImportBatchesCompanion.insert(
+                id: id,
+                bankName: bankName,
+                fileName: fileName,
+                importedAt: importedAt,
+                transactionCount: transactionCount,
+                categorizedCount: categorizedCount,
+                uncategorizedCount: uncategorizedCount,
+                duplicateCount: duplicateCount,
+                status: status,
+                errorMessage: errorMessage,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ImportBatchesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SpendlerDatabase,
+      $ImportBatchesTable,
+      ImportBatch,
+      $$ImportBatchesTableFilterComposer,
+      $$ImportBatchesTableOrderingComposer,
+      $$ImportBatchesTableAnnotationComposer,
+      $$ImportBatchesTableCreateCompanionBuilder,
+      $$ImportBatchesTableUpdateCompanionBuilder,
+      (
+        ImportBatch,
+        BaseReferences<_$SpendlerDatabase, $ImportBatchesTable, ImportBatch>,
+      ),
+      ImportBatch,
+      PrefetchHooks Function()
+    >;
 
 class $SpendlerDatabaseManager {
   final _$SpendlerDatabase _db;
@@ -8354,4 +11383,10 @@ class $SpendlerDatabaseManager {
       $$UserAccountsTableTableManager(_db, _db.userAccounts);
   $$SmartRulesTableTableManager get smartRules =>
       $$SmartRulesTableTableManager(_db, _db.smartRules);
+  $$MerchantMappingsTableTableManager get merchantMappings =>
+      $$MerchantMappingsTableTableManager(_db, _db.merchantMappings);
+  $$CorrectionEventsTableTableManager get correctionEvents =>
+      $$CorrectionEventsTableTableManager(_db, _db.correctionEvents);
+  $$ImportBatchesTableTableManager get importBatches =>
+      $$ImportBatchesTableTableManager(_db, _db.importBatches);
 }

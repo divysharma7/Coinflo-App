@@ -11,6 +11,10 @@ enum TransactionCategory {
   personalCare,
   education,
   travel,
+  income,
+  cash,
+  investments,
+  insurance,
   other,
 
   // Legacy subcategory values kept for backward compatibility.
@@ -32,7 +36,7 @@ enum TransactionCategory {
     }
   }
 
-  /// The 10 top-level category groups (excludes legacy subcategories).
+  /// The 14 top-level category groups (excludes legacy subcategories).
   static List<TransactionCategory> get groups => [
         foodAndDrink,
         transport,
@@ -43,6 +47,10 @@ enum TransactionCategory {
         personalCare,
         education,
         travel,
+        income,
+        cash,
+        investments,
+        insurance,
         other,
       ];
 
@@ -72,6 +80,14 @@ enum TransactionCategory {
         return 'Education';
       case travel:
         return 'Travel';
+      case income:
+        return 'Income';
+      case cash:
+        return 'Cash';
+      case investments:
+        return 'Investments';
+      case insurance:
+        return 'Insurance';
       case other:
         return 'Other';
     }
@@ -104,6 +120,14 @@ enum TransactionCategory {
         return PhosphorIcons.graduationCap();
       case travel:
         return PhosphorIcons.airplane();
+      case income:
+        return PhosphorIcons.trendUp();
+      case cash:
+        return PhosphorIcons.wallet();
+      case investments:
+        return PhosphorIcons.chartLineUp();
+      case insurance:
+        return PhosphorIcons.shieldCheck();
       case other:
         return PhosphorIcons.dotsThreeCircle();
     }
@@ -136,6 +160,14 @@ enum TransactionCategory {
         return PhosphorIconsFill.graduationCap;
       case travel:
         return PhosphorIconsFill.airplane;
+      case income:
+        return PhosphorIconsFill.trendUp;
+      case cash:
+        return PhosphorIconsFill.wallet;
+      case investments:
+        return PhosphorIconsFill.chartLineUp;
+      case insurance:
+        return PhosphorIconsFill.shieldCheck;
       case other:
         return PhosphorIconsFill.dotsThreeCircle;
     }
@@ -511,3 +543,157 @@ class Subcategory {
   static List<Subcategory> forGroup(TransactionCategory group) =>
       all.where((s) => s.group == group).toList();
 }
+
+// ─── Import Module Enums ─────────────────────────────────
+
+enum MappingSource {
+  userCorrected,
+  shippedDictionary,
+  rule,
+  smartRule,
+  ml;
+
+  String get label {
+    switch (this) {
+      case userCorrected:
+        return 'User Corrected';
+      case shippedDictionary:
+        return 'Dictionary';
+      case rule:
+        return 'Rule';
+      case smartRule:
+        return 'Smart Rule';
+      case ml:
+        return 'ML';
+    }
+  }
+}
+
+enum ImportStatus {
+  pendingReview,
+  completed,
+  failed;
+
+  String get label {
+    switch (this) {
+      case pendingReview:
+        return 'Pending Review';
+      case completed:
+        return 'Completed';
+      case failed:
+        return 'Failed';
+    }
+  }
+}
+
+enum CategorizationSource {
+  user,
+  smartRule,
+  dictionary,
+  rule,
+  upi,
+  ml,
+  uncategorized;
+
+  String get label {
+    switch (this) {
+      case user:
+        return 'User';
+      case smartRule:
+        return 'Smart Rule';
+      case dictionary:
+        return 'Dictionary';
+      case rule:
+        return 'Rule';
+      case upi:
+        return 'UPI';
+      case ml:
+        return 'ML';
+      case uncategorized:
+        return 'Uncategorized';
+    }
+  }
+}
+
+enum BankType {
+  hdfc,
+  icici,
+  sbi,
+  axis,
+  kotak,
+  unknown;
+
+  String get label {
+    switch (this) {
+      case hdfc:
+        return 'HDFC Bank';
+      case icici:
+        return 'ICICI Bank';
+      case sbi:
+        return 'State Bank of India';
+      case axis:
+        return 'Axis Bank';
+      case kotak:
+        return 'Kotak Mahindra Bank';
+      case unknown:
+        return 'Other Bank';
+    }
+  }
+
+  String get shortLabel {
+    switch (this) {
+      case hdfc:
+        return 'HDFC';
+      case icici:
+        return 'ICICI';
+      case sbi:
+        return 'SBI';
+      case axis:
+        return 'Axis';
+      case kotak:
+        return 'Kotak';
+      case unknown:
+        return 'Other';
+    }
+  }
+}
+
+enum ImportStep {
+  selectBank,
+  uploadFile,
+  processing,
+  review,
+  summary;
+
+  String get label {
+    switch (this) {
+      case selectBank:
+        return 'Select Bank';
+      case uploadFile:
+        return 'Upload File';
+      case processing:
+        return 'Processing';
+      case review:
+        return 'Review';
+      case summary:
+        return 'Summary';
+    }
+  }
+
+  int get stepNumber {
+    switch (this) {
+      case selectBank:
+        return 0;
+      case uploadFile:
+        return 1;
+      case processing:
+        return 2;
+      case review:
+        return 3;
+      case summary:
+        return 4;
+    }
+  }
+}
+
+enum ImportSource { onboarding, settings, homeBanner, reportsBanner, importHistory }

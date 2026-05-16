@@ -26,6 +26,15 @@ class SpendlerTransactions extends Table {
   TextColumn get ledgerType => text().withDefault(const Constant('personal'))(); // personal / family
   TextColumn get syncId => text().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+
+  // ─── Import module columns (added in schema v7) ──────
+  TextColumn get rawHash => text().nullable()();                // SHA256(date|amount|cleaned_desc), unique
+  TextColumn get merchantToken => text().nullable()();          // normalized lowercase merchant key
+  TextColumn get categorizationSource => text().nullable()();   // CategorizationSource enum name
+  RealColumn get categorizationConfidence => real().nullable()(); // 0.0 to 1.0
+  TextColumn get importBatchId => text().nullable()();          // FK to ImportBatches.id
+  BoolColumn get isAnomaly => boolean().withDefault(const Constant(false))();
+  BoolColumn get isRecurring => boolean().withDefault(const Constant(false))();
 }
 
 class FamilyEntries extends Table {
@@ -128,6 +137,59 @@ class SmartRules extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
+// ============================================================
+// IMPORT MODULE TABLES (added in v7)
+// ============================================================
+// See docs/import-architecture.md for the full import pipeline,
+// cascade order, and bank adapter conventions.
+// ============================================================
+
+@DataClassName('MerchantMapping')
+class MerchantMappings extends Table {
+  TextColumn get id => text()();                               // UUID
+  TextColumn get merchantToken => text()();                    // normalized, lowercase, alphanumeric
+  TextColumn get category => text()();                         // TransactionCategory enum name
+  TextColumn get source => text()();                           // MappingSource enum name
+  RealColumn get confidence => real()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+  IntColumn get useCount => integer().withDefault(const Constant(0))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+@DataClassName('CorrectionEvent')
+class CorrectionEvents extends Table {
+  TextColumn get id => text()();                               // UUID
+  TextColumn get transactionId => text()();                    // references SpendlerTransactions.id (as string)
+  TextColumn get previousCategory => text().nullable()();      // TransactionCategory enum name
+  TextColumn get newCategory => text()();                      // TransactionCategory enum name
+  TextColumn get previousSource => text()();                   // 'dictionary' / 'rule' / 'manual' etc
+  DateTimeColumn get correctedAt => dateTime()();
+  IntColumn get backfillCount => integer().withDefault(const Constant(0))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+@DataClassName('ImportBatch')
+class ImportBatches extends Table {
+  TextColumn get id => text()();                               // UUID
+  TextColumn get bankName => text()();                         // BankType enum name
+  TextColumn get fileName => text()();
+  DateTimeColumn get importedAt => dateTime()();
+  IntColumn get transactionCount => integer()();
+  IntColumn get categorizedCount => integer()();
+  IntColumn get uncategorizedCount => integer()();
+  IntColumn get duplicateCount => integer().withDefault(const Constant(0))();
+  TextColumn get status => text()();                           // ImportStatus enum name
+  TextColumn get errorMessage => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 // ─── Database ─────────────────────────────────────────
 
 @DriftDatabase(tables: [
@@ -143,17 +205,25 @@ class SmartRules extends Table {
   SavingsGoals,
   UserAccounts,
   SmartRules,
+  MerchantMappings,
+  CorrectionEvents,
+  ImportBatches,
 ])
 class SpendlerDatabase extends _$SpendlerDatabase {
   SpendlerDatabase() : super(_openConnection());
 
+  /// Test-only constructor accepting any [QueryExecutor] (e.g. NativeDatabase.memory()).
+  SpendlerDatabase.forTesting(super.e);
+
+  // TODO: Rename DB file from spendler.sqlite → coinflo.sqlite in a separate migration PR.
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onCreate: (Migrator m) async {
           await m.createAll();
+          await _createV7Indexes(m);
         },
         onUpgrade: (Migrator m, int from, int to) async {
           if (from < 2) {
@@ -174,8 +244,58 @@ class SpendlerDatabase extends _$SpendlerDatabase {
             await m.createTable(userAccounts);
             await m.createTable(smartRules);
           }
+          if (from < 7) {
+            // New tables for import module
+            await m.createTable(merchantMappings);
+            await m.createTable(correctionEvents);
+            await m.createTable(importBatches);
+
+            // New columns on SpendlerTransactions
+            await m.addColumn(
+              spendlerTransactions,
+              spendlerTransactions.rawHash,
+            );
+            await m.addColumn(
+              spendlerTransactions,
+              spendlerTransactions.merchantToken,
+            );
+            await m.addColumn(
+              spendlerTransactions,
+              spendlerTransactions.categorizationSource,
+            );
+            await m.addColumn(
+              spendlerTransactions,
+              spendlerTransactions.categorizationConfidence,
+            );
+            await m.addColumn(
+              spendlerTransactions,
+              spendlerTransactions.importBatchId,
+            );
+            await m.addColumn(
+              spendlerTransactions,
+              spendlerTransactions.isAnomaly,
+            );
+            await m.addColumn(
+              spendlerTransactions,
+              spendlerTransactions.isRecurring,
+            );
+
+            // Indexes for import performance
+            await _createV7Indexes(m);
+          }
         },
       );
+
+  Future<void> _createV7Indexes(Migrator m) async {
+    await m.createIndex(Index('spendler_transactions',
+        'CREATE UNIQUE INDEX IF NOT EXISTS idx_txn_raw_hash ON spendler_transactions (raw_hash) WHERE raw_hash IS NOT NULL'));
+    await m.createIndex(Index('spendler_transactions',
+        'CREATE INDEX IF NOT EXISTS idx_txn_merchant_token ON spendler_transactions (merchant_token) WHERE merchant_token IS NOT NULL'));
+    await m.createIndex(Index('spendler_transactions',
+        'CREATE INDEX IF NOT EXISTS idx_txn_import_batch ON spendler_transactions (import_batch_id) WHERE import_batch_id IS NOT NULL'));
+    await m.createIndex(Index('merchant_mappings',
+        'CREATE UNIQUE INDEX IF NOT EXISTS idx_merchant_mapping_token_source ON merchant_mappings (merchant_token, source)'));
+  }
 }
 
 LazyDatabase _openConnection() {

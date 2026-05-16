@@ -1,15 +1,24 @@
+import 'package:drift/drift.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/foundation.dart';
+import 'package:uuid/uuid.dart';
 
 import 'package:finance_buddy_app/constants/category_keywords.dart';
 import 'package:finance_buddy_app/core/enums.dart';
 import 'package:finance_buddy_app/data/db.dart';
+import 'package:finance_buddy_app/services/categorization/categorization_service.dart';
+import 'package:finance_buddy_app/services/categorization/merchant_dictionary.dart';
+import 'package:finance_buddy_app/services/import/models/normalized_transaction.dart';
+import 'package:finance_buddy_app/services/import/models/raw_transaction.dart';
+import 'package:finance_buddy_app/services/import/transaction_normalizer.dart';
 
 class CategoryClassifier {
   final SpendlerDatabase _db;
+  final MerchantDictionary _merchantDictionary;
   GenerativeModel? _model;
+  static const _uuid = Uuid();
 
-  CategoryClassifier(this._db);
+  CategoryClassifier(this._db, this._merchantDictionary);
 
   GenerativeModel _getModel() {
     return _model ??= FirebaseAI.googleAI().generativeModel(
@@ -18,36 +27,103 @@ class CategoryClassifier {
   }
 
   /// Classify a transaction description into a category.
-  /// Uses a 3-layer approach:
-  ///   1. SQLite cache (instant)
-  ///   2. Keyword dictionary with fuzzy matching (instant, offline)
-  ///   3. Gemini LLM fallback (network, cached after first hit)
+  /// Uses an enhanced pipeline:
+  ///   1. CategorizationService cascade (on-device, 6 stages)
+  ///   2. SQLite cache (existing SmartRules)
+  ///   3. Keyword dictionary with fuzzy matching
+  ///   4. Gemini LLM fallback (network, cached after first hit)
+  ///   5. If Gemini succeeds, persist to MerchantMappings (source=ml)
   Future<TransactionCategory?> classify(String text) async {
     final trimmed = text.trim().toLowerCase();
     if (trimmed.isEmpty) return null;
 
-    // Layer 1: SQLite cache
+    // ── New: Try CategorizationService cascade first ─────
+    final cascadeResult = await _tryCascade(trimmed);
+    if (cascadeResult != null) return cascadeResult;
+
+    // ── Layer 1: SQLite cache (existing behavior) ────────
     final cached = await _lookupCache(trimmed);
     if (cached != null) return cached;
 
-    // Layer 2: Keyword dictionary (instant, no API)
+    // ── Layer 2: Keyword dictionary (instant, no API) ────
     final keyword = CategoryKeywords.match(trimmed);
     if (keyword != null) {
       await _cacheResult(trimmed, keyword);
       return keyword;
     }
 
-    // Layer 3: Gemini LLM fallback
+    // ── Layer 3: Gemini LLM fallback ─────────────────────
     try {
       final ai = await _classifyWithAI(text.trim());
       if (ai != null) {
         await _cacheResult(trimmed, ai);
+        // Persist to MerchantMappings so future cascade lookups skip Gemini.
+        await _persistMlMapping(trimmed, ai);
       }
       return ai;
     } on Exception catch (e) {
       debugPrint('AI classification failed: $e');
       return null;
     }
+  }
+
+  /// Build a NormalizedTransaction from quick-add text and run the cascade.
+  Future<TransactionCategory?> _tryCascade(String text) async {
+    // Construct a minimal NormalizedTransaction for cascade lookup.
+    final normalizer = TransactionNormalizer();
+    final now = DateTime.now();
+    final normalized = NormalizedTransaction(
+      date: now,
+      amount: 0, // Not relevant for categorization.
+      type: 'debit',
+      rawDescription: text,
+      cleanedDescription: text,
+      merchantToken: normalizer.normalize(
+        RawTransaction(
+          date: now,
+          amount: 0,
+          type: 'debit',
+          rawDescription: text,
+          sourceBank: BankType.unknown,
+        ),
+      ).merchantToken,
+      channel: TransactionChannel.other,
+      rawHash: '',
+      sourceBank: BankType.unknown,
+    );
+
+    // Fetch data for cascade (lightweight — only user corrections + smart rules).
+    final mappingRows = await (_db.select(_db.merchantMappings)
+          ..where((m) => m.merchantToken.equals(normalized.merchantToken)))
+        .get();
+    final merchantMap = <String, MerchantMappingData>{};
+    for (final m in mappingRows) {
+      if (!merchantMap.containsKey(m.merchantToken) ||
+          m.source == 'userCorrected') {
+        merchantMap[m.merchantToken] = MerchantMappingData(
+          category: m.category,
+          source: m.source,
+          confidence: m.confidence,
+        );
+      }
+    }
+
+    final ruleRows = await _db.select(_db.smartRules).get();
+    final smartRules = ruleRows
+        .map((r) => SmartRuleData(keyword: r.keyword, category: r.category))
+        .toList();
+
+    final service = CategorizationService(
+      smartRules: smartRules,
+      userMerchantMap: merchantMap,
+      dictionary: _merchantDictionary,
+    );
+
+    final result = service.categorize(normalized);
+    if (result.isCategorized) {
+      return _parseCategory(result.category!);
+    }
+    return null;
   }
 
   Future<TransactionCategory?> _lookupCache(String keyword) async {
@@ -66,6 +142,42 @@ class CategoryClassifier {
         category: category.name,
       ),
     );
+  }
+
+  /// Persist a Gemini-derived mapping so the cascade picks it up next time.
+  Future<void> _persistMlMapping(String text, TransactionCategory category) async {
+    final normalizer = TransactionNormalizer();
+    final token = normalizer.normalize(
+      RawTransaction(
+        date: DateTime.now(),
+        amount: 0,
+        type: 'debit',
+        rawDescription: text,
+        sourceBank: BankType.unknown,
+      ),
+    ).merchantToken;
+
+    if (token.isEmpty) return;
+
+    final now = DateTime.now();
+    // Only insert if no mapping exists for this token+source.
+    final existing = await (_db.select(_db.merchantMappings)
+          ..where((m) =>
+              m.merchantToken.equals(token) & m.source.equals('ml')))
+        .getSingleOrNull();
+    if (existing != null) return;
+
+    await _db.into(_db.merchantMappings).insert(
+          MerchantMappingsCompanion.insert(
+            id: _uuid.v4(),
+            merchantToken: token,
+            category: category.name,
+            source: 'ml',
+            confidence: 0.8,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
   }
 
   Future<TransactionCategory?> _classifyWithAI(String text) async {

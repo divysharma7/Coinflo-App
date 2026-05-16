@@ -54,6 +54,10 @@ class AppColors {
     TransactionCategory.personalCare: Color(0xFFF8BBD0),
     TransactionCategory.education: Color(0xFF5C6BC0),
     TransactionCategory.travel: Color(0xFF14B8A6),
+    TransactionCategory.income: Color(0xFF059669),
+    TransactionCategory.cash: Color(0xFF78716C),
+    TransactionCategory.investments: Color(0xFF2563EB),
+    TransactionCategory.insurance: Color(0xFF7C3AED),
     TransactionCategory.other: Color(0xFF6E6E73),
   };
 

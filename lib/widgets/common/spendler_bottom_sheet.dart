@@ -18,9 +18,7 @@ Future<T?> showSpendlerSheet<T>({
     isDismissible: isDismissible,
     backgroundColor: AppColors.white,
     shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(
-        top: Radius.circular(28),
-      ),
+      borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
     ),
     showDragHandle: true,
     builder: (ctx) {

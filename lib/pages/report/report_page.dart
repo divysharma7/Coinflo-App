@@ -12,6 +12,9 @@ import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/services/export/csv_exporter.dart';
 import 'package:finance_buddy_app/widgets/charts/spend_bar_chart.dart';
 import 'package:finance_buddy_app/widgets/common/animated_progress_bar.dart';
+import 'package:finance_buddy_app/pages/import/widgets/import_prompt_banner.dart';
+import 'package:finance_buddy_app/providers/import_provider.dart';
+import 'package:go_router/go_router.dart';
 
 // ---------------------------------------------------------------------------
 // Page-local providers
@@ -108,6 +111,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
               const SizedBox(height: AppSpacing.md),
               _buildHeader(),
               const SizedBox(height: AppSpacing.lg),
+              _buildImportBannerIfNeeded(),
               const _PeriodSelector(),
               const SizedBox(height: AppSpacing.lg),
               _buildPeriodNavigator(),
@@ -137,6 +141,28 @@ class _ReportPageState extends ConsumerState<ReportPage> {
           ),
         ),
       ),
+    );
+  }
+
+  // ─── Import Banner (shown when < 10 transactions) ─────
+
+  Widget _buildImportBannerIfNeeded() {
+    final txnsAsync = ref.watch(allTransactionsProvider);
+    return txnsAsync.when(
+      data: (txns) {
+        if (txns.length >= 10) return const SizedBox.shrink();
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.md,
+          ),
+          child: ImportPromptBanner(onTap: () {
+            ref.read(importFlowControllerProvider.notifier).setSource(ImportSource.reportsBanner);
+            context.push('/import');
+          }),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
     );
   }
 

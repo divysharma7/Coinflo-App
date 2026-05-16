@@ -10,6 +10,7 @@ import 'package:finance_buddy_app/core/enums.dart';
 import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/providers/onboarding_provider.dart';
+import 'package:finance_buddy_app/providers/import_provider.dart';
 import 'package:finance_buddy_app/providers/auth_provider.dart';
 import 'package:finance_buddy_app/pages/penny/penny_page.dart';
 import 'package:finance_buddy_app/pages/people/people_page.dart';
@@ -211,6 +212,39 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         label: 'Notifications',
                         value: _notificationsEnabled,
                         onChanged: (v) => setState(() => _notificationsEnabled = v),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: AppSpacing.xxl),
+
+                // ─── DATA Section ───────────────────────
+                _sectionLabel('DATA'),
+                Container(
+                  decoration: const BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: AppRadius.xl,
+                  ),
+                  child: Column(
+                    children: [
+                      _SettingsRow(
+                        icon: PhosphorIcons.fileArrowUp(),
+                        iconBg: AppColors.gray100,
+                        iconColor: AppColors.gray600,
+                        label: 'Import bank statement',
+                        onTap: () {
+                          ref.read(importFlowControllerProvider.notifier).setSource(ImportSource.settings);
+                          context.push('/import');
+                        },
+                      ),
+                      const _Divider(),
+                      _SettingsRow(
+                        icon: PhosphorIcons.clockCounterClockwise(),
+                        iconBg: AppColors.gray100,
+                        iconColor: AppColors.gray600,
+                        label: 'Import history',
+                        onTap: () => context.push('/import/history'),
                       ),
                     ],
                   ),

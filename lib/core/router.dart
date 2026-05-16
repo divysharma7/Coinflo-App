@@ -12,8 +12,15 @@ import 'package:finance_buddy_app/pages/onboarding_v2/savings_goals_screen.dart'
 import 'package:finance_buddy_app/pages/onboarding_v2/recurring_payments_screen.dart';
 import 'package:finance_buddy_app/pages/onboarding_v2/stay_on_track_screen.dart';
 import 'package:finance_buddy_app/pages/onboarding_v2/completion_screen.dart';
+import 'package:finance_buddy_app/pages/onboarding_v2/import_step_screen.dart';
 import 'package:finance_buddy_app/pages/auth/sign_in_screen.dart';
 import 'package:finance_buddy_app/pages/shell_page.dart';
+import 'package:finance_buddy_app/pages/import/select_bank_page.dart';
+import 'package:finance_buddy_app/pages/import/upload_file_page.dart';
+import 'package:finance_buddy_app/pages/import/processing_page.dart';
+import 'package:finance_buddy_app/pages/import/review_page.dart';
+import 'package:finance_buddy_app/pages/import/summary_page.dart';
+import 'package:finance_buddy_app/pages/import/import_history_page.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -33,6 +40,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/onboarding/step2',
         builder: (context, state) => const AddAccountsScreen(),
+      ),
+      GoRoute(
+        path: '/onboarding/import',
+        builder: (context, state) => const ImportStepScreen(),
       ),
       GoRoute(
         path: '/onboarding/step3',
@@ -71,6 +82,32 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/sign-in',
         builder: (context, state) => const SignInScreen(),
+      ),
+
+      // ─── Import flow ──────────────────────────────────
+      GoRoute(
+        path: '/import',
+        builder: (context, state) => const SelectBankPage(),
+      ),
+      GoRoute(
+        path: '/import/upload',
+        builder: (context, state) => const UploadFilePage(),
+      ),
+      GoRoute(
+        path: '/import/processing',
+        builder: (context, state) => const ProcessingPage(),
+      ),
+      GoRoute(
+        path: '/import/review',
+        builder: (context, state) => const ReviewPage(),
+      ),
+      GoRoute(
+        path: '/import/summary',
+        builder: (context, state) => const SummaryPage(),
+      ),
+      GoRoute(
+        path: '/import/history',
+        builder: (context, state) => const ImportHistoryPage(),
       ),
 
       // ─── Main app ────────────────────────────────────
