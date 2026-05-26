@@ -122,3 +122,27 @@ Future<void> saveUserEmail(String email) async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setString(_userEmailKey, email);
 }
+
+// ─── Returning-user gate ────────────────────────────
+
+/// Resolves onboarding status. If SharedPref is missing but Firebase has a
+/// real UID, retroactively mark onboarding as completed.
+Future<bool> resolveOnboardingStatus(SharedPreferences prefs, String? firebaseUid) async {
+  final done = prefs.getBool('onboarding_completed') ?? false;
+  if (done) return true;
+
+  // Existing Firebase user without the flag — retroactively set it
+  if (firebaseUid != null && firebaseUid.isNotEmpty && firebaseUid != 'test_user_123') {
+    await prefs.setBool('onboarding_completed', true);
+    return true;
+  }
+  return false;
+}
+
+/// Records the very first app launch (idempotent).
+Future<void> markFirstLaunchIfNeeded(SharedPreferences prefs) async {
+  if (!prefs.containsKey('first_launch')) {
+    await prefs.setBool('first_launch', true);
+    await prefs.setString('first_launch_date', DateTime.now().toIso8601String());
+  }
+}

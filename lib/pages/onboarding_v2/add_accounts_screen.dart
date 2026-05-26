@@ -38,7 +38,7 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
   @override
   void initState() {
     super.initState();
-    _loadCurrencySymbol();
+    _loadSavedData();
     _nameController.addListener(() {
       setState(() => _formHasName = _nameController.text.trim().isNotEmpty);
     });
@@ -101,10 +101,31 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
     super.dispose();
   }
 
-  Future<void> _loadCurrencySymbol() async {
+  Future<void> _loadSavedData() async {
     final prefs = await SharedPreferences.getInstance();
+    final symbol = prefs.getString('currency_symbol') ?? '₹';
+    final savedJson = prefs.getString('accounts');
+    if (savedJson != null) {
+      try {
+        final List<dynamic> decoded = jsonDecode(savedJson) as List<dynamic>;
+        final saved = decoded
+            .map((e) => AccountModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+        if (saved.isNotEmpty) {
+          setState(() {
+            _accounts
+              ..clear()
+              ..addAll(saved);
+            _currencySymbol = symbol;
+          });
+          return;
+        }
+      } on FormatException catch (_) {
+        // Ignore malformed JSON — fall through to defaults.
+      }
+    }
     setState(() {
-      _currencySymbol = prefs.getString('currency_symbol') ?? '₹';
+      _currencySymbol = symbol;
     });
   }
 
@@ -179,26 +200,7 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
             ),
 
             // Back button
-            Padding(
-              padding: const EdgeInsets.only(
-                left: AppSpacing.md,
-                top: AppSpacing.md,
-              ),
-              child: GestureDetector(
-                onTap: () => context.pop(),
-                child: const SizedBox(
-                  width: 44,
-                  height: 44,
-                  child: Center(
-                    child: Icon(
-                      Icons.arrow_back_ios_new,
-                      size: 20,
-                      color: AppColors.black,
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            AppBackButton(onTap: () => context.pop()),
 
             // Title + subtitle
             SlideTransition(

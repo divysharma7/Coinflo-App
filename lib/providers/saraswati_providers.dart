@@ -2,12 +2,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:finance_buddy_app/providers/database_providers.dart';
 import 'package:finance_buddy_app/providers/transaction_providers.dart';
 import 'package:finance_buddy_app/providers/plan_providers.dart';
-import 'package:finance_buddy_app/services/penny/penny_service.dart';
+import 'package:finance_buddy_app/services/saraswati/saraswati_service.dart';
 import 'package:intl/intl.dart';
 
-/// A single chat message in the Penny conversation.
-class PennyMessage {
-  PennyMessage({
+/// A single chat message in the Saraswati conversation.
+class SaraswatiMessage {
+  SaraswatiMessage({
     required this.text,
     required this.isUser,
     DateTime? timestamp,
@@ -18,17 +18,17 @@ class PennyMessage {
   final DateTime timestamp;
 }
 
-/// Provides the PennyService instance backed by the app repository.
-final pennyServiceProvider = Provider<PennyService>((ref) {
+/// Provides the SaraswatiService instance backed by the app repository.
+final saraswatiServiceProvider = Provider<SaraswatiService>((ref) {
   final repo = ref.watch(repositoryProvider);
-  return PennyService(repo);
+  return SaraswatiService(repo);
 });
 
 /// Builds a financial context summary string from the user's data.
 ///
-/// Used to hydrate Penny's knowledge about the user's current financial
+/// Used to hydrate Saraswati's knowledge about the user's current financial
 /// situation so responses can be more contextual and personalised.
-final pennyFinancialContextProvider = Provider<String>((ref) {
+final saraswatiFinancialContextProvider = Provider<String>((ref) {
   final currencyFmt = NumberFormat.currency(
     locale: 'en_IN',
     symbol: '\u20B9',
@@ -73,17 +73,17 @@ final pennyFinancialContextProvider = Provider<String>((ref) {
 });
 
 /// Manages the chat message history and handles sending new queries.
-class PennyChatNotifier extends StateNotifier<List<PennyMessage>> {
-  PennyChatNotifier(this._service, this._financialContext)
+class SaraswatiChatNotifier extends StateNotifier<List<SaraswatiMessage>> {
+  SaraswatiChatNotifier(this._service, this._financialContext)
       : super([_welcomeMessage]);
 
-  final PennyService _service;
+  final SaraswatiService _service;
   final String _financialContext;
 
-  static final _welcomeMessage = PennyMessage(
-    text: "Hey, I'm Penny! I live inside your transaction data "
+  static final _welcomeMessage = SaraswatiMessage(
+    text: "Hey, I'm Saraswati! I live inside your transaction data "
         "and I'm here to help you make sense of it all.\n\n"
-        "Ask me anything — like *\"how much did I spend this week?\"* "
+        "Ask me anything \u2014 like *\"how much did I spend this week?\"* "
         "or *\"show me a category breakdown\"*.",
     isUser: false,
   );
@@ -96,7 +96,7 @@ class PennyChatNotifier extends StateNotifier<List<PennyMessage>> {
     if (trimmed.isEmpty || _isProcessing) return;
 
     // Add user message
-    state = [...state, PennyMessage(text: trimmed, isUser: true)];
+    state = [...state, SaraswatiMessage(text: trimmed, isUser: true)];
 
     _isProcessing = true;
     // Force a state update so UI can show typing indicator
@@ -104,11 +104,11 @@ class PennyChatNotifier extends StateNotifier<List<PennyMessage>> {
 
     try {
       final reply = await _service.ask(trimmed, context: _financialContext);
-      state = [...state, PennyMessage(text: reply, isUser: false)];
+      state = [...state, SaraswatiMessage(text: reply, isUser: false)];
     } on Exception catch (_) {
       state = [
         ...state,
-        PennyMessage(
+        SaraswatiMessage(
           text: "Oops, something went wrong while crunching the numbers. "
               "Give it another try!",
           isUser: false,
@@ -126,17 +126,17 @@ class PennyChatNotifier extends StateNotifier<List<PennyMessage>> {
 }
 
 /// The chat message list provider.
-final pennyChatProvider =
-    StateNotifierProvider<PennyChatNotifier, List<PennyMessage>>((ref) {
-  final service = ref.watch(pennyServiceProvider);
-  final context = ref.watch(pennyFinancialContextProvider);
-  return PennyChatNotifier(service, context);
+final saraswatiChatProvider =
+    StateNotifierProvider<SaraswatiChatNotifier, List<SaraswatiMessage>>((ref) {
+  final service = ref.watch(saraswatiServiceProvider);
+  final context = ref.watch(saraswatiFinancialContextProvider);
+  return SaraswatiChatNotifier(service, context);
 });
 
-/// Whether Penny is currently processing a query.
-final pennyProcessingProvider = Provider<bool>((ref) {
-  final notifier = ref.watch(pennyChatProvider.notifier);
+/// Whether Saraswati is currently processing a query.
+final saraswatiProcessingProvider = Provider<bool>((ref) {
+  final notifier = ref.watch(saraswatiChatProvider.notifier);
   // Re-evaluate when message list changes (notifier toggles state)
-  ref.watch(pennyChatProvider);
+  ref.watch(saraswatiChatProvider);
   return notifier.isProcessing;
 });

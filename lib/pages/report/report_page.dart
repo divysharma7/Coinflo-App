@@ -640,72 +640,84 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                     delta = ((amount - prevAmount) / prevAmount * 100).round();
                   }
 
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-                    padding: const EdgeInsets.all(AppSpacing.md),
-                    decoration: _cardDecor(),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 40, height: 40,
-                          decoration: BoxDecoration(
-                            color: catColor.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(12),
+                  return GestureDetector(
+                    onTap: () {
+                      HapticFeedback.selectionClick();
+                      final month = ref.read(_reportMonthProvider);
+                      context.push('/report/category', extra: {
+                        'category': entry.key,
+                        'month': month,
+                      });
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+                      padding: const EdgeInsets.all(AppSpacing.md),
+                      decoration: _cardDecor(),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 40, height: 40,
+                            decoration: BoxDecoration(
+                              color: catColor.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(cat.iconFill, size: 20, color: catColor),
                           ),
-                          child: Icon(cat.iconFill, size: 20, color: catColor),
-                        ),
-                        const SizedBox(width: AppSpacing.sm),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(cat.label,
-                                  style: AppTextStyles.bodyM.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.black)),
-                              if (delta != null && delta != 0) ...[
-                                const SizedBox(height: 2),
-                                Text(
-                                  '${delta > 0 ? '\u2191' : '\u2193'} ${delta.abs()}% vs last month',
-                                  style: AppTextStyles.labelS.copyWith(
-                                    color: delta > 0
-                                        ? const Color(0xFFEF4444)
-                                        : const Color(0xFF22C55E),
-                                    letterSpacing: 0,
+                          const SizedBox(width: AppSpacing.sm),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(cat.label,
+                                    style: AppTextStyles.bodyM.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.black)),
+                                if (delta != null && delta != 0) ...[
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    '${delta > 0 ? '\u2191' : '\u2193'} ${delta.abs()}% vs last month',
+                                    style: AppTextStyles.labelS.copyWith(
+                                      color: delta > 0
+                                          ? const Color(0xFFEF4444)
+                                          : const Color(0xFF22C55E),
+                                      letterSpacing: 0,
+                                    ),
                                   ),
-                                ),
-                              ] else if (delta == 0) ...[
-                                const SizedBox(height: 2),
-                                Text('Same as last month',
+                                ] else if (delta == 0) ...[
+                                  const SizedBox(height: 2),
+                                  Text('Same as last month',
+                                      style: AppTextStyles.labelS
+                                          .copyWith(color: AppColors.gray400)),
+                                ],
+                              ],
+                            ),
+                          ),
+                          Text('$symbol${_fmt(amount)}',
+                              style: AppTextStyles.numericL
+                                  .copyWith(color: AppColors.black)),
+                          const SizedBox(width: AppSpacing.sm),
+                          SizedBox(
+                            width: 40,
+                            child: Column(
+                              children: [
+                                Text('${(pct * 100).round()}%',
                                     style: AppTextStyles.labelS
                                         .copyWith(color: AppColors.gray400)),
+                                const SizedBox(height: 4),
+                                AnimatedProgressBar(
+                                  value: pct,
+                                  backgroundColor: AppColors.gray200,
+                                  valueColor: catColor,
+                                  minHeight: 4,
+                                  borderRadius: 2,
+                                ),
                               ],
-                            ],
+                            ),
                           ),
-                        ),
-                        Text('$symbol${_fmt(amount)}',
-                            style: AppTextStyles.numericL
-                                .copyWith(color: AppColors.black)),
-                        const SizedBox(width: AppSpacing.sm),
-                        SizedBox(
-                          width: 40,
-                          child: Column(
-                            children: [
-                              Text('${(pct * 100).round()}%',
-                                  style: AppTextStyles.labelS
-                                      .copyWith(color: AppColors.gray400)),
-                              const SizedBox(height: 4),
-                              AnimatedProgressBar(
-                                value: pct,
-                                backgroundColor: AppColors.gray200,
-                                valueColor: catColor,
-                                minHeight: 4,
-                                borderRadius: 2,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                          const SizedBox(width: 4),
+                          const Icon(Icons.chevron_right, size: 18, color: AppColors.gray300),
+                        ],
+                      ),
                     ),
                   );
                 }).toList(),
@@ -870,6 +882,39 @@ class _ProjectionCard extends ConsumerWidget {
         if (proj == null) return const SizedBox.shrink();
         final vsLast = proj.percentVsLast;
 
+        // Sparse data — too early for a meaningful forecast
+        if (proj.isSparse) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+            child: Container(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              decoration: _cardDecor(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(PhosphorIcons.trendUp(), size: 18, color: AppColors.gray500),
+                      const SizedBox(width: 8),
+                      Text('Month-End Forecast',
+                          style: AppTextStyles.headingS.copyWith(color: AppColors.black)),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    'Tracking ${DateTime.now().day} days of spend \u2014 too early to forecast.',
+                    style: AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        final forecastCopy = proj.usedShape
+            ? 'You\'re on track for ~$symbol${_fmt(proj.projected)} by month end based on your spending shape.'
+            : 'At your current pace, you\'ll spend $symbol${_fmt(proj.projected)} by month end.';
+
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
           child: Container(
@@ -888,7 +933,7 @@ class _ProjectionCard extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
-                  'At your current pace, you\'ll spend $symbol${_fmt(proj.projected)} by month end.',
+                  forecastCopy,
                   style: AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
                 ),
                 if (vsLast != null) ...[

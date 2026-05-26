@@ -46,7 +46,7 @@ class _RecurringPaymentsScreenState extends State<RecurringPaymentsScreen>
   @override
   void initState() {
     super.initState();
-    _loadCurrencySymbol();
+    _loadSavedData();
 
     _enterController = AnimationController(
       vsync: this,
@@ -80,10 +80,28 @@ class _RecurringPaymentsScreenState extends State<RecurringPaymentsScreen>
     super.dispose();
   }
 
-  Future<void> _loadCurrencySymbol() async {
+  Future<void> _loadSavedData() async {
     final prefs = await SharedPreferences.getInstance();
+    final savedJson = prefs.getString('recurring_payments');
+    final List<RecurringPaymentModel> restored = [];
+    if (savedJson != null) {
+      try {
+        final List<dynamic> decoded = jsonDecode(savedJson) as List<dynamic>;
+        restored.addAll(decoded
+            .map((e) =>
+                RecurringPaymentModel.fromJson(e as Map<String, dynamic>)));
+      } on FormatException catch (_) {
+        // Ignore malformed JSON.
+      }
+    }
     setState(() {
       _currencySymbol = prefs.getString('currency_symbol') ?? '₹';
+      if (restored.isNotEmpty) {
+        _payments
+          ..clear()
+          ..addAll(restored);
+        _usedPresets.addAll(restored.map((p) => p.name));
+      }
     });
   }
 
@@ -158,26 +176,7 @@ class _RecurringPaymentsScreenState extends State<RecurringPaymentsScreen>
             ),
 
             // Back button
-            Padding(
-              padding: const EdgeInsets.only(
-                left: AppSpacing.md,
-                top: AppSpacing.md,
-              ),
-              child: GestureDetector(
-                onTap: () => context.pop(),
-                child: const SizedBox(
-                  width: 44,
-                  height: 44,
-                  child: Center(
-                    child: Icon(
-                      Icons.arrow_back_ios_new,
-                      size: 20,
-                      color: AppColors.black,
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            AppBackButton(onTap: () => context.pop()),
 
             // Title
             SlideTransition(

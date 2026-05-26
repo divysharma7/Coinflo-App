@@ -72,26 +72,7 @@ class _CategoriesOverviewScreenState extends State<CategoriesOverviewScreen>
             ),
 
             // Back button
-            Padding(
-              padding: const EdgeInsets.only(
-                left: AppSpacing.md,
-                top: AppSpacing.md,
-              ),
-              child: GestureDetector(
-                onTap: () => context.pop(),
-                child: const SizedBox(
-                  width: 44,
-                  height: 44,
-                  child: Center(
-                    child: Icon(
-                      Icons.arrow_back_ios_new,
-                      size: 20,
-                      color: AppColors.black,
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            AppBackButton(onTap: () => context.pop()),
 
             // Scrollable content
             Expanded(

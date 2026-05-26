@@ -32,7 +32,7 @@ class _SavingsGoalsScreenState extends State<SavingsGoalsScreen>
   @override
   void initState() {
     super.initState();
-    _loadCurrencySymbol();
+    _loadSavedData();
 
     _enterController = AnimationController(
       vsync: this,
@@ -66,10 +66,26 @@ class _SavingsGoalsScreenState extends State<SavingsGoalsScreen>
     super.dispose();
   }
 
-  Future<void> _loadCurrencySymbol() async {
+  Future<void> _loadSavedData() async {
     final prefs = await SharedPreferences.getInstance();
+    final savedJson = prefs.getString('savings_goals');
+    final List<SavingsGoalModel> restored = [];
+    if (savedJson != null) {
+      try {
+        final List<dynamic> decoded = jsonDecode(savedJson) as List<dynamic>;
+        restored.addAll(decoded
+            .map((e) => SavingsGoalModel.fromJson(e as Map<String, dynamic>)));
+      } on FormatException catch (_) {
+        // Ignore malformed JSON.
+      }
+    }
     setState(() {
       _currencySymbol = prefs.getString('currency_symbol') ?? '₹';
+      if (restored.isNotEmpty) {
+        _goals
+          ..clear()
+          ..addAll(restored);
+      }
     });
   }
 
@@ -131,26 +147,7 @@ class _SavingsGoalsScreenState extends State<SavingsGoalsScreen>
             ),
 
             // Back button
-            Padding(
-              padding: const EdgeInsets.only(
-                left: AppSpacing.md,
-                top: AppSpacing.md,
-              ),
-              child: GestureDetector(
-                onTap: () => context.pop(),
-                child: const SizedBox(
-                  width: 44,
-                  height: 44,
-                  child: Center(
-                    child: Icon(
-                      Icons.arrow_back_ios_new,
-                      size: 20,
-                      color: AppColors.black,
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            AppBackButton(onTap: () => context.pop()),
 
             // Title + subtitle
             SlideTransition(

@@ -89,6 +89,23 @@ Future<void> insertGoal(
   ));
 }
 
+Future<void> updateGoal(
+  BaseRepository repo, {
+  required int id,
+  required String name,
+  required double targetAmount,
+  required String iconName,
+}) async {
+  await repo.updateGoal(
+    id,
+    SavingsGoalsCompanion(
+      name: Value(name),
+      targetAmount: Value(targetAmount),
+      iconName: Value(iconName),
+    ),
+  );
+}
+
 Future<void> deleteGoal(BaseRepository repo, int id) async {
   await repo.deleteGoal(id);
 }

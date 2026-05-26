@@ -63,7 +63,7 @@ void main() {
       await tester.pumpWidget(buildWidget());
       await tester.pumpAndSettle();
 
-      expect(find.text('Ask Penny'), findsOneWidget);
+      expect(find.text('Ask Saraswati'), findsOneWidget);
       expect(find.text('Plans & Pricing'), findsOneWidget);
       expect(find.text('Currency'), findsOneWidget);
       expect(find.text('Accounts'), findsOneWidget);

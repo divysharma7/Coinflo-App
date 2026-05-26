@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:finance_buddy_app/design_system/design_system.dart';
-import 'package:finance_buddy_app/providers/penny_providers.dart';
+import 'package:finance_buddy_app/providers/saraswati_providers.dart';
 
-/// Ask Penny — an AI chat assistant that answers questions about
+/// Ask Saraswati — an AI chat assistant that answers questions about
 /// the user's transaction data.
-class PennyPage extends ConsumerStatefulWidget {
-  const PennyPage({super.key});
+class SaraswatiPage extends ConsumerStatefulWidget {
+  const SaraswatiPage({super.key});
 
   @override
-  ConsumerState<PennyPage> createState() => _PennyPageState();
+  ConsumerState<SaraswatiPage> createState() => _SaraswatiPageState();
 }
 
-class _PennyPageState extends ConsumerState<PennyPage> {
+class _SaraswatiPageState extends ConsumerState<SaraswatiPage> {
   final _controller = TextEditingController();
   final _scrollController = ScrollController();
   final _focusNode = FocusNode();
@@ -45,7 +45,7 @@ class _PennyPageState extends ConsumerState<PennyPage> {
     final msg = text ?? _controller.text.trim();
     if (msg.isEmpty) return;
     _controller.clear();
-    ref.read(pennyChatProvider.notifier).send(msg);
+    ref.read(saraswatiChatProvider.notifier).send(msg);
     // User just sent a message — always scroll to bottom
     WidgetsBinding.instance.addPostFrameCallback((_) => _forceScrollToBottom());
   }
@@ -62,13 +62,13 @@ class _PennyPageState extends ConsumerState<PennyPage> {
 
   @override
   Widget build(BuildContext context) {
-    final messages = ref.watch(pennyChatProvider);
-    final isProcessing = ref.watch(pennyProcessingProvider);
+    final messages = ref.watch(saraswatiChatProvider);
+    final isProcessing = ref.watch(saraswatiProcessingProvider);
     final hasMessages = messages.length > 1; // more than just the welcome message
 
     // Auto-scroll when new messages arrive, but only if user is near the bottom.
     // If they've scrolled up to read history, don't yank them down.
-    ref.listen<List<PennyMessage>>(pennyChatProvider, (_, _) {
+    ref.listen<List<SaraswatiMessage>>(saraswatiChatProvider, (_, _) {
       final wasNearBottom = _isNearBottom;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (wasNearBottom) _forceScrollToBottom();
@@ -88,7 +88,7 @@ class _PennyPageState extends ConsumerState<PennyPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Ask Penny',
+              'Ask Saraswati',
               style: TextStyle(
                 color: AppColors.black,
                 fontSize: 17,
@@ -195,7 +195,7 @@ class _EmptyState extends StatelessWidget {
 
           // Title
           const Text(
-            "Hi, I'm Penny",
+            "Hi, I'm Saraswati",
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w700,

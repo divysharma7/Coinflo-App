@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:finance_buddy_app/pages/splash/splash_page.dart';
-import 'package:finance_buddy_app/pages/onboarding_v2/currency_selection_screen.dart';
 import 'package:finance_buddy_app/pages/onboarding_v2/add_accounts_screen.dart';
 import 'package:finance_buddy_app/pages/onboarding_v2/monthly_budget_screen.dart';
 import 'package:finance_buddy_app/pages/onboarding_v2/category_budgets_screen.dart';
@@ -21,6 +20,7 @@ import 'package:finance_buddy_app/pages/import/processing_page.dart';
 import 'package:finance_buddy_app/pages/import/review_page.dart';
 import 'package:finance_buddy_app/pages/import/summary_page.dart';
 import 'package:finance_buddy_app/pages/import/import_history_page.dart';
+import 'package:finance_buddy_app/pages/report/category_transactions_page.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -33,10 +33,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
 
       // ─── Onboarding flow ─────────────────────────────
-      GoRoute(
-        path: '/onboarding/step1',
-        builder: (context, state) => const CurrencySelectionScreen(),
-      ),
+      // step1 (currency selection) removed — locked to INR for v1
       GoRoute(
         path: '/onboarding/step2',
         builder: (context, state) => const AddAccountsScreen(),
@@ -108,6 +105,18 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/import/history',
         builder: (context, state) => const ImportHistoryPage(),
+      ),
+
+      // ─── Report drill-down ────────────────────────────
+      GoRoute(
+        path: '/report/category',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return CategoryTransactionsPage(
+            categoryName: extra['category'] as String,
+            month: extra['month'] as DateTime,
+          );
+        },
       ),
 
       // ─── Main app ────────────────────────────────────

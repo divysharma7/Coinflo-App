@@ -2,12 +2,12 @@ import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/data/repositories/base_repository.dart';
 import 'package:intl/intl.dart';
 
-/// Rule-based query processor for the Ask Penny chat assistant.
+/// Rule-based query processor for the Ask Saraswati chat assistant.
 ///
 /// Matches user questions against common finance query patterns and computes
 /// answers directly from transaction data — no external AI API needed.
-class PennyService {
-  PennyService(this._repo);
+class SaraswatiService {
+  SaraswatiService(this._repo);
 
   final BaseRepository _repo;
 
@@ -20,7 +20,7 @@ class PennyService {
     decimalDigits: 0,
   );
 
-  /// Process a user query and return Penny's markdown-formatted answer.
+  /// Process a user query and return Saraswati's markdown-formatted answer.
   ///
   /// [context] is an optional financial summary injected from providers
   /// (monthly spending, top categories, budget status). When present it is

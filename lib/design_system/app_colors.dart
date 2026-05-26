@@ -20,6 +20,9 @@ class AppColors {
   // Semantic
   static const Color green = Color(0xFF22C55E);
   static const Color red = Color(0xFFEF4444);
+
+  /// Neutral charcoal for amount entry — avoids the "error" feel of red.
+  static const Color amountNeutral = Color(0xFF3A3A3A);
   static const Color orange = Color(0xFFF97316);
 
   // Semantic — opacity variants for badges

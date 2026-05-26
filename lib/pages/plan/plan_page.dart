@@ -228,6 +228,7 @@ class _BudgetsSection extends ConsumerWidget {
                           budget: budgetList[i],
                           spent: spendingMap[budgetList[i].category] ?? 0,
                           onDelete: () => _deleteBudget(ref, budgetList[i].id),
+                          onEdit: () => _showAddBudgetSheet(context, ref, existingBudget: budgetList[i]),
                           symbol: sym,
                         ),
                       ),
@@ -248,7 +249,7 @@ class _BudgetsSection extends ConsumerWidget {
     );
   }
 
-  void _showAddBudgetSheet(BuildContext context, WidgetRef ref) {
+  void _showAddBudgetSheet(BuildContext context, WidgetRef ref, {CategoryBudget? existingBudget}) {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -259,12 +260,13 @@ class _BudgetsSection extends ConsumerWidget {
         ),
       ),
       showDragHandle: true,
-      builder: (_) => _AddBudgetSheet(),
+      builder: (_) => _AddBudgetSheet(existingBudget: existingBudget),
     );
   }
 
   Future<void> _deleteBudget(WidgetRef ref, int id) async {
     await deleteBudget(ref.read(repositoryProvider), id);
+    invalidateAnalytics(ref);
   }
 }
 
@@ -273,12 +275,14 @@ class _BudgetCard extends StatelessWidget {
     required this.budget,
     required this.spent,
     required this.onDelete,
+    required this.onEdit,
     required this.symbol,
   });
 
   final CategoryBudget budget;
   final double spent;
   final VoidCallback onDelete;
+  final VoidCallback onEdit;
   final String symbol;
 
   @override
@@ -288,7 +292,7 @@ class _BudgetCard extends StatelessWidget {
       orElse: () => TransactionCategory.other,
     );
     final progress = budget.monthlyLimit > 0
-        ? (spent / budget.monthlyLimit).clamp(0.0, 1.5)
+        ? (spent / budget.monthlyLimit).clamp(0.0, 1.0)
         : 0.0;
     final percent = budget.monthlyLimit > 0
         ? (spent / budget.monthlyLimit * 100)
@@ -303,7 +307,7 @@ class _BudgetCard extends StatelessWidget {
             : categoryColor;
 
     return GestureDetector(
-      onLongPress: () => _showDeleteDialog(context),
+      onLongPress: () => _showOptionsSheet(context),
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
@@ -437,25 +441,46 @@ class _BudgetCard extends StatelessWidget {
     );
   }
 
-  void _showDeleteDialog(BuildContext context) {
-    showDialog<void>(
+  void _showOptionsSheet(BuildContext context) {
+    showModalBottomSheet<void>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Delete Budget'),
-        content: const Text('Remove this budget?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              onDelete();
-            },
-            child: const Text('Delete', style: TextStyle(color: AppColors.red)),
-          ),
-        ],
+      backgroundColor: AppColors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: AppSpacing.sm),
+            Container(
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.gray300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            ListTile(
+              leading: PhosphorIcon(PhosphorIcons.pencilSimple(), color: AppColors.black),
+              title: const Text('Edit Budget'),
+              onTap: () {
+                Navigator.pop(ctx);
+                onEdit();
+              },
+            ),
+            ListTile(
+              leading: PhosphorIcon(PhosphorIcons.trash(), color: AppColors.red),
+              title: const Text('Delete Budget', style: TextStyle(color: AppColors.red)),
+              onTap: () {
+                Navigator.pop(ctx);
+                onDelete();
+              },
+            ),
+            const SizedBox(height: AppSpacing.md),
+          ],
+        ),
       ),
     );
   }
@@ -535,6 +560,7 @@ class _GoalsSection extends ConsumerWidget {
                       goal: goalList[i],
                       onAddMoney: () => _showAddMoneySheet(context, ref, goalList[i]),
                       onDelete: () => _deleteGoal(ref, goalList[i].id),
+                      onEdit: () => _showAddGoalSheet(context, existingGoal: goalList[i]),
                       symbol: sym,
                     ),
                   ),
@@ -551,7 +577,7 @@ class _GoalsSection extends ConsumerWidget {
     );
   }
 
-  void _showAddGoalSheet(BuildContext context) {
+  void _showAddGoalSheet(BuildContext context, {SavingsGoal? existingGoal}) {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -562,7 +588,7 @@ class _GoalsSection extends ConsumerWidget {
         ),
       ),
       showDragHandle: true,
-      builder: (_) => const _AddGoalSheet(),
+      builder: (_) => _AddGoalSheet(existingGoal: existingGoal),
     );
   }
 
@@ -584,6 +610,7 @@ class _GoalsSection extends ConsumerWidget {
 
   Future<void> _deleteGoal(WidgetRef ref, int id) async {
     await deleteGoal(ref.read(repositoryProvider), id);
+    invalidateAnalytics(ref);
   }
 }
 
@@ -592,12 +619,14 @@ class _GoalCard extends StatefulWidget {
     required this.goal,
     required this.onAddMoney,
     required this.onDelete,
+    required this.onEdit,
     required this.symbol,
   });
 
   final SavingsGoal goal;
   final VoidCallback onAddMoney;
   final VoidCallback onDelete;
+  final VoidCallback onEdit;
   final String symbol;
 
   @override
@@ -694,7 +723,7 @@ class _GoalCardState extends State<_GoalCard>
     final ringBg = _isCompleted ? _goldColor.withValues(alpha: 0.25) : AppColors.gray200;
 
     Widget card = GestureDetector(
-      onLongPress: () => _showDeleteDialog(context),
+      onLongPress: () => _showOptionsSheet(context),
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
@@ -879,25 +908,46 @@ class _GoalCardState extends State<_GoalCard>
     return card;
   }
 
-  void _showDeleteDialog(BuildContext context) {
-    showDialog<void>(
+  void _showOptionsSheet(BuildContext context) {
+    showModalBottomSheet<void>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Delete Goal'),
-        content: const Text('Remove this savings goal?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              widget.onDelete();
-            },
-            child: const Text('Delete', style: TextStyle(color: AppColors.red)),
-          ),
-        ],
+      backgroundColor: AppColors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: AppSpacing.sm),
+            Container(
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.gray300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            ListTile(
+              leading: PhosphorIcon(PhosphorIcons.pencilSimple(), color: AppColors.black),
+              title: const Text('Edit Goal'),
+              onTap: () {
+                Navigator.pop(ctx);
+                widget.onEdit();
+              },
+            ),
+            ListTile(
+              leading: PhosphorIcon(PhosphorIcons.trash(), color: AppColors.red),
+              title: const Text('Delete Goal', style: TextStyle(color: AppColors.red)),
+              onTap: () {
+                Navigator.pop(ctx);
+                widget.onDelete();
+              },
+            ),
+            const SizedBox(height: AppSpacing.md),
+          ],
+        ),
       ),
     );
   }
@@ -951,6 +1001,9 @@ class _GoalRingPainter extends CustomPainter {
 // ─── Add Budget Sheet ─────────────────────────────────
 
 class _AddBudgetSheet extends ConsumerStatefulWidget {
+  const _AddBudgetSheet({this.existingBudget});
+  final CategoryBudget? existingBudget;
+
   @override
   ConsumerState<_AddBudgetSheet> createState() => _AddBudgetSheetState();
 }
@@ -958,6 +1011,20 @@ class _AddBudgetSheet extends ConsumerStatefulWidget {
 class _AddBudgetSheetState extends ConsumerState<_AddBudgetSheet> {
   TransactionCategory _selected = TransactionCategory.foodAndDrink;
   final _amountCtrl = TextEditingController();
+  bool get _isEditing => widget.existingBudget != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final existing = widget.existingBudget;
+    if (existing != null) {
+      _selected = TransactionCategory.values.firstWhere(
+        (c) => c.name == existing.category,
+        orElse: () => TransactionCategory.other,
+      );
+      _amountCtrl.text = existing.monthlyLimit.toStringAsFixed(0);
+    }
+  }
 
   @override
   void dispose() {
@@ -967,7 +1034,10 @@ class _AddBudgetSheetState extends ConsumerState<_AddBudgetSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
       padding: EdgeInsets.only(
         left: AppSpacing.lg,
         right: AppSpacing.lg,
@@ -978,14 +1048,18 @@ class _AddBudgetSheetState extends ConsumerState<_AddBudgetSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Set Budget',
+            _isEditing ? 'Edit Budget' : 'Set Budget',
             style: AppTextStyles.headingM.copyWith(
               color: AppColors.black,
             ),
           ),
           const SizedBox(height: AppSpacing.xl),
           // Category picker
-          Wrap(
+          IgnorePointer(
+            ignoring: _isEditing,
+            child: Opacity(
+              opacity: _isEditing ? 0.6 : 1.0,
+              child: Wrap(
             spacing: AppSpacing.xs,
             runSpacing: AppSpacing.xs,
             children: TransactionCategory.values.map((cat) {
@@ -1026,14 +1100,18 @@ class _AddBudgetSheetState extends ConsumerState<_AddBudgetSheet> {
               );
             }).toList(),
           ),
+          ),
+          ),
           const SizedBox(height: AppSpacing.xl),
           // Amount field
           TextField(
             controller: _amountCtrl,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            textInputAction: TextInputAction.done,
+            onSubmitted: (_) => _save(),
             autofocus: true,
             decoration: const InputDecoration(
-              labelText: 'Monthly limit (\$)',
+              labelText: 'Monthly limit (₹)',
               labelStyle: TextStyle(color: AppColors.gray500),
               enabledBorder: OutlineInputBorder(
                 borderRadius: AppRadius.sm,
@@ -1052,11 +1130,12 @@ class _AddBudgetSheetState extends ConsumerState<_AddBudgetSheet> {
           const SizedBox(height: AppSpacing.xl),
           // Save button
           AppButton(
-            label: 'Set Budget',
+            label: _isEditing ? 'Update Budget' : 'Set Budget',
             onTap: _save,
           ),
         ],
       ),
+    ),
     );
   }
 
@@ -1072,7 +1151,7 @@ class _AddBudgetSheetState extends ConsumerState<_AddBudgetSheet> {
 
     // Invalidate spending cache so UI refreshes
     ref.invalidate(monthlyCategorySpendingProvider);
-
+    invalidateAnalytics(ref);
     if (mounted) Navigator.pop(context);
   }
 }
@@ -1080,7 +1159,8 @@ class _AddBudgetSheetState extends ConsumerState<_AddBudgetSheet> {
 // ─── Add Goal Sheet ───────────────────────────────────
 
 class _AddGoalSheet extends ConsumerStatefulWidget {
-  const _AddGoalSheet();
+  const _AddGoalSheet({this.existingGoal});
+  final SavingsGoal? existingGoal;
 
   @override
   ConsumerState<_AddGoalSheet> createState() => _AddGoalSheetState();
@@ -1090,6 +1170,18 @@ class _AddGoalSheetState extends ConsumerState<_AddGoalSheet> {
   final _nameCtrl = TextEditingController();
   final _amountCtrl = TextEditingController();
   String _selectedIcon = 'piggyBank';
+  bool get _isEditing => widget.existingGoal != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final existing = widget.existingGoal;
+    if (existing != null) {
+      _nameCtrl.text = existing.name;
+      _amountCtrl.text = existing.targetAmount.toStringAsFixed(0);
+      _selectedIcon = existing.iconName;
+    }
+  }
 
   static const _iconOptions = [
     ('piggyBank', 'Savings'),
@@ -1134,7 +1226,10 @@ class _AddGoalSheetState extends ConsumerState<_AddGoalSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
       padding: EdgeInsets.only(
         left: AppSpacing.lg,
         right: AppSpacing.lg,
@@ -1145,7 +1240,7 @@ class _AddGoalSheetState extends ConsumerState<_AddGoalSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'New Goal',
+            _isEditing ? 'Edit Goal' : 'New Goal',
             style: AppTextStyles.headingM.copyWith(
               color: AppColors.black,
             ),
@@ -1233,8 +1328,10 @@ class _AddGoalSheetState extends ConsumerState<_AddGoalSheet> {
           TextField(
             controller: _amountCtrl,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            textInputAction: TextInputAction.done,
+            onSubmitted: (_) => _save(),
             decoration: const InputDecoration(
-              labelText: 'Target amount (\$)',
+              labelText: 'Target amount (₹)',
               labelStyle: TextStyle(color: AppColors.gray500),
               enabledBorder: OutlineInputBorder(
                 borderRadius: AppRadius.sm,
@@ -1252,11 +1349,12 @@ class _AddGoalSheetState extends ConsumerState<_AddGoalSheet> {
           ),
           const SizedBox(height: AppSpacing.xl),
           AppButton(
-            label: 'Create Goal',
+            label: _isEditing ? 'Update Goal' : 'Create Goal',
             onTap: _save,
           ),
         ],
       ),
+    ),
     );
   }
 
@@ -1265,12 +1363,23 @@ class _AddGoalSheetState extends ConsumerState<_AddGoalSheet> {
     final target = double.tryParse(_amountCtrl.text.trim());
     if (name.isEmpty || target == null || target <= 0) return;
 
-    await insertGoal(
-      ref.read(repositoryProvider),
-      name: name,
-      targetAmount: target,
-      iconName: _selectedIcon,
-    );
+    if (_isEditing) {
+      await updateGoal(
+        ref.read(repositoryProvider),
+        id: widget.existingGoal!.id,
+        name: name,
+        targetAmount: target,
+        iconName: _selectedIcon,
+      );
+    } else {
+      await insertGoal(
+        ref.read(repositoryProvider),
+        name: name,
+        targetAmount: target,
+        iconName: _selectedIcon,
+      );
+    }
+    invalidateAnalytics(ref);
 
     if (mounted) Navigator.pop(context);
   }
@@ -1299,7 +1408,10 @@ class _AddMoneySheetState extends ConsumerState<_AddMoneySheet> {
   Widget build(BuildContext context) {
     final remaining = widget.goal.targetAmount - widget.goal.currentAmount;
 
-    return Padding(
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
       padding: EdgeInsets.only(
         left: AppSpacing.lg,
         right: AppSpacing.lg,
@@ -1326,9 +1438,11 @@ class _AddMoneySheetState extends ConsumerState<_AddMoneySheet> {
           TextField(
             controller: _amountCtrl,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            textInputAction: TextInputAction.done,
+            onSubmitted: (_) => _save(),
             autofocus: true,
             decoration: const InputDecoration(
-              labelText: 'Amount (\$)',
+              labelText: 'Amount (₹)',
               labelStyle: TextStyle(color: AppColors.gray500),
               enabledBorder: OutlineInputBorder(
                 borderRadius: AppRadius.sm,
@@ -1351,6 +1465,7 @@ class _AddMoneySheetState extends ConsumerState<_AddMoneySheet> {
           ),
         ],
       ),
+    ),
     );
   }
 
@@ -1359,7 +1474,7 @@ class _AddMoneySheetState extends ConsumerState<_AddMoneySheet> {
     if (amount == null || amount <= 0) return;
 
     await addMoneyToGoal(ref.read(repositoryProvider), widget.goal.id, amount);
-
+    invalidateAnalytics(ref);
     if (mounted) Navigator.pop(context);
   }
 }

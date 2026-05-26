@@ -37,7 +37,7 @@ class _MonthlyBudgetScreenState extends State<MonthlyBudgetScreen>
   @override
   void initState() {
     super.initState();
-    _loadCurrencySymbol();
+    _loadSavedData();
 
     _enterController = AnimationController(
       vsync: this,
@@ -73,10 +73,15 @@ class _MonthlyBudgetScreenState extends State<MonthlyBudgetScreen>
     super.dispose();
   }
 
-  Future<void> _loadCurrencySymbol() async {
+  Future<void> _loadSavedData() async {
     final prefs = await SharedPreferences.getInstance();
+    final savedBudget = prefs.getDouble('monthly_budget') ??
+        prefs.getInt('monthly_budget')?.toDouble();
     setState(() {
       _currencySymbol = prefs.getString('currency_symbol') ?? '₹';
+      if (savedBudget != null && savedBudget > 0) {
+        _selectedAmount = savedBudget.toInt();
+      }
     });
   }
 
@@ -134,26 +139,7 @@ class _MonthlyBudgetScreenState extends State<MonthlyBudgetScreen>
             ),
 
             // Back button
-            Padding(
-              padding: const EdgeInsets.only(
-                left: AppSpacing.md,
-                top: AppSpacing.md,
-              ),
-              child: GestureDetector(
-                onTap: () => context.pop(),
-                child: const SizedBox(
-                  width: 44,
-                  height: 44,
-                  child: Center(
-                    child: Icon(
-                      Icons.arrow_back_ios_new,
-                      size: 20,
-                      color: AppColors.black,
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            AppBackButton(onTap: () => context.pop()),
 
             // Title + subtitle
             Padding(

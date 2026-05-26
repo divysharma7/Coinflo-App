@@ -79,9 +79,25 @@ class _CategoryBudgetsScreenState extends State<CategoryBudgetsScreen>
 
   Future<void> _loadData() async {
     final prefs = await SharedPreferences.getInstance();
+    final savedJson = prefs.getString('category_budgets');
+    final List<CategoryBudgetModel> restored = [];
+    if (savedJson != null) {
+      try {
+        final List<dynamic> decoded = jsonDecode(savedJson) as List<dynamic>;
+        restored.addAll(decoded
+            .map((e) => CategoryBudgetModel.fromJson(e as Map<String, dynamic>)));
+      } on FormatException catch (_) {
+        // Ignore malformed JSON.
+      }
+    }
     setState(() {
       _totalMonthlyBudget = (prefs.getDouble('monthly_budget') ?? prefs.getInt('monthly_budget') ?? 5000).toInt();
       _currencySymbol = prefs.getString('currency_symbol') ?? '₹';
+      if (restored.isNotEmpty) {
+        _budgets
+          ..clear()
+          ..addAll(restored);
+      }
     });
   }
 
@@ -169,26 +185,7 @@ class _CategoryBudgetsScreenState extends State<CategoryBudgetsScreen>
             ),
 
             // Back button
-            Padding(
-              padding: const EdgeInsets.only(
-                left: AppSpacing.md,
-                top: AppSpacing.md,
-              ),
-              child: GestureDetector(
-                onTap: () => context.pop(),
-                child: const SizedBox(
-                  width: 44,
-                  height: 44,
-                  child: Center(
-                    child: Icon(
-                      Icons.arrow_back_ios_new,
-                      size: 20,
-                      color: AppColors.black,
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            AppBackButton(onTap: () => context.pop()),
 
             // Title + subtitle
             SlideTransition(

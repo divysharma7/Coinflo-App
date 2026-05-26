@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 class AppTextStyles {
   AppTextStyles._();
 
-  // Display — large balance numbers
+  // Display — large balance numbers (JetBrains Mono for finance identity)
   static const TextStyle displayXL = TextStyle(
+    fontFamily: 'JetBrainsMono',
     fontSize: 40,
     fontWeight: FontWeight.w700,
     letterSpacing: -1.5,
@@ -63,13 +64,15 @@ class AppTextStyles {
     letterSpacing: 0.6,
   );
 
-  // Numeric — amounts, always tabular
+  // Numeric — amounts, always tabular (JetBrains Mono for finance identity)
   static const TextStyle numericL = TextStyle(
+    fontFamily: 'JetBrainsMono',
     fontSize: 17,
     fontWeight: FontWeight.w600,
     fontFeatures: [FontFeature.tabularFigures()],
   );
   static const TextStyle numericM = TextStyle(
+    fontFamily: 'JetBrainsMono',
     fontSize: 15,
     fontWeight: FontWeight.w500,
     fontFeatures: [FontFeature.tabularFigures()],

@@ -217,7 +217,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
     final currencyAsync = ref.watch(selectedCurrencyProvider);
     final currency = currencyAsync.valueOrNull ?? 'inr';
     final symbol = _currencySymbol(currency);
-    final amountColor = _isExpense ? AppColors.red : AppColors.green;
+    final amountColor = _isExpense ? AppColors.amountNeutral : AppColors.green;
     final bottomPad = MediaQuery.of(context).viewInsets.bottom;
     final catColor = _colorForCategory(_category);
     final isToday = _selectedDate.year == DateTime.now().year &&
@@ -615,6 +615,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
     ref.invalidate(monthlyTotalsForYearProvider);
     ref.invalidate(yearlyTotalsProvider);
     ref.invalidate(monthlyCategorySpendingProvider);
+    invalidateAnalytics(ref);
 
     if (mounted) {
       Navigator.pop(context);

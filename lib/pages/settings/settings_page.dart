@@ -12,7 +12,7 @@ import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/providers/onboarding_provider.dart';
 import 'package:finance_buddy_app/providers/import_provider.dart';
 import 'package:finance_buddy_app/providers/auth_provider.dart';
-import 'package:finance_buddy_app/pages/penny/penny_page.dart';
+import 'package:finance_buddy_app/pages/saraswati/saraswati_page.dart';
 import 'package:finance_buddy_app/pages/people/people_page.dart';
 import 'package:finance_buddy_app/pages/subscriptions/subscriptions_page.dart';
 import 'package:finance_buddy_app/pages/settings/profile_sheet.dart';
@@ -130,9 +130,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         icon: PhosphorIcons.lightning(),
                         iconBg: AppColors.gray100,
                         iconColor: AppColors.gray600,
-                        label: 'Ask Penny',
+                        label: 'Ask Saraswati',
                         onTap: () => Navigator.push(context,
-                            MaterialPageRoute<void>(builder: (_) => const PennyPage())),
+                            MaterialPageRoute<void>(builder: (_) => const SaraswatiPage())),
                       ),
                       const _Divider(),
                       _SettingsRow(

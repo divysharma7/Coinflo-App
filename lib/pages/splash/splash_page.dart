@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -108,18 +109,21 @@ class _SplashPageState extends ConsumerState<SplashPage>
     if (_navigated || !mounted) return;
     _navigated = true;
 
+    final prefs = await SharedPreferences.getInstance();
+    await markFirstLaunchIfNeeded(prefs);
+    final firebaseUid = FirebaseAuth.instance.currentUser?.uid;
+
     if (kDebugMode) {
-      final prefs = await SharedPreferences.getInstance();
       await prefs.setString('auth_token', 'test_hardcoded_token');
       await prefs.setString('user_uid', 'test_user_123');
-      final onboardingDone = prefs.getBool('onboarding_completed') ?? false;
+      final onboardingDone = await resolveOnboardingStatus(prefs, firebaseUid);
       if (!mounted) return;
-      context.go(onboardingDone ? '/home' : '/onboarding/step1');
+      context.go(onboardingDone ? '/home' : '/onboarding/step2');
     } else {
       final isReturning = await ref.read(isReturningUserProvider.future);
-      final onboardingDone = await ref.read(hasCompletedOnboardingProvider.future);
+      final onboardingDone = await resolveOnboardingStatus(prefs, firebaseUid);
       if (!mounted) return;
-      context.go((isReturning && onboardingDone) ? '/home' : '/onboarding/step1');
+      context.go((isReturning || onboardingDone) ? '/home' : '/onboarding/step2');
     }
   }
 

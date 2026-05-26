@@ -52,17 +52,25 @@ final weeklyAlertsProvider = FutureProvider<List<String>>((ref) {
 
 // ─── Computed analytics providers ───────────────────
 
-/// Month-end spending projection based on current pace.
+/// Month-end spending projection using last month's spending shape when
+/// available, falling back to linear extrapolation for new users.
 class MonthProjection {
   final double spentSoFar;
   final double projected;
   final int daysLeft;
   final int? percentVsLast;
+  /// True when we have < 5 days of data — too early for a meaningful forecast.
+  final bool isSparse;
+  /// True when the projection used last month's spending shape instead of
+  /// naive linear extrapolation.
+  final bool usedShape;
   const MonthProjection({
     required this.spentSoFar,
     required this.projected,
     required this.daysLeft,
     this.percentVsLast,
+    this.isSparse = false,
+    this.usedShape = false,
   });
 }
 
@@ -75,9 +83,28 @@ final monthEndProjectionProvider = FutureProvider<MonthProjection?>((ref) async 
   final today = DateTime.now().day;
   final spentSoFar = thisData[today - 1];
   final daysLeft = thisData.length - today;
-  final dailyRate = today > 0 ? spentSoFar / today : 0.0;
-  final projected = spentSoFar + (dailyRate * daysLeft);
   final lastTotal = lastData.isNotEmpty ? lastData.last : 0.0;
+
+  double projected;
+  bool usedShape = false;
+
+  // Use last month's spending shape if we have enough history.
+  // Shape-based: if last month 60% was spent by day 10, and this month
+  // we've spent X by day 10, project X / 0.6. This accounts for
+  // front-loaded spending patterns (rent, subscriptions on day 1).
+  if (lastData.isNotEmpty && lastData.length >= today && lastTotal > 0) {
+    final fractionByThisDay = lastData[today - 1] / lastTotal;
+    if (fractionByThisDay > 0.05) {
+      projected = spentSoFar / fractionByThisDay;
+      usedShape = true;
+    } else {
+      final dailyRate = today > 0 ? spentSoFar / today : 0.0;
+      projected = spentSoFar + (dailyRate * daysLeft);
+    }
+  } else {
+    final dailyRate = today > 0 ? spentSoFar / today : 0.0;
+    projected = spentSoFar + (dailyRate * daysLeft);
+  }
 
   int? percentVsLast;
   if (lastTotal > 0 && projected > 0) {
@@ -89,5 +116,19 @@ final monthEndProjectionProvider = FutureProvider<MonthProjection?>((ref) async 
     projected: projected,
     daysLeft: daysLeft,
     percentVsLast: percentVsLast,
+    isSparse: today < 5,
+    usedShape: usedShape,
   );
 });
+
+/// Invalidates all analytics providers so widgets refresh after writes.
+void invalidateAnalytics(dynamic ref) {
+  ref.invalidate(thisMonthCumulativeProvider);
+  ref.invalidate(lastMonthCumulativeProvider);
+  ref.invalidate(dayOfWeekAveragesProvider);
+  ref.invalidate(topMerchantsProvider);
+  ref.invalidate(monthlyComparisonProvider);
+  ref.invalidate(monthEndProjectionProvider);
+  ref.invalidate(streakProvider);
+  ref.invalidate(weeklyAlertsProvider);
+}
