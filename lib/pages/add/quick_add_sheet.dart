@@ -34,7 +34,6 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
   bool _classifying = false;
   bool _hasTyped = false;
   bool _saving = false;
-  bool _noteFieldFocused = false;
   DateTime _selectedDate = DateTime.now();
   Timer? _debounce;
   String _incomeSource = 'salary';
@@ -55,9 +54,6 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
   void initState() {
     super.initState();
     _amountController.addListener(() => setState(() {}));
-    _noteFocus.addListener(() {
-      setState(() => _noteFieldFocused = _noteFocus.hasFocus);
-    });
   }
 
   void _onNoteChanged(String text) {
@@ -141,49 +137,6 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
     }
   }
 
-  void _onNumpadTap(String key) {
-    HapticFeedback.lightImpact();
-    final text = _amountController.text;
-    final sel = _amountController.selection;
-    // Ensure we have a valid cursor position
-    final cursor = sel.isValid && sel.isCollapsed
-        ? sel.baseOffset
-        : text.length;
-
-    setState(() {
-      if (key == '\u232B') {
-        if (cursor > 0) {
-          final newText = text.substring(0, cursor - 1) + text.substring(cursor);
-          _amountController.text = newText;
-          _amountController.selection =
-              TextSelection.collapsed(offset: cursor - 1);
-        }
-      } else if (key == '.') {
-        if (!text.contains('.')) {
-          final newText = '${text.substring(0, cursor)}.${text.substring(cursor)}';
-          _amountController.text = newText;
-          _amountController.selection =
-              TextSelection.collapsed(offset: cursor + 1);
-        }
-      } else {
-        // Cap at 2 decimal places
-        if (text.contains('.')) {
-          final dotIndex = text.indexOf('.');
-          // Only restrict if cursor is after the dot
-          if (cursor > dotIndex) {
-            final decimals = text.substring(dotIndex + 1);
-            if (decimals.length >= 2) return;
-          }
-        }
-        // Cap at reasonable length (10 digits)
-        if (text.replaceAll('.', '').length >= 10) return;
-        final newText = text.substring(0, cursor) + key + text.substring(cursor);
-        _amountController.text = newText;
-        _amountController.selection =
-            TextSelection.collapsed(offset: cursor + 1);
-      }
-    });
-  }
 
   @override
   void dispose() {
@@ -226,7 +179,11 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                   child: TextField(
                     controller: _amountController,
                     focusNode: _amountFocus,
-                    readOnly: true,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+                      LengthLimitingTextInputFormatter(10),
+                    ],
                     showCursor: true,
                     cursorColor: amountColor,
                     style: AppTextStyles.displayXL.copyWith(color: amountColor),
@@ -237,12 +194,6 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                       hintStyle: AppTextStyles.displayXL
                           .copyWith(color: amountColor.withValues(alpha: 0.4)),
                     ),
-                    onTap: () {
-                      // Ensure numpad is visible when tapping amount
-                      if (_noteFieldFocused) {
-                        _noteFocus.unfocus();
-                      }
-                    },
                   ),
                 ),
               ],
@@ -430,16 +381,6 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
               ),
             ),
 
-            // Numpad — hidden when text field is focused
-            if (!_noteFieldFocused) ...[
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-                child: _buildNumpad(),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-            ],
-
             // Done button
             Padding(
               padding: const EdgeInsets.fromLTRB(
@@ -516,43 +457,6 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
     );
   }
 
-  Widget _buildNumpad() {
-    const keys = [
-      '1', '2', '3',
-      '4', '5', '6',
-      '7', '8', '9',
-      '.', '0', '\u232B',
-    ];
-    return GridView.count(
-      crossAxisCount: 3,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      childAspectRatio: 2.2,
-      mainAxisSpacing: AppSpacing.xxs,
-      crossAxisSpacing: AppSpacing.xxs,
-      children: keys.asMap().entries.map((entry) {
-        final key = entry.value;
-        final i = entry.key;
-        return InkWell(
-          borderRadius: AppRadius.base,
-          onTap: () => _onNumpadTap(key),
-          child: Container(
-            decoration: BoxDecoration(
-              color: AppColors.gray100,
-              borderRadius: AppRadius.base,
-            ),
-            child: Center(
-              child: Text(
-                key,
-                style: AppTextStyles.headingM.copyWith(color: AppColors.black),
-              ),
-            ),
-          ),
-        ).animate().fadeIn(delay: AppDurations.microStagger * i, duration: AppDurations.normal)
-            .scale(begin: const Offset(0.85, 0.85), delay: AppDurations.microStagger * i, duration: AppDurations.normal);
-      }).toList(),
-    );
-  }
 
   Future<void> _save() async {
     final amount = double.tryParse(_amountController.text);
