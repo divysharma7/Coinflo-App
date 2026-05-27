@@ -50,21 +50,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   Widget build(BuildContext context) {
     final userName = ref.watch(userNameProvider);
     final userEmail = ref.watch(userEmailProvider);
-    final currencyAsync = ref.watch(selectedCurrencyProvider);
     final trackIncomeAsync = ref.watch(trackIncomeProvider);
     final budgetAsync = ref.watch(monthlyBudgetProvider);
 
     final name = userName.valueOrNull ?? 'User';
     final email = userEmail.valueOrNull ?? 'Not set';
-    final currencyCode = currencyAsync.valueOrNull ?? 'inr';
     final trackIncome = trackIncomeAsync.valueOrNull ?? true;
     final budget = budgetAsync.valueOrNull;
 
-    final currency = Currency.values.firstWhere(
-      (c) => c.name == currencyCode,
-      orElse: () => Currency.inr,
-    );
-    final currencyDisplay = '${currency.code} (${currency.symbol})';
+    const currency = Currency.inr;
 
     return Scaffold(
       backgroundColor: AppColors.offWhite,
@@ -165,17 +159,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         iconColor: AppColors.gray600,
                         label: 'Accounts',
                         onTap: () => _showAccountsSheet(),
-                      ),
-                      const _Divider(),
-                      _SettingsRow(
-                        icon: PhosphorIcons.currencyDollar(),
-                        iconBg: AppColors.gray100,
-                        iconColor: AppColors.gray600,
-                        label: 'Currency',
-                        trailing: Text(currencyDisplay,
-                            style: AppTextStyles.bodyS
-                                .copyWith(color: AppColors.gray500)),
-                        onTap: () => _showCurrencyPicker(currencyCode),
                       ),
                       const _Divider(),
                       _SettingsRow(
@@ -462,55 +445,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 const SizedBox(height: AppSpacing.md),
               ],
             ),
-          ),
-        );
-      },
-    );
-  }
-
-  // ─── Currency Picker ───────────────────────────────────
-
-  void _showCurrencyPicker(String currentCode) {
-    showSpendlerSheet<void>(
-      context: context,
-      isScrollControlled: false,
-      builder: (_) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text('Select Currency',
-                      style: AppTextStyles.headingS
-                          .copyWith(color: AppColors.black)),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              ...Currency.values.map((c) {
-                final isSelected = c.name == currentCode;
-                return ListTile(
-                  leading: Text(c.symbol,
-                      style: const TextStyle(fontSize: 20)),
-                  title: Text('${c.code} - ${c.label}',
-                      style: AppTextStyles.bodyM.copyWith(
-                          fontWeight: isSelected
-                              ? FontWeight.w700
-                              : FontWeight.w400)),
-                  trailing: isSelected
-                      ? const Icon(Icons.check, color: AppColors.black, size: 20)
-                      : null,
-                  onTap: () async {
-                    await saveSelectedCurrency(c.name);
-                    ref.invalidate(selectedCurrencyProvider);
-                    if (mounted) Navigator.pop(context);
-                  },
-                );
-              }),
-              const SizedBox(height: AppSpacing.md),
-            ],
           ),
         );
       },

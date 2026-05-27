@@ -212,60 +212,11 @@ enum BillingCycle {
 }
 
 enum Currency {
-  usd,
-  eur,
-  gbp,
-  inr,
-  jpy,
-  aud,
-  cad,
-  cny;
+  inr;
 
-  String get symbol {
-    switch (this) {
-      case usd:
-        return '\$';
-      case eur:
-        return '€';
-      case gbp:
-        return '£';
-      case inr:
-        return '₹';
-      case jpy:
-        return '¥';
-      case aud:
-        return 'A\$';
-      case cad:
-        return 'C\$';
-      case cny:
-        return '¥';
-    }
-  }
-
-  String get label {
-    switch (this) {
-      case usd:
-        return 'US Dollar';
-      case eur:
-        return 'Euro';
-      case gbp:
-        return 'British Pound';
-      case inr:
-        return 'Indian Rupee';
-      case jpy:
-        return 'Japanese Yen';
-      case aud:
-        return 'Australian Dollar';
-      case cad:
-        return 'Canadian Dollar';
-      case cny:
-        return 'Chinese Yuan';
-    }
-  }
-
-  String get code {
-    return name.toUpperCase();
-  }
+  String get symbol => '₹';
+  String get label => 'Indian Rupee';
+  String get code => 'INR';
 }
 
 enum AccountType {

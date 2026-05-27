@@ -1,5 +1,4 @@
 import 'package:finance_buddy_app/widgets/common/error_card.dart';
-import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,43 +7,18 @@ import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/providers/database_providers.dart';
 import 'package:finance_buddy_app/providers/notification_providers.dart';
-import 'package:finance_buddy_app/pages/onboarding_v2/currency_selection_screen.dart';
 
 /// Bottom sheet showing recent notifications and notification settings.
-class NotificationSheet extends ConsumerStatefulWidget {
+class NotificationSheet extends ConsumerWidget {
   const NotificationSheet({super.key});
 
   @override
-  ConsumerState<NotificationSheet> createState() => _NotificationSheetState();
-}
-
-class _NotificationSheetState extends ConsumerState<NotificationSheet> {
-  Timer? _autoMarkTimer;
-
-  @override
-  void initState() {
-    super.initState();
-    // Auto-mark all as read after 3 seconds
-    _autoMarkTimer = Timer(const Duration(seconds: 3), () {
-      if (mounted) {
-        ref.read(repositoryProvider).markAllRead();
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _autoMarkTimer?.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final prefs = ref.watch(notifPrefsProvider);
     final recentAsync = ref.watch(recentNotificationsProvider);
 
     return DraggableScrollableSheet(
-      initialChildSize: 0.65,
+      initialChildSize: 0.7,
       minChildSize: 0.4,
       maxChildSize: 0.9,
       expand: false,
@@ -58,14 +32,17 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
           child: ListView(
             controller: scrollController,
             children: [
-              // Header with mark all read
+              // Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('COINFLO', style: AppTextStyles.labelM.copyWith(
-                    color: AppColors.gray500,
-                    letterSpacing: 1.5,
-                  )),
+                  Text(
+                    'COINFLO',
+                    style: AppTextStyles.labelM.copyWith(
+                      color: AppColors.gray500,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
                   GestureDetector(
                     onTap: () => ref.read(repositoryProvider).markAllRead(),
                     child: const Text(
@@ -81,7 +58,7 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
               ),
               const SizedBox(height: AppSpacing.md),
 
-              // --- Section 1: Recent notifications ---
+              // --- Recent notifications ---
               Text(
                 'RECENT',
                 style: AppTextStyles.labelM.copyWith(
@@ -95,9 +72,7 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
                 data: (notifications) {
                   if (notifications.isEmpty) {
                     return const Padding(
-                      padding: EdgeInsets.symmetric(
-                        vertical: AppSpacing.xl,
-                      ),
+                      padding: EdgeInsets.symmetric(vertical: AppSpacing.xl),
                       child: Center(
                         child: Text(
                           'All quiet — no notifications yet',
@@ -135,7 +110,7 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
               const Divider(color: AppColors.gray200, height: 1),
               const SizedBox(height: AppSpacing.md),
 
-              // --- Section 2: Settings ---
+              // --- Settings (grouped card) ---
               Text(
                 'SETTINGS',
                 style: AppTextStyles.labelM.copyWith(
@@ -145,123 +120,109 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
               ),
               const SizedBox(height: AppSpacing.xs),
 
-              _ToggleRow(
-                icon: PhosphorIcons.bell(),
-                title: 'Transaction alerts',
-                subtitle: 'When 3+ transactions pile up',
-                value: prefs.txnAlerts,
-                onChanged: (v) =>
-                    ref.read(notifPrefsProvider.notifier).setTxnAlerts(v),
-              ),
-              const SizedBox(height: AppSpacing.xs),
-              _ToggleRow(
-                icon: PhosphorIcons.moon(),
-                title: 'Evening check-in',
-                subtitle:
-                    '${_formatTime(prefs.checkinHour, prefs.checkinMinute)} if your queue isn\'t cleared',
-                value: prefs.eveningCheckin,
-                onChanged: (v) =>
-                    ref.read(notifPrefsProvider.notifier).setEveningCheckin(v),
-              ),
-              const SizedBox(height: AppSpacing.xs),
-              _ToggleRow(
-                icon: PhosphorIcons.calendarCheck(),
-                title: 'Sunday digest',
-                subtitle: 'Weekly mirror at 7pm',
-                value: prefs.sundayDigest,
-                onChanged: (v) =>
-                    ref.read(notifPrefsProvider.notifier).setSundayDigest(v),
-              ),
-
-              const SizedBox(height: AppSpacing.md),
-              const Divider(color: AppColors.gray200, height: 1),
-              const SizedBox(height: AppSpacing.md),
-
-              // --- Check-in time ---
-              GestureDetector(
-                onTap: () => _pickTime(context, ref, prefs),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.md,
-                    vertical: AppSpacing.sm,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: AppRadius.base,
-                  ),
-                  child: Row(
-                    children: [
-                      PhosphorIcon(
-                        PhosphorIcons.clock(),
-                        color: AppColors.gray500,
-                        size: 20,
-                      ),
-                      const SizedBox(width: AppSpacing.sm),
-                      Expanded(
-                        child: Text(
-                          'Check-in time: ${_formatTime(prefs.checkinHour, prefs.checkinMinute)}',
-                          style: const TextStyle(
-                            color: AppColors.black,
-                            fontSize: 15,
-                          ),
-                        ),
-                      ),
-                      PhosphorIcon(
-                        PhosphorIcons.caretRight(),
-                        color: AppColors.gray500,
-                        size: 18,
-                      ),
-                    ],
-                  ),
+              Container(
+                decoration: const BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: AppRadius.base,
                 ),
-              ),
-              const Divider(color: AppColors.gray200, height: 1),
-              const SizedBox(height: AppSpacing.md),
-
-              // --- How it works ---
-              GestureDetector(
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute<void>(
-                      builder: (_) => const CurrencySelectionScreen(),
+                child: Column(
+                  children: [
+                    _ToggleRow(
+                      icon: PhosphorIcons.bell(),
+                      iconBg: const Color(0x1AF97316), // orangeLight
+                      iconColor: AppColors.orange,
+                      title: 'Budget alerts',
+                      subtitle: 'When a category crosses 80%',
+                      value: prefs.txnAlerts,
+                      onChanged: (v) =>
+                          ref.read(notifPrefsProvider.notifier).setTxnAlerts(v),
                     ),
-                  );
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.md,
-                    vertical: AppSpacing.sm,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: AppRadius.base,
-                  ),
-                  child: Row(
-                    children: [
-                      PhosphorIcon(
-                        PhosphorIcons.question(),
-                        color: AppColors.gray500,
-                        size: 20,
-                      ),
-                      const SizedBox(width: AppSpacing.sm),
-                      const Expanded(
-                        child: Text(
-                          'How CoinFlo works',
-                          style: TextStyle(
-                            color: AppColors.black,
-                            fontSize: 15,
+                    const Divider(
+                        color: AppColors.gray200, height: 1, indent: 56),
+                    _ToggleRow(
+                      icon: PhosphorIcons.moon(),
+                      iconBg: const Color(0x1A8B5CF6), // aiPurple 10%
+                      iconColor: AppColors.aiPurple,
+                      title: 'Evening check-in',
+                      subtitle:
+                          '${_formatTime(prefs.checkinHour, prefs.checkinMinute)} \u00b7 only when queue has items',
+                      value: prefs.eveningCheckin,
+                      onChanged: (v) => ref
+                          .read(notifPrefsProvider.notifier)
+                          .setEveningCheckin(v),
+                    ),
+                    // Inline check-in time picker — only when toggle is ON
+                    if (prefs.eveningCheckin)
+                      GestureDetector(
+                        onTap: () => _pickTime(context, ref, prefs),
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                            left: 56,
+                            right: AppSpacing.md,
+                            bottom: AppSpacing.sm,
+                          ),
+                          child: Row(
+                            children: [
+                              PhosphorIcon(
+                                PhosphorIcons.clock(),
+                                color: AppColors.gray400,
+                                size: 16,
+                              ),
+                              const SizedBox(width: AppSpacing.xs),
+                              const Text(
+                                'Change time',
+                                style: TextStyle(
+                                  color: AppColors.gray500,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const Spacer(),
+                              Text(
+                                _formatTime(
+                                    prefs.checkinHour, prefs.checkinMinute),
+                                style: const TextStyle(
+                                  color: AppColors.gray400,
+                                  fontSize: 13,
+                                ),
+                              ),
+                              const SizedBox(width: AppSpacing.xxs),
+                              PhosphorIcon(
+                                PhosphorIcons.caretRight(),
+                                color: AppColors.gray400,
+                                size: 14,
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                      PhosphorIcon(
-                        PhosphorIcons.caretRight(),
-                        color: AppColors.gray500,
-                        size: 18,
-                      ),
-                    ],
-                  ),
+                    const Divider(
+                        color: AppColors.gray200, height: 1, indent: 56),
+                    _ToggleRow(
+                      icon: PhosphorIcons.calendarCheck(),
+                      iconBg: AppColors.catBlueBg,
+                      iconColor: AppColors.catBlueText,
+                      title: 'Sunday digest',
+                      subtitle: 'Weekly spending summary at 7pm',
+                      value: prefs.sundayDigest,
+                      onChanged: (v) => ref
+                          .read(notifPrefsProvider.notifier)
+                          .setSundayDigest(v),
+                    ),
+                    const Divider(
+                        color: AppColors.gray200, height: 1, indent: 56),
+                    _ToggleRow(
+                      icon: PhosphorIcons.creditCard(),
+                      iconBg: AppColors.catGreenBg,
+                      iconColor: AppColors.catGreenText,
+                      title: 'Subscription reminders',
+                      subtitle: 'Day before a bill is due',
+                      value: prefs.subscriptionAlerts,
+                      onChanged: (v) => ref
+                          .read(notifPrefsProvider.notifier)
+                          .setSubscriptionAlerts(v),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: AppSpacing.md),
@@ -279,7 +240,7 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
     return '$h:$m $period';
   }
 
-  Future<void> _pickTime(
+  static Future<void> _pickTime(
     BuildContext context,
     WidgetRef ref,
     NotifPrefs prefs,
@@ -323,6 +284,9 @@ class _NotificationRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final color = _colorForType(notification.type);
+    final bgColor = _bgForType(notification.type);
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -332,21 +296,25 @@ class _NotificationRow extends StatelessWidget {
           vertical: AppSpacing.sm,
         ),
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: notification.isRead ? AppColors.white : AppColors.offWhite,
           borderRadius: AppRadius.base,
-          border: notification.isRead
-              ? null
-              : const Border(
-                  left: BorderSide(color: AppColors.orange, width: 3),
-                ),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            PhosphorIcon(
-              _iconForType(notification.type),
-              color: _colorForType(notification.type),
-              size: 20,
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: bgColor,
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: PhosphorIcon(
+                _iconForType(notification.type),
+                color: color,
+                size: 16,
+              ),
             ),
             const SizedBox(width: AppSpacing.sm),
             Expanded(
@@ -408,11 +376,28 @@ class _NotificationRow extends StatelessWidget {
       case 'transaction':
         return AppColors.black;
       case 'checkin':
-        return const Color(0xFF8B5CF6); // purple accent
+        return AppColors.aiPurple;
       case 'digest':
-        return const Color(0xFF3B82F6); // blue accent
+        return AppColors.catBlueText;
+      case 'subscription':
+        return AppColors.orange;
       default:
         return AppColors.gray500;
+    }
+  }
+
+  static Color _bgForType(String type) {
+    switch (type) {
+      case 'transaction':
+        return AppColors.gray100;
+      case 'checkin':
+        return const Color(0x1A8B5CF6); // aiPurple 10%
+      case 'digest':
+        return AppColors.catBlueBg;
+      case 'subscription':
+        return const Color(0x1AF97316); // orangeLight
+      default:
+        return AppColors.gray100;
     }
   }
 
@@ -434,6 +419,8 @@ class _NotificationRow extends StatelessWidget {
 class _ToggleRow extends StatelessWidget {
   const _ToggleRow({
     required this.icon,
+    required this.iconBg,
+    required this.iconColor,
     required this.title,
     required this.subtitle,
     required this.value,
@@ -441,6 +428,8 @@ class _ToggleRow extends StatelessWidget {
   });
 
   final IconData icon;
+  final Color iconBg;
+  final Color iconColor;
   final String title;
   final String subtitle;
   final bool value;
@@ -448,18 +437,23 @@ class _ToggleRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.md,
         vertical: AppSpacing.sm,
       ),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppRadius.base,
-      ),
       child: Row(
         children: [
-          PhosphorIcon(icon, color: AppColors.gray500, size: 20),
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: iconBg,
+              shape: BoxShape.circle,
+            ),
+            alignment: Alignment.center,
+            child: PhosphorIcon(icon, color: iconColor, size: 16),
+          ),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Column(

@@ -23,6 +23,9 @@ class ShellPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Bootstrap notification scheduler once providers are ready.
+    ref.watch(notifSchedulerProvider);
+
     final selectedTab = ref.watch(selectedTabProvider);
     // Clamp to valid range for 4-tab layout
     final safeIndex = selectedTab.clamp(0, 3);
