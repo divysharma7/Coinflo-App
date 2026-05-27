@@ -297,6 +297,61 @@ class $SpendlerTransactionsTable extends SpendlerTransactions
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _txnTypeMeta = const VerificationMeta(
+    'txnType',
+  );
+  @override
+  late final GeneratedColumn<String> txnType = GeneratedColumn<String>(
+    'txn_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('expense'),
+  );
+  static const VerificationMeta _payerPersonIdMeta = const VerificationMeta(
+    'payerPersonId',
+  );
+  @override
+  late final GeneratedColumn<int> payerPersonId = GeneratedColumn<int>(
+    'payer_person_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _counterpartyPersonIdMeta =
+      const VerificationMeta('counterpartyPersonId');
+  @override
+  late final GeneratedColumn<int> counterpartyPersonId = GeneratedColumn<int>(
+    'counterparty_person_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _settlementDirectionMeta =
+      const VerificationMeta('settlementDirection');
+  @override
+  late final GeneratedColumn<String> settlementDirection =
+      GeneratedColumn<String>(
+        'settlement_direction',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _groupIdMeta = const VerificationMeta(
+    'groupId',
+  );
+  @override
+  late final GeneratedColumn<int> groupId = GeneratedColumn<int>(
+    'group_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -324,6 +379,11 @@ class $SpendlerTransactionsTable extends SpendlerTransactions
     isRecurring,
     incomeSource,
     attachmentPath,
+    txnType,
+    payerPersonId,
+    counterpartyPersonId,
+    settlementDirection,
+    groupId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -518,6 +578,45 @@ class $SpendlerTransactionsTable extends SpendlerTransactions
         ),
       );
     }
+    if (data.containsKey('txn_type')) {
+      context.handle(
+        _txnTypeMeta,
+        txnType.isAcceptableOrUnknown(data['txn_type']!, _txnTypeMeta),
+      );
+    }
+    if (data.containsKey('payer_person_id')) {
+      context.handle(
+        _payerPersonIdMeta,
+        payerPersonId.isAcceptableOrUnknown(
+          data['payer_person_id']!,
+          _payerPersonIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('counterparty_person_id')) {
+      context.handle(
+        _counterpartyPersonIdMeta,
+        counterpartyPersonId.isAcceptableOrUnknown(
+          data['counterparty_person_id']!,
+          _counterpartyPersonIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('settlement_direction')) {
+      context.handle(
+        _settlementDirectionMeta,
+        settlementDirection.isAcceptableOrUnknown(
+          data['settlement_direction']!,
+          _settlementDirectionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('group_id')) {
+      context.handle(
+        _groupIdMeta,
+        groupId.isAcceptableOrUnknown(data['group_id']!, _groupIdMeta),
+      );
+    }
     return context;
   }
 
@@ -627,6 +726,26 @@ class $SpendlerTransactionsTable extends SpendlerTransactions
         DriftSqlType.string,
         data['${effectivePrefix}attachment_path'],
       ),
+      txnType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}txn_type'],
+      )!,
+      payerPersonId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}payer_person_id'],
+      ),
+      counterpartyPersonId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}counterparty_person_id'],
+      ),
+      settlementDirection: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}settlement_direction'],
+      ),
+      groupId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}group_id'],
+      ),
     );
   }
 
@@ -663,6 +782,11 @@ class SpendlerTransaction extends DataClass
   final bool isRecurring;
   final String? incomeSource;
   final String? attachmentPath;
+  final String txnType;
+  final int? payerPersonId;
+  final int? counterpartyPersonId;
+  final String? settlementDirection;
+  final int? groupId;
   const SpendlerTransaction({
     required this.id,
     required this.amount,
@@ -689,6 +813,11 @@ class SpendlerTransaction extends DataClass
     required this.isRecurring,
     this.incomeSource,
     this.attachmentPath,
+    required this.txnType,
+    this.payerPersonId,
+    this.counterpartyPersonId,
+    this.settlementDirection,
+    this.groupId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -746,6 +875,19 @@ class SpendlerTransaction extends DataClass
     if (!nullToAbsent || attachmentPath != null) {
       map['attachment_path'] = Variable<String>(attachmentPath);
     }
+    map['txn_type'] = Variable<String>(txnType);
+    if (!nullToAbsent || payerPersonId != null) {
+      map['payer_person_id'] = Variable<int>(payerPersonId);
+    }
+    if (!nullToAbsent || counterpartyPersonId != null) {
+      map['counterparty_person_id'] = Variable<int>(counterpartyPersonId);
+    }
+    if (!nullToAbsent || settlementDirection != null) {
+      map['settlement_direction'] = Variable<String>(settlementDirection);
+    }
+    if (!nullToAbsent || groupId != null) {
+      map['group_id'] = Variable<int>(groupId);
+    }
     return map;
   }
 
@@ -800,6 +942,19 @@ class SpendlerTransaction extends DataClass
       attachmentPath: attachmentPath == null && nullToAbsent
           ? const Value.absent()
           : Value(attachmentPath),
+      txnType: Value(txnType),
+      payerPersonId: payerPersonId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(payerPersonId),
+      counterpartyPersonId: counterpartyPersonId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(counterpartyPersonId),
+      settlementDirection: settlementDirection == null && nullToAbsent
+          ? const Value.absent()
+          : Value(settlementDirection),
+      groupId: groupId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(groupId),
     );
   }
 
@@ -840,6 +995,15 @@ class SpendlerTransaction extends DataClass
       isRecurring: serializer.fromJson<bool>(json['isRecurring']),
       incomeSource: serializer.fromJson<String?>(json['incomeSource']),
       attachmentPath: serializer.fromJson<String?>(json['attachmentPath']),
+      txnType: serializer.fromJson<String>(json['txnType']),
+      payerPersonId: serializer.fromJson<int?>(json['payerPersonId']),
+      counterpartyPersonId: serializer.fromJson<int?>(
+        json['counterpartyPersonId'],
+      ),
+      settlementDirection: serializer.fromJson<String?>(
+        json['settlementDirection'],
+      ),
+      groupId: serializer.fromJson<int?>(json['groupId']),
     );
   }
   @override
@@ -873,6 +1037,11 @@ class SpendlerTransaction extends DataClass
       'isRecurring': serializer.toJson<bool>(isRecurring),
       'incomeSource': serializer.toJson<String?>(incomeSource),
       'attachmentPath': serializer.toJson<String?>(attachmentPath),
+      'txnType': serializer.toJson<String>(txnType),
+      'payerPersonId': serializer.toJson<int?>(payerPersonId),
+      'counterpartyPersonId': serializer.toJson<int?>(counterpartyPersonId),
+      'settlementDirection': serializer.toJson<String?>(settlementDirection),
+      'groupId': serializer.toJson<int?>(groupId),
     };
   }
 
@@ -902,6 +1071,11 @@ class SpendlerTransaction extends DataClass
     bool? isRecurring,
     Value<String?> incomeSource = const Value.absent(),
     Value<String?> attachmentPath = const Value.absent(),
+    String? txnType,
+    Value<int?> payerPersonId = const Value.absent(),
+    Value<int?> counterpartyPersonId = const Value.absent(),
+    Value<String?> settlementDirection = const Value.absent(),
+    Value<int?> groupId = const Value.absent(),
   }) => SpendlerTransaction(
     id: id ?? this.id,
     amount: amount ?? this.amount,
@@ -940,6 +1114,17 @@ class SpendlerTransaction extends DataClass
     attachmentPath: attachmentPath.present
         ? attachmentPath.value
         : this.attachmentPath,
+    txnType: txnType ?? this.txnType,
+    payerPersonId: payerPersonId.present
+        ? payerPersonId.value
+        : this.payerPersonId,
+    counterpartyPersonId: counterpartyPersonId.present
+        ? counterpartyPersonId.value
+        : this.counterpartyPersonId,
+    settlementDirection: settlementDirection.present
+        ? settlementDirection.value
+        : this.settlementDirection,
+    groupId: groupId.present ? groupId.value : this.groupId,
   );
   SpendlerTransaction copyWithCompanion(SpendlerTransactionsCompanion data) {
     return SpendlerTransaction(
@@ -994,6 +1179,17 @@ class SpendlerTransaction extends DataClass
       attachmentPath: data.attachmentPath.present
           ? data.attachmentPath.value
           : this.attachmentPath,
+      txnType: data.txnType.present ? data.txnType.value : this.txnType,
+      payerPersonId: data.payerPersonId.present
+          ? data.payerPersonId.value
+          : this.payerPersonId,
+      counterpartyPersonId: data.counterpartyPersonId.present
+          ? data.counterpartyPersonId.value
+          : this.counterpartyPersonId,
+      settlementDirection: data.settlementDirection.present
+          ? data.settlementDirection.value
+          : this.settlementDirection,
+      groupId: data.groupId.present ? data.groupId.value : this.groupId,
     );
   }
 
@@ -1024,7 +1220,12 @@ class SpendlerTransaction extends DataClass
           ..write('isAnomaly: $isAnomaly, ')
           ..write('isRecurring: $isRecurring, ')
           ..write('incomeSource: $incomeSource, ')
-          ..write('attachmentPath: $attachmentPath')
+          ..write('attachmentPath: $attachmentPath, ')
+          ..write('txnType: $txnType, ')
+          ..write('payerPersonId: $payerPersonId, ')
+          ..write('counterpartyPersonId: $counterpartyPersonId, ')
+          ..write('settlementDirection: $settlementDirection, ')
+          ..write('groupId: $groupId')
           ..write(')'))
         .toString();
   }
@@ -1056,6 +1257,11 @@ class SpendlerTransaction extends DataClass
     isRecurring,
     incomeSource,
     attachmentPath,
+    txnType,
+    payerPersonId,
+    counterpartyPersonId,
+    settlementDirection,
+    groupId,
   ]);
   @override
   bool operator ==(Object other) =>
@@ -1085,7 +1291,12 @@ class SpendlerTransaction extends DataClass
           other.isAnomaly == this.isAnomaly &&
           other.isRecurring == this.isRecurring &&
           other.incomeSource == this.incomeSource &&
-          other.attachmentPath == this.attachmentPath);
+          other.attachmentPath == this.attachmentPath &&
+          other.txnType == this.txnType &&
+          other.payerPersonId == this.payerPersonId &&
+          other.counterpartyPersonId == this.counterpartyPersonId &&
+          other.settlementDirection == this.settlementDirection &&
+          other.groupId == this.groupId);
 }
 
 class SpendlerTransactionsCompanion
@@ -1115,6 +1326,11 @@ class SpendlerTransactionsCompanion
   final Value<bool> isRecurring;
   final Value<String?> incomeSource;
   final Value<String?> attachmentPath;
+  final Value<String> txnType;
+  final Value<int?> payerPersonId;
+  final Value<int?> counterpartyPersonId;
+  final Value<String?> settlementDirection;
+  final Value<int?> groupId;
   const SpendlerTransactionsCompanion({
     this.id = const Value.absent(),
     this.amount = const Value.absent(),
@@ -1141,6 +1357,11 @@ class SpendlerTransactionsCompanion
     this.isRecurring = const Value.absent(),
     this.incomeSource = const Value.absent(),
     this.attachmentPath = const Value.absent(),
+    this.txnType = const Value.absent(),
+    this.payerPersonId = const Value.absent(),
+    this.counterpartyPersonId = const Value.absent(),
+    this.settlementDirection = const Value.absent(),
+    this.groupId = const Value.absent(),
   });
   SpendlerTransactionsCompanion.insert({
     this.id = const Value.absent(),
@@ -1168,6 +1389,11 @@ class SpendlerTransactionsCompanion
     this.isRecurring = const Value.absent(),
     this.incomeSource = const Value.absent(),
     this.attachmentPath = const Value.absent(),
+    this.txnType = const Value.absent(),
+    this.payerPersonId = const Value.absent(),
+    this.counterpartyPersonId = const Value.absent(),
+    this.settlementDirection = const Value.absent(),
+    this.groupId = const Value.absent(),
   }) : amount = Value(amount),
        category = Value(category);
   static Insertable<SpendlerTransaction> custom({
@@ -1196,6 +1422,11 @@ class SpendlerTransactionsCompanion
     Expression<bool>? isRecurring,
     Expression<String>? incomeSource,
     Expression<String>? attachmentPath,
+    Expression<String>? txnType,
+    Expression<int>? payerPersonId,
+    Expression<int>? counterpartyPersonId,
+    Expression<String>? settlementDirection,
+    Expression<int>? groupId,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1226,6 +1457,13 @@ class SpendlerTransactionsCompanion
       if (isRecurring != null) 'is_recurring': isRecurring,
       if (incomeSource != null) 'income_source': incomeSource,
       if (attachmentPath != null) 'attachment_path': attachmentPath,
+      if (txnType != null) 'txn_type': txnType,
+      if (payerPersonId != null) 'payer_person_id': payerPersonId,
+      if (counterpartyPersonId != null)
+        'counterparty_person_id': counterpartyPersonId,
+      if (settlementDirection != null)
+        'settlement_direction': settlementDirection,
+      if (groupId != null) 'group_id': groupId,
     });
   }
 
@@ -1255,6 +1493,11 @@ class SpendlerTransactionsCompanion
     Value<bool>? isRecurring,
     Value<String?>? incomeSource,
     Value<String?>? attachmentPath,
+    Value<String>? txnType,
+    Value<int?>? payerPersonId,
+    Value<int?>? counterpartyPersonId,
+    Value<String?>? settlementDirection,
+    Value<int?>? groupId,
   }) {
     return SpendlerTransactionsCompanion(
       id: id ?? this.id,
@@ -1283,6 +1526,11 @@ class SpendlerTransactionsCompanion
       isRecurring: isRecurring ?? this.isRecurring,
       incomeSource: incomeSource ?? this.incomeSource,
       attachmentPath: attachmentPath ?? this.attachmentPath,
+      txnType: txnType ?? this.txnType,
+      payerPersonId: payerPersonId ?? this.payerPersonId,
+      counterpartyPersonId: counterpartyPersonId ?? this.counterpartyPersonId,
+      settlementDirection: settlementDirection ?? this.settlementDirection,
+      groupId: groupId ?? this.groupId,
     );
   }
 
@@ -1368,6 +1616,21 @@ class SpendlerTransactionsCompanion
     if (attachmentPath.present) {
       map['attachment_path'] = Variable<String>(attachmentPath.value);
     }
+    if (txnType.present) {
+      map['txn_type'] = Variable<String>(txnType.value);
+    }
+    if (payerPersonId.present) {
+      map['payer_person_id'] = Variable<int>(payerPersonId.value);
+    }
+    if (counterpartyPersonId.present) {
+      map['counterparty_person_id'] = Variable<int>(counterpartyPersonId.value);
+    }
+    if (settlementDirection.present) {
+      map['settlement_direction'] = Variable<String>(settlementDirection.value);
+    }
+    if (groupId.present) {
+      map['group_id'] = Variable<int>(groupId.value);
+    }
     return map;
   }
 
@@ -1398,7 +1661,12 @@ class SpendlerTransactionsCompanion
           ..write('isAnomaly: $isAnomaly, ')
           ..write('isRecurring: $isRecurring, ')
           ..write('incomeSource: $incomeSource, ')
-          ..write('attachmentPath: $attachmentPath')
+          ..write('attachmentPath: $attachmentPath, ')
+          ..write('txnType: $txnType, ')
+          ..write('payerPersonId: $payerPersonId, ')
+          ..write('counterpartyPersonId: $counterpartyPersonId, ')
+          ..write('settlementDirection: $settlementDirection, ')
+          ..write('groupId: $groupId')
           ..write(')'))
         .toString();
   }
@@ -7634,6 +7902,1469 @@ class ImportBatchesCompanion extends UpdateCompanion<ImportBatch> {
   }
 }
 
+class $PersonsTable extends Persons with TableInfo<$PersonsTable, Person> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PersonsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(maxTextLength: 50),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _tagMeta = const VerificationMeta('tag');
+  @override
+  late final GeneratedColumn<String> tag = GeneratedColumn<String>(
+    'tag',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _avatarColorMeta = const VerificationMeta(
+    'avatarColor',
+  );
+  @override
+  late final GeneratedColumn<String> avatarColor = GeneratedColumn<String>(
+    'avatar_color',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _archivedAtMeta = const VerificationMeta(
+    'archivedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> archivedAt = GeneratedColumn<DateTime>(
+    'archived_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    tag,
+    avatarColor,
+    note,
+    createdAt,
+    archivedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'persons';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Person> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('tag')) {
+      context.handle(
+        _tagMeta,
+        tag.isAcceptableOrUnknown(data['tag']!, _tagMeta),
+      );
+    }
+    if (data.containsKey('avatar_color')) {
+      context.handle(
+        _avatarColorMeta,
+        avatarColor.isAcceptableOrUnknown(
+          data['avatar_color']!,
+          _avatarColorMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_avatarColorMeta);
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+        _noteMeta,
+        note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('archived_at')) {
+      context.handle(
+        _archivedAtMeta,
+        archivedAt.isAcceptableOrUnknown(data['archived_at']!, _archivedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Person map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Person(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      tag: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tag'],
+      ),
+      avatarColor: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}avatar_color'],
+      )!,
+      note: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}note'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      archivedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}archived_at'],
+      ),
+    );
+  }
+
+  @override
+  $PersonsTable createAlias(String alias) {
+    return $PersonsTable(attachedDatabase, alias);
+  }
+}
+
+class Person extends DataClass implements Insertable<Person> {
+  final int id;
+  final String name;
+  final String? tag;
+  final String avatarColor;
+  final String? note;
+  final DateTime createdAt;
+  final DateTime? archivedAt;
+  const Person({
+    required this.id,
+    required this.name,
+    this.tag,
+    required this.avatarColor,
+    this.note,
+    required this.createdAt,
+    this.archivedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || tag != null) {
+      map['tag'] = Variable<String>(tag);
+    }
+    map['avatar_color'] = Variable<String>(avatarColor);
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || archivedAt != null) {
+      map['archived_at'] = Variable<DateTime>(archivedAt);
+    }
+    return map;
+  }
+
+  PersonsCompanion toCompanion(bool nullToAbsent) {
+    return PersonsCompanion(
+      id: Value(id),
+      name: Value(name),
+      tag: tag == null && nullToAbsent ? const Value.absent() : Value(tag),
+      avatarColor: Value(avatarColor),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      createdAt: Value(createdAt),
+      archivedAt: archivedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(archivedAt),
+    );
+  }
+
+  factory Person.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Person(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      tag: serializer.fromJson<String?>(json['tag']),
+      avatarColor: serializer.fromJson<String>(json['avatarColor']),
+      note: serializer.fromJson<String?>(json['note']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      archivedAt: serializer.fromJson<DateTime?>(json['archivedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+      'tag': serializer.toJson<String?>(tag),
+      'avatarColor': serializer.toJson<String>(avatarColor),
+      'note': serializer.toJson<String?>(note),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'archivedAt': serializer.toJson<DateTime?>(archivedAt),
+    };
+  }
+
+  Person copyWith({
+    int? id,
+    String? name,
+    Value<String?> tag = const Value.absent(),
+    String? avatarColor,
+    Value<String?> note = const Value.absent(),
+    DateTime? createdAt,
+    Value<DateTime?> archivedAt = const Value.absent(),
+  }) => Person(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    tag: tag.present ? tag.value : this.tag,
+    avatarColor: avatarColor ?? this.avatarColor,
+    note: note.present ? note.value : this.note,
+    createdAt: createdAt ?? this.createdAt,
+    archivedAt: archivedAt.present ? archivedAt.value : this.archivedAt,
+  );
+  Person copyWithCompanion(PersonsCompanion data) {
+    return Person(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      tag: data.tag.present ? data.tag.value : this.tag,
+      avatarColor: data.avatarColor.present
+          ? data.avatarColor.value
+          : this.avatarColor,
+      note: data.note.present ? data.note.value : this.note,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      archivedAt: data.archivedAt.present
+          ? data.archivedAt.value
+          : this.archivedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Person(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('tag: $tag, ')
+          ..write('avatarColor: $avatarColor, ')
+          ..write('note: $note, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('archivedAt: $archivedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, name, tag, avatarColor, note, createdAt, archivedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Person &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.tag == this.tag &&
+          other.avatarColor == this.avatarColor &&
+          other.note == this.note &&
+          other.createdAt == this.createdAt &&
+          other.archivedAt == this.archivedAt);
+}
+
+class PersonsCompanion extends UpdateCompanion<Person> {
+  final Value<int> id;
+  final Value<String> name;
+  final Value<String?> tag;
+  final Value<String> avatarColor;
+  final Value<String?> note;
+  final Value<DateTime> createdAt;
+  final Value<DateTime?> archivedAt;
+  const PersonsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.tag = const Value.absent(),
+    this.avatarColor = const Value.absent(),
+    this.note = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.archivedAt = const Value.absent(),
+  });
+  PersonsCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+    this.tag = const Value.absent(),
+    required String avatarColor,
+    this.note = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.archivedAt = const Value.absent(),
+  }) : name = Value(name),
+       avatarColor = Value(avatarColor);
+  static Insertable<Person> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+    Expression<String>? tag,
+    Expression<String>? avatarColor,
+    Expression<String>? note,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? archivedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (tag != null) 'tag': tag,
+      if (avatarColor != null) 'avatar_color': avatarColor,
+      if (note != null) 'note': note,
+      if (createdAt != null) 'created_at': createdAt,
+      if (archivedAt != null) 'archived_at': archivedAt,
+    });
+  }
+
+  PersonsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? name,
+    Value<String?>? tag,
+    Value<String>? avatarColor,
+    Value<String?>? note,
+    Value<DateTime>? createdAt,
+    Value<DateTime?>? archivedAt,
+  }) {
+    return PersonsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      tag: tag ?? this.tag,
+      avatarColor: avatarColor ?? this.avatarColor,
+      note: note ?? this.note,
+      createdAt: createdAt ?? this.createdAt,
+      archivedAt: archivedAt ?? this.archivedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (tag.present) {
+      map['tag'] = Variable<String>(tag.value);
+    }
+    if (avatarColor.present) {
+      map['avatar_color'] = Variable<String>(avatarColor.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (archivedAt.present) {
+      map['archived_at'] = Variable<DateTime>(archivedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PersonsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('tag: $tag, ')
+          ..write('avatarColor: $avatarColor, ')
+          ..write('note: $note, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('archivedAt: $archivedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $GroupsTable extends Groups with TableInfo<$GroupsTable, Group> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GroupsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(maxTextLength: 50),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _archivedAtMeta = const VerificationMeta(
+    'archivedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> archivedAt = GeneratedColumn<DateTime>(
+    'archived_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    description,
+    createdAt,
+    archivedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'groups';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Group> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('archived_at')) {
+      context.handle(
+        _archivedAtMeta,
+        archivedAt.isAcceptableOrUnknown(data['archived_at']!, _archivedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Group map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Group(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      archivedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}archived_at'],
+      ),
+    );
+  }
+
+  @override
+  $GroupsTable createAlias(String alias) {
+    return $GroupsTable(attachedDatabase, alias);
+  }
+}
+
+class Group extends DataClass implements Insertable<Group> {
+  final int id;
+  final String name;
+  final String? description;
+  final DateTime createdAt;
+  final DateTime? archivedAt;
+  const Group({
+    required this.id,
+    required this.name,
+    this.description,
+    required this.createdAt,
+    this.archivedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || archivedAt != null) {
+      map['archived_at'] = Variable<DateTime>(archivedAt);
+    }
+    return map;
+  }
+
+  GroupsCompanion toCompanion(bool nullToAbsent) {
+    return GroupsCompanion(
+      id: Value(id),
+      name: Value(name),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      createdAt: Value(createdAt),
+      archivedAt: archivedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(archivedAt),
+    );
+  }
+
+  factory Group.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Group(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      description: serializer.fromJson<String?>(json['description']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      archivedAt: serializer.fromJson<DateTime?>(json['archivedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+      'description': serializer.toJson<String?>(description),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'archivedAt': serializer.toJson<DateTime?>(archivedAt),
+    };
+  }
+
+  Group copyWith({
+    int? id,
+    String? name,
+    Value<String?> description = const Value.absent(),
+    DateTime? createdAt,
+    Value<DateTime?> archivedAt = const Value.absent(),
+  }) => Group(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    description: description.present ? description.value : this.description,
+    createdAt: createdAt ?? this.createdAt,
+    archivedAt: archivedAt.present ? archivedAt.value : this.archivedAt,
+  );
+  Group copyWithCompanion(GroupsCompanion data) {
+    return Group(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      archivedAt: data.archivedAt.present
+          ? data.archivedAt.value
+          : this.archivedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Group(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('description: $description, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('archivedAt: $archivedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, description, createdAt, archivedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Group &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.description == this.description &&
+          other.createdAt == this.createdAt &&
+          other.archivedAt == this.archivedAt);
+}
+
+class GroupsCompanion extends UpdateCompanion<Group> {
+  final Value<int> id;
+  final Value<String> name;
+  final Value<String?> description;
+  final Value<DateTime> createdAt;
+  final Value<DateTime?> archivedAt;
+  const GroupsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.description = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.archivedAt = const Value.absent(),
+  });
+  GroupsCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+    this.description = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.archivedAt = const Value.absent(),
+  }) : name = Value(name);
+  static Insertable<Group> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+    Expression<String>? description,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? archivedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (description != null) 'description': description,
+      if (createdAt != null) 'created_at': createdAt,
+      if (archivedAt != null) 'archived_at': archivedAt,
+    });
+  }
+
+  GroupsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? name,
+    Value<String?>? description,
+    Value<DateTime>? createdAt,
+    Value<DateTime?>? archivedAt,
+  }) {
+    return GroupsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      createdAt: createdAt ?? this.createdAt,
+      archivedAt: archivedAt ?? this.archivedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (archivedAt.present) {
+      map['archived_at'] = Variable<DateTime>(archivedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GroupsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('description: $description, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('archivedAt: $archivedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $GroupMembersTable extends GroupMembers
+    with TableInfo<$GroupMembersTable, GroupMember> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GroupMembersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _groupIdMeta = const VerificationMeta(
+    'groupId',
+  );
+  @override
+  late final GeneratedColumn<int> groupId = GeneratedColumn<int>(
+    'group_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _personIdMeta = const VerificationMeta(
+    'personId',
+  );
+  @override
+  late final GeneratedColumn<int> personId = GeneratedColumn<int>(
+    'person_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, groupId, personId, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'group_members';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<GroupMember> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('group_id')) {
+      context.handle(
+        _groupIdMeta,
+        groupId.isAcceptableOrUnknown(data['group_id']!, _groupIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_groupIdMeta);
+    }
+    if (data.containsKey('person_id')) {
+      context.handle(
+        _personIdMeta,
+        personId.isAcceptableOrUnknown(data['person_id']!, _personIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_personIdMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  GroupMember map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GroupMember(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      groupId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}group_id'],
+      )!,
+      personId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}person_id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $GroupMembersTable createAlias(String alias) {
+    return $GroupMembersTable(attachedDatabase, alias);
+  }
+}
+
+class GroupMember extends DataClass implements Insertable<GroupMember> {
+  final int id;
+  final int groupId;
+  final int personId;
+  final DateTime createdAt;
+  const GroupMember({
+    required this.id,
+    required this.groupId,
+    required this.personId,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['group_id'] = Variable<int>(groupId);
+    map['person_id'] = Variable<int>(personId);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  GroupMembersCompanion toCompanion(bool nullToAbsent) {
+    return GroupMembersCompanion(
+      id: Value(id),
+      groupId: Value(groupId),
+      personId: Value(personId),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory GroupMember.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GroupMember(
+      id: serializer.fromJson<int>(json['id']),
+      groupId: serializer.fromJson<int>(json['groupId']),
+      personId: serializer.fromJson<int>(json['personId']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'groupId': serializer.toJson<int>(groupId),
+      'personId': serializer.toJson<int>(personId),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  GroupMember copyWith({
+    int? id,
+    int? groupId,
+    int? personId,
+    DateTime? createdAt,
+  }) => GroupMember(
+    id: id ?? this.id,
+    groupId: groupId ?? this.groupId,
+    personId: personId ?? this.personId,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  GroupMember copyWithCompanion(GroupMembersCompanion data) {
+    return GroupMember(
+      id: data.id.present ? data.id.value : this.id,
+      groupId: data.groupId.present ? data.groupId.value : this.groupId,
+      personId: data.personId.present ? data.personId.value : this.personId,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GroupMember(')
+          ..write('id: $id, ')
+          ..write('groupId: $groupId, ')
+          ..write('personId: $personId, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, groupId, personId, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GroupMember &&
+          other.id == this.id &&
+          other.groupId == this.groupId &&
+          other.personId == this.personId &&
+          other.createdAt == this.createdAt);
+}
+
+class GroupMembersCompanion extends UpdateCompanion<GroupMember> {
+  final Value<int> id;
+  final Value<int> groupId;
+  final Value<int> personId;
+  final Value<DateTime> createdAt;
+  const GroupMembersCompanion({
+    this.id = const Value.absent(),
+    this.groupId = const Value.absent(),
+    this.personId = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  GroupMembersCompanion.insert({
+    this.id = const Value.absent(),
+    required int groupId,
+    required int personId,
+    this.createdAt = const Value.absent(),
+  }) : groupId = Value(groupId),
+       personId = Value(personId);
+  static Insertable<GroupMember> custom({
+    Expression<int>? id,
+    Expression<int>? groupId,
+    Expression<int>? personId,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (groupId != null) 'group_id': groupId,
+      if (personId != null) 'person_id': personId,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  GroupMembersCompanion copyWith({
+    Value<int>? id,
+    Value<int>? groupId,
+    Value<int>? personId,
+    Value<DateTime>? createdAt,
+  }) {
+    return GroupMembersCompanion(
+      id: id ?? this.id,
+      groupId: groupId ?? this.groupId,
+      personId: personId ?? this.personId,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (groupId.present) {
+      map['group_id'] = Variable<int>(groupId.value);
+    }
+    if (personId.present) {
+      map['person_id'] = Variable<int>(personId.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GroupMembersCompanion(')
+          ..write('id: $id, ')
+          ..write('groupId: $groupId, ')
+          ..write('personId: $personId, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TransactionSplitsTable extends TransactionSplits
+    with TableInfo<$TransactionSplitsTable, TransactionSplit> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TransactionSplitsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _transactionIdMeta = const VerificationMeta(
+    'transactionId',
+  );
+  @override
+  late final GeneratedColumn<int> transactionId = GeneratedColumn<int>(
+    'transaction_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _personIdMeta = const VerificationMeta(
+    'personId',
+  );
+  @override
+  late final GeneratedColumn<int> personId = GeneratedColumn<int>(
+    'person_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _shareAmountMeta = const VerificationMeta(
+    'shareAmount',
+  );
+  @override
+  late final GeneratedColumn<double> shareAmount = GeneratedColumn<double>(
+    'share_amount',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    transactionId,
+    personId,
+    shareAmount,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'transaction_splits';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TransactionSplit> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('transaction_id')) {
+      context.handle(
+        _transactionIdMeta,
+        transactionId.isAcceptableOrUnknown(
+          data['transaction_id']!,
+          _transactionIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_transactionIdMeta);
+    }
+    if (data.containsKey('person_id')) {
+      context.handle(
+        _personIdMeta,
+        personId.isAcceptableOrUnknown(data['person_id']!, _personIdMeta),
+      );
+    }
+    if (data.containsKey('share_amount')) {
+      context.handle(
+        _shareAmountMeta,
+        shareAmount.isAcceptableOrUnknown(
+          data['share_amount']!,
+          _shareAmountMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_shareAmountMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TransactionSplit map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TransactionSplit(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      transactionId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}transaction_id'],
+      )!,
+      personId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}person_id'],
+      ),
+      shareAmount: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}share_amount'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $TransactionSplitsTable createAlias(String alias) {
+    return $TransactionSplitsTable(attachedDatabase, alias);
+  }
+}
+
+class TransactionSplit extends DataClass
+    implements Insertable<TransactionSplit> {
+  final int id;
+  final int transactionId;
+  final int? personId;
+  final double shareAmount;
+  final DateTime createdAt;
+  const TransactionSplit({
+    required this.id,
+    required this.transactionId,
+    this.personId,
+    required this.shareAmount,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['transaction_id'] = Variable<int>(transactionId);
+    if (!nullToAbsent || personId != null) {
+      map['person_id'] = Variable<int>(personId);
+    }
+    map['share_amount'] = Variable<double>(shareAmount);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  TransactionSplitsCompanion toCompanion(bool nullToAbsent) {
+    return TransactionSplitsCompanion(
+      id: Value(id),
+      transactionId: Value(transactionId),
+      personId: personId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(personId),
+      shareAmount: Value(shareAmount),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory TransactionSplit.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TransactionSplit(
+      id: serializer.fromJson<int>(json['id']),
+      transactionId: serializer.fromJson<int>(json['transactionId']),
+      personId: serializer.fromJson<int?>(json['personId']),
+      shareAmount: serializer.fromJson<double>(json['shareAmount']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'transactionId': serializer.toJson<int>(transactionId),
+      'personId': serializer.toJson<int?>(personId),
+      'shareAmount': serializer.toJson<double>(shareAmount),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  TransactionSplit copyWith({
+    int? id,
+    int? transactionId,
+    Value<int?> personId = const Value.absent(),
+    double? shareAmount,
+    DateTime? createdAt,
+  }) => TransactionSplit(
+    id: id ?? this.id,
+    transactionId: transactionId ?? this.transactionId,
+    personId: personId.present ? personId.value : this.personId,
+    shareAmount: shareAmount ?? this.shareAmount,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  TransactionSplit copyWithCompanion(TransactionSplitsCompanion data) {
+    return TransactionSplit(
+      id: data.id.present ? data.id.value : this.id,
+      transactionId: data.transactionId.present
+          ? data.transactionId.value
+          : this.transactionId,
+      personId: data.personId.present ? data.personId.value : this.personId,
+      shareAmount: data.shareAmount.present
+          ? data.shareAmount.value
+          : this.shareAmount,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TransactionSplit(')
+          ..write('id: $id, ')
+          ..write('transactionId: $transactionId, ')
+          ..write('personId: $personId, ')
+          ..write('shareAmount: $shareAmount, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, transactionId, personId, shareAmount, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TransactionSplit &&
+          other.id == this.id &&
+          other.transactionId == this.transactionId &&
+          other.personId == this.personId &&
+          other.shareAmount == this.shareAmount &&
+          other.createdAt == this.createdAt);
+}
+
+class TransactionSplitsCompanion extends UpdateCompanion<TransactionSplit> {
+  final Value<int> id;
+  final Value<int> transactionId;
+  final Value<int?> personId;
+  final Value<double> shareAmount;
+  final Value<DateTime> createdAt;
+  const TransactionSplitsCompanion({
+    this.id = const Value.absent(),
+    this.transactionId = const Value.absent(),
+    this.personId = const Value.absent(),
+    this.shareAmount = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  TransactionSplitsCompanion.insert({
+    this.id = const Value.absent(),
+    required int transactionId,
+    this.personId = const Value.absent(),
+    required double shareAmount,
+    this.createdAt = const Value.absent(),
+  }) : transactionId = Value(transactionId),
+       shareAmount = Value(shareAmount);
+  static Insertable<TransactionSplit> custom({
+    Expression<int>? id,
+    Expression<int>? transactionId,
+    Expression<int>? personId,
+    Expression<double>? shareAmount,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (transactionId != null) 'transaction_id': transactionId,
+      if (personId != null) 'person_id': personId,
+      if (shareAmount != null) 'share_amount': shareAmount,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  TransactionSplitsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? transactionId,
+    Value<int?>? personId,
+    Value<double>? shareAmount,
+    Value<DateTime>? createdAt,
+  }) {
+    return TransactionSplitsCompanion(
+      id: id ?? this.id,
+      transactionId: transactionId ?? this.transactionId,
+      personId: personId ?? this.personId,
+      shareAmount: shareAmount ?? this.shareAmount,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (transactionId.present) {
+      map['transaction_id'] = Variable<int>(transactionId.value);
+    }
+    if (personId.present) {
+      map['person_id'] = Variable<int>(personId.value);
+    }
+    if (shareAmount.present) {
+      map['share_amount'] = Variable<double>(shareAmount.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TransactionSplitsCompanion(')
+          ..write('id: $id, ')
+          ..write('transactionId: $transactionId, ')
+          ..write('personId: $personId, ')
+          ..write('shareAmount: $shareAmount, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$SpendlerDatabase extends GeneratedDatabase {
   _$SpendlerDatabase(QueryExecutor e) : super(e);
   $SpendlerDatabaseManager get managers => $SpendlerDatabaseManager(this);
@@ -7662,6 +9393,11 @@ abstract class _$SpendlerDatabase extends GeneratedDatabase {
     this,
   );
   late final $ImportBatchesTable importBatches = $ImportBatchesTable(this);
+  late final $PersonsTable persons = $PersonsTable(this);
+  late final $GroupsTable groups = $GroupsTable(this);
+  late final $GroupMembersTable groupMembers = $GroupMembersTable(this);
+  late final $TransactionSplitsTable transactionSplits =
+      $TransactionSplitsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -7682,6 +9418,10 @@ abstract class _$SpendlerDatabase extends GeneratedDatabase {
     merchantMappings,
     correctionEvents,
     importBatches,
+    persons,
+    groups,
+    groupMembers,
+    transactionSplits,
   ];
 }
 
@@ -7712,6 +9452,11 @@ typedef $$SpendlerTransactionsTableCreateCompanionBuilder =
       Value<bool> isRecurring,
       Value<String?> incomeSource,
       Value<String?> attachmentPath,
+      Value<String> txnType,
+      Value<int?> payerPersonId,
+      Value<int?> counterpartyPersonId,
+      Value<String?> settlementDirection,
+      Value<int?> groupId,
     });
 typedef $$SpendlerTransactionsTableUpdateCompanionBuilder =
     SpendlerTransactionsCompanion Function({
@@ -7740,6 +9485,11 @@ typedef $$SpendlerTransactionsTableUpdateCompanionBuilder =
       Value<bool> isRecurring,
       Value<String?> incomeSource,
       Value<String?> attachmentPath,
+      Value<String> txnType,
+      Value<int?> payerPersonId,
+      Value<int?> counterpartyPersonId,
+      Value<String?> settlementDirection,
+      Value<int?> groupId,
     });
 
 class $$SpendlerTransactionsTableFilterComposer
@@ -7873,6 +9623,31 @@ class $$SpendlerTransactionsTableFilterComposer
 
   ColumnFilters<String> get attachmentPath => $composableBuilder(
     column: $table.attachmentPath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get txnType => $composableBuilder(
+    column: $table.txnType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get payerPersonId => $composableBuilder(
+    column: $table.payerPersonId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get counterpartyPersonId => $composableBuilder(
+    column: $table.counterpartyPersonId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get settlementDirection => $composableBuilder(
+    column: $table.settlementDirection,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get groupId => $composableBuilder(
+    column: $table.groupId,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -8010,6 +9785,31 @@ class $$SpendlerTransactionsTableOrderingComposer
     column: $table.attachmentPath,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get txnType => $composableBuilder(
+    column: $table.txnType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get payerPersonId => $composableBuilder(
+    column: $table.payerPersonId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get counterpartyPersonId => $composableBuilder(
+    column: $table.counterpartyPersonId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get settlementDirection => $composableBuilder(
+    column: $table.settlementDirection,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get groupId => $composableBuilder(
+    column: $table.groupId,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$SpendlerTransactionsTableAnnotationComposer
@@ -8121,6 +9921,27 @@ class $$SpendlerTransactionsTableAnnotationComposer
     column: $table.attachmentPath,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get txnType =>
+      $composableBuilder(column: $table.txnType, builder: (column) => column);
+
+  GeneratedColumn<int> get payerPersonId => $composableBuilder(
+    column: $table.payerPersonId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get counterpartyPersonId => $composableBuilder(
+    column: $table.counterpartyPersonId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get settlementDirection => $composableBuilder(
+    column: $table.settlementDirection,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get groupId =>
+      $composableBuilder(column: $table.groupId, builder: (column) => column);
 }
 
 class $$SpendlerTransactionsTableTableManager
@@ -8191,6 +10012,11 @@ class $$SpendlerTransactionsTableTableManager
                 Value<bool> isRecurring = const Value.absent(),
                 Value<String?> incomeSource = const Value.absent(),
                 Value<String?> attachmentPath = const Value.absent(),
+                Value<String> txnType = const Value.absent(),
+                Value<int?> payerPersonId = const Value.absent(),
+                Value<int?> counterpartyPersonId = const Value.absent(),
+                Value<String?> settlementDirection = const Value.absent(),
+                Value<int?> groupId = const Value.absent(),
               }) => SpendlerTransactionsCompanion(
                 id: id,
                 amount: amount,
@@ -8217,6 +10043,11 @@ class $$SpendlerTransactionsTableTableManager
                 isRecurring: isRecurring,
                 incomeSource: incomeSource,
                 attachmentPath: attachmentPath,
+                txnType: txnType,
+                payerPersonId: payerPersonId,
+                counterpartyPersonId: counterpartyPersonId,
+                settlementDirection: settlementDirection,
+                groupId: groupId,
               ),
           createCompanionCallback:
               ({
@@ -8245,6 +10076,11 @@ class $$SpendlerTransactionsTableTableManager
                 Value<bool> isRecurring = const Value.absent(),
                 Value<String?> incomeSource = const Value.absent(),
                 Value<String?> attachmentPath = const Value.absent(),
+                Value<String> txnType = const Value.absent(),
+                Value<int?> payerPersonId = const Value.absent(),
+                Value<int?> counterpartyPersonId = const Value.absent(),
+                Value<String?> settlementDirection = const Value.absent(),
+                Value<int?> groupId = const Value.absent(),
               }) => SpendlerTransactionsCompanion.insert(
                 id: id,
                 amount: amount,
@@ -8271,6 +10107,11 @@ class $$SpendlerTransactionsTableTableManager
                 isRecurring: isRecurring,
                 incomeSource: incomeSource,
                 attachmentPath: attachmentPath,
+                txnType: txnType,
+                payerPersonId: payerPersonId,
+                counterpartyPersonId: counterpartyPersonId,
+                settlementDirection: settlementDirection,
+                groupId: groupId,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -11642,6 +13483,816 @@ typedef $$ImportBatchesTableProcessedTableManager =
       ImportBatch,
       PrefetchHooks Function()
     >;
+typedef $$PersonsTableCreateCompanionBuilder =
+    PersonsCompanion Function({
+      Value<int> id,
+      required String name,
+      Value<String?> tag,
+      required String avatarColor,
+      Value<String?> note,
+      Value<DateTime> createdAt,
+      Value<DateTime?> archivedAt,
+    });
+typedef $$PersonsTableUpdateCompanionBuilder =
+    PersonsCompanion Function({
+      Value<int> id,
+      Value<String> name,
+      Value<String?> tag,
+      Value<String> avatarColor,
+      Value<String?> note,
+      Value<DateTime> createdAt,
+      Value<DateTime?> archivedAt,
+    });
+
+class $$PersonsTableFilterComposer
+    extends Composer<_$SpendlerDatabase, $PersonsTable> {
+  $$PersonsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get tag => $composableBuilder(
+    column: $table.tag,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get avatarColor => $composableBuilder(
+    column: $table.avatarColor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get archivedAt => $composableBuilder(
+    column: $table.archivedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$PersonsTableOrderingComposer
+    extends Composer<_$SpendlerDatabase, $PersonsTable> {
+  $$PersonsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get tag => $composableBuilder(
+    column: $table.tag,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get avatarColor => $composableBuilder(
+    column: $table.avatarColor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get archivedAt => $composableBuilder(
+    column: $table.archivedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$PersonsTableAnnotationComposer
+    extends Composer<_$SpendlerDatabase, $PersonsTable> {
+  $$PersonsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get tag =>
+      $composableBuilder(column: $table.tag, builder: (column) => column);
+
+  GeneratedColumn<String> get avatarColor => $composableBuilder(
+    column: $table.avatarColor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get archivedAt => $composableBuilder(
+    column: $table.archivedAt,
+    builder: (column) => column,
+  );
+}
+
+class $$PersonsTableTableManager
+    extends
+        RootTableManager<
+          _$SpendlerDatabase,
+          $PersonsTable,
+          Person,
+          $$PersonsTableFilterComposer,
+          $$PersonsTableOrderingComposer,
+          $$PersonsTableAnnotationComposer,
+          $$PersonsTableCreateCompanionBuilder,
+          $$PersonsTableUpdateCompanionBuilder,
+          (Person, BaseReferences<_$SpendlerDatabase, $PersonsTable, Person>),
+          Person,
+          PrefetchHooks Function()
+        > {
+  $$PersonsTableTableManager(_$SpendlerDatabase db, $PersonsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PersonsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PersonsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PersonsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String?> tag = const Value.absent(),
+                Value<String> avatarColor = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime?> archivedAt = const Value.absent(),
+              }) => PersonsCompanion(
+                id: id,
+                name: name,
+                tag: tag,
+                avatarColor: avatarColor,
+                note: note,
+                createdAt: createdAt,
+                archivedAt: archivedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String name,
+                Value<String?> tag = const Value.absent(),
+                required String avatarColor,
+                Value<String?> note = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime?> archivedAt = const Value.absent(),
+              }) => PersonsCompanion.insert(
+                id: id,
+                name: name,
+                tag: tag,
+                avatarColor: avatarColor,
+                note: note,
+                createdAt: createdAt,
+                archivedAt: archivedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$PersonsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SpendlerDatabase,
+      $PersonsTable,
+      Person,
+      $$PersonsTableFilterComposer,
+      $$PersonsTableOrderingComposer,
+      $$PersonsTableAnnotationComposer,
+      $$PersonsTableCreateCompanionBuilder,
+      $$PersonsTableUpdateCompanionBuilder,
+      (Person, BaseReferences<_$SpendlerDatabase, $PersonsTable, Person>),
+      Person,
+      PrefetchHooks Function()
+    >;
+typedef $$GroupsTableCreateCompanionBuilder =
+    GroupsCompanion Function({
+      Value<int> id,
+      required String name,
+      Value<String?> description,
+      Value<DateTime> createdAt,
+      Value<DateTime?> archivedAt,
+    });
+typedef $$GroupsTableUpdateCompanionBuilder =
+    GroupsCompanion Function({
+      Value<int> id,
+      Value<String> name,
+      Value<String?> description,
+      Value<DateTime> createdAt,
+      Value<DateTime?> archivedAt,
+    });
+
+class $$GroupsTableFilterComposer
+    extends Composer<_$SpendlerDatabase, $GroupsTable> {
+  $$GroupsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get archivedAt => $composableBuilder(
+    column: $table.archivedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$GroupsTableOrderingComposer
+    extends Composer<_$SpendlerDatabase, $GroupsTable> {
+  $$GroupsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get archivedAt => $composableBuilder(
+    column: $table.archivedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$GroupsTableAnnotationComposer
+    extends Composer<_$SpendlerDatabase, $GroupsTable> {
+  $$GroupsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get archivedAt => $composableBuilder(
+    column: $table.archivedAt,
+    builder: (column) => column,
+  );
+}
+
+class $$GroupsTableTableManager
+    extends
+        RootTableManager<
+          _$SpendlerDatabase,
+          $GroupsTable,
+          Group,
+          $$GroupsTableFilterComposer,
+          $$GroupsTableOrderingComposer,
+          $$GroupsTableAnnotationComposer,
+          $$GroupsTableCreateCompanionBuilder,
+          $$GroupsTableUpdateCompanionBuilder,
+          (Group, BaseReferences<_$SpendlerDatabase, $GroupsTable, Group>),
+          Group,
+          PrefetchHooks Function()
+        > {
+  $$GroupsTableTableManager(_$SpendlerDatabase db, $GroupsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$GroupsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$GroupsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$GroupsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String?> description = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime?> archivedAt = const Value.absent(),
+              }) => GroupsCompanion(
+                id: id,
+                name: name,
+                description: description,
+                createdAt: createdAt,
+                archivedAt: archivedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String name,
+                Value<String?> description = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime?> archivedAt = const Value.absent(),
+              }) => GroupsCompanion.insert(
+                id: id,
+                name: name,
+                description: description,
+                createdAt: createdAt,
+                archivedAt: archivedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$GroupsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SpendlerDatabase,
+      $GroupsTable,
+      Group,
+      $$GroupsTableFilterComposer,
+      $$GroupsTableOrderingComposer,
+      $$GroupsTableAnnotationComposer,
+      $$GroupsTableCreateCompanionBuilder,
+      $$GroupsTableUpdateCompanionBuilder,
+      (Group, BaseReferences<_$SpendlerDatabase, $GroupsTable, Group>),
+      Group,
+      PrefetchHooks Function()
+    >;
+typedef $$GroupMembersTableCreateCompanionBuilder =
+    GroupMembersCompanion Function({
+      Value<int> id,
+      required int groupId,
+      required int personId,
+      Value<DateTime> createdAt,
+    });
+typedef $$GroupMembersTableUpdateCompanionBuilder =
+    GroupMembersCompanion Function({
+      Value<int> id,
+      Value<int> groupId,
+      Value<int> personId,
+      Value<DateTime> createdAt,
+    });
+
+class $$GroupMembersTableFilterComposer
+    extends Composer<_$SpendlerDatabase, $GroupMembersTable> {
+  $$GroupMembersTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get groupId => $composableBuilder(
+    column: $table.groupId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get personId => $composableBuilder(
+    column: $table.personId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$GroupMembersTableOrderingComposer
+    extends Composer<_$SpendlerDatabase, $GroupMembersTable> {
+  $$GroupMembersTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get groupId => $composableBuilder(
+    column: $table.groupId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get personId => $composableBuilder(
+    column: $table.personId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$GroupMembersTableAnnotationComposer
+    extends Composer<_$SpendlerDatabase, $GroupMembersTable> {
+  $$GroupMembersTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get groupId =>
+      $composableBuilder(column: $table.groupId, builder: (column) => column);
+
+  GeneratedColumn<int> get personId =>
+      $composableBuilder(column: $table.personId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$GroupMembersTableTableManager
+    extends
+        RootTableManager<
+          _$SpendlerDatabase,
+          $GroupMembersTable,
+          GroupMember,
+          $$GroupMembersTableFilterComposer,
+          $$GroupMembersTableOrderingComposer,
+          $$GroupMembersTableAnnotationComposer,
+          $$GroupMembersTableCreateCompanionBuilder,
+          $$GroupMembersTableUpdateCompanionBuilder,
+          (
+            GroupMember,
+            BaseReferences<_$SpendlerDatabase, $GroupMembersTable, GroupMember>,
+          ),
+          GroupMember,
+          PrefetchHooks Function()
+        > {
+  $$GroupMembersTableTableManager(
+    _$SpendlerDatabase db,
+    $GroupMembersTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$GroupMembersTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$GroupMembersTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$GroupMembersTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> groupId = const Value.absent(),
+                Value<int> personId = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => GroupMembersCompanion(
+                id: id,
+                groupId: groupId,
+                personId: personId,
+                createdAt: createdAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int groupId,
+                required int personId,
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => GroupMembersCompanion.insert(
+                id: id,
+                groupId: groupId,
+                personId: personId,
+                createdAt: createdAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$GroupMembersTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SpendlerDatabase,
+      $GroupMembersTable,
+      GroupMember,
+      $$GroupMembersTableFilterComposer,
+      $$GroupMembersTableOrderingComposer,
+      $$GroupMembersTableAnnotationComposer,
+      $$GroupMembersTableCreateCompanionBuilder,
+      $$GroupMembersTableUpdateCompanionBuilder,
+      (
+        GroupMember,
+        BaseReferences<_$SpendlerDatabase, $GroupMembersTable, GroupMember>,
+      ),
+      GroupMember,
+      PrefetchHooks Function()
+    >;
+typedef $$TransactionSplitsTableCreateCompanionBuilder =
+    TransactionSplitsCompanion Function({
+      Value<int> id,
+      required int transactionId,
+      Value<int?> personId,
+      required double shareAmount,
+      Value<DateTime> createdAt,
+    });
+typedef $$TransactionSplitsTableUpdateCompanionBuilder =
+    TransactionSplitsCompanion Function({
+      Value<int> id,
+      Value<int> transactionId,
+      Value<int?> personId,
+      Value<double> shareAmount,
+      Value<DateTime> createdAt,
+    });
+
+class $$TransactionSplitsTableFilterComposer
+    extends Composer<_$SpendlerDatabase, $TransactionSplitsTable> {
+  $$TransactionSplitsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get transactionId => $composableBuilder(
+    column: $table.transactionId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get personId => $composableBuilder(
+    column: $table.personId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get shareAmount => $composableBuilder(
+    column: $table.shareAmount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$TransactionSplitsTableOrderingComposer
+    extends Composer<_$SpendlerDatabase, $TransactionSplitsTable> {
+  $$TransactionSplitsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get transactionId => $composableBuilder(
+    column: $table.transactionId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get personId => $composableBuilder(
+    column: $table.personId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get shareAmount => $composableBuilder(
+    column: $table.shareAmount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$TransactionSplitsTableAnnotationComposer
+    extends Composer<_$SpendlerDatabase, $TransactionSplitsTable> {
+  $$TransactionSplitsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get transactionId => $composableBuilder(
+    column: $table.transactionId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get personId =>
+      $composableBuilder(column: $table.personId, builder: (column) => column);
+
+  GeneratedColumn<double> get shareAmount => $composableBuilder(
+    column: $table.shareAmount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$TransactionSplitsTableTableManager
+    extends
+        RootTableManager<
+          _$SpendlerDatabase,
+          $TransactionSplitsTable,
+          TransactionSplit,
+          $$TransactionSplitsTableFilterComposer,
+          $$TransactionSplitsTableOrderingComposer,
+          $$TransactionSplitsTableAnnotationComposer,
+          $$TransactionSplitsTableCreateCompanionBuilder,
+          $$TransactionSplitsTableUpdateCompanionBuilder,
+          (
+            TransactionSplit,
+            BaseReferences<
+              _$SpendlerDatabase,
+              $TransactionSplitsTable,
+              TransactionSplit
+            >,
+          ),
+          TransactionSplit,
+          PrefetchHooks Function()
+        > {
+  $$TransactionSplitsTableTableManager(
+    _$SpendlerDatabase db,
+    $TransactionSplitsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TransactionSplitsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TransactionSplitsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TransactionSplitsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> transactionId = const Value.absent(),
+                Value<int?> personId = const Value.absent(),
+                Value<double> shareAmount = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => TransactionSplitsCompanion(
+                id: id,
+                transactionId: transactionId,
+                personId: personId,
+                shareAmount: shareAmount,
+                createdAt: createdAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int transactionId,
+                Value<int?> personId = const Value.absent(),
+                required double shareAmount,
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => TransactionSplitsCompanion.insert(
+                id: id,
+                transactionId: transactionId,
+                personId: personId,
+                shareAmount: shareAmount,
+                createdAt: createdAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$TransactionSplitsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SpendlerDatabase,
+      $TransactionSplitsTable,
+      TransactionSplit,
+      $$TransactionSplitsTableFilterComposer,
+      $$TransactionSplitsTableOrderingComposer,
+      $$TransactionSplitsTableAnnotationComposer,
+      $$TransactionSplitsTableCreateCompanionBuilder,
+      $$TransactionSplitsTableUpdateCompanionBuilder,
+      (
+        TransactionSplit,
+        BaseReferences<
+          _$SpendlerDatabase,
+          $TransactionSplitsTable,
+          TransactionSplit
+        >,
+      ),
+      TransactionSplit,
+      PrefetchHooks Function()
+    >;
 
 class $SpendlerDatabaseManager {
   final _$SpendlerDatabase _db;
@@ -11676,4 +14327,12 @@ class $SpendlerDatabaseManager {
       $$CorrectionEventsTableTableManager(_db, _db.correctionEvents);
   $$ImportBatchesTableTableManager get importBatches =>
       $$ImportBatchesTableTableManager(_db, _db.importBatches);
+  $$PersonsTableTableManager get persons =>
+      $$PersonsTableTableManager(_db, _db.persons);
+  $$GroupsTableTableManager get groups =>
+      $$GroupsTableTableManager(_db, _db.groups);
+  $$GroupMembersTableTableManager get groupMembers =>
+      $$GroupMembersTableTableManager(_db, _db.groupMembers);
+  $$TransactionSplitsTableTableManager get transactionSplits =>
+      $$TransactionSplitsTableTableManager(_db, _db.transactionSplits);
 }

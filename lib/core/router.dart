@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:finance_buddy_app/services/auth/auth_service.dart';
 import 'package:finance_buddy_app/pages/splash/splash_page.dart';
 import 'package:finance_buddy_app/pages/onboarding_v2/add_accounts_screen.dart';
 import 'package:finance_buddy_app/pages/onboarding_v2/monthly_budget_screen.dart';
@@ -17,6 +19,9 @@ import 'package:finance_buddy_app/pages/report/category_transactions_page.dart';
 import 'package:finance_buddy_app/pages/settings/excel_import_page.dart';
 import 'package:finance_buddy_app/pages/saraswati/saraswati_page.dart';
 import 'package:finance_buddy_app/pages/people/people_page.dart';
+import 'package:finance_buddy_app/pages/people/person_detail_page.dart';
+import 'package:finance_buddy_app/pages/groups/groups_page.dart';
+import 'package:finance_buddy_app/pages/groups/group_detail_page.dart';
 import 'package:finance_buddy_app/pages/subscriptions/subscriptions_page.dart';
 import 'package:finance_buddy_app/pages/transactions/transaction_detail_page.dart';
 import 'package:finance_buddy_app/pages/home/daily_view_page.dart';
@@ -25,6 +30,28 @@ import 'package:finance_buddy_app/pages/transactions/attachment_viewer_page.dart
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/splash',
+    redirect: (context, state) async {
+      final path = state.matchedLocation;
+
+      // Allow splash, onboarding, and sign-in without auth
+      if (path == '/splash' ||
+          path.startsWith('/onboarding') ||
+          path == '/sign-in') {
+        return null;
+      }
+
+      // Check if user is authenticated
+      final authService = AuthService();
+      final isReturning = await authService.isReturningUser();
+      if (!isReturning) return '/sign-in';
+
+      // Check if onboarding is completed
+      final prefs = await SharedPreferences.getInstance();
+      final onboarded = prefs.getBool('onboarding_completed') ?? false;
+      if (!onboarded) return '/onboarding/step2';
+
+      return null;
+    },
     routes: [
       // ─── Splash ───────────────────────────────────────
       GoRoute(
@@ -99,6 +126,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const PeoplePage(),
       ),
       GoRoute(
+        path: '/people/:id',
+        builder: (context, state) {
+          final id = int.parse(state.pathParameters['id']!);
+          return PersonDetailPage(personId: id);
+        },
+      ),
+      GoRoute(
         path: '/settings/subscriptions',
         builder: (context, state) => const SubscriptionsPage(),
       ),
@@ -127,6 +161,19 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final filePath = state.extra as String;
           return AttachmentViewerPage(filePath: filePath);
+        },
+      ),
+
+      // ─── Groups ─────────────────────────────────────
+      GoRoute(
+        path: '/groups',
+        builder: (context, state) => const GroupsPage(),
+      ),
+      GoRoute(
+        path: '/groups/:id',
+        builder: (context, state) {
+          final id = int.parse(state.pathParameters['id']!);
+          return GroupDetailPage(groupId: id);
         },
       ),
 

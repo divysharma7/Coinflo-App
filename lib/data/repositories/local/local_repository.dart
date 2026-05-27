@@ -1,14 +1,18 @@
 import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/data/repositories/base_repository.dart';
 import 'package:finance_buddy_app/data/repositories/friend_split_repository.dart';
+import 'package:finance_buddy_app/data/repositories/split_repository.dart';
 import 'package:finance_buddy_app/data/repositories/transaction_repository.dart';
 import 'package:finance_buddy_app/data/repositories/local/local_budget_repository.dart';
 import 'package:finance_buddy_app/data/repositories/local/local_family_repository.dart';
 import 'package:finance_buddy_app/data/repositories/local/local_friend_split_repository.dart';
 import 'package:finance_buddy_app/data/repositories/local/local_goal_repository.dart';
+import 'package:finance_buddy_app/data/repositories/local/local_group_repository.dart';
 import 'package:finance_buddy_app/data/repositories/local/local_metrics_repository.dart';
 import 'package:finance_buddy_app/data/repositories/local/local_notification_repository.dart';
+import 'package:finance_buddy_app/data/repositories/local/local_person_repository.dart';
 import 'package:finance_buddy_app/data/repositories/local/local_reflection_repository.dart';
+import 'package:finance_buddy_app/data/repositories/local/local_split_repository.dart';
 import 'package:finance_buddy_app/data/repositories/local/local_subscription_repository.dart';
 import 'package:finance_buddy_app/data/repositories/local/local_transaction_repository.dart';
 
@@ -24,6 +28,9 @@ class LocalRepository extends BaseRepository {
   late final LocalSubscriptionRepository _subscriptionRepo;
   late final LocalBudgetRepository _budgetRepo;
   late final LocalGoalRepository _goalRepo;
+  late final LocalPersonRepository _personRepo;
+  late final LocalGroupRepository _groupRepo;
+  late final LocalSplitRepository _splitRepo;
 
   LocalRepository(this.db) {
     _txnRepo = LocalTransactionRepository(db);
@@ -35,6 +42,9 @@ class LocalRepository extends BaseRepository {
     _subscriptionRepo = LocalSubscriptionRepository(db);
     _budgetRepo = LocalBudgetRepository(db);
     _goalRepo = LocalGoalRepository(db);
+    _personRepo = LocalPersonRepository(db);
+    _groupRepo = LocalGroupRepository(db);
+    _splitRepo = LocalSplitRepository(db);
   }
 
   // ─── Transaction delegates ──────────────────────────
@@ -48,6 +58,9 @@ class LocalRepository extends BaseRepository {
 
   @override
   Stream<List<SpendlerTransaction>> watchAll() => _txnRepo.watchAll();
+
+  @override
+  Future<SpendlerTransaction?> getById(int id) => _txnRepo.getById(id);
 
   @override
   Future<List<SpendlerTransaction>> getTransactionsForDay(DateTime day) =>
@@ -335,6 +348,79 @@ class LocalRepository extends BaseRepository {
   @override
   Future<void> deleteGoal(int id) => _goalRepo.deleteGoal(id);
 
+  // ─── Person delegates ──────────────────────────────
+
+  @override
+  Stream<List<Person>> watchAllPersons() => _personRepo.watchAllPersons();
+
+  @override
+  Stream<List<Person>> watchByTag(String tag) => _personRepo.watchByTag(tag);
+
+  @override
+  Future<Person?> getPersonById(int id) => _personRepo.getPersonById(id);
+
+  @override
+  Future<int> createPerson(PersonsCompanion entry) => _personRepo.createPerson(entry);
+
+  @override
+  Future<void> updatePerson(int id, PersonsCompanion entry) =>
+      _personRepo.updatePerson(id, entry);
+
+  @override
+  Future<void> deletePerson(int id) => _personRepo.deletePerson(id);
+
+  @override
+  Future<double> getPersonBalance(int personId) =>
+      _personRepo.getPersonBalance(personId);
+
+  @override
+  Stream<double> watchPersonBalance(int personId) =>
+      _personRepo.watchPersonBalance(personId);
+
+  // ─── Group delegates ──────────────────────────────
+
+  @override
+  Stream<List<Group>> watchAllGroups() => _groupRepo.watchAllGroups();
+
+  @override
+  Future<Group?> getGroupById(int id) => _groupRepo.getGroupById(id);
+
+  @override
+  Future<int> createGroup(GroupsCompanion entry) => _groupRepo.createGroup(entry);
+
+  @override
+  Future<void> addGroupMember(int groupId, int personId) =>
+      _groupRepo.addGroupMember(groupId, personId);
+
+  @override
+  Future<void> removeGroupMember(int groupId, int personId) =>
+      _groupRepo.removeGroupMember(groupId, personId);
+
+  @override
+  Stream<List<GroupMember>> watchGroupMembers(int groupId) =>
+      _groupRepo.watchGroupMembers(groupId);
+
+  @override
+  Future<void> archiveGroup(int groupId) => _groupRepo.archiveGroup(groupId);
+
+  // ─── Split delegates ──────────────────────────────
+
+  @override
+  Future<void> createSplits(int txnId, List<SplitEntry> splits) =>
+      _splitRepo.createSplits(txnId, splits);
+
+  @override
+  Stream<List<TransactionSplit>> watchSplitsForTransaction(int txnId) =>
+      _splitRepo.watchSplitsForTransaction(txnId);
+
+  @override
+  Future<double> getBalanceForPerson(int personId) =>
+      _splitRepo.getBalanceForPerson(personId);
+
+  @override
+  Stream<double> watchBalanceForPerson(int personId) =>
+      _splitRepo.watchBalanceForPerson(personId);
+
   // ─── Cross-cutting ────────────────────────────────
 
   @override
@@ -349,5 +435,9 @@ class LocalRepository extends BaseRepository {
     await db.customStatement('DELETE FROM category_budgets');
     await db.customStatement('DELETE FROM savings_goals');
     await db.customStatement('DELETE FROM subscriptions');
+    await db.customStatement('DELETE FROM transaction_splits');
+    await db.customStatement('DELETE FROM group_members');
+    await db.customStatement('DELETE FROM groups');
+    await db.customStatement('DELETE FROM persons');
   }
 }

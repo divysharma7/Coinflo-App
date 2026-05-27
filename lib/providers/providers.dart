@@ -11,3 +11,5 @@ export 'plan_providers.dart';
 export 'saraswati_providers.dart';
 export 'classifier_provider.dart';
 export 'chart_providers.dart';
+export 'person_providers.dart';
+export 'group_providers.dart';

@@ -39,6 +39,13 @@ class SpendlerTransactions extends Table {
   // ─── v8 columns ──────────────────────────────────────
   TextColumn get incomeSource => text().nullable()();       // salary, freelance, refund, gift, other
   TextColumn get attachmentPath => text().nullable()();     // local file path for receipt photo
+
+  // ─── v10 columns (People & Debts) ───────────────────
+  TextColumn get txnType => text().withDefault(const Constant('expense'))();  // expense/income/transfer/settlement
+  IntColumn get payerPersonId => integer().nullable()();           // null = user paid
+  IntColumn get counterpartyPersonId => integer().nullable()();    // settlements only
+  TextColumn get settlementDirection => text().nullable()();       // paid_to / received_from
+  IntColumn get groupId => integer().nullable()();
 }
 
 class FamilyEntries extends Table {
@@ -198,6 +205,43 @@ class ImportBatches extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+// ============================================================
+// PEOPLE & DEBTS TABLES (added in v10)
+// ============================================================
+
+class Persons extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text().withLength(max: 50)();
+  TextColumn get tag => text().nullable()();        // friend / family / colleague / other
+  TextColumn get avatarColor => text()();            // hex colour
+  TextColumn get note => text().nullable()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get archivedAt => dateTime().nullable()();
+}
+
+class Groups extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text().withLength(max: 50)();
+  TextColumn get description => text().nullable()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get archivedAt => dateTime().nullable()();
+}
+
+class GroupMembers extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get groupId => integer()();
+  IntColumn get personId => integer()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+class TransactionSplits extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get transactionId => integer()();
+  IntColumn get personId => integer().nullable()();  // null = user's own share
+  RealColumn get shareAmount => real()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
 // ─── Database ─────────────────────────────────────────
 
 @DriftDatabase(tables: [
@@ -216,6 +260,10 @@ class ImportBatches extends Table {
   MerchantMappings,
   CorrectionEvents,
   ImportBatches,
+  Persons,
+  Groups,
+  GroupMembers,
+  TransactionSplits,
 ])
 class SpendlerDatabase extends _$SpendlerDatabase {
   SpendlerDatabase() : super(_openConnection());
@@ -225,7 +273,7 @@ class SpendlerDatabase extends _$SpendlerDatabase {
 
   // TODO: Rename DB file from spendler.sqlite → coinflo.sqlite in a separate migration PR.
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -332,6 +380,40 @@ class SpendlerDatabase extends _$SpendlerDatabase {
               'CREATE INDEX IF NOT EXISTS idx_txn_category ON spendler_transactions (category)',
             );
           }
+          if (from < 10) {
+            // People & Debts: new tables
+            await m.createTable(persons);
+            await m.createTable(groups);
+            await m.createTable(groupMembers);
+            await m.createTable(transactionSplits);
+
+            // People & Debts: new columns on SpendlerTransactions
+            await m.addColumn(
+              spendlerTransactions,
+              spendlerTransactions.txnType,
+            );
+            await m.addColumn(
+              spendlerTransactions,
+              spendlerTransactions.payerPersonId,
+            );
+            await m.addColumn(
+              spendlerTransactions,
+              spendlerTransactions.counterpartyPersonId,
+            );
+            await m.addColumn(
+              spendlerTransactions,
+              spendlerTransactions.settlementDirection,
+            );
+            await m.addColumn(
+              spendlerTransactions,
+              spendlerTransactions.groupId,
+            );
+
+            // Composite index for split balance queries
+            await customStatement(
+              'CREATE INDEX IF NOT EXISTS idx_split_person_txn ON transaction_splits (person_id, transaction_id)',
+            );
+          }
         },
       );
 
@@ -351,6 +433,9 @@ class SpendlerDatabase extends _$SpendlerDatabase {
         'CREATE INDEX IF NOT EXISTS idx_txn_status ON spendler_transactions (status)'));
     await m.createIndex(Index('spendler_transactions',
         'CREATE INDEX IF NOT EXISTS idx_txn_category ON spendler_transactions (category)'));
+    // v10: People & Debts composite index
+    await m.createIndex(Index('transaction_splits',
+        'CREATE INDEX IF NOT EXISTS idx_split_person_txn ON transaction_splits (person_id, transaction_id)'));
   }
 }
 
