@@ -672,7 +672,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 Navigator.pop(ctx);
                 final authService = ref.read(authServiceProvider);
                 await authService.signOut();
-                if (mounted) context.go('/onboarding/step1');
+                if (mounted) context.go('/onboarding/step2');
               },
               child: Text('Log Out',
                   style: AppTextStyles.bodyM.copyWith(

@@ -307,7 +307,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
 
             // Navigate to onboarding / account creation
             GestureDetector(
-              onTap: () => context.go('/onboarding/step1'),
+              onTap: () => context.go('/onboarding/step2'),
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
                 child: Text.rich(

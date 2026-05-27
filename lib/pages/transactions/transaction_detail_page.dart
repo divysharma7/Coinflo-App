@@ -118,15 +118,17 @@ class _TransactionDetailPageState
     }
   }
 
-  InputDecoration _inputDecor(String label) {
+  InputDecoration _inputDecor(String label, {String? prefixText}) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(color: AppColors.gray500, fontSize: 13),
+      labelStyle: AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
+      prefixText: prefixText,
+      prefixStyle: AppTextStyles.headingL.copyWith(color: AppColors.gray500),
       filled: true,
-      fillColor: AppColors.white,
-      border: const UnderlineInputBorder(borderSide: BorderSide(color: AppColors.gray200)),
-      enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: AppColors.gray200)),
-      focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: AppColors.black)),
+      fillColor: AppColors.gray100,
+      border: OutlineInputBorder(borderRadius: AppRadius.base, borderSide: BorderSide.none),
+      enabledBorder: OutlineInputBorder(borderRadius: AppRadius.base, borderSide: BorderSide.none),
+      focusedBorder: OutlineInputBorder(borderRadius: AppRadius.base, borderSide: const BorderSide(color: AppColors.black, width: 1.5)),
     );
   }
 
@@ -146,6 +148,7 @@ class _TransactionDetailPageState
 
     return Scaffold(
       appBar: AppBar(
+        leadingWidth: 80,
         leading: _editing
             ? TextButton(
                 onPressed: _cancelEdit,
@@ -425,16 +428,35 @@ class _TransactionDetailPageState
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Type toggle
-          SegmentedButton<bool>(
-            segments: const [
-              ButtonSegment(value: true, label: Text('Expense')),
-              ButtonSegment(value: false, label: Text('Income')),
-            ],
-            selected: {_isExpense},
-            onSelectionChanged: (v) => setState(() {
-              _isExpense = v.first;
-              _hasChanges = true;
-            }),
+          Theme(
+            data: Theme.of(context).copyWith(
+              segmentedButtonTheme: SegmentedButtonThemeData(
+                style: ButtonStyle(
+                  backgroundColor: WidgetStateProperty.resolveWith((states) {
+                    if (states.contains(WidgetState.selected)) return AppColors.black;
+                    return AppColors.white;
+                  }),
+                  foregroundColor: WidgetStateProperty.resolveWith((states) {
+                    if (states.contains(WidgetState.selected)) return AppColors.white;
+                    return AppColors.black;
+                  }),
+                  side: WidgetStateProperty.all(const BorderSide(color: AppColors.black)),
+                  shape: WidgetStateProperty.all(RoundedRectangleBorder(borderRadius: AppRadius.full)),
+                ),
+              ),
+            ),
+            child: SegmentedButton<bool>(
+              segments: const [
+                ButtonSegment(value: true, label: Text('Expense')),
+                ButtonSegment(value: false, label: Text('Income')),
+              ],
+              selected: {_isExpense},
+              showSelectedIcon: false,
+              onSelectionChanged: (v) => setState(() {
+                _isExpense = v.first;
+                _hasChanges = true;
+              }),
+            ),
           ),
           const SizedBox(height: AppSpacing.lg),
 
@@ -444,7 +466,7 @@ class _TransactionDetailPageState
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             style: AppTextStyles.headingL,
             cursorColor: AppColors.black,
-            decoration: _inputDecor('Amount'),
+            decoration: _inputDecor('Amount', prefixText: '$_sym '),
             onChanged: (_) => _hasChanges = true,
           ),
           const SizedBox(height: AppSpacing.md),
@@ -453,7 +475,7 @@ class _TransactionDetailPageState
           TextField(
             controller: _merchantCtrl,
             textCapitalization: TextCapitalization.words,
-            style: const TextStyle(color: AppColors.black, fontSize: 16),
+            style: AppTextStyles.bodyL.copyWith(color: AppColors.black),
             cursorColor: AppColors.black,
             decoration: _inputDecor('Merchant'),
             onChanged: (_) => _hasChanges = true,
@@ -461,24 +483,28 @@ class _TransactionDetailPageState
           const SizedBox(height: AppSpacing.md),
 
           // Category picker
-          GestureDetector(
+          Semantics(
+            button: true,
+            label: 'Category: ${_category.label}',
+            child: GestureDetector(
             onTap: () => _pickCategory(),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-              decoration: const BoxDecoration(
-                color: AppColors.white,
-                border: Border(bottom: BorderSide(color: AppColors.gray200)),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+              decoration: BoxDecoration(
+                color: AppColors.gray100,
+                borderRadius: AppRadius.base,
               ),
               child: Row(
                 children: [
                   Icon(_category.iconFill, color: AppColors.categoryColor(_category), size: 20),
-                  const SizedBox(width: 10),
-                  Text(_category.label, style: const TextStyle(color: AppColors.black, fontSize: 16)),
+                  const SizedBox(width: AppSpacing.sm),
+                  Text(_category.label, style: AppTextStyles.bodyL.copyWith(color: AppColors.black)),
                   const Spacer(),
                   PhosphorIcon(PhosphorIcons.caretDown(), color: AppColors.gray500, size: 16),
                 ],
               ),
             ),
+          ),
           ),
           const SizedBox(height: AppSpacing.md),
 
@@ -486,7 +512,10 @@ class _TransactionDetailPageState
           Row(
             children: [
               Expanded(
-                child: GestureDetector(
+                child: Semantics(
+                  button: true,
+                  label: 'Date: ${DateFormat('d MMM yyyy').format(_date)}',
+                  child: GestureDetector(
                   onTap: () async {
                     final picked = await showDatePicker(
                       context: context,
@@ -497,25 +526,29 @@ class _TransactionDetailPageState
                     if (picked != null) setState(() { _date = picked; _hasChanges = true; });
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                    decoration: const BoxDecoration(
-                      color: AppColors.white,
-                      border: Border(bottom: BorderSide(color: AppColors.gray200)),
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+                    decoration: BoxDecoration(
+                      color: AppColors.gray100,
+                      borderRadius: AppRadius.base,
                     ),
                     child: Row(
                       children: [
                         PhosphorIcon(PhosphorIcons.calendar(), color: AppColors.gray500, size: 18),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: AppSpacing.xs),
                         Text(DateFormat('d MMM yyyy').format(_date),
-                            style: const TextStyle(color: AppColors.black, fontSize: 14)),
+                            style: AppTextStyles.bodyM.copyWith(color: AppColors.black)),
                       ],
                     ),
                   ),
                 ),
               ),
+              ),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
-                child: GestureDetector(
+                child: Semantics(
+                  button: true,
+                  label: 'Time: ${_time.format(context)}',
+                  child: GestureDetector(
                   onTap: () async {
                     final picked = await showTimePicker(
                       context: context,
@@ -524,21 +557,22 @@ class _TransactionDetailPageState
                     if (picked != null) setState(() { _time = picked; _hasChanges = true; });
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                    decoration: const BoxDecoration(
-                      color: AppColors.white,
-                      border: Border(bottom: BorderSide(color: AppColors.gray200)),
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+                    decoration: BoxDecoration(
+                      color: AppColors.gray100,
+                      borderRadius: AppRadius.base,
                     ),
                     child: Row(
                       children: [
                         PhosphorIcon(PhosphorIcons.clock(), color: AppColors.gray500, size: 18),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: AppSpacing.xs),
                         Text(_time.format(context),
-                            style: const TextStyle(color: AppColors.black, fontSize: 14)),
+                            style: AppTextStyles.bodyM.copyWith(color: AppColors.black)),
                       ],
                     ),
                   ),
                 ),
+              ),
               ),
             ],
           ),

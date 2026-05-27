@@ -99,20 +99,14 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
   InputDecoration _inputDecor(String label, {String? prefix}) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(color: AppColors.gray500),
+      labelStyle: AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
       prefixText: prefix,
-      prefixStyle: const TextStyle(color: AppColors.gray500),
+      prefixStyle: AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
       filled: true,
-      fillColor: AppColors.white,
-      border: const UnderlineInputBorder(
-        borderSide: BorderSide(color: AppColors.gray200),
-      ),
-      enabledBorder: const UnderlineInputBorder(
-        borderSide: BorderSide(color: AppColors.gray200),
-      ),
-      focusedBorder: UnderlineInputBorder(
-        borderSide: BorderSide(color: AppColors.black.withValues(alpha: 0.8)),
-      ),
+      fillColor: AppColors.gray100,
+      border: OutlineInputBorder(borderRadius: AppRadius.base, borderSide: BorderSide.none),
+      enabledBorder: OutlineInputBorder(borderRadius: AppRadius.base, borderSide: BorderSide.none),
+      focusedBorder: OutlineInputBorder(borderRadius: AppRadius.base, borderSide: const BorderSide(color: AppColors.black, width: 1.5)),
     );
   }
 
@@ -174,7 +168,11 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
     String? sublabel,
   }) {
     final selected = _mode == mode;
-    return GestureDetector(
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: label,
+      child: GestureDetector(
       onTap: () {
         HapticFeedback.lightImpact();
         setState(() => _mode = mode);
@@ -206,29 +204,25 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
             Text(
               label,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color:
-                    selected ? AppColors.black : AppColors.black,
-                fontSize: 14,
+              style: AppTextStyles.bodyS.copyWith(
+                color: AppColors.black,
                 fontWeight: FontWeight.w600,
               ),
             ),
             if (sublabel != null) ...[
-              const SizedBox(height: 2),
+              const SizedBox(height: AppSpacing.xxs),
               Text(
                 sublabel,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: selected
-                      ? AppColors.black.withValues(alpha: 0.7)
-                      : AppColors.gray500,
-                  fontSize: 11,
+                style: AppTextStyles.labelS.copyWith(
+                  color: selected ? AppColors.gray600 : AppColors.gray500,
                 ),
               ),
             ],
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -295,7 +289,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
             gradient: const LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [AppColors.nearBlack, AppColors.white],
+              colors: [AppColors.gray600, AppColors.white],
             ),
             borderRadius: AppRadius.lg,
             boxShadow: AppShadows.sm,
@@ -358,11 +352,10 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
                   color: AppColors.black,
                 ),
                 const SizedBox(width: AppSpacing.xs),
-                const Text(
+                Text(
                   'Add person',
-                  style: TextStyle(
+                  style: AppTextStyles.bodyS.copyWith(
                     color: AppColors.black,
-                    fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -377,14 +370,23 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
         const SizedBox(height: AppSpacing.lg),
 
         // Confirm button
-        NeoPOPButton(
-          label: 'Confirm Split',
-          color: isBalanced ? AppColors.black : AppColors.gray500,
-          shadowColor:
-              isBalanced ? AppColors.gray500 : AppColors.gray200,
-          onTap: isBalanced
-              ? () => _confirmCustomSplit()
-              : () => _showUnallocatedToast(remaining),
+        if (!isBalanced)
+          Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+            child: Text(
+              'Allocate the full $_sym${widget.totalAmount.toStringAsFixed(0)} to continue',
+              textAlign: TextAlign.center,
+              style: AppTextStyles.bodyS.copyWith(color: AppColors.amber),
+            ),
+          ),
+        Opacity(
+          opacity: isBalanced ? 1.0 : 0.4,
+          child: NeoPOPButton(
+            label: 'Confirm Split',
+            onTap: isBalanced
+                ? () => _confirmCustomSplit()
+                : null,
+          ),
         ),
       ],
     );
@@ -454,83 +456,38 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
     }
   }
 
-  void _showUnallocatedToast(double remaining) {
-    HapticFeedback.lightImpact();
-    if (remaining > 0.01) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            '$_sym${remaining.toStringAsFixed(0)} still unallocated',
-          ),
-          backgroundColor: AppColors.amber,
-          behavior: SnackBarBehavior.floating,
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    }
-  }
 
   Widget _buildMyShareRow() {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppRadius.lg,
-        border: Border.all(color: AppColors.gray200),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'My share',
-            style: TextStyle(
-              color: AppColors.gray500,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.5,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          TextField(
-            controller: _myShareController,
-            keyboardType:
-                const TextInputType.numberWithOptions(decimal: true),
-            style: const TextStyle(
-              color: AppColors.black,
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-            ),
-            decoration: _inputDecor('Amount', prefix: '$_sym '),
-          ),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(left: AppSpacing.xxs, bottom: AppSpacing.xs),
+          child: Text('My share', style: AppTextStyles.labelM),
+        ),
+        TextField(
+          controller: _myShareController,
+          keyboardType:
+              const TextInputType.numberWithOptions(decimal: true),
+          style: AppTextStyles.headingS.copyWith(color: AppColors.black),
+          decoration: _inputDecor('Amount', prefix: '$_sym '),
+        ),
+      ],
     );
   }
 
   Widget _buildPersonRow(int index) {
     final row = _customRows[index];
-    return AnimatedContainer(
-      duration: AppDurations.fast,
-      curve: Curves.easeOutCubic,
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppRadius.lg,
-        border: Border.all(color: AppColors.gray200),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: AppSpacing.xxs, bottom: AppSpacing.xs),
+          child: Row(
             children: [
               Text(
-                'Person ${index + 2}',
-                style: const TextStyle(
-                  color: AppColors.gray500,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.5,
-                ),
+                "Friend's share",
+                style: AppTextStyles.labelM.copyWith(color: AppColors.gray500),
               ),
               const Spacer(),
               if (_customRows.length > 1)
@@ -547,30 +504,22 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
                 ),
             ],
           ),
-          const SizedBox(height: AppSpacing.xs),
-          TextField(
-            controller: row.nameController,
-            textCapitalization: TextCapitalization.words,
-            style: const TextStyle(
-              color: AppColors.black,
-              fontSize: 15,
-            ),
-            decoration: _inputDecor('Name (optional)'),
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          TextField(
-            controller: row.amountController,
-            keyboardType:
-                const TextInputType.numberWithOptions(decimal: true),
-            style: const TextStyle(
-              color: AppColors.black,
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-            ),
-            decoration: _inputDecor('Amount', prefix: '$_sym '),
-          ),
-        ],
-      ),
+        ),
+        TextField(
+          controller: row.nameController,
+          textCapitalization: TextCapitalization.words,
+          style: AppTextStyles.bodyM.copyWith(color: AppColors.black),
+          decoration: _inputDecor('Name (optional)'),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        TextField(
+          controller: row.amountController,
+          keyboardType:
+              const TextInputType.numberWithOptions(decimal: true),
+          style: AppTextStyles.headingS.copyWith(color: AppColors.black),
+          decoration: _inputDecor('Amount', prefix: '$_sym '),
+        ),
+      ],
     );
   }
 
@@ -592,7 +541,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm + 2,
+        vertical: AppSpacing.md,
       ),
       decoration: BoxDecoration(
         color: AppColors.white,
@@ -605,45 +554,32 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
         children: [
           Text(
             '$_sym${widget.totalAmount.toStringAsFixed(0)} total',
-            style: const TextStyle(
-              color: AppColors.gray500,
-              fontSize: 13,
-            ),
+            style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
           ),
-          const Text(
+          Text(
             '·',
-            style: TextStyle(
-              color: AppColors.gray200,
-              fontSize: 13,
-            ),
+            style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
           ),
           Text(
             'Allocated: $_sym${_customAllocated.toStringAsFixed(0)}',
-            style: const TextStyle(
-              color: AppColors.gray500,
-              fontSize: 13,
-            ),
+            style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
           ),
-          const Text(
+          Text(
             '·',
-            style: TextStyle(
-              color: AppColors.gray200,
-              fontSize: 13,
-            ),
+            style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
           ),
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 'Remaining: $_sym${remaining.toStringAsFixed(0)}',
-                style: TextStyle(
+                style: AppTextStyles.bodyS.copyWith(
                   color: statusColor,
-                  fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               if (statusIcon != null) ...[
-                const SizedBox(width: 4),
+                const SizedBox(width: AppSpacing.xxs),
                 PhosphorIcon(statusIcon, size: 16, color: statusColor),
               ],
             ],
@@ -662,7 +598,11 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
     VoidCallback? onTap,
   }) {
     final enabled = onTap != null;
-    return GestureDetector(
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      label: filled ? 'Increase count' : 'Decrease count',
+      child: GestureDetector(
       onTap: onTap,
       child: Container(
         width: 44,
@@ -678,11 +618,12 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
         child: Icon(
           icon,
           color: filled && enabled
-              ? Colors.black
+              ? AppColors.white
               : (enabled ? AppColors.black : AppColors.gray500),
           size: 20,
         ),
       ),
+    ),
     );
   }
 
@@ -693,15 +634,11 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
         Text(
           label,
           style:
-              const TextStyle(color: AppColors.gray500, fontSize: 15),
+              AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
         ),
         Text(
           value,
-          style: const TextStyle(
-            color: AppColors.black,
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-          ),
+          style: AppTextStyles.headingM.copyWith(color: AppColors.black),
         ),
       ],
     );
