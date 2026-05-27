@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -10,11 +11,8 @@ import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/widgets/common/notification_bell.dart';
 import 'package:finance_buddy_app/widgets/charts/spend_bar_chart.dart';
 import 'package:finance_buddy_app/widgets/common/animated_progress_bar.dart';
-import 'package:finance_buddy_app/pages/home/daily_view_page.dart';
-import 'package:finance_buddy_app/pages/import/widgets/import_prompt_banner.dart';
-import 'package:finance_buddy_app/providers/import_provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:go_router/go_router.dart';
+import 'package:finance_buddy_app/utils/currency_utils.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -34,8 +32,6 @@ class HomePage extends ConsumerWidget {
             .animate().fadeIn(delay: 240.ms, duration: 400.ms).slideY(begin: 0.05, duration: 400.ms, delay: 240.ms)),
         SliverToBoxAdapter(child: const _SavingsGoalsSection()
             .animate().fadeIn(delay: 320.ms, duration: 400.ms).slideY(begin: 0.05, duration: 400.ms, delay: 320.ms)),
-        SliverToBoxAdapter(child: const _ImportBannerSection()
-            .animate().fadeIn(delay: 360.ms, duration: 400.ms).slideY(begin: 0.05, duration: 400.ms, delay: 360.ms)),
         SliverToBoxAdapter(child: const _RecentTransactionsSection()
             .animate().fadeIn(delay: 400.ms, duration: 400.ms).slideY(begin: 0.05, duration: 400.ms, delay: 400.ms)),
         const SliverToBoxAdapter(child: SizedBox(height: 100)),
@@ -169,7 +165,7 @@ class _BudgetProgressBar extends ConsumerWidget {
     final budgetAsync = ref.watch(monthlyBudgetProvider);
     final currencyAsync = ref.watch(selectedCurrencyProvider);
     final month = ref.watch(selectedMonthProvider);
-    final symbol = _currencySymbol(currencyAsync.valueOrNull ?? 'inr');
+    final symbol = currencySymbol(currencyAsync.valueOrNull ?? 'inr');
 
     final budgetVal = budgetAsync.valueOrNull;
     final now = DateTime.now();
@@ -192,10 +188,10 @@ class _BudgetProgressBar extends ConsumerWidget {
           final pct = (spent / budgetVal).clamp(0.0, 1.0);
           final remaining = (budgetVal - spent).clamp(0.0, double.infinity);
           final barColor = pct < 0.6
-              ? const Color(0xFF22C55E)
+              ? AppColors.green
               : pct < 0.85
-                  ? const Color(0xFFF59E0B)
-                  : const Color(0xFFEF4444);
+                  ? AppColors.amber
+                  : AppColors.red;
 
           return Container(
             padding: const EdgeInsets.all(AppSpacing.lg),
@@ -204,7 +200,7 @@ class _BudgetProgressBar extends ConsumerWidget {
               borderRadius: BorderRadius.circular(20),
               boxShadow: const [
                 BoxShadow(
-                    color: Color(0x0D000000),
+                    color: AppColors.shadowMd,
                     blurRadius: 20,
                     offset: Offset(0, 4)),
               ],
@@ -310,7 +306,7 @@ class _QuickStatsRow extends ConsumerWidget {
     final monthExpense = ref.watch(monthlyExpenseProvider);
     final lastMonthAsync = ref.watch(lastMonthExpenseProvider);
     final currencyAsync = ref.watch(selectedCurrencyProvider);
-    final symbol = _currencySymbol(currencyAsync.valueOrNull ?? 'inr');
+    final symbol = currencySymbol(currencyAsync.valueOrNull ?? 'inr');
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -373,11 +369,11 @@ class _QuickStatsRow extends ConsumerWidget {
       final pct = ((curVal - lastVal) / lastVal * 100).round();
       if (pct >= 0) {
         label = '\u2191 $pct%';
-        color = const Color(0xFFEF4444);
+        color = AppColors.red;
         icon = PhosphorIcons.trendUp();
       } else {
         label = '\u2193 ${pct.abs()}%';
-        color = const Color(0xFF22C55E);
+        color = AppColors.green;
         icon = PhosphorIcons.trendDown();
       }
     }
@@ -413,7 +409,7 @@ class _StatCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: const [
           BoxShadow(
-              color: Color(0x08000000), blurRadius: 8, offset: Offset(0, 2)),
+              color: AppColors.shadow, blurRadius: 8, offset: Offset(0, 2)),
         ],
       ),
       child: Column(
@@ -446,7 +442,7 @@ class _DailySpendChart extends ConsumerWidget {
     final weekStart = ref.watch(selectedWeekStartProvider);
     final dailyAsync = ref.watch(dailySpendingForWeekProvider);
     final currencyAsync = ref.watch(selectedCurrencyProvider);
-    final symbol = _currencySymbol(currencyAsync.valueOrNull ?? 'inr');
+    final symbol = currencySymbol(currencyAsync.valueOrNull ?? 'inr');
 
     final weekEnd = weekStart.add(const Duration(days: 6));
     final label =
@@ -466,7 +462,7 @@ class _DailySpendChart extends ConsumerWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: const [
             BoxShadow(
-                color: Color(0x08000000),
+                color: AppColors.shadow,
                 blurRadius: 16,
                 offset: Offset(0, 4)),
           ],
@@ -516,12 +512,7 @@ class _DailySpendChart extends ConsumerWidget {
                 currencySymbol: symbol,
                 onBarTap: (i) {
                   final tappedDate = weekStart.add(Duration(days: i));
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute<void>(
-                      builder: (_) => DailyViewPage(date: tappedDate),
-                    ),
-                  );
+                  context.push('/daily-view', extra: tappedDate);
                 },
               ),
               loading: () => const SizedBox(
@@ -543,24 +534,11 @@ class _DailySpendChart extends ConsumerWidget {
 class _TopCategoriesSection extends ConsumerWidget {
   const _TopCategoriesSection();
 
-  static const Map<TransactionCategory, Color> _catColors = {
-    TransactionCategory.foodAndDrink: Color(0xFFFF8A4C),
-    TransactionCategory.transport: Color(0xFF4A8FE7),
-    TransactionCategory.shopping: Color(0xFFB19CD9),
-    TransactionCategory.billsAndUtilities: Color(0xFFF59E0B),
-    TransactionCategory.healthAndWellness: Color(0xFF22C55E),
-    TransactionCategory.entertainment: Color(0xFFE91E63),
-    TransactionCategory.personalCare: Color(0xFFF8BBD0),
-    TransactionCategory.education: Color(0xFF5C6BC0),
-    TransactionCategory.travel: Color(0xFF14B8A6),
-    TransactionCategory.other: Color(0xFF6E6E73),
-  };
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final topCats = ref.watch(topCategoriesProvider);
     final currencyAsync = ref.watch(selectedCurrencyProvider);
-    final symbol = _currencySymbol(currencyAsync.valueOrNull ?? 'inr');
+    final symbol = currencySymbol(currencyAsync.valueOrNull ?? 'inr');
 
     return topCats.when(
       data: (entries) {
@@ -577,7 +555,7 @@ class _TopCategoriesSection extends ConsumerWidget {
               borderRadius: BorderRadius.circular(20),
               boxShadow: const [
                 BoxShadow(
-                    color: Color(0x08000000),
+                    color: AppColors.shadow,
                     blurRadius: 16,
                     offset: Offset(0, 4)),
               ],
@@ -594,8 +572,7 @@ class _TopCategoriesSection extends ConsumerWidget {
                     (c) => c.name == entry.key,
                     orElse: () => TransactionCategory.other,
                   );
-                  final color =
-                      _catColors[cat.group] ?? const Color(0xFF6E6E73);
+                  final color = AppColors.categoryColor(cat.group);
                   final pct = maxVal > 0 ? entry.value / maxVal : 0.0;
 
                   return Padding(
@@ -654,7 +631,7 @@ class _SavingsGoalsSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final goalsAsync = ref.watch(goalsProvider);
     final currencyAsync = ref.watch(selectedCurrencyProvider);
-    final symbol = _currencySymbol(currencyAsync.valueOrNull ?? 'inr');
+    final symbol = currencySymbol(currencyAsync.valueOrNull ?? 'inr');
 
     return goalsAsync.when(
       data: (goals) {
@@ -689,7 +666,7 @@ class _SavingsGoalsSection extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: const [
                           BoxShadow(
-                              color: Color(0x08000000),
+                              color: AppColors.shadow,
                               blurRadius: 8,
                               offset: Offset(0, 2)),
                         ],
@@ -711,11 +688,11 @@ class _SavingsGoalsSection extends ConsumerWidget {
                           AnimatedProgressBar(
                             value: pct,
                             backgroundColor: AppColors.gray200,
-                            valueColor: const Color(0xFF22C55E),
+                            valueColor: AppColors.green,
                           ),
                           Text('${(pct * 100).round()}%',
                               style: AppTextStyles.labelS.copyWith(
-                                  color: const Color(0xFF22C55E),
+                                  color: AppColors.green,
                                   fontWeight: FontWeight.w600)),
                         ],
                       ),
@@ -753,33 +730,6 @@ class _SavingsGoalsSection extends ConsumerWidget {
   }
 }
 
-// ─── Import Prompt Banner (shown when < 10 transactions) ──
-
-class _ImportBannerSection extends ConsumerWidget {
-  const _ImportBannerSection();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final txnsAsync = ref.watch(allTransactionsProvider);
-    return txnsAsync.when(
-      data: (txns) {
-        if (txns.length >= 10) return const SizedBox.shrink();
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.md,
-          ),
-          child: ImportPromptBanner(onTap: () {
-            ref.read(importFlowControllerProvider.notifier).setSource(ImportSource.homeBanner);
-            context.push('/import');
-          }),
-        );
-      },
-      loading: () => const SizedBox.shrink(),
-      error: (_, _) => const SizedBox.shrink(),
-    );
-  }
-}
-
 // ─── Recent Transactions (last 5) ─────────────────────────
 
 class _RecentTransactionsSection extends ConsumerWidget {
@@ -789,7 +739,7 @@ class _RecentTransactionsSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final txnsAsync = ref.watch(monthlyTransactionsForHomeProvider);
     final currencyAsync = ref.watch(selectedCurrencyProvider);
-    final symbol = _currencySymbol(currencyAsync.valueOrNull ?? 'inr');
+    final symbol = currencySymbol(currencyAsync.valueOrNull ?? 'inr');
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
@@ -878,10 +828,10 @@ class _RecentTransactionsSection extends ConsumerWidget {
                   size: 24, color: AppColors.gray300),
             ),
             const SizedBox(height: AppSpacing.md),
-            Text('No transactions yet',
+            Text('Nothing here yet',
                 style: AppTextStyles.bodyM.copyWith(color: AppColors.gray500)),
             const SizedBox(height: AppSpacing.xxs),
-            Text('Tap + to add your first expense',
+            Text('Tap + to log your first spend',
                 style: AppTextStyles.bodyS.copyWith(color: AppColors.gray400)),
           ],
         ),
@@ -909,12 +859,7 @@ class _TransactionRow extends StatelessWidget {
         '${isExpense ? '-' : '+'}$symbol${transaction.amount.abs().toStringAsFixed(0)}';
 
     return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute<void>(
-          builder: (_) => DailyViewPage(date: transaction.happenedAt),
-        ),
-      ),
+      onTap: () => context.push('/daily-view', extra: transaction.happenedAt),
       behavior: HitTestBehavior.opaque,
       child: Padding(
         padding: const EdgeInsets.symmetric(
@@ -1034,19 +979,3 @@ String _formatNumber(double value) {
   return NumberFormat('#,###').format(value.toInt());
 }
 
-String _currencySymbol(String code) {
-  switch (code.toLowerCase()) {
-    case 'inr':
-      return '\u20B9';
-    case 'usd':
-      return '\$';
-    case 'eur':
-      return '\u20AC';
-    case 'gbp':
-      return '\u00A3';
-    case 'jpy':
-      return '\u00A5';
-    default:
-      return '\$';
-  }
-}

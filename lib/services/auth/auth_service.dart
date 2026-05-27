@@ -1,10 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AuthService {
   static const _authTokenKey = 'auth_token';
   static const _userUidKey = 'user_uid';
+
+  static const _secureStorage = FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+  );
 
   FirebaseAuth? _auth;
 
@@ -35,25 +39,22 @@ class AuthService {
 
   /// Returns true if a local auth token exists (returning user).
   Future<bool> isReturningUser() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString(_authTokenKey);
+    final token = await _secureStorage.read(key: _authTokenKey);
     return token != null && token.isNotEmpty;
   }
 
-  /// Store auth token + uid locally after successful sign-in/sign-up.
+  /// Store auth token + uid in encrypted storage after sign-in/sign-up.
   Future<void> _storeAuthLocally(User user) async {
-    final prefs = await SharedPreferences.getInstance();
     final token = await user.getIdToken();
     if (token != null) {
-      await prefs.setString(_authTokenKey, token);
+      await _secureStorage.write(key: _authTokenKey, value: token);
     }
-    await prefs.setString(_userUidKey, user.uid);
+    await _secureStorage.write(key: _userUidKey, value: user.uid);
   }
 
   /// Get locally stored user UID.
   Future<String?> getStoredUid() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_userUidKey);
+    return _secureStorage.read(key: _userUidKey);
   }
 
   // ─── Firebase Auth methods ──────────────────────────
@@ -98,16 +99,16 @@ class AuthService {
   Future<void> signOut() async {
     try {
       await _firebaseAuth.signOut();
-    } on Exception catch (_) {}
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_authTokenKey);
-    await prefs.remove(_userUidKey);
+    } on Exception catch (e) {
+      debugPrint('Firebase sign-out error: $e');
+    }
+    await _secureStorage.delete(key: _authTokenKey);
+    await _secureStorage.delete(key: _userUidKey);
   }
 
   /// Clear local auth data only (without Firebase sign-out).
   Future<void> clearLocalAuth() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_authTokenKey);
-    await prefs.remove(_userUidKey);
+    await _secureStorage.delete(key: _authTokenKey);
+    await _secureStorage.delete(key: _userUidKey);
   }
 }

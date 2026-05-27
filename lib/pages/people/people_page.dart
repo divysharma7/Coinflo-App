@@ -13,17 +13,7 @@ import 'package:finance_buddy_app/pages/family/family_entry_sheet.dart';
 import 'package:finance_buddy_app/widgets/common/animated_amount.dart';
 import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-
-String _currencySymbol(String code) {
-  switch (code.toLowerCase()) {
-    case 'inr': return '\u20B9';
-    case 'usd': return '\$';
-    case 'eur': return '\u20AC';
-    case 'gbp': return '\u00A3';
-    case 'jpy': return '\u00A5';
-    default: return '\$';
-  }
-}
+import 'package:finance_buddy_app/utils/currency_utils.dart';
 
 class PeoplePage extends ConsumerWidget {
   const PeoplePage({super.key});
@@ -224,7 +214,7 @@ class _FriendsTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sym = _currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
+    final sym = currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
     final balanceAsync = ref.watch(totalFriendBalanceProvider);
     final contactsAsync = ref.watch(friendContactsProvider);
 
@@ -307,7 +297,7 @@ class _FriendsTab extends ConsumerWidget {
                       PhosphorIcon(PhosphorIcons.usersThree(),
                           size: 48, color: AppColors.gray300),
                       const SizedBox(height: AppSpacing.md),
-                      Text('Add a friend to start\ntracking splits.',
+                      Text('Add someone to start\nsplitting expenses.',
                           style: AppTextStyles.bodyM
                               .copyWith(color: AppColors.gray400),
                           textAlign: TextAlign.center),
@@ -358,7 +348,7 @@ class _FriendCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sym = _currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
+    final sym = currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
     final splitsAsync =
         ref.watch(friendPendingSplitsProvider(contact.id));
     final c = _avatarColor(contact.avatarColour);
@@ -371,7 +361,7 @@ class _FriendCard extends ConsumerWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x08000000),
+            color: AppColors.shadow,
             blurRadius: 8,
             offset: Offset(0, 2),
           ),
@@ -429,10 +419,10 @@ class _FriendCard extends ConsumerWidget {
             data: (splits) {
               final theyOwe = splits
                   .where((s) => s.direction == 'they_owe_me')
-                  .fold(0.0, (sum, s) => sum + s.amount);
+                  .fold(0.0, (sum, s) => sum + (s.amount - s.amountCleared));
               final iOwe = splits
                   .where((s) => s.direction == 'i_owe_them')
-                  .fold(0.0, (sum, s) => sum + s.amount);
+                  .fold(0.0, (sum, s) => sum + (s.amount - s.amountCleared));
 
               if (theyOwe == 0 && iOwe == 0) {
                 return Container(
@@ -649,7 +639,7 @@ class _SettlementPickerState extends ConsumerState<_SettlementPicker> {
 
   @override
   Widget build(BuildContext context) {
-    final sym = _currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
+    final sym = currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
     final title = widget.direction == 'they_owe_me'
         ? '${widget.friendName} paid which ones?'
         : 'You paid which ones?';
@@ -771,7 +761,7 @@ class _FamilyTab extends ConsumerWidget {
     final wealth = ref.watch(totalFamilyWealthProvider);
     final inflows = ref.watch(familyInflowsProvider);
     final outflows = ref.watch(familyOutflowsProvider);
-    final sym = _currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
+    final sym = currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
 
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),

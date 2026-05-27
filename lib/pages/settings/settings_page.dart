@@ -10,11 +10,7 @@ import 'package:finance_buddy_app/core/enums.dart';
 import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/providers/onboarding_provider.dart';
-import 'package:finance_buddy_app/providers/import_provider.dart';
 import 'package:finance_buddy_app/providers/auth_provider.dart';
-import 'package:finance_buddy_app/pages/saraswati/saraswati_page.dart';
-import 'package:finance_buddy_app/pages/people/people_page.dart';
-import 'package:finance_buddy_app/pages/subscriptions/subscriptions_page.dart';
 import 'package:finance_buddy_app/pages/settings/profile_sheet.dart';
 import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 import 'package:finance_buddy_app/constants/faqs.dart';
@@ -131,8 +127,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         iconBg: AppColors.gray100,
                         iconColor: AppColors.gray600,
                         label: 'Ask Saraswati',
-                        onTap: () => Navigator.push(context,
-                            MaterialPageRoute<void>(builder: (_) => const SaraswatiPage())),
+                        onTap: () => context.push('/settings/saraswati'),
                       ),
                       const _Divider(),
                       _SettingsRow(
@@ -140,8 +135,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         iconBg: AppColors.gray100,
                         iconColor: AppColors.gray600,
                         label: 'People & Debts',
-                        onTap: () => Navigator.push(context,
-                            MaterialPageRoute<void>(builder: (_) => const PeoplePage())),
+                        onTap: () => context.push('/settings/people'),
                       ),
                       const _Divider(),
                       _SettingsRow(
@@ -168,8 +162,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         iconBg: AppColors.gray100,
                         iconColor: AppColors.gray600,
                         label: 'Subscriptions',
-                        onTap: () => Navigator.push(context,
-                            MaterialPageRoute<void>(builder: (_) => const SubscriptionsPage())),
+                        onTap: () => context.push('/settings/subscriptions'),
                       ),
                       const _Divider(),
                       _SettingsRow(
@@ -229,22 +222,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   child: Column(
                     children: [
                       _SettingsRow(
-                        icon: PhosphorIcons.fileArrowUp(),
+                        icon: PhosphorIcons.fileXls(),
                         iconBg: AppColors.gray100,
                         iconColor: AppColors.gray600,
-                        label: 'Import bank statement',
-                        onTap: () {
-                          ref.read(importFlowControllerProvider.notifier).setSource(ImportSource.settings);
-                          context.push('/import');
-                        },
-                      ),
-                      const _Divider(),
-                      _SettingsRow(
-                        icon: PhosphorIcons.clockCounterClockwise(),
-                        iconBg: AppColors.gray100,
-                        iconColor: AppColors.gray600,
-                        label: 'Import history',
-                        onTap: () => context.push('/import/history'),
+                        label: 'Import from Excel',
+                        onTap: () => context.push('/settings/excel-import'),
                       ),
                     ],
                   ),
@@ -354,7 +336,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     if (accountsJson != null) {
       try {
         accounts = List<dynamic>.from(jsonDecode(accountsJson) as List);
-      } on FormatException catch (_) {}
+      } on FormatException catch (e) {
+        debugPrint('Malformed accounts JSON: $e');
+      }
     }
 
     if (!mounted) return;
@@ -734,10 +718,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   final prefs = await SharedPreferences.getInstance();
                   await prefs.clear();
                   if (mounted) context.go('/onboarding/step1');
-                } on Exception catch (e) {
+                } on Exception {
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Failed to delete account: $e')),
+                      const SnackBar(content: Text('Couldn\'t delete account. Please try again.')),
                     );
                   }
                 }
@@ -1140,7 +1124,7 @@ class _ReportBugDialogState extends State<_ReportBugDialog> {
     if (mounted) {
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Bug report saved. Thank you!')),
+        const SnackBar(content: Text('Thanks for the report — we\'ll look into it.')),
       );
     }
   }

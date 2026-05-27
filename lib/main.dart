@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -22,16 +23,37 @@ void main() {
       Animate.defaultDuration = const Duration(milliseconds: 250);
       Animate.defaultCurve = Curves.easeOutCubic;
 
+      // Show user-friendly error widget in release mode
+      if (kReleaseMode) {
+        ErrorWidget.builder = (FlutterErrorDetails details) {
+          return const Material(
+            child: Center(
+              child: Text(
+                'Something went wrong',
+                style: TextStyle(fontSize: 16),
+                textDirection: TextDirection.ltr,
+              ),
+            ),
+          );
+        };
+      }
+
       // Log Flutter framework errors
       FlutterError.onError = (FlutterErrorDetails details) {
         debugPrint('FlutterError: ${details.exception}');
         debugPrint('Stack trace: ${details.stack}');
+        if (firebaseInitialized) {
+          FirebaseCrashlytics.instance.recordFlutterFatalError(details);
+        }
       };
 
       // Catch platform-level uncaught errors
       PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
         debugPrint('PlatformDispatcher error: $error');
         debugPrint('Stack trace: $stack');
+        if (firebaseInitialized) {
+          FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+        }
         return true;
       };
 
@@ -60,6 +82,9 @@ void main() {
     (Object error, StackTrace stack) {
       debugPrint('Unhandled async error: $error');
       debugPrint('Stack trace: $stack');
+      if (firebaseInitialized) {
+        FirebaseCrashlytics.instance.recordError(error, stack);
+      }
     },
   );
 }

@@ -1,6 +1,6 @@
 import 'package:finance_buddy_app/core/enums.dart';
 
-/// Result of the 6-stage categorization cascade.
+/// Result of the categorization cascade.
 class CategorizationResult {
   /// The matched category (TransactionCategory enum name), or null if uncategorized.
   final String? category;

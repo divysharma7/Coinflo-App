@@ -275,6 +275,28 @@ class $SpendlerTransactionsTable extends SpendlerTransactions
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _incomeSourceMeta = const VerificationMeta(
+    'incomeSource',
+  );
+  @override
+  late final GeneratedColumn<String> incomeSource = GeneratedColumn<String>(
+    'income_source',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _attachmentPathMeta = const VerificationMeta(
+    'attachmentPath',
+  );
+  @override
+  late final GeneratedColumn<String> attachmentPath = GeneratedColumn<String>(
+    'attachment_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -300,6 +322,8 @@ class $SpendlerTransactionsTable extends SpendlerTransactions
     importBatchId,
     isAnomaly,
     isRecurring,
+    incomeSource,
+    attachmentPath,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -476,6 +500,24 @@ class $SpendlerTransactionsTable extends SpendlerTransactions
         ),
       );
     }
+    if (data.containsKey('income_source')) {
+      context.handle(
+        _incomeSourceMeta,
+        incomeSource.isAcceptableOrUnknown(
+          data['income_source']!,
+          _incomeSourceMeta,
+        ),
+      );
+    }
+    if (data.containsKey('attachment_path')) {
+      context.handle(
+        _attachmentPathMeta,
+        attachmentPath.isAcceptableOrUnknown(
+          data['attachment_path']!,
+          _attachmentPathMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -577,6 +619,14 @@ class $SpendlerTransactionsTable extends SpendlerTransactions
         DriftSqlType.bool,
         data['${effectivePrefix}is_recurring'],
       )!,
+      incomeSource: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}income_source'],
+      ),
+      attachmentPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}attachment_path'],
+      ),
     );
   }
 
@@ -611,6 +661,8 @@ class SpendlerTransaction extends DataClass
   final String? importBatchId;
   final bool isAnomaly;
   final bool isRecurring;
+  final String? incomeSource;
+  final String? attachmentPath;
   const SpendlerTransaction({
     required this.id,
     required this.amount,
@@ -635,6 +687,8 @@ class SpendlerTransaction extends DataClass
     this.importBatchId,
     required this.isAnomaly,
     required this.isRecurring,
+    this.incomeSource,
+    this.attachmentPath,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -686,6 +740,12 @@ class SpendlerTransaction extends DataClass
     }
     map['is_anomaly'] = Variable<bool>(isAnomaly);
     map['is_recurring'] = Variable<bool>(isRecurring);
+    if (!nullToAbsent || incomeSource != null) {
+      map['income_source'] = Variable<String>(incomeSource);
+    }
+    if (!nullToAbsent || attachmentPath != null) {
+      map['attachment_path'] = Variable<String>(attachmentPath);
+    }
     return map;
   }
 
@@ -734,6 +794,12 @@ class SpendlerTransaction extends DataClass
           : Value(importBatchId),
       isAnomaly: Value(isAnomaly),
       isRecurring: Value(isRecurring),
+      incomeSource: incomeSource == null && nullToAbsent
+          ? const Value.absent()
+          : Value(incomeSource),
+      attachmentPath: attachmentPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(attachmentPath),
     );
   }
 
@@ -772,6 +838,8 @@ class SpendlerTransaction extends DataClass
       importBatchId: serializer.fromJson<String?>(json['importBatchId']),
       isAnomaly: serializer.fromJson<bool>(json['isAnomaly']),
       isRecurring: serializer.fromJson<bool>(json['isRecurring']),
+      incomeSource: serializer.fromJson<String?>(json['incomeSource']),
+      attachmentPath: serializer.fromJson<String?>(json['attachmentPath']),
     );
   }
   @override
@@ -803,6 +871,8 @@ class SpendlerTransaction extends DataClass
       'importBatchId': serializer.toJson<String?>(importBatchId),
       'isAnomaly': serializer.toJson<bool>(isAnomaly),
       'isRecurring': serializer.toJson<bool>(isRecurring),
+      'incomeSource': serializer.toJson<String?>(incomeSource),
+      'attachmentPath': serializer.toJson<String?>(attachmentPath),
     };
   }
 
@@ -830,6 +900,8 @@ class SpendlerTransaction extends DataClass
     Value<String?> importBatchId = const Value.absent(),
     bool? isAnomaly,
     bool? isRecurring,
+    Value<String?> incomeSource = const Value.absent(),
+    Value<String?> attachmentPath = const Value.absent(),
   }) => SpendlerTransaction(
     id: id ?? this.id,
     amount: amount ?? this.amount,
@@ -864,6 +936,10 @@ class SpendlerTransaction extends DataClass
         : this.importBatchId,
     isAnomaly: isAnomaly ?? this.isAnomaly,
     isRecurring: isRecurring ?? this.isRecurring,
+    incomeSource: incomeSource.present ? incomeSource.value : this.incomeSource,
+    attachmentPath: attachmentPath.present
+        ? attachmentPath.value
+        : this.attachmentPath,
   );
   SpendlerTransaction copyWithCompanion(SpendlerTransactionsCompanion data) {
     return SpendlerTransaction(
@@ -912,6 +988,12 @@ class SpendlerTransaction extends DataClass
       isRecurring: data.isRecurring.present
           ? data.isRecurring.value
           : this.isRecurring,
+      incomeSource: data.incomeSource.present
+          ? data.incomeSource.value
+          : this.incomeSource,
+      attachmentPath: data.attachmentPath.present
+          ? data.attachmentPath.value
+          : this.attachmentPath,
     );
   }
 
@@ -940,7 +1022,9 @@ class SpendlerTransaction extends DataClass
           ..write('categorizationConfidence: $categorizationConfidence, ')
           ..write('importBatchId: $importBatchId, ')
           ..write('isAnomaly: $isAnomaly, ')
-          ..write('isRecurring: $isRecurring')
+          ..write('isRecurring: $isRecurring, ')
+          ..write('incomeSource: $incomeSource, ')
+          ..write('attachmentPath: $attachmentPath')
           ..write(')'))
         .toString();
   }
@@ -970,6 +1054,8 @@ class SpendlerTransaction extends DataClass
     importBatchId,
     isAnomaly,
     isRecurring,
+    incomeSource,
+    attachmentPath,
   ]);
   @override
   bool operator ==(Object other) =>
@@ -997,7 +1083,9 @@ class SpendlerTransaction extends DataClass
           other.categorizationConfidence == this.categorizationConfidence &&
           other.importBatchId == this.importBatchId &&
           other.isAnomaly == this.isAnomaly &&
-          other.isRecurring == this.isRecurring);
+          other.isRecurring == this.isRecurring &&
+          other.incomeSource == this.incomeSource &&
+          other.attachmentPath == this.attachmentPath);
 }
 
 class SpendlerTransactionsCompanion
@@ -1025,6 +1113,8 @@ class SpendlerTransactionsCompanion
   final Value<String?> importBatchId;
   final Value<bool> isAnomaly;
   final Value<bool> isRecurring;
+  final Value<String?> incomeSource;
+  final Value<String?> attachmentPath;
   const SpendlerTransactionsCompanion({
     this.id = const Value.absent(),
     this.amount = const Value.absent(),
@@ -1049,6 +1139,8 @@ class SpendlerTransactionsCompanion
     this.importBatchId = const Value.absent(),
     this.isAnomaly = const Value.absent(),
     this.isRecurring = const Value.absent(),
+    this.incomeSource = const Value.absent(),
+    this.attachmentPath = const Value.absent(),
   });
   SpendlerTransactionsCompanion.insert({
     this.id = const Value.absent(),
@@ -1074,6 +1166,8 @@ class SpendlerTransactionsCompanion
     this.importBatchId = const Value.absent(),
     this.isAnomaly = const Value.absent(),
     this.isRecurring = const Value.absent(),
+    this.incomeSource = const Value.absent(),
+    this.attachmentPath = const Value.absent(),
   }) : amount = Value(amount),
        category = Value(category);
   static Insertable<SpendlerTransaction> custom({
@@ -1100,6 +1194,8 @@ class SpendlerTransactionsCompanion
     Expression<String>? importBatchId,
     Expression<bool>? isAnomaly,
     Expression<bool>? isRecurring,
+    Expression<String>? incomeSource,
+    Expression<String>? attachmentPath,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1128,6 +1224,8 @@ class SpendlerTransactionsCompanion
       if (importBatchId != null) 'import_batch_id': importBatchId,
       if (isAnomaly != null) 'is_anomaly': isAnomaly,
       if (isRecurring != null) 'is_recurring': isRecurring,
+      if (incomeSource != null) 'income_source': incomeSource,
+      if (attachmentPath != null) 'attachment_path': attachmentPath,
     });
   }
 
@@ -1155,6 +1253,8 @@ class SpendlerTransactionsCompanion
     Value<String?>? importBatchId,
     Value<bool>? isAnomaly,
     Value<bool>? isRecurring,
+    Value<String?>? incomeSource,
+    Value<String?>? attachmentPath,
   }) {
     return SpendlerTransactionsCompanion(
       id: id ?? this.id,
@@ -1181,6 +1281,8 @@ class SpendlerTransactionsCompanion
       importBatchId: importBatchId ?? this.importBatchId,
       isAnomaly: isAnomaly ?? this.isAnomaly,
       isRecurring: isRecurring ?? this.isRecurring,
+      incomeSource: incomeSource ?? this.incomeSource,
+      attachmentPath: attachmentPath ?? this.attachmentPath,
     );
   }
 
@@ -1260,6 +1362,12 @@ class SpendlerTransactionsCompanion
     if (isRecurring.present) {
       map['is_recurring'] = Variable<bool>(isRecurring.value);
     }
+    if (incomeSource.present) {
+      map['income_source'] = Variable<String>(incomeSource.value);
+    }
+    if (attachmentPath.present) {
+      map['attachment_path'] = Variable<String>(attachmentPath.value);
+    }
     return map;
   }
 
@@ -1288,7 +1396,9 @@ class SpendlerTransactionsCompanion
           ..write('categorizationConfidence: $categorizationConfidence, ')
           ..write('importBatchId: $importBatchId, ')
           ..write('isAnomaly: $isAnomaly, ')
-          ..write('isRecurring: $isRecurring')
+          ..write('isRecurring: $isRecurring, ')
+          ..write('incomeSource: $incomeSource, ')
+          ..write('attachmentPath: $attachmentPath')
           ..write(')'))
         .toString();
   }
@@ -3486,6 +3596,28 @@ class $FriendSplitsTable extends FriendSplits
     requiredDuringInsert: false,
     defaultValue: currentDateAndTime,
   );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('uncleared'),
+  );
+  static const VerificationMeta _amountClearedMeta = const VerificationMeta(
+    'amountCleared',
+  );
+  @override
+  late final GeneratedColumn<double> amountCleared = GeneratedColumn<double>(
+    'amount_cleared',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0.0),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -3498,6 +3630,8 @@ class $FriendSplitsTable extends FriendSplits
     settledAt,
     settlementMethod,
     createdAt,
+    status,
+    amountCleared,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -3588,6 +3722,21 @@ class $FriendSplitsTable extends FriendSplits
         createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
       );
     }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    }
+    if (data.containsKey('amount_cleared')) {
+      context.handle(
+        _amountClearedMeta,
+        amountCleared.isAcceptableOrUnknown(
+          data['amount_cleared']!,
+          _amountClearedMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -3637,6 +3786,14 @@ class $FriendSplitsTable extends FriendSplits
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
       )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      amountCleared: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}amount_cleared'],
+      )!,
     );
   }
 
@@ -3657,6 +3814,8 @@ class FriendSplit extends DataClass implements Insertable<FriendSplit> {
   final DateTime? settledAt;
   final String? settlementMethod;
   final DateTime createdAt;
+  final String status;
+  final double amountCleared;
   const FriendSplit({
     required this.id,
     required this.transactionId,
@@ -3668,6 +3827,8 @@ class FriendSplit extends DataClass implements Insertable<FriendSplit> {
     this.settledAt,
     this.settlementMethod,
     required this.createdAt,
+    required this.status,
+    required this.amountCleared,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -3686,6 +3847,8 @@ class FriendSplit extends DataClass implements Insertable<FriendSplit> {
       map['settlement_method'] = Variable<String>(settlementMethod);
     }
     map['created_at'] = Variable<DateTime>(createdAt);
+    map['status'] = Variable<String>(status);
+    map['amount_cleared'] = Variable<double>(amountCleared);
     return map;
   }
 
@@ -3705,6 +3868,8 @@ class FriendSplit extends DataClass implements Insertable<FriendSplit> {
           ? const Value.absent()
           : Value(settlementMethod),
       createdAt: Value(createdAt),
+      status: Value(status),
+      amountCleared: Value(amountCleared),
     );
   }
 
@@ -3724,6 +3889,8 @@ class FriendSplit extends DataClass implements Insertable<FriendSplit> {
       settledAt: serializer.fromJson<DateTime?>(json['settledAt']),
       settlementMethod: serializer.fromJson<String?>(json['settlementMethod']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      status: serializer.fromJson<String>(json['status']),
+      amountCleared: serializer.fromJson<double>(json['amountCleared']),
     );
   }
   @override
@@ -3740,6 +3907,8 @@ class FriendSplit extends DataClass implements Insertable<FriendSplit> {
       'settledAt': serializer.toJson<DateTime?>(settledAt),
       'settlementMethod': serializer.toJson<String?>(settlementMethod),
       'createdAt': serializer.toJson<DateTime>(createdAt),
+      'status': serializer.toJson<String>(status),
+      'amountCleared': serializer.toJson<double>(amountCleared),
     };
   }
 
@@ -3754,6 +3923,8 @@ class FriendSplit extends DataClass implements Insertable<FriendSplit> {
     Value<DateTime?> settledAt = const Value.absent(),
     Value<String?> settlementMethod = const Value.absent(),
     DateTime? createdAt,
+    String? status,
+    double? amountCleared,
   }) => FriendSplit(
     id: id ?? this.id,
     transactionId: transactionId ?? this.transactionId,
@@ -3767,6 +3938,8 @@ class FriendSplit extends DataClass implements Insertable<FriendSplit> {
         ? settlementMethod.value
         : this.settlementMethod,
     createdAt: createdAt ?? this.createdAt,
+    status: status ?? this.status,
+    amountCleared: amountCleared ?? this.amountCleared,
   );
   FriendSplit copyWithCompanion(FriendSplitsCompanion data) {
     return FriendSplit(
@@ -3788,6 +3961,10 @@ class FriendSplit extends DataClass implements Insertable<FriendSplit> {
           ? data.settlementMethod.value
           : this.settlementMethod,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      status: data.status.present ? data.status.value : this.status,
+      amountCleared: data.amountCleared.present
+          ? data.amountCleared.value
+          : this.amountCleared,
     );
   }
 
@@ -3803,7 +3980,9 @@ class FriendSplit extends DataClass implements Insertable<FriendSplit> {
           ..write('isWrittenOff: $isWrittenOff, ')
           ..write('settledAt: $settledAt, ')
           ..write('settlementMethod: $settlementMethod, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('status: $status, ')
+          ..write('amountCleared: $amountCleared')
           ..write(')'))
         .toString();
   }
@@ -3820,6 +3999,8 @@ class FriendSplit extends DataClass implements Insertable<FriendSplit> {
     settledAt,
     settlementMethod,
     createdAt,
+    status,
+    amountCleared,
   );
   @override
   bool operator ==(Object other) =>
@@ -3834,7 +4015,9 @@ class FriendSplit extends DataClass implements Insertable<FriendSplit> {
           other.isWrittenOff == this.isWrittenOff &&
           other.settledAt == this.settledAt &&
           other.settlementMethod == this.settlementMethod &&
-          other.createdAt == this.createdAt);
+          other.createdAt == this.createdAt &&
+          other.status == this.status &&
+          other.amountCleared == this.amountCleared);
 }
 
 class FriendSplitsCompanion extends UpdateCompanion<FriendSplit> {
@@ -3848,6 +4031,8 @@ class FriendSplitsCompanion extends UpdateCompanion<FriendSplit> {
   final Value<DateTime?> settledAt;
   final Value<String?> settlementMethod;
   final Value<DateTime> createdAt;
+  final Value<String> status;
+  final Value<double> amountCleared;
   const FriendSplitsCompanion({
     this.id = const Value.absent(),
     this.transactionId = const Value.absent(),
@@ -3859,6 +4044,8 @@ class FriendSplitsCompanion extends UpdateCompanion<FriendSplit> {
     this.settledAt = const Value.absent(),
     this.settlementMethod = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.status = const Value.absent(),
+    this.amountCleared = const Value.absent(),
   });
   FriendSplitsCompanion.insert({
     this.id = const Value.absent(),
@@ -3871,6 +4058,8 @@ class FriendSplitsCompanion extends UpdateCompanion<FriendSplit> {
     this.settledAt = const Value.absent(),
     this.settlementMethod = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.status = const Value.absent(),
+    this.amountCleared = const Value.absent(),
   }) : transactionId = Value(transactionId),
        friendContactId = Value(friendContactId),
        amount = Value(amount),
@@ -3886,6 +4075,8 @@ class FriendSplitsCompanion extends UpdateCompanion<FriendSplit> {
     Expression<DateTime>? settledAt,
     Expression<String>? settlementMethod,
     Expression<DateTime>? createdAt,
+    Expression<String>? status,
+    Expression<double>? amountCleared,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -3898,6 +4089,8 @@ class FriendSplitsCompanion extends UpdateCompanion<FriendSplit> {
       if (settledAt != null) 'settled_at': settledAt,
       if (settlementMethod != null) 'settlement_method': settlementMethod,
       if (createdAt != null) 'created_at': createdAt,
+      if (status != null) 'status': status,
+      if (amountCleared != null) 'amount_cleared': amountCleared,
     });
   }
 
@@ -3912,6 +4105,8 @@ class FriendSplitsCompanion extends UpdateCompanion<FriendSplit> {
     Value<DateTime?>? settledAt,
     Value<String?>? settlementMethod,
     Value<DateTime>? createdAt,
+    Value<String>? status,
+    Value<double>? amountCleared,
   }) {
     return FriendSplitsCompanion(
       id: id ?? this.id,
@@ -3924,6 +4119,8 @@ class FriendSplitsCompanion extends UpdateCompanion<FriendSplit> {
       settledAt: settledAt ?? this.settledAt,
       settlementMethod: settlementMethod ?? this.settlementMethod,
       createdAt: createdAt ?? this.createdAt,
+      status: status ?? this.status,
+      amountCleared: amountCleared ?? this.amountCleared,
     );
   }
 
@@ -3960,6 +4157,12 @@ class FriendSplitsCompanion extends UpdateCompanion<FriendSplit> {
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (amountCleared.present) {
+      map['amount_cleared'] = Variable<double>(amountCleared.value);
+    }
     return map;
   }
 
@@ -3975,7 +4178,9 @@ class FriendSplitsCompanion extends UpdateCompanion<FriendSplit> {
           ..write('isWrittenOff: $isWrittenOff, ')
           ..write('settledAt: $settledAt, ')
           ..write('settlementMethod: $settlementMethod, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('status: $status, ')
+          ..write('amountCleared: $amountCleared')
           ..write(')'))
         .toString();
   }
@@ -7505,6 +7710,8 @@ typedef $$SpendlerTransactionsTableCreateCompanionBuilder =
       Value<String?> importBatchId,
       Value<bool> isAnomaly,
       Value<bool> isRecurring,
+      Value<String?> incomeSource,
+      Value<String?> attachmentPath,
     });
 typedef $$SpendlerTransactionsTableUpdateCompanionBuilder =
     SpendlerTransactionsCompanion Function({
@@ -7531,6 +7738,8 @@ typedef $$SpendlerTransactionsTableUpdateCompanionBuilder =
       Value<String?> importBatchId,
       Value<bool> isAnomaly,
       Value<bool> isRecurring,
+      Value<String?> incomeSource,
+      Value<String?> attachmentPath,
     });
 
 class $$SpendlerTransactionsTableFilterComposer
@@ -7654,6 +7863,16 @@ class $$SpendlerTransactionsTableFilterComposer
 
   ColumnFilters<bool> get isRecurring => $composableBuilder(
     column: $table.isRecurring,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get incomeSource => $composableBuilder(
+    column: $table.incomeSource,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get attachmentPath => $composableBuilder(
+    column: $table.attachmentPath,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -7781,6 +8000,16 @@ class $$SpendlerTransactionsTableOrderingComposer
     column: $table.isRecurring,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get incomeSource => $composableBuilder(
+    column: $table.incomeSource,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get attachmentPath => $composableBuilder(
+    column: $table.attachmentPath,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$SpendlerTransactionsTableAnnotationComposer
@@ -7882,6 +8111,16 @@ class $$SpendlerTransactionsTableAnnotationComposer
     column: $table.isRecurring,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get incomeSource => $composableBuilder(
+    column: $table.incomeSource,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get attachmentPath => $composableBuilder(
+    column: $table.attachmentPath,
+    builder: (column) => column,
+  );
 }
 
 class $$SpendlerTransactionsTableTableManager
@@ -7950,6 +8189,8 @@ class $$SpendlerTransactionsTableTableManager
                 Value<String?> importBatchId = const Value.absent(),
                 Value<bool> isAnomaly = const Value.absent(),
                 Value<bool> isRecurring = const Value.absent(),
+                Value<String?> incomeSource = const Value.absent(),
+                Value<String?> attachmentPath = const Value.absent(),
               }) => SpendlerTransactionsCompanion(
                 id: id,
                 amount: amount,
@@ -7974,6 +8215,8 @@ class $$SpendlerTransactionsTableTableManager
                 importBatchId: importBatchId,
                 isAnomaly: isAnomaly,
                 isRecurring: isRecurring,
+                incomeSource: incomeSource,
+                attachmentPath: attachmentPath,
               ),
           createCompanionCallback:
               ({
@@ -8000,6 +8243,8 @@ class $$SpendlerTransactionsTableTableManager
                 Value<String?> importBatchId = const Value.absent(),
                 Value<bool> isAnomaly = const Value.absent(),
                 Value<bool> isRecurring = const Value.absent(),
+                Value<String?> incomeSource = const Value.absent(),
+                Value<String?> attachmentPath = const Value.absent(),
               }) => SpendlerTransactionsCompanion.insert(
                 id: id,
                 amount: amount,
@@ -8024,6 +8269,8 @@ class $$SpendlerTransactionsTableTableManager
                 importBatchId: importBatchId,
                 isAnomaly: isAnomaly,
                 isRecurring: isRecurring,
+                incomeSource: incomeSource,
+                attachmentPath: attachmentPath,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -9205,6 +9452,8 @@ typedef $$FriendSplitsTableCreateCompanionBuilder =
       Value<DateTime?> settledAt,
       Value<String?> settlementMethod,
       Value<DateTime> createdAt,
+      Value<String> status,
+      Value<double> amountCleared,
     });
 typedef $$FriendSplitsTableUpdateCompanionBuilder =
     FriendSplitsCompanion Function({
@@ -9218,6 +9467,8 @@ typedef $$FriendSplitsTableUpdateCompanionBuilder =
       Value<DateTime?> settledAt,
       Value<String?> settlementMethod,
       Value<DateTime> createdAt,
+      Value<String> status,
+      Value<double> amountCleared,
     });
 
 class $$FriendSplitsTableFilterComposer
@@ -9276,6 +9527,16 @@ class $$FriendSplitsTableFilterComposer
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get amountCleared => $composableBuilder(
+    column: $table.amountCleared,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -9338,6 +9599,16 @@ class $$FriendSplitsTableOrderingComposer
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get amountCleared => $composableBuilder(
+    column: $table.amountCleared,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$FriendSplitsTableAnnotationComposer
@@ -9386,6 +9657,14 @@ class $$FriendSplitsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<double> get amountCleared => $composableBuilder(
+    column: $table.amountCleared,
+    builder: (column) => column,
+  );
 }
 
 class $$FriendSplitsTableTableManager
@@ -9431,6 +9710,8 @@ class $$FriendSplitsTableTableManager
                 Value<DateTime?> settledAt = const Value.absent(),
                 Value<String?> settlementMethod = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<double> amountCleared = const Value.absent(),
               }) => FriendSplitsCompanion(
                 id: id,
                 transactionId: transactionId,
@@ -9442,6 +9723,8 @@ class $$FriendSplitsTableTableManager
                 settledAt: settledAt,
                 settlementMethod: settlementMethod,
                 createdAt: createdAt,
+                status: status,
+                amountCleared: amountCleared,
               ),
           createCompanionCallback:
               ({
@@ -9455,6 +9738,8 @@ class $$FriendSplitsTableTableManager
                 Value<DateTime?> settledAt = const Value.absent(),
                 Value<String?> settlementMethod = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<double> amountCleared = const Value.absent(),
               }) => FriendSplitsCompanion.insert(
                 id: id,
                 transactionId: transactionId,
@@ -9466,6 +9751,8 @@ class $$FriendSplitsTableTableManager
                 settledAt: settledAt,
                 settlementMethod: settlementMethod,
                 createdAt: createdAt,
+                status: status,
+                amountCleared: amountCleared,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

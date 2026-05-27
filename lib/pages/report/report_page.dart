@@ -12,8 +12,6 @@ import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/services/export/csv_exporter.dart';
 import 'package:finance_buddy_app/widgets/charts/spend_bar_chart.dart';
 import 'package:finance_buddy_app/widgets/common/animated_progress_bar.dart';
-import 'package:finance_buddy_app/pages/import/widgets/import_prompt_banner.dart';
-import 'package:finance_buddy_app/providers/import_provider.dart';
 import 'package:go_router/go_router.dart';
 
 // ---------------------------------------------------------------------------
@@ -48,25 +46,6 @@ final _prevMonthCategoryTotalsProvider =
 // ---------------------------------------------------------------------------
 // Colors & helpers
 // ---------------------------------------------------------------------------
-
-const Map<TransactionCategory, Color> _categoryColors = {
-  TransactionCategory.foodAndDrink: Color(0xFFFF8A4C),
-  TransactionCategory.transport: Color(0xFF4A8FE7),
-  TransactionCategory.shopping: Color(0xFFB19CD9),
-  TransactionCategory.billsAndUtilities: Color(0xFFF97316),
-  TransactionCategory.healthAndWellness: Color(0xFF22C55E),
-  TransactionCategory.entertainment: Color(0xFFE91E63),
-  TransactionCategory.streaming: Color(0xFFEC407A),
-  TransactionCategory.gymFitness: Color(0xFF4CAF50),
-  TransactionCategory.productivityTools: Color(0xFF9575CD),
-  TransactionCategory.personalCare: Color(0xFFF8BBD0),
-  TransactionCategory.education: Color(0xFF5C6BC0),
-  TransactionCategory.travel: Color(0xFF14B8A6),
-  TransactionCategory.other: Color(0xFF6E6E6E),
-};
-
-Color _colorForCategory(TransactionCategory cat) =>
-    _categoryColors[cat] ?? const Color(0xFF6E6E6E);
 
 String _sym(String code) {
   switch (code.toLowerCase()) {
@@ -104,40 +83,56 @@ class _ReportPageState extends ConsumerState<ReportPage> {
     return Scaffold(
       backgroundColor: AppColors.offWhite,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: AppSpacing.md),
-              _buildHeader(),
-              const SizedBox(height: AppSpacing.lg),
-              _buildImportBannerIfNeeded(),
-              const _PeriodSelector(),
-              const SizedBox(height: AppSpacing.lg),
-              _buildPeriodNavigator(),
-              const SizedBox(height: AppSpacing.xl),
-              _buildBarChartSection(scope, symbol)
-                  .animate().fadeIn(duration: 400.ms).slideY(begin: 0.05, duration: 400.ms),
-              const SizedBox(height: AppSpacing.lg),
-              _ProjectionCard(symbol: symbol)
-                  .animate().fadeIn(delay: 80.ms, duration: 400.ms).slideY(begin: 0.05, delay: 80.ms, duration: 400.ms),
-              const SizedBox(height: AppSpacing.lg),
-              _buildBudgetVsActual(symbol)
-                  .animate().fadeIn(delay: 160.ms, duration: 400.ms).slideY(begin: 0.05, delay: 160.ms, duration: 400.ms),
-              const SizedBox(height: AppSpacing.lg),
-              const _SavingsGoalsSection()
-                  .animate().fadeIn(delay: 240.ms, duration: 400.ms).slideY(begin: 0.05, delay: 240.ms, duration: 400.ms),
-              const SizedBox(height: AppSpacing.lg),
-              _StreakBadge(symbol: symbol)
-                  .animate().fadeIn(delay: 320.ms, duration: 400.ms).slideY(begin: 0.05, delay: 320.ms, duration: 400.ms),
-              const SizedBox(height: AppSpacing.lg),
-              _buildDonutSection(symbol)
-                  .animate().fadeIn(delay: 400.ms, duration: 400.ms).slideY(begin: 0.05, delay: 400.ms, duration: 400.ms),
-              const SizedBox(height: AppSpacing.xxl),
-              _buildCategoryBreakdown(symbol)
-                  .animate().fadeIn(delay: 480.ms, duration: 400.ms).slideY(begin: 0.05, delay: 480.ms, duration: 400.ms),
-              const SizedBox(height: 100),
-            ],
+        child: RefreshIndicator(
+          color: AppColors.black,
+          backgroundColor: AppColors.white,
+          onRefresh: () async {
+            ref.invalidate(_monthCategoryTotalsProvider);
+            ref.invalidate(_prevMonthCategoryTotalsProvider);
+            ref.invalidate(budgetsProvider);
+            ref.invalidate(weeklyTotalsForMonthProvider);
+            ref.invalidate(monthlyTotalsForYearProvider);
+            ref.invalidate(yearlyTotalsProvider);
+            ref.invalidate(monthEndProjectionProvider);
+            ref.invalidate(goalsProvider);
+            ref.invalidate(streakProvider);
+            ref.invalidate(monthlyBudgetProvider);
+          },
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: AppSpacing.md),
+                _buildHeader(),
+                const SizedBox(height: AppSpacing.lg),
+                const _PeriodSelector(),
+                const SizedBox(height: AppSpacing.lg),
+                _buildPeriodNavigator(),
+                const SizedBox(height: AppSpacing.xl),
+                _buildBarChartSection(scope, symbol)
+                    .animate().fadeIn(duration: 400.ms).slideY(begin: 0.05, duration: 400.ms),
+                const SizedBox(height: AppSpacing.lg),
+                _ProjectionCard(symbol: symbol)
+                    .animate().fadeIn(delay: 80.ms, duration: 400.ms).slideY(begin: 0.05, delay: 80.ms, duration: 400.ms),
+                const SizedBox(height: AppSpacing.lg),
+                _buildBudgetVsActual(symbol)
+                    .animate().fadeIn(delay: 160.ms, duration: 400.ms).slideY(begin: 0.05, delay: 160.ms, duration: 400.ms),
+                const SizedBox(height: AppSpacing.lg),
+                const _SavingsGoalsSection()
+                    .animate().fadeIn(delay: 240.ms, duration: 400.ms).slideY(begin: 0.05, delay: 240.ms, duration: 400.ms),
+                const SizedBox(height: AppSpacing.lg),
+                _StreakBadge(symbol: symbol)
+                    .animate().fadeIn(delay: 320.ms, duration: 400.ms).slideY(begin: 0.05, delay: 320.ms, duration: 400.ms),
+                const SizedBox(height: AppSpacing.lg),
+                _buildDonutSection(symbol)
+                    .animate().fadeIn(delay: 400.ms, duration: 400.ms).slideY(begin: 0.05, delay: 400.ms, duration: 400.ms),
+                const SizedBox(height: AppSpacing.xxl),
+                _buildCategoryBreakdown(symbol)
+                    .animate().fadeIn(delay: 480.ms, duration: 400.ms).slideY(begin: 0.05, delay: 480.ms, duration: 400.ms),
+                const SizedBox(height: 100),
+              ],
+            ),
           ),
         ),
       ),
@@ -145,26 +140,6 @@ class _ReportPageState extends ConsumerState<ReportPage> {
   }
 
   // ─── Import Banner (shown when < 10 transactions) ─────
-
-  Widget _buildImportBannerIfNeeded() {
-    final txnsAsync = ref.watch(allTransactionsProvider);
-    return txnsAsync.when(
-      data: (txns) {
-        if (txns.length >= 10) return const SizedBox.shrink();
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.md,
-          ),
-          child: ImportPromptBanner(onTap: () {
-            ref.read(importFlowControllerProvider.notifier).setSource(ImportSource.reportsBanner);
-            context.push('/import');
-          }),
-        );
-      },
-      loading: () => const SizedBox.shrink(),
-      error: (_, _) => const SizedBox.shrink(),
-    );
-  }
 
   // ─── Header with Export ─────────────────────────────────
 
@@ -233,7 +208,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
       if (transactions.isEmpty) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No transactions to export for this month.')),
+            const SnackBar(content: Text('Nothing to export this month.')),
           );
         }
         return;
@@ -404,12 +379,12 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                   final pct = b.monthlyLimit > 0
                       ? (spent / b.monthlyLimit).clamp(0.0, 1.0)
                       : 0.0;
-                  final color = _colorForCategory(cat);
+                  final color = AppColors.categoryColor(cat);
                   final barColor = pct < 0.6
-                      ? const Color(0xFF22C55E)
+                      ? AppColors.green
                       : pct < 0.85
-                          ? const Color(0xFFF59E0B)
-                          : const Color(0xFFEF4444);
+                          ? AppColors.amber
+                          : AppColors.red;
 
                   return Padding(
                     padding: const EdgeInsets.only(bottom: AppSpacing.md),
@@ -465,7 +440,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
               padding: const EdgeInsets.all(AppSpacing.xl),
               decoration: _cardDecor(),
               child: Center(
-                child: Text('No expenses this period.',
+                child: Text('No spending this period — nice!',
                     style: AppTextStyles.bodyM.copyWith(color: AppColors.gray400)),
               ),
             );
@@ -487,7 +462,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
             );
             sections.add(PieChartSectionData(
               value: sorted[i].value,
-              color: _colorForCategory(cat),
+              color: AppColors.categoryColor(cat),
               radius: _touchedIndex == i ? 32 : 26,
               title: '',
             ));
@@ -551,7 +526,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                       children: [
                         Container(width: 8, height: 8,
                             decoration: BoxDecoration(
-                                color: _colorForCategory(cat),
+                                color: AppColors.categoryColor(cat),
                                 shape: BoxShape.circle)),
                         const SizedBox(width: 4),
                         Text(cat.label,
@@ -615,7 +590,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
           catTotals.when(
             data: (data) {
               if (data.isEmpty) {
-                return Text('No spending data.',
+                return Text('No spending data yet.',
                     style: AppTextStyles.bodyM.copyWith(color: AppColors.gray400));
               }
               final sorted = data.entries.toList()
@@ -631,7 +606,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                   );
                   final amount = entry.value;
                   final pct = totalSpent > 0 ? amount / totalSpent : 0.0;
-                  final catColor = _colorForCategory(cat);
+                  final catColor = AppColors.categoryColor(cat);
 
                   // Fixed delta: handle zero correctly
                   final prevAmount = prevData[entry.key] ?? 0.0;
@@ -678,8 +653,8 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                                     '${delta > 0 ? '\u2191' : '\u2193'} ${delta.abs()}% vs last month',
                                     style: AppTextStyles.labelS.copyWith(
                                       color: delta > 0
-                                          ? const Color(0xFFEF4444)
-                                          : const Color(0xFF22C55E),
+                                          ? AppColors.red
+                                          : AppColors.green,
                                       letterSpacing: 0,
                                     ),
                                   ),
@@ -740,7 +715,7 @@ BoxDecoration _cardDecor() => BoxDecoration(
       color: AppColors.white,
       borderRadius: BorderRadius.circular(20),
       boxShadow: const [
-        BoxShadow(color: Color(0x08000000), blurRadius: 16, offset: Offset(0, 4)),
+        BoxShadow(color: AppColors.shadow, blurRadius: 16, offset: Offset(0, 4)),
       ],
     );
 
@@ -850,7 +825,7 @@ class _YearlyBarChart extends ConsumerWidget {
       data: (data) {
         if (data.isEmpty) {
           return SizedBox(height: 180,
-              child: Center(child: Text('No data yet',
+              child: Center(child: Text('Not enough data yet',
                   style: AppTextStyles.bodyM.copyWith(color: AppColors.gray400))));
         }
         final years = data.keys.toList()..sort();
@@ -944,8 +919,8 @@ class _ProjectionCard extends ConsumerWidget {
                         : 'That\'s ${vsLast.abs()}% less than last month.',
                     style: AppTextStyles.bodyS.copyWith(
                       color: vsLast >= 0
-                          ? const Color(0xFFEF4444)
-                          : const Color(0xFF22C55E),
+                          ? AppColors.red
+                          : AppColors.green,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -1018,7 +993,7 @@ class _SavingsGoalsSection extends ConsumerWidget {
                         AnimatedProgressBar(
                           value: pct,
                           backgroundColor: AppColors.gray200,
-                          valueColor: const Color(0xFF22C55E),
+                          valueColor: AppColors.green,
                         ),
                       ],
                     ),
@@ -1054,21 +1029,21 @@ class _StreakBadge extends ConsumerWidget {
           child: Container(
             padding: const EdgeInsets.all(AppSpacing.lg),
             decoration: BoxDecoration(
-              color: const Color(0xFF22C55E).withValues(alpha: 0.08),
+              color: AppColors.green.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                  color: const Color(0xFF22C55E).withValues(alpha: 0.2)),
+                  color: AppColors.green.withValues(alpha: 0.2)),
             ),
             child: Row(
               children: [
                 Container(
                   width: 44, height: 44,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF22C55E).withValues(alpha: 0.15),
+                    color: AppColors.green.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: const Icon(Icons.local_fire_department,
-                      color: Color(0xFF22C55E), size: 24),
+                      color: AppColors.green, size: 24),
                 ),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
@@ -1077,7 +1052,7 @@ class _StreakBadge extends ConsumerWidget {
                     children: [
                       Text('$weeks-week streak!',
                           style: AppTextStyles.headingS.copyWith(
-                              color: const Color(0xFF22C55E))),
+                              color: AppColors.green)),
                       Text('Consecutive weeks under your spending target',
                           style: AppTextStyles.bodyS
                               .copyWith(color: AppColors.gray500)),

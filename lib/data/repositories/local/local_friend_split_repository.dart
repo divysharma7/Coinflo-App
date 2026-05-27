@@ -88,13 +88,37 @@ class LocalFriendSplitRepository implements FriendSplitRepository {
   }
 
   @override
-  Future<void> markSettled(int friendSplitId, String method) {
-    return (db.update(db.friendSplits)
+  Future<void> markSettled(int friendSplitId, String method) async {
+    final split = await (db.select(db.friendSplits)
+          ..where((s) => s.id.equals(friendSplitId)))
+        .getSingle();
+    await (db.update(db.friendSplits)
           ..where((s) => s.id.equals(friendSplitId)))
         .write(FriendSplitsCompanion(
       isSettled: const Value(true),
       settledAt: Value(DateTime.now()),
       settlementMethod: Value(method),
+      status: const Value('cleared'),
+      amountCleared: Value(split.amount),
+    ));
+  }
+
+  /// Record a partial payment on a split.
+  @override
+  Future<void> markPartialPayment(int friendSplitId, double amountPaid, String method) async {
+    final split = await (db.select(db.friendSplits)
+          ..where((s) => s.id.equals(friendSplitId)))
+        .getSingle();
+    final newCleared = split.amountCleared + amountPaid;
+    final fullyCleared = newCleared >= split.amount;
+    await (db.update(db.friendSplits)
+          ..where((s) => s.id.equals(friendSplitId)))
+        .write(FriendSplitsCompanion(
+      isSettled: Value(fullyCleared),
+      settledAt: fullyCleared ? Value(DateTime.now()) : const Value.absent(),
+      settlementMethod: Value(method),
+      status: Value(fullyCleared ? 'cleared' : 'partiallyCleared'),
+      amountCleared: Value(newCleared),
     ));
   }
 

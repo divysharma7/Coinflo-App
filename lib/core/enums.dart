@@ -544,7 +544,7 @@ class Subcategory {
       all.where((s) => s.group == group).toList();
 }
 
-// ─── Import Module Enums ─────────────────────────────────
+// ─── Categorization Enums ────────────────────────────────
 
 enum MappingSource {
   userCorrected,
@@ -565,23 +565,6 @@ enum MappingSource {
         return 'Smart Rule';
       case ml:
         return 'ML';
-    }
-  }
-}
-
-enum ImportStatus {
-  pendingReview,
-  completed,
-  failed;
-
-  String get label {
-    switch (this) {
-      case pendingReview:
-        return 'Pending Review';
-      case completed:
-        return 'Completed';
-      case failed:
-        return 'Failed';
     }
   }
 }
@@ -658,42 +641,3 @@ enum BankType {
   }
 }
 
-enum ImportStep {
-  selectBank,
-  uploadFile,
-  processing,
-  review,
-  summary;
-
-  String get label {
-    switch (this) {
-      case selectBank:
-        return 'Select Bank';
-      case uploadFile:
-        return 'Upload File';
-      case processing:
-        return 'Processing';
-      case review:
-        return 'Review';
-      case summary:
-        return 'Summary';
-    }
-  }
-
-  int get stepNumber {
-    switch (this) {
-      case selectBank:
-        return 0;
-      case uploadFile:
-        return 1;
-      case processing:
-        return 2;
-      case review:
-        return 3;
-      case summary:
-        return 4;
-    }
-  }
-}
-
-enum ImportSource { onboarding, settings, homeBanner, reportsBanner, importHistory }

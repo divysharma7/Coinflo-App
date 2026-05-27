@@ -9,17 +9,7 @@ import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/widgets/common/empty_state.dart';
 
 import 'package:flutter_animate/flutter_animate.dart';
-
-String _currencySymbol(String code) {
-  switch (code.toLowerCase()) {
-    case 'inr': return '\u20B9';
-    case 'usd': return '\$';
-    case 'eur': return '\u20AC';
-    case 'gbp': return '\u00A3';
-    case 'jpy': return '\u00A5';
-    default: return '\$';
-  }
-}
+import 'package:finance_buddy_app/utils/currency_utils.dart';
 
 class SubscriptionsPage extends ConsumerWidget {
   const SubscriptionsPage({super.key});
@@ -28,7 +18,7 @@ class SubscriptionsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final subsAsync = ref.watch(allSubscriptionsProvider);
     final monthlyTotal = ref.watch(subscriptionMonthlyTotalProvider);
-    final sym = _currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
+    final sym = currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
 
     return Scaffold(
       backgroundColor: AppColors.offWhite,
@@ -58,8 +48,8 @@ class SubscriptionsPage extends ConsumerWidget {
           if (subs.isEmpty) {
             return const EmptyState(
               icon: Icons.autorenew,
-              message: 'No subscriptions yet',
-              subtitle: 'Tap + to track your first subscription.',
+              message: 'No subscriptions tracked yet',
+              subtitle: 'Tap + to add your first one.',
             );
           }
           return ListView(
@@ -252,7 +242,7 @@ class _SubscriptionCard extends StatelessWidget {
     }
 
     // Billing is within 7 days — show urgency badge
-    final badgeColor = daysUntil <= 2 ? const Color(0xFFE53935) : const Color(0xFFEF6C00);
+    final badgeColor = daysUntil <= 2 ? AppColors.alertRed : AppColors.alertOrange;
     final String badgeLabel;
     if (daysUntil == 0) {
       badgeLabel = 'Due today';
@@ -366,7 +356,7 @@ class _SubscriptionCard extends StatelessWidget {
             onPressed: onToggle,
             icon: Icon(
               subscription.isActive ? PhosphorIcons.pause() : PhosphorIcons.play(),
-              color: subscription.isActive ? const Color(0xFFF59E0B) : AppColors.green,
+              color: subscription.isActive ? AppColors.amber : AppColors.green,
               size: 20,
             ),
             tooltip: subscription.isActive ? 'Pause' : 'Resume',

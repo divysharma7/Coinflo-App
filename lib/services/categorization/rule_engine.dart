@@ -1,4 +1,4 @@
-import 'package:finance_buddy_app/services/import/models/categorization_result.dart';
+import 'package:finance_buddy_app/services/categorization/models/categorization_result.dart';
 import 'package:finance_buddy_app/core/enums.dart';
 
 /// A single categorization rule: regex pattern → category mapping.

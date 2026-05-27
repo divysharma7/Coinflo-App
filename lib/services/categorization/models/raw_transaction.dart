@@ -1,7 +1,6 @@
 import 'package:finance_buddy_app/core/enums.dart';
 
-/// Raw transaction as parsed directly from a bank CSV row.
-/// No normalization or categorization applied yet.
+/// Raw transaction description for normalization.
 class RawTransaction {
   final DateTime date;
   final double amount;

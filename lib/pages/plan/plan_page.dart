@@ -10,38 +10,7 @@ import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/widgets/common/animations.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lottie/lottie.dart';
-
-// ─── Category color helper ────────────────────────────
-
-String _currencySymbol(String code) {
-  switch (code.toLowerCase()) {
-    case 'inr': return '\u20B9';
-    case 'usd': return '\$';
-    case 'eur': return '\u20AC';
-    case 'gbp': return '\u00A3';
-    case 'jpy': return '\u00A5';
-    default: return '\$';
-  }
-}
-
-Color _categoryColor(TransactionCategory cat) {
-  const map = <TransactionCategory, Color>{
-    TransactionCategory.foodAndDrink: Color(0xFFFF8A4C),
-    TransactionCategory.transport: Color(0xFF4A8FE7),
-    TransactionCategory.shopping: Color(0xFFB19CD9),
-    TransactionCategory.billsAndUtilities: Color(0xFFF59E0B),
-    TransactionCategory.healthAndWellness: Color(0xFF22C55E),
-    TransactionCategory.entertainment: Color(0xFFE91E63),
-    TransactionCategory.streaming: Color(0xFFEC407A),
-    TransactionCategory.gymFitness: Color(0xFF4CAF50),
-    TransactionCategory.productivityTools: Color(0xFF9575CD),
-    TransactionCategory.personalCare: Color(0xFFF8BBD0),
-    TransactionCategory.education: Color(0xFF5C6BC0),
-    TransactionCategory.travel: Color(0xFF14B8A6),
-    TransactionCategory.other: Color(0xFF6E6E73),
-  };
-  return map[cat] ?? const Color(0xFF6E6E73);
-}
+import 'package:finance_buddy_app/utils/currency_utils.dart';
 
 class PlanPage extends ConsumerWidget {
   const PlanPage({super.key});
@@ -80,7 +49,7 @@ class _HeroHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sym = _currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
+    final sym = currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
     return SliverToBoxAdapter(
       child: Container(
         decoration: const BoxDecoration(
@@ -160,7 +129,7 @@ class _BudgetsSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final budgets = ref.watch(budgetsProvider);
     final spending = ref.watch(monthlyCategorySpendingProvider);
-    final sym = _currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
+    final sym = currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -299,7 +268,7 @@ class _BudgetCard extends StatelessWidget {
         : 0.0;
     final isOver = spent > budget.monthlyLimit;
     final isCritical = percent > 150;
-    final categoryColor = _categoryColor(category);
+    final categoryColor = AppColors.categoryColor(category);
     final barColor = isCritical
         ? AppColors.red
         : isOver
@@ -494,7 +463,7 @@ class _GoalsSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final goals = ref.watch(goalsProvider);
-    final sym = _currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
+    final sym = currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -639,8 +608,8 @@ class _GoalCardState extends State<_GoalCard>
   late final Animation<double> _scaleAnim;
   late final Animation<double> _glowAnim;
 
-  static const _goldColor = Color(0xFFFBBF24); // amber-400
-  static const _goldDark = Color(0xFFF59E0B); // amber-500
+  static const _goldColor = AppColors.gold;
+  static const _goldDark = AppColors.amber;
 
   bool get _isCompleted => widget.goal.currentAmount >= widget.goal.targetAmount;
 
@@ -1064,7 +1033,7 @@ class _AddBudgetSheetState extends ConsumerState<_AddBudgetSheet> {
             runSpacing: AppSpacing.xs,
             children: TransactionCategory.values.map((cat) {
               final isSelected = cat == _selected;
-              final color = _categoryColor(cat);
+              final color = AppColors.categoryColor(cat);
               return GestureDetector(
                 onTap: () => setState(() => _selected = cat),
                 child: Container(
@@ -1429,7 +1398,7 @@ class _AddMoneySheetState extends ConsumerState<_AddMoneySheet> {
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            '${_currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr')}${remaining.toStringAsFixed(0)} remaining',
+            '${currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr')}${remaining.toStringAsFixed(0)} remaining',
             style: AppTextStyles.bodyS.copyWith(
               color: AppColors.gray500,
             ),

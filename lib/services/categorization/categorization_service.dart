@@ -2,8 +2,8 @@ import 'package:finance_buddy_app/core/enums.dart';
 import 'package:finance_buddy_app/services/categorization/merchant_dictionary.dart';
 import 'package:finance_buddy_app/services/categorization/rule_engine.dart';
 import 'package:finance_buddy_app/services/categorization/upi_parser.dart';
-import 'package:finance_buddy_app/services/import/models/categorization_result.dart';
-import 'package:finance_buddy_app/services/import/models/normalized_transaction.dart';
+import 'package:finance_buddy_app/services/categorization/models/categorization_result.dart';
+import 'package:finance_buddy_app/services/categorization/models/normalized_transaction.dart';
 
 /// Data structure for merchant mappings passed into the cascade.
 class MerchantMappingData {

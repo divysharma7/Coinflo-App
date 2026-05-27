@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -9,7 +10,6 @@ import 'package:finance_buddy_app/core/enums.dart';
 import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
-import 'package:finance_buddy_app/pages/transactions/transaction_detail_page.dart';
 import 'package:finance_buddy_app/widgets/common/animations.dart';
 
 // ---------------------------------------------------------------------------
@@ -181,7 +181,7 @@ class CategoryTransactionsPage extends ConsumerWidget {
                               ),
                               const SizedBox(height: AppSpacing.md),
                               Text(
-                                'No ${cat.label} transactions this month.',
+                                'No ${cat.label} spending this month.',
                                 style: AppTextStyles.bodyM
                                     .copyWith(color: AppColors.gray400),
                                 textAlign: TextAlign.center,
@@ -261,12 +261,7 @@ class _TransactionTile extends StatelessWidget {
 
     return PressableCard(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute<void>(
-            builder: (_) => TransactionDetailPage(transactionId: t.id),
-          ),
-        );
+        context.push('/transaction/${t.id}');
       },
       child: Container(
         margin: const EdgeInsets.symmetric(

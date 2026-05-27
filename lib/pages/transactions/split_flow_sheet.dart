@@ -295,7 +295,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
             gradient: const LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Color(0xFF1E1E1E), AppColors.white],
+              colors: [AppColors.nearBlack, AppColors.white],
             ),
             borderRadius: BorderRadius.circular(20),
             boxShadow: AppShadows.sm,
@@ -462,7 +462,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
           content: Text(
             '$_sym${remaining.toStringAsFixed(0)} still unallocated',
           ),
-          backgroundColor: const Color(0xFFF59E0B),
+          backgroundColor: AppColors.amber,
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 2),
         ),
@@ -585,7 +585,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
       statusColor = AppColors.red;
       statusIcon = null;
     } else {
-      statusColor = const Color(0xFFF59E0B);
+      statusColor = AppColors.amber;
       statusIcon = null;
     }
 

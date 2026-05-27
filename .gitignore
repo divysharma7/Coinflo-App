@@ -58,3 +58,6 @@ figma_screens/
 
 # Android build reports
 android/build/
+
+# Firebase config (contains API keys — regenerate via flutterfire configure)
+lib/firebase_options.dart

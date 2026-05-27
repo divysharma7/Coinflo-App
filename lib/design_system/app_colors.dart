@@ -25,9 +25,21 @@ class AppColors {
   static const Color amountNeutral = Color(0xFF3A3A3A);
   static const Color orange = Color(0xFFF97316);
 
+  // Semantic — additional
+  static const Color aiPurple = Color(0xFF8B5CF6);
+  static const Color amber = Color(0xFFF59E0B);
+  static const Color gold = Color(0xFFFBBF24);
+  static const Color alertRed = Color(0xFFE53935);
+  static const Color alertOrange = Color(0xFFEF6C00);
+  static const Color nearBlack = Color(0xFF1E1E1E);
+
   // Semantic — opacity variants for badges
   static const Color orangeLight = Color(0x1AF97316);
   static const Color redLight = Color(0x1AEF4444);
+
+  // Shadows
+  static const Color shadow = Color(0x08000000);
+  static const Color shadowMd = Color(0x0D000000);
 
   // Category pill pairs
   static const Color catPinkBg = Color(0xFFFCE7F3);

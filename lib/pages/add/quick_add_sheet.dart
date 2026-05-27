@@ -14,6 +14,7 @@ import 'package:finance_buddy_app/services/notifications/notification_service.da
 import 'package:finance_buddy_app/services/notifications/spending_alert_service.dart';
 import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:finance_buddy_app/utils/currency_utils.dart';
 
 class QuickAddSheet extends ConsumerStatefulWidget {
   const QuickAddSheet({super.key});
@@ -36,37 +37,19 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
   bool _noteFieldFocused = false;
   DateTime _selectedDate = DateTime.now();
   Timer? _debounce;
+  String _incomeSource = 'salary';
 
-  static const Color _aiPurple = Color(0xFF8B5CF6);
+  static const List<String> _incomeSources = [
+    'salary', 'freelance', 'refund', 'gift', 'other',
+  ];
 
-  static const Map<TransactionCategory, Color> _categoryColors = {
-    TransactionCategory.foodAndDrink: Color(0xFFFF8A4C),
-    TransactionCategory.transport: Color(0xFF4A8FE7),
-    TransactionCategory.shopping: Color(0xFFB19CD9),
-    TransactionCategory.billsAndUtilities: Color(0xFFF59E0B),
-    TransactionCategory.healthAndWellness: Color(0xFF22C55E),
-    TransactionCategory.entertainment: Color(0xFFE91E63),
-    TransactionCategory.streaming: Color(0xFFEC407A),
-    TransactionCategory.gymFitness: Color(0xFF4CAF50),
-    TransactionCategory.productivityTools: Color(0xFF9575CD),
-    TransactionCategory.personalCare: Color(0xFFF8BBD0),
-    TransactionCategory.education: Color(0xFF5C6BC0),
-    TransactionCategory.travel: Color(0xFF14B8A6),
-    TransactionCategory.other: Color(0xFF6E6E73),
+  static const Map<String, String> _incomeSourceLabels = {
+    'salary': 'Salary',
+    'freelance': 'Freelance',
+    'refund': 'Refund',
+    'gift': 'Gift',
+    'other': 'Other',
   };
-
-  Color _colorForCategory(TransactionCategory cat) =>
-      _categoryColors[cat] ?? AppColors.gray500;
-
-  String _currencySymbol(String code) {
-    switch (code.toLowerCase()) {
-      case 'inr': return '\u20B9';
-      case 'usd': return '\$';
-      case 'eur': return '\u20AC';
-      case 'gbp': return '\u00A3';
-      default: return '\$';
-    }
-  }
 
   @override
   void initState() {
@@ -115,7 +98,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
           const SizedBox(height: AppSpacing.md),
           ...TransactionCategory.groups.map((cat) {
             final selected = _category == cat;
-            final catColor = _colorForCategory(cat);
+            final catColor = AppColors.categoryColor(cat);
             return ListTile(
               leading: Icon(
                 selected ? cat.iconFill : cat.icon,
@@ -216,10 +199,10 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
   Widget build(BuildContext context) {
     final currencyAsync = ref.watch(selectedCurrencyProvider);
     final currency = currencyAsync.valueOrNull ?? 'inr';
-    final symbol = _currencySymbol(currency);
+    final symbol = currencySymbol(currency);
     final amountColor = _isExpense ? AppColors.amountNeutral : AppColors.green;
     final bottomPad = MediaQuery.of(context).viewInsets.bottom;
-    final catColor = _colorForCategory(_category);
+    final catColor = AppColors.categoryColor(_category);
     final isToday = _selectedDate.year == DateTime.now().year &&
         _selectedDate.month == DateTime.now().month &&
         _selectedDate.day == DateTime.now().day;
@@ -349,60 +332,98 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                     ),
                     const SizedBox(height: AppSpacing.md),
 
-                    // Category label + chip
-                    Text('Category',
-                        style: AppTextStyles.labelS
-                            .copyWith(color: AppColors.gray400)),
-                    const SizedBox(height: AppSpacing.xs),
-                    GestureDetector(
-                      onTap: _showCategoryPicker,
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 250),
-                        curve: Curves.easeOut,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: _aiSuggested || _hasTyped
-                              ? catColor.withValues(alpha: 0.10)
-                              : AppColors.gray100,
-                          borderRadius: BorderRadius.circular(24),
-                          border: _aiSuggested || _hasTyped
-                              ? Border.all(
-                                  color: catColor.withValues(alpha: 0.3))
-                              : null,
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (_aiSuggested) ...[
-                              PhosphorIcon(
-                                PhosphorIcons.sparkle(
-                                    PhosphorIconsStyle.fill),
-                                size: 14,
-                                color: _aiPurple,
-                              ),
+                    // Category / Income Source — toggle-driven swap
+                    if (_isExpense) ...[
+                      Text('Category',
+                          style: AppTextStyles.labelS
+                              .copyWith(color: AppColors.gray400)),
+                      const SizedBox(height: AppSpacing.xs),
+                      GestureDetector(
+                        onTap: _showCategoryPicker,
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 250),
+                          curve: Curves.easeOut,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: _aiSuggested || _hasTyped
+                                ? catColor.withValues(alpha: 0.10)
+                                : AppColors.gray100,
+                            borderRadius: BorderRadius.circular(24),
+                            border: _aiSuggested || _hasTyped
+                                ? Border.all(
+                                    color: catColor.withValues(alpha: 0.3))
+                                : null,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (_aiSuggested) ...[
+                                PhosphorIcon(
+                                  PhosphorIcons.sparkle(
+                                      PhosphorIconsStyle.fill),
+                                  size: 14,
+                                  color: AppColors.aiPurple,
+                                ),
+                                const SizedBox(width: 6),
+                              ],
+                              Icon(_category.iconFill, size: 16, color: catColor),
                               const SizedBox(width: 6),
-                            ],
-                            Icon(_category.iconFill, size: 16, color: catColor),
-                            const SizedBox(width: 6),
-                            Text(
-                              _category.label,
-                              style: AppTextStyles.bodyM.copyWith(
-                                fontWeight: _aiSuggested || _hasTyped
-                                    ? FontWeight.w600
-                                    : FontWeight.w400,
-                                color: _aiSuggested || _hasTyped
-                                    ? catColor
-                                    : AppColors.gray500,
+                              Text(
+                                _category.label,
+                                style: AppTextStyles.bodyM.copyWith(
+                                  fontWeight: _aiSuggested || _hasTyped
+                                      ? FontWeight.w600
+                                      : FontWeight.w400,
+                                  color: _aiSuggested || _hasTyped
+                                      ? catColor
+                                      : AppColors.gray500,
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            PhosphorIcon(PhosphorIcons.caretDown(),
-                                size: 14, color: AppColors.gray400),
-                          ],
+                              const SizedBox(width: 8),
+                              PhosphorIcon(PhosphorIcons.caretDown(),
+                                  size: 14, color: AppColors.gray400),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
+                    ] else ...[
+                      Text('Source',
+                          style: AppTextStyles.labelS
+                              .copyWith(color: AppColors.gray400)),
+                      const SizedBox(height: AppSpacing.xs),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: _incomeSources.map((source) {
+                          final selected = _incomeSource == source;
+                          return GestureDetector(
+                            onTap: () => setState(() => _incomeSource = source),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: selected
+                                    ? AppColors.green.withValues(alpha: 0.12)
+                                    : AppColors.gray100,
+                                borderRadius: BorderRadius.circular(24),
+                                border: selected
+                                    ? Border.all(color: AppColors.green.withValues(alpha: 0.4))
+                                    : null,
+                              ),
+                              child: Text(
+                                _incomeSourceLabels[source]!,
+                                style: AppTextStyles.bodyM.copyWith(
+                                  fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                                  color: selected ? AppColors.green : AppColors.gray500,
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
 
                   ],
                 ),
@@ -552,7 +573,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
       });
 
       if (duplicate && mounted) {
-        final symbol = _currencySymbol(
+        final symbol = currencySymbol(
             ref.read(selectedCurrencyProvider).valueOrNull ?? 'inr');
         final confirmed = await showDialog<bool>(
           context: context,
@@ -589,12 +610,15 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
     await repo.insertTransaction(
           SpendlerTransactionsCompanion.insert(
             amount: _isExpense ? -amount : amount,
-            category: _category.name,
+            category: _isExpense ? _category.name : 'income',
             merchant: drift.Value(merchant),
             note: drift.Value(merchant),
             happenedAt: drift.Value(_selectedDate),
             source: const drift.Value('manual'),
             status: const drift.Value('confirmed'),
+            incomeSource: _isExpense
+                ? const drift.Value(null)
+                : drift.Value(_incomeSource),
           ),
         );
 
@@ -622,7 +646,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            '${_isExpense ? "Expense" : "Income"} of ${_currencySymbol(ref.read(selectedCurrencyProvider).valueOrNull ?? "inr")}${amount.toStringAsFixed(amount.truncateToDouble() == amount ? 0 : 2)} added',
+            '${_isExpense ? "Expense" : "Income"} of ${currencySymbol(ref.read(selectedCurrencyProvider).valueOrNull ?? "inr")}${amount.toStringAsFixed(amount.truncateToDouble() == amount ? 0 : 2)} added',
           ),
           duration: const Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,

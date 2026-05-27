@@ -22,6 +22,7 @@ abstract class FriendSplitRepository {
   Stream<List<FriendSplit>> watchPendingSplitsForFriend(int friendContactId);
   Stream<List<FriendSplit>> watchSettledSplits();
   Future<void> markSettled(int friendSplitId, String method);
+  Future<void> markPartialPayment(int friendSplitId, double amountPaid, String method);
   Future<void> markWrittenOff(int friendSplitId);
   Future<int> createSplit(FriendSplitsCompanion entry);
 }

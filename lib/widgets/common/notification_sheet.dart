@@ -99,7 +99,7 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
                       ),
                       child: Center(
                         child: Text(
-                          'No notifications yet',
+                          'All quiet — no notifications yet',
                           style: TextStyle(
                             color: AppColors.gray400,
                             fontSize: 14,

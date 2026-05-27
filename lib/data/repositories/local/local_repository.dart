@@ -246,6 +246,10 @@ class LocalRepository extends BaseRepository {
       _friendSplitRepo.markSettled(friendSplitId, method);
 
   @override
+  Future<void> markPartialPayment(int friendSplitId, double amountPaid, String method) =>
+      _friendSplitRepo.markPartialPayment(friendSplitId, amountPaid, method);
+
+  @override
   Future<void> markWrittenOff(int friendSplitId) =>
       _friendSplitRepo.markWrittenOff(friendSplitId);
 

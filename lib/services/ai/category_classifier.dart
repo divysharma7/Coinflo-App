@@ -8,9 +8,9 @@ import 'package:finance_buddy_app/core/enums.dart';
 import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/services/categorization/categorization_service.dart';
 import 'package:finance_buddy_app/services/categorization/merchant_dictionary.dart';
-import 'package:finance_buddy_app/services/import/models/normalized_transaction.dart';
-import 'package:finance_buddy_app/services/import/models/raw_transaction.dart';
-import 'package:finance_buddy_app/services/import/transaction_normalizer.dart';
+import 'package:finance_buddy_app/services/categorization/models/normalized_transaction.dart';
+import 'package:finance_buddy_app/services/categorization/models/raw_transaction.dart';
+import 'package:finance_buddy_app/services/categorization/transaction_normalizer.dart';
 
 class CategoryClassifier {
   final SpendlerDatabase _db;

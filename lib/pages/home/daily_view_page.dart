@@ -7,28 +7,18 @@ import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/widgets/common/amount_text.dart';
 import 'package:finance_buddy_app/widgets/common/empty_state.dart';
 import 'package:finance_buddy_app/widgets/common/hero_amount.dart';
+import 'package:finance_buddy_app/utils/currency_utils.dart';
 
 class DailyViewPage extends ConsumerWidget {
   final DateTime date;
 
   const DailyViewPage({super.key, required this.date});
 
-  static String _currencySymbol(String code) {
-    switch (code.toLowerCase()) {
-      case 'inr': return '\u20B9';
-      case 'usd': return '\$';
-      case 'eur': return '\u20AC';
-      case 'gbp': return '\u00A3';
-      case 'jpy': return '\u00A5';
-      default: return '\$';
-    }
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final txns = ref.watch(dailyTransactionsProvider(date));
     final dayName = DateFormat('EEEE').format(date);
-    final symbol = _currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
+    final symbol = currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
 
     return Scaffold(
       appBar: AppBar(title: Text(dayName)),
@@ -41,7 +31,7 @@ class DailyViewPage extends ConsumerWidget {
             return EmptyState(
               icon: Icons.check_circle_outline,
               message: '${symbol}0 spent this day.',
-              subtitle: 'No transactions recorded.',
+              subtitle: 'A clean slate — nothing spent today.',
             );
           }
           final total = list
@@ -62,31 +52,38 @@ class DailyViewPage extends ConsumerWidget {
                 ),
               ),
               Expanded(
-                child: ListView.builder(
-                  itemCount: list.length,
-                  itemBuilder: (_, i) {
-                    final t = list[i];
-                    final cat = TransactionCategory.values.firstWhere(
-                      (c) => c.name == t.category,
-                      orElse: () => TransactionCategory.foodAndDrink,
-                    );
-                    final catColor = AppColors.categoryColor(cat);
-                    return ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: catColor.withValues(alpha: 0.15),
-                        child: Icon(cat.iconFill, color: catColor, size: 20),
-                      ),
-                      title: Text(
-                        t.merchant ?? cat.label,
-                        style: AppTextStyles.bodyM,
-                      ),
-                      subtitle: Text(
-                        DateFormat('h:mm a').format(t.happenedAt),
-                        style: const TextStyle(color: AppColors.gray400, fontSize: 12),
-                      ),
-                      trailing: AmountText(amount: t.amount, symbol: symbol),
-                    );
+                child: RefreshIndicator(
+                  color: AppColors.black,
+                  backgroundColor: AppColors.white,
+                  onRefresh: () async {
+                    ref.invalidate(dailyTransactionsProvider(date));
                   },
+                  child: ListView.builder(
+                    itemCount: list.length,
+                    itemBuilder: (_, i) {
+                      final t = list[i];
+                      final cat = TransactionCategory.values.firstWhere(
+                        (c) => c.name == t.category,
+                        orElse: () => TransactionCategory.foodAndDrink,
+                      );
+                      final catColor = AppColors.categoryColor(cat);
+                      return ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: catColor.withValues(alpha: 0.15),
+                          child: Icon(cat.iconFill, color: catColor, size: 20),
+                        ),
+                        title: Text(
+                          t.merchant ?? cat.label,
+                          style: AppTextStyles.bodyM,
+                        ),
+                        subtitle: Text(
+                          DateFormat('h:mm a').format(t.happenedAt),
+                          style: const TextStyle(color: AppColors.gray400, fontSize: 12),
+                        ),
+                        trailing: AmountText(amount: t.amount, symbol: symbol),
+                      );
+                    },
+                  ),
                 ),
               ),
             ],
@@ -95,8 +92,25 @@ class DailyViewPage extends ConsumerWidget {
         loading: () => const Center(
           child: CircularProgressIndicator(color: AppColors.black),
         ),
-        error: (_, _) => const Center(
-          child: Text('Error loading', style: TextStyle(color: AppColors.red)),
+        error: (_, __) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Something went wrong', style: AppTextStyles.bodyM.copyWith(color: AppColors.gray500)),
+              const SizedBox(height: 12),
+              GestureDetector(
+                onTap: () => ref.invalidate(dailyTransactionsProvider(date)),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: AppColors.black,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text('Retry', style: AppTextStyles.bodyS.copyWith(color: AppColors.white)),
+                ),
+              ),
+            ],
+          ),
         ),
           ),
         ),

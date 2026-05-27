@@ -1,12 +1,8 @@
-import 'dart:convert';
+import 'package:finance_buddy_app/services/categorization/models/normalized_transaction.dart';
+import 'package:finance_buddy_app/services/categorization/models/raw_transaction.dart';
 
-import 'package:crypto/crypto.dart';
-
-import 'package:finance_buddy_app/services/import/models/normalized_transaction.dart';
-import 'package:finance_buddy_app/services/import/models/raw_transaction.dart';
-
-/// Cleans raw bank descriptions, extracts merchant tokens, detects channels,
-/// and computes dedup hashes. Fully stateless — safe to use in an isolate.
+/// Cleans raw descriptions, extracts merchant tokens, and detects channels.
+/// Fully stateless — safe to use in an isolate.
 class TransactionNormalizer {
   TransactionNormalizer();
 
@@ -47,14 +43,13 @@ class TransactionNormalizer {
     final cleaned = _cleanDescription(raw.rawDescription);
     final channel = _detectChannel(raw.rawDescription);
     final token = _extractMerchantToken(cleaned);
-    final hash = _computeHash(raw.date, raw.amount, cleaned);
 
     return NormalizedTransaction.fromRaw(
       raw: raw,
       cleanedDescription: cleaned,
       merchantToken: token,
       channel: channel,
-      rawHash: hash,
+      rawHash: '', // Hash computation removed — was only needed for import dedup.
     );
   }
 
@@ -108,11 +103,5 @@ class TransactionNormalizer {
     // Max 30 chars, already lowercase + alpha only.
     if (longest.length > 30) longest = longest.substring(0, 30);
     return longest;
-  }
-
-  /// Step 5: Compute SHA256 hash for dedup.
-  String _computeHash(DateTime date, double amount, String cleanedDescription) {
-    final input = '${date.toIso8601String()}|$amount|$cleanedDescription';
-    return sha256.convert(utf8.encode(input)).toString();
   }
 }

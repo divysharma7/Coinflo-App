@@ -27,7 +27,7 @@ class SpendBarChart extends StatelessWidget {
       return SizedBox(
         height: height,
         child: Center(
-          child: Text('No data',
+          child: Text('No data yet',
               style: AppTextStyles.bodyM.copyWith(color: AppColors.gray400)),
         ),
       );

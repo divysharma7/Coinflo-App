@@ -13,6 +13,7 @@ import 'package:finance_buddy_app/providers/onboarding_provider.dart';
 import 'package:finance_buddy_app/pages/splash/widgets/spinning_coin.dart';
 import 'package:finance_buddy_app/pages/splash/widgets/rocket_trail_painter.dart';
 import 'package:finance_buddy_app/pages/splash/widgets/coinflo_logo.dart';
+import 'package:finance_buddy_app/utils/currency_utils.dart';
 
 class SplashPage extends ConsumerStatefulWidget {
   const SplashPage({super.key});
@@ -113,18 +114,12 @@ class _SplashPageState extends ConsumerState<SplashPage>
     await markFirstLaunchIfNeeded(prefs);
     final firebaseUid = FirebaseAuth.instance.currentUser?.uid;
 
-    if (kDebugMode) {
-      await prefs.setString('auth_token', 'test_hardcoded_token');
-      await prefs.setString('user_uid', 'test_user_123');
-      final onboardingDone = await resolveOnboardingStatus(prefs, firebaseUid);
-      if (!mounted) return;
-      context.go(onboardingDone ? '/home' : '/onboarding/step2');
-    } else {
-      final isReturning = await ref.read(isReturningUserProvider.future);
-      final onboardingDone = await resolveOnboardingStatus(prefs, firebaseUid);
-      if (!mounted) return;
-      context.go((isReturning || onboardingDone) ? '/home' : '/onboarding/step2');
-    }
+    final isReturning = kDebugMode
+        ? true
+        : await ref.read(isReturningUserProvider.future);
+    final onboardingDone = await resolveOnboardingStatus(prefs, firebaseUid);
+    if (!mounted) return;
+    context.go((isReturning || onboardingDone) ? '/home' : '/onboarding/step2');
   }
 
   @override
@@ -142,7 +137,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
 
     // Read user's currency symbol.
     final currencyCode = ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr';
-    final symbol = _symbolFor(currencyCode);
+    final symbol = currencySymbol(currencyCode);
 
     return GestureDetector(
       onTap: _skip,
@@ -225,14 +220,4 @@ class _SplashPageState extends ConsumerState<SplashPage>
     return p0 * (mt * mt) + p1 * (2 * mt * t) + p2 * (t * t);
   }
 
-  static String _symbolFor(String code) {
-    switch (code.toLowerCase()) {
-      case 'inr': return '\u20B9';
-      case 'usd': return '\$';
-      case 'eur': return '\u20AC';
-      case 'gbp': return '\u00A3';
-      case 'jpy': return '\u00A5';
-      default: return '\u20B9';
-    }
-  }
 }

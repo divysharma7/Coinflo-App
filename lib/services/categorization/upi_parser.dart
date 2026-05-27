@@ -1,4 +1,4 @@
-import 'package:finance_buddy_app/services/import/models/categorization_result.dart';
+import 'package:finance_buddy_app/services/categorization/models/categorization_result.dart';
 import 'package:finance_buddy_app/core/enums.dart';
 import 'package:finance_buddy_app/services/categorization/merchant_dictionary.dart';
 

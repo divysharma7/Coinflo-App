@@ -170,17 +170,19 @@ class _CompletionScreenState extends ConsumerState<CompletionScreen>
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text(
-                  'Account created locally. Cloud backup unavailable.'),
+                  "You're set! Sign in later to enable cloud backup."),
             ),
           );
         }
         context.go('/home');
       }
     } on Exception catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString();
+          _isLoading = false;
+        });
+      }
     }
   }
 

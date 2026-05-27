@@ -2,6 +2,7 @@ import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:finance_buddy_app/core/enums.dart';
@@ -11,6 +12,10 @@ import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/pages/transactions/split_flow_sheet.dart';
 import 'package:finance_buddy_app/widgets/common/neo_pop_button.dart';
 import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
+import 'package:finance_buddy_app/services/attachment_service.dart';
+import 'package:finance_buddy_app/utils/currency_utils.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class TransactionDetailPage extends ConsumerStatefulWidget {
   final int transactionId;
@@ -187,18 +192,7 @@ class _TransactionDetailPageState
 
   // ─── Read Mode ─────────────────────────────────────
 
-  String get _sym => _currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
-
-  static String _currencySymbol(String code) {
-    switch (code.toLowerCase()) {
-      case 'inr': return '\u20B9';
-      case 'usd': return '\$';
-      case 'eur': return '\u20AC';
-      case 'gbp': return '\u00A3';
-      case 'jpy': return '\u00A5';
-      default: return '\$';
-    }
-  }
+  String get _sym => currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
 
   Widget _buildReadMode(SpendlerTransaction t) {
     final cat = TransactionCategory.values.firstWhere(
@@ -264,7 +258,7 @@ class _TransactionDetailPageState
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 begin: Alignment.topCenter, end: Alignment.bottomCenter,
-                colors: [Color(0xFF1E1E1E), AppColors.white],
+                colors: [AppColors.nearBlack, AppColors.white],
               ),
               borderRadius: BorderRadius.circular(20),
               boxShadow: AppShadows.sm,
@@ -272,6 +266,8 @@ class _TransactionDetailPageState
             child: Column(
               children: [
                 _detailRow('Category', cat.label),
+                if (t.incomeSource != null)
+                  _detailRow('Income Source', t.incomeSource![0].toUpperCase() + t.incomeSource!.substring(1)),
                 _detailRow('Source', 'Manual'),
                 _detailRow('Status', isUnconfirmed ? 'Unconfirmed' : 'Confirmed'),
                 if (t.isSplit) ...[
@@ -281,6 +277,68 @@ class _TransactionDetailPageState
                   _detailRow('Settled', t.splitSettled ? 'Yes' : 'No'),
                 ],
               ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+
+          // Attachment
+          if (t.attachmentPath != null) ...[
+            GestureDetector(
+              onTap: () => context.push('/attachment-viewer', extra: t.attachmentPath!),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.file(
+                  File(t.attachmentPath!),
+                  height: 120,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+          ],
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () async {
+                final source = await showModalBottomSheet<ImageSource>(
+                  context: context,
+                  builder: (ctx) => SafeArea(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ListTile(
+                          leading: const Icon(Icons.camera_alt),
+                          title: const Text('Camera'),
+                          onTap: () => Navigator.pop(ctx, ImageSource.camera),
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.photo_library),
+                          title: const Text('Gallery'),
+                          onTap: () => Navigator.pop(ctx, ImageSource.gallery),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+                if (source == null || !mounted) return;
+                final path = await AttachmentService().pickAndSave(source);
+                if (path == null || !mounted) return;
+                final repo = ref.read(repositoryProvider);
+                await repo.updateTransaction(
+                  t.id,
+                  SpendlerTransactionsCompanion(
+                    attachmentPath: Value(path),
+                  ),
+                );
+              },
+              icon: PhosphorIcon(PhosphorIcons.paperclip(), size: 18),
+              label: Text(t.attachmentPath != null ? 'Replace bill' : 'Attach bill'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.gray600,
+                side: const BorderSide(color: AppColors.gray200),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
             ),
           ),
           const SizedBox(height: AppSpacing.lg),

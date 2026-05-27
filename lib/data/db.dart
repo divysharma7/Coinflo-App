@@ -35,6 +35,10 @@ class SpendlerTransactions extends Table {
   TextColumn get importBatchId => text().nullable()();          // FK to ImportBatches.id
   BoolColumn get isAnomaly => boolean().withDefault(const Constant(false))();
   BoolColumn get isRecurring => boolean().withDefault(const Constant(false))();
+
+  // ─── v8 columns ──────────────────────────────────────
+  TextColumn get incomeSource => text().nullable()();       // salary, freelance, refund, gift, other
+  TextColumn get attachmentPath => text().nullable()();     // local file path for receipt photo
 }
 
 class FamilyEntries extends Table {
@@ -94,6 +98,10 @@ class FriendSplits extends Table {
   DateTimeColumn get settledAt => dateTime().nullable()();
   TextColumn get settlementMethod => text().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+
+  // ─── v8 columns ──────────────────────────────────────
+  TextColumn get status => text().withDefault(const Constant('uncleared'))(); // uncleared, partiallyCleared, cleared
+  RealColumn get amountCleared => real().withDefault(const Constant(0.0))();
 }
 
 class Subscriptions extends Table {
@@ -217,7 +225,7 @@ class SpendlerDatabase extends _$SpendlerDatabase {
 
   // TODO: Rename DB file from spendler.sqlite → coinflo.sqlite in a separate migration PR.
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -283,6 +291,47 @@ class SpendlerDatabase extends _$SpendlerDatabase {
             // Indexes for import performance
             await _createV7Indexes(m);
           }
+          if (from < 8) {
+            // P3.2: Income source field
+            await m.addColumn(
+              spendlerTransactions,
+              spendlerTransactions.incomeSource,
+            );
+            // P3.4: Attachment path field
+            await m.addColumn(
+              spendlerTransactions,
+              spendlerTransactions.attachmentPath,
+            );
+            // P3.3: Split status + amountCleared
+            await m.addColumn(
+              friendSplits,
+              friendSplits.status,
+            );
+            await m.addColumn(
+              friendSplits,
+              friendSplits.amountCleared,
+            );
+            // Backfill: existing income transactions get source 'other'
+            await customStatement(
+              "UPDATE spendler_transactions SET income_source = 'other' WHERE amount > 0 AND category = 'income'",
+            );
+            // Backfill: existing settled splits get status 'cleared' with full amount
+            await customStatement(
+              "UPDATE friend_splits SET status = 'cleared', amount_cleared = amount WHERE is_settled = 1",
+            );
+          }
+          if (from < 9) {
+            // Performance indexes for common query patterns
+            await customStatement(
+              'CREATE INDEX IF NOT EXISTS idx_txn_happened_at ON spendler_transactions (happened_at)',
+            );
+            await customStatement(
+              'CREATE INDEX IF NOT EXISTS idx_txn_status ON spendler_transactions (status)',
+            );
+            await customStatement(
+              'CREATE INDEX IF NOT EXISTS idx_txn_category ON spendler_transactions (category)',
+            );
+          }
         },
       );
 
@@ -295,6 +344,13 @@ class SpendlerDatabase extends _$SpendlerDatabase {
         'CREATE INDEX IF NOT EXISTS idx_txn_import_batch ON spendler_transactions (import_batch_id) WHERE import_batch_id IS NOT NULL'));
     await m.createIndex(Index('merchant_mappings',
         'CREATE UNIQUE INDEX IF NOT EXISTS idx_merchant_mapping_token_source ON merchant_mappings (merchant_token, source)'));
+    // Performance indexes for common query patterns (v9)
+    await m.createIndex(Index('spendler_transactions',
+        'CREATE INDEX IF NOT EXISTS idx_txn_happened_at ON spendler_transactions (happened_at)'));
+    await m.createIndex(Index('spendler_transactions',
+        'CREATE INDEX IF NOT EXISTS idx_txn_status ON spendler_transactions (status)'));
+    await m.createIndex(Index('spendler_transactions',
+        'CREATE INDEX IF NOT EXISTS idx_txn_category ON spendler_transactions (category)'));
   }
 }
 

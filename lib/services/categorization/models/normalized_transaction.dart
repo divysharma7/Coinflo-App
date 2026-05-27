@@ -1,11 +1,11 @@
 import 'package:finance_buddy_app/core/enums.dart';
-import 'package:finance_buddy_app/services/import/models/raw_transaction.dart';
+import 'package:finance_buddy_app/services/categorization/models/raw_transaction.dart';
 
 /// Channel through which the transaction was made.
 enum TransactionChannel { upi, pos, neft, imps, atm, other }
 
 /// A transaction after normalization: cleaned description, extracted tokens,
-/// channel detection, and dedup hash computed. Ready for categorization.
+/// channel detection. Ready for categorization.
 class NormalizedTransaction {
   final DateTime date;
   final double amount;

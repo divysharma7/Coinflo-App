@@ -43,6 +43,12 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       return;
     }
 
+    final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+    if (!emailRegex.hasMatch(email)) {
+      setState(() => _errorMessage = 'Please enter a valid email address.');
+      return;
+    }
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -53,10 +59,12 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       final user = await authService.signInWithEmail(email, password);
 
       if (user == null) {
-        setState(() {
-          _errorMessage = 'Sign in failed. Please try again.';
-          _isLoading = false;
-        });
+        if (mounted) {
+          setState(() {
+            _errorMessage = 'Sign in failed. Please try again.';
+            _isLoading = false;
+          });
+        }
         return;
       }
 
@@ -71,15 +79,19 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
 
       if (mounted) context.go('/home');
     } on FirebaseAuthException catch (e) {
-      setState(() {
-        _errorMessage = _friendlyAuthError(e.code);
-        _isLoading = false;
-      });
-    } on Exception catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _errorMessage = _friendlyAuthError(e.code);
+          _isLoading = false;
+        });
+      }
+    } on Exception {
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Something went wrong. Please try again.';
+          _isLoading = false;
+        });
+      }
     }
   }
 

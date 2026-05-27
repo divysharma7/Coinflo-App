@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:finance_buddy_app/core/enums.dart';
@@ -10,10 +11,10 @@ import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/widgets/common/amount_text.dart';
 import 'package:finance_buddy_app/widgets/common/empty_state.dart';
 import 'package:finance_buddy_app/widgets/common/neo_pop_button.dart';
-import 'package:finance_buddy_app/pages/transactions/transaction_detail_page.dart';
 import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 import 'package:finance_buddy_app/widgets/common/animations.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:finance_buddy_app/utils/currency_utils.dart';
 
 class TransactionsPage extends ConsumerStatefulWidget {
   const TransactionsPage({super.key});
@@ -25,17 +26,6 @@ class TransactionsPage extends ConsumerStatefulWidget {
 class _TransactionsPageState extends ConsumerState<TransactionsPage> {
   final _searchController = TextEditingController();
   String _searchQuery = '';
-
-  static String _currencySymbol(String code) {
-    switch (code.toLowerCase()) {
-      case 'inr': return '\u20B9';
-      case 'usd': return '\$';
-      case 'eur': return '\u20AC';
-      case 'gbp': return '\u00A3';
-      case 'jpy': return '\u00A5';
-      default: return '\$';
-    }
-  }
 
   @override
   void dispose() {
@@ -236,11 +226,11 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                 return EmptyState(
                   icon: Icons.receipt_long,
                   message: _searchQuery.isNotEmpty
-                      ? 'No transactions match your search.'
-                      : 'No transactions match these filters.',
+                      ? 'Nothing matches that search.'
+                      : 'Nothing matches these filters.',
                   subtitle: _searchQuery.isNotEmpty
-                      ? 'Try a different search term.'
-                      : 'Try adjusting your filters.',
+                      ? 'Try different words.'
+                      : 'Try loosening up the filters.',
                 );
               }
 
@@ -313,13 +303,39 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
               }
               items.add(const SizedBox(height: 80));
 
-              return ListView.builder(
-                itemCount: items.length,
-                itemBuilder: (context, index) => items[index],
+              return RefreshIndicator(
+                color: AppColors.black,
+                backgroundColor: AppColors.white,
+                onRefresh: () async {
+                  ref.invalidate(filteredTransactionsProvider);
+                },
+                child: ListView.builder(
+                  itemCount: items.length,
+                  itemBuilder: (context, index) => items[index],
+                ),
               );
             },
             loading: () => const Center(child: CircularProgressIndicator(color: AppColors.black)),
-            error: (_, _) => const Center(child: Text('Error loading', style: TextStyle(color: AppColors.red))),
+            error: (_, __) => Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Something went wrong', style: AppTextStyles.bodyM.copyWith(color: AppColors.gray500)),
+                  const SizedBox(height: 12),
+                  GestureDetector(
+                    onTap: () => ref.invalidate(filteredTransactionsProvider),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: AppColors.black,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text('Retry', style: AppTextStyles.bodyS.copyWith(color: AppColors.white)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ],
@@ -336,20 +352,15 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
 
     return PressableCard(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute<void>(
-            builder: (_) => TransactionDetailPage(transactionId: t.id),
-          ),
-        );
+        context.push('/transaction/${t.id}');
       },
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 2),
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 10),
         decoration: BoxDecoration(
-          color: isUnconfirmed ? const Color(0xFFF59E0B).withValues(alpha: 0.06) : null,
+          color: isUnconfirmed ? AppColors.amber.withValues(alpha: 0.06) : null,
           border: isUnconfirmed
-              ? const Border(left: BorderSide(color: Color(0xFFF59E0B), width: 3))
+              ? const Border(left: BorderSide(color: AppColors.amber, width: 3))
               : null,
           borderRadius: BorderRadius.circular(12),
         ),
@@ -395,20 +406,20 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
               children: [
                 AmountText(
                   amount: t.amount.toDouble(),
-                  symbol: _currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr'),
+                  symbol: currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr'),
                 ),
                 if (isUnconfirmed)
                   Container(
                     margin: const EdgeInsets.only(top: 4),
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
+                      color: AppColors.amber.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(100),
                     ),
                     child: const Text(
                       'Pending',
                       style: TextStyle(
-                        color: Color(0xFFF59E0B),
+                        color: AppColors.amber,
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
                       ),
@@ -439,7 +450,7 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
   }
 
   String _amountLabel(AmountFilter f) {
-    final s = _currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
+    final s = currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
     switch (f) {
       case AmountFilter.upto200:
         return '\u2264 ${s}200';

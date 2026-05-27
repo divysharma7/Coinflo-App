@@ -11,16 +11,16 @@ import 'package:finance_buddy_app/pages/onboarding_v2/savings_goals_screen.dart'
 import 'package:finance_buddy_app/pages/onboarding_v2/recurring_payments_screen.dart';
 import 'package:finance_buddy_app/pages/onboarding_v2/stay_on_track_screen.dart';
 import 'package:finance_buddy_app/pages/onboarding_v2/completion_screen.dart';
-import 'package:finance_buddy_app/pages/onboarding_v2/import_step_screen.dart';
 import 'package:finance_buddy_app/pages/auth/sign_in_screen.dart';
 import 'package:finance_buddy_app/pages/shell_page.dart';
-import 'package:finance_buddy_app/pages/import/select_bank_page.dart';
-import 'package:finance_buddy_app/pages/import/upload_file_page.dart';
-import 'package:finance_buddy_app/pages/import/processing_page.dart';
-import 'package:finance_buddy_app/pages/import/review_page.dart';
-import 'package:finance_buddy_app/pages/import/summary_page.dart';
-import 'package:finance_buddy_app/pages/import/import_history_page.dart';
 import 'package:finance_buddy_app/pages/report/category_transactions_page.dart';
+import 'package:finance_buddy_app/pages/settings/excel_import_page.dart';
+import 'package:finance_buddy_app/pages/saraswati/saraswati_page.dart';
+import 'package:finance_buddy_app/pages/people/people_page.dart';
+import 'package:finance_buddy_app/pages/subscriptions/subscriptions_page.dart';
+import 'package:finance_buddy_app/pages/transactions/transaction_detail_page.dart';
+import 'package:finance_buddy_app/pages/home/daily_view_page.dart';
+import 'package:finance_buddy_app/pages/transactions/attachment_viewer_page.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -37,10 +37,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/onboarding/step2',
         builder: (context, state) => const AddAccountsScreen(),
-      ),
-      GoRoute(
-        path: '/onboarding/import',
-        builder: (context, state) => const ImportStepScreen(),
       ),
       GoRoute(
         path: '/onboarding/step3',
@@ -81,32 +77,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const SignInScreen(),
       ),
 
-      // ─── Import flow ──────────────────────────────────
-      GoRoute(
-        path: '/import',
-        builder: (context, state) => const SelectBankPage(),
-      ),
-      GoRoute(
-        path: '/import/upload',
-        builder: (context, state) => const UploadFilePage(),
-      ),
-      GoRoute(
-        path: '/import/processing',
-        builder: (context, state) => const ProcessingPage(),
-      ),
-      GoRoute(
-        path: '/import/review',
-        builder: (context, state) => const ReviewPage(),
-      ),
-      GoRoute(
-        path: '/import/summary',
-        builder: (context, state) => const SummaryPage(),
-      ),
-      GoRoute(
-        path: '/import/history',
-        builder: (context, state) => const ImportHistoryPage(),
-      ),
-
       // ─── Report drill-down ────────────────────────────
       GoRoute(
         path: '/report/category',
@@ -116,6 +86,47 @@ final routerProvider = Provider<GoRouter>((ref) {
             categoryName: extra['category'] as String,
             month: extra['month'] as DateTime,
           );
+        },
+      ),
+
+      // ─── Settings sub-pages ───────────────────────────
+      GoRoute(
+        path: '/settings/saraswati',
+        builder: (context, state) => const SaraswatiPage(),
+      ),
+      GoRoute(
+        path: '/settings/people',
+        builder: (context, state) => const PeoplePage(),
+      ),
+      GoRoute(
+        path: '/settings/subscriptions',
+        builder: (context, state) => const SubscriptionsPage(),
+      ),
+      GoRoute(
+        path: '/settings/excel-import',
+        builder: (context, state) => const ExcelImportPage(),
+      ),
+
+      // ─── Transaction pages ─────────────────────────────
+      GoRoute(
+        path: '/transaction/:id',
+        builder: (context, state) {
+          final id = int.parse(state.pathParameters['id']!);
+          return TransactionDetailPage(transactionId: id);
+        },
+      ),
+      GoRoute(
+        path: '/daily-view',
+        builder: (context, state) {
+          final date = state.extra as DateTime;
+          return DailyViewPage(date: date);
+        },
+      ),
+      GoRoute(
+        path: '/attachment-viewer',
+        builder: (context, state) {
+          final filePath = state.extra as String;
+          return AttachmentViewerPage(filePath: filePath);
         },
       ),
 
