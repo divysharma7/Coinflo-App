@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -114,9 +113,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
     await markFirstLaunchIfNeeded(prefs);
     final firebaseUid = FirebaseAuth.instance.currentUser?.uid;
 
-    final isReturning = kDebugMode
-        ? true
-        : await ref.read(isReturningUserProvider.future);
+    final isReturning = await ref.read(isReturningUserProvider.future);
     final onboardingDone = await resolveOnboardingStatus(prefs, firebaseUid);
     if (!mounted) return;
     context.go((isReturning || onboardingDone) ? '/home' : '/onboarding/step2');

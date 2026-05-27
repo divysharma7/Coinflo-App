@@ -11,6 +11,7 @@ abstract class TransactionRepository {
   Stream<List<SpendlerTransaction>> watchTransactionsForWeek(DateTime weekStart);
   Stream<List<SpendlerTransaction>> watchUnconfirmed();
   Stream<List<SpendlerTransaction>> watchAll();
+  Future<SpendlerTransaction?> getById(int id);
   Future<List<SpendlerTransaction>> getTransactionsForDay(DateTime day);
   Future<List<SpendlerTransaction>> getTransactionsForMonth(DateTime month);
   Future<int> getUnconfirmedCount();

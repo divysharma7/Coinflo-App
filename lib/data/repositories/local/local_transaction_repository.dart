@@ -33,6 +33,13 @@ class LocalTransactionRepository implements TransactionRepository {
   }
 
   @override
+  Future<SpendlerTransaction?> getById(int id) {
+    return (db.select(db.spendlerTransactions)
+          ..where((t) => t.id.equals(id)))
+        .getSingleOrNull();
+  }
+
+  @override
   Future<List<SpendlerTransaction>> getTransactionsForDay(DateTime day) {
     final dayStart = DateTime(day.year, day.month, day.day);
     final dayEnd = dayStart.add(const Duration(days: 1));

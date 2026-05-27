@@ -64,7 +64,6 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Ask Saraswati'), findsOneWidget);
-      expect(find.text('Currency'), findsOneWidget);
       expect(find.text('Accounts'), findsOneWidget);
       expect(find.text('Categories'), findsOneWidget);
       expect(find.text('Monthly Budget'), findsOneWidget);
@@ -129,7 +128,9 @@ void main() {
       await tester.pumpWidget(buildWidget(currency: 'inr'));
       await tester.pumpAndSettle();
 
-      expect(find.textContaining('INR'), findsOneWidget);
+      // Currency row was removed — INR is locked for v1.
+      // Verify the settings page renders without it.
+      expect(find.text('Settings'), findsOneWidget);
     });
 
     testWidgets('renders Log Out button', (tester) async {

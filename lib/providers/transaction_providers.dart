@@ -24,8 +24,7 @@ final allTransactionsProvider = StreamProvider.autoDispose<List<SpendlerTransact
 
 final singleTransactionProvider = FutureProvider.autoDispose.family<SpendlerTransaction?, int>((ref, id) async {
   final repo = ref.watch(repositoryProvider);
-  final all = await repo.watchAll().first;
-  return all.where((t) => t.id == id).firstOrNull;
+  return repo.getById(id);
 });
 
 final categoryFilterProvider = StateProvider<TransactionCategory?>((ref) => null);

@@ -72,7 +72,7 @@ class AuthService {
       }
       return user;
     } on FirebaseAuthException catch (e) {
-      debugPrint('Sign-up failed: ${e.message}');
+      if (kDebugMode) debugPrint('Sign-up failed: ${e.code}');
       rethrow;
     }
   }
@@ -90,7 +90,7 @@ class AuthService {
       }
       return user;
     } on FirebaseAuthException catch (e) {
-      debugPrint('Sign-in failed: ${e.message}');
+      if (kDebugMode) debugPrint('Sign-in failed: ${e.code}');
       rethrow;
     }
   }
@@ -100,7 +100,7 @@ class AuthService {
     try {
       await _firebaseAuth.signOut();
     } on Exception catch (e) {
-      debugPrint('Firebase sign-out error: $e');
+      if (kDebugMode) debugPrint('Firebase sign-out error: $e');
     }
     await _secureStorage.delete(key: _authTokenKey);
     await _secureStorage.delete(key: _userUidKey);

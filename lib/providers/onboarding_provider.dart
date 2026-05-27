@@ -1,7 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:finance_buddy_app/core/enums.dart';
+
+const _secureStorage = FlutterSecureStorage(
+  aOptions: AndroidOptions(encryptedSharedPreferences: true),
+);
 
 const _onboardingKey = 'onboarding_completed';
 const _userNameKey = 'user_name';
@@ -109,18 +114,16 @@ Future<void> saveMonthlyBudget(double value) async {
   await prefs.setDouble(_monthlyBudgetKey, value);
 }
 
-// ─── User email ──────────────────────────────────────
+// ─── User email (encrypted) ─────────────────────────
 
 const _userEmailKey = 'user_email';
 
 final userEmailProvider = FutureProvider<String?>((ref) async {
-  final prefs = await SharedPreferences.getInstance();
-  return prefs.getString(_userEmailKey);
+  return _secureStorage.read(key: _userEmailKey);
 });
 
 Future<void> saveUserEmail(String email) async {
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setString(_userEmailKey, email);
+  await _secureStorage.write(key: _userEmailKey, value: email);
 }
 
 // ─── Returning-user gate ────────────────────────────

@@ -176,7 +176,7 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
     await prefs.setString('accounts', encoded);
 
     if (mounted) {
-      await context.push('/onboarding/import');
+      await context.push('/onboarding/step3');
     }
   }
 

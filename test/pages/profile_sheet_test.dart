@@ -76,7 +76,7 @@ void main() {
       await tester.pumpWidget(buildWidget(userName: 'Alice'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Not set'), findsOneWidget);
+      expect(find.text('No email set'), findsOneWidget);
     });
 
     testWidgets('renders close button', (tester) async {
@@ -86,12 +86,12 @@ void main() {
       expect(find.byIcon(Icons.close), findsOneWidget);
     });
 
-    testWidgets('renders Settings and Accounts action rows', (tester) async {
+    testWidgets('hides accounts section when no accounts saved', (tester) async {
       await tester.pumpWidget(buildWidget());
       await tester.pumpAndSettle();
 
-      expect(find.text('Settings'), findsOneWidget);
-      expect(find.text('Accounts'), findsOneWidget);
+      // Accounts summary only renders when SharedPreferences has account data
+      expect(find.text('Accounts'), findsNothing);
     });
 
     testWidgets('avatar circle has primary color background', (tester) async {
