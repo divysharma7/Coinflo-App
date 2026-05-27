@@ -204,76 +204,63 @@ class _TransactionDetailPageState
     );
     final catColor = AppColors.categoryColor(cat);
     final isUnconfirmed = t.status == 'unconfirmed';
+    final isExpense = t.amount < 0;
+    final amountColor = isExpense ? AppColors.amountNeutral : AppColors.green;
+    final hasNote = t.note != null && t.note!.isNotEmpty && t.note != t.merchant;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(
-            radius: 36,
-            backgroundColor: catColor.withValues(alpha: 0.15),
-            child: Icon(cat.iconFill, color: catColor, size: 32),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                t.amount < 0 ? '-$_sym' : '+$_sym',
-                style: TextStyle(
-                  fontSize: 20, fontWeight: FontWeight.w400,
-                  color: t.amount < 0 ? AppColors.red : AppColors.green,
+          // ── Header: icon + amount + merchant ──
+          Center(
+            child: Column(
+              children: [
+                CircleAvatar(
+                  radius: 28,
+                  backgroundColor: catColor.withValues(alpha: 0.12),
+                  child: Icon(cat.iconFill, color: catColor, size: 26),
                 ),
-              ),
-              Text(
-                t.amount.abs().toStringAsFixed(0),
-                style: TextStyle(
-                  fontSize: 40, fontWeight: FontWeight.bold,
-                  color: t.amount < 0 ? AppColors.red : AppColors.green,
+                const SizedBox(height: AppSpacing.md),
+                Text(
+                  '$_sym${t.amount.abs().toStringAsFixed(t.amount.abs().truncateToDouble() == t.amount.abs() ? 0 : 2)}',
+                  style: AppTextStyles.displayL.copyWith(color: amountColor),
                 ),
-              ),
-            ],
+                const SizedBox(height: 4),
+                Text(
+                  t.merchant ?? cat.label,
+                  style: AppTextStyles.headingS.copyWith(color: AppColors.black),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  DateFormat('EEE, d MMM yyyy • h:mm a').format(t.happenedAt),
+                  style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            t.merchant ?? cat.label,
-            style: AppTextStyles.bodyM.copyWith(fontSize: 20),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          Text(
-            DateFormat('EEEE, d MMM yyyy • h:mm a').format(t.happenedAt),
-            style: const TextStyle(color: AppColors.gray500),
-          ),
-          if (t.note != null && t.note!.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Text(t.note!, style: const TextStyle(color: AppColors.gray500)),
-          ],
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: AppSpacing.xl),
 
-          // Details card
+          // ── Details card ──
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(AppSpacing.md),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topCenter, end: Alignment.bottomCenter,
-                colors: [AppColors.nearBlack, AppColors.white],
-              ),
-              borderRadius: AppRadius.lg,
+              color: AppColors.white,
+              borderRadius: AppRadius.xl,
               boxShadow: AppShadows.sm,
             ),
             child: Column(
               children: [
                 _detailRow('Category', cat.label),
                 if (t.incomeSource != null)
-                  _detailRow('Income Source', t.incomeSource![0].toUpperCase() + t.incomeSource!.substring(1)),
-                _detailRow('Source', 'Manual'),
+                  _detailRow('Source', t.incomeSource![0].toUpperCase() + t.incomeSource!.substring(1)),
+                _detailRow('Type', isExpense ? 'Expense' : 'Income'),
                 _detailRow('Status', isUnconfirmed ? 'Unconfirmed' : 'Confirmed'),
+                if (hasNote) _detailRow('Note', t.note!),
                 if (t.isSplit) ...[
+                  const Divider(height: 20, color: AppColors.gray100),
                   _detailRow('Split', '${t.splitCount} people'),
                   _detailRow('My Share', '$_sym${t.splitMyShare?.toStringAsFixed(0) ?? "—"}'),
                   _detailRow('Pending', '$_sym${t.splitPendingAmount?.toStringAsFixed(0) ?? "0"}'),
@@ -284,12 +271,12 @@ class _TransactionDetailPageState
           ),
           const SizedBox(height: AppSpacing.lg),
 
-          // Attachment
+          // ── Attachment ──
           if (t.attachmentPath != null) ...[
             GestureDetector(
               onTap: () => context.push('/attachment-viewer', extra: t.attachmentPath!),
               child: ClipRRect(
-                borderRadius: AppRadius.base,
+                borderRadius: AppRadius.lg,
                 child: Image.file(
                   File(t.attachmentPath!),
                   height: 120,
@@ -298,125 +285,149 @@ class _TransactionDetailPageState
                 ),
               ),
             ),
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: AppSpacing.md),
           ],
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () async {
-                final source = await showSpendlerSheet<ImageSource>(
-                  context: context,
-                  isScrollControlled: false,
-                  builder: (ctx) => SafeArea(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ListTile(
-                          leading: const Icon(Icons.camera_alt),
-                          title: const Text('Camera'),
-                          onTap: () => Navigator.pop(ctx, ImageSource.camera),
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.photo_library),
-                          title: const Text('Gallery'),
-                          onTap: () => Navigator.pop(ctx, ImageSource.gallery),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-                if (source == null || !mounted) return;
-                final path = await AttachmentService().pickAndSave(source);
-                if (path == null || !mounted) return;
-                final repo = ref.read(repositoryProvider);
-                await repo.updateTransaction(
-                  t.id,
-                  SpendlerTransactionsCompanion(
-                    attachmentPath: Value(path),
-                  ),
-                );
-              },
-              icon: PhosphorIcon(PhosphorIcons.paperclip(), size: 18),
-              label: Text(t.attachmentPath != null ? 'Replace bill' : 'Attach bill'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.gray600,
-                side: const BorderSide(color: AppColors.gray200),
-                shape: RoundedRectangleBorder(borderRadius: AppRadius.base),
-              ),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.lg),
 
-          // Actions
+          // ── Action buttons row ──
+          Row(
+            children: [
+              Expanded(
+                child: _actionChip(
+                  icon: PhosphorIcons.paperclip(),
+                  label: t.attachmentPath != null ? 'Replace bill' : 'Attach bill',
+                  onTap: () => _pickAttachment(t),
+                ),
+              ),
+              if (!t.isSplit && isExpense) ...[
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: _actionChip(
+                    icon: PhosphorIcons.users(),
+                    label: 'Split',
+                    onTap: () {
+                      showSpendlerSheet<void>(
+                        context: context,
+                        builder: (_) => SplitFlowSheet(
+                          transactionId: t.id, totalAmount: t.amount.abs(),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ],
+          ),
+
           if (isUnconfirmed) ...[
+            const SizedBox(height: AppSpacing.md),
             SizedBox(
-              width: double.infinity, height: 56,
-              child: FilledButton.icon(
+              width: double.infinity,
+              height: 48,
+              child: FilledButton(
                 onPressed: () async {
                   final repo = ref.read(repositoryProvider);
                   await repo.confirmTransaction(t.id);
                   if (mounted) Navigator.pop(context);
                 },
-                icon: const Icon(Icons.check),
-                label: const Text('Confirm This'),
                 style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.black, foregroundColor: Colors.black,
+                  backgroundColor: AppColors.black,
+                  foregroundColor: AppColors.white,
                   shape: RoundedRectangleBorder(borderRadius: AppRadius.base),
                 ),
+                child: const Text('Confirm Transaction'),
               ),
             ),
-            const SizedBox(height: 8),
           ],
-          if (!t.isSplit && t.amount < 0)
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: () {
-                  showSpendlerSheet<void>(
-                    context: context,
-                    builder: (_) => SplitFlowSheet(
-                      transactionId: t.id, totalAmount: t.amount.abs(),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.group),
-                label: const Text('Split This'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.black,
-                  side: const BorderSide(color: AppColors.gray200),
-                  shape: RoundedRectangleBorder(borderRadius: AppRadius.base),
-                ),
-              ),
-            ),
-          const SizedBox(height: 8),
-          SizedBox(
-            width: double.infinity,
-            child: TextButton.icon(
-              onPressed: () async {
-                final confirmed = await showDialog<bool>(
-                  context: context,
-                  builder: (_) => AlertDialog(
-                    title: const Text('Delete this transaction?'),
-                    content: const Text('This cannot be undone.'),
-                    actions: [
-                      TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-                      TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
-                    ],
-                  ),
-                );
-                if (confirmed == true) {
-                  final repo = ref.read(repositoryProvider);
-                  await repo.deleteTransaction(t.id);
-                  if (mounted) Navigator.pop(context);
-                }
-              },
-              icon: const Icon(Icons.delete_outline, color: AppColors.red),
-              label: const Text('Delete', style: TextStyle(color: AppColors.red)),
+
+          const SizedBox(height: AppSpacing.xl),
+
+          // ── Delete ──
+          Center(
+            child: TextButton(
+              onPressed: () => _confirmDelete(t.id),
+              child: Text('Delete transaction',
+                  style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500)),
             ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _actionChip({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: AppColors.gray100,
+          borderRadius: AppRadius.base,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            PhosphorIcon(icon, size: 16, color: AppColors.gray600),
+            const SizedBox(width: 6),
+            Text(label, style: AppTextStyles.bodyS.copyWith(color: AppColors.gray600)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickAttachment(SpendlerTransaction t) async {
+    final source = await showSpendlerSheet<ImageSource>(
+      context: context,
+      isScrollControlled: false,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('Camera'),
+              onTap: () => Navigator.pop(ctx, ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Gallery'),
+              onTap: () => Navigator.pop(ctx, ImageSource.gallery),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (source == null || !mounted) return;
+    final path = await AttachmentService().pickAndSave(source);
+    if (path == null || !mounted) return;
+    final repo = ref.read(repositoryProvider);
+    await repo.updateTransaction(
+      t.id,
+      SpendlerTransactionsCompanion(attachmentPath: Value(path)),
+    );
+  }
+
+  Future<void> _confirmDelete(int id) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Delete this transaction?'),
+        content: const Text('This cannot be undone.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      final repo = ref.read(repositoryProvider);
+      await repo.deleteTransaction(id);
+      if (mounted) Navigator.pop(context);
+    }
   }
 
   // ─── Edit Mode ─────────────────────────────────────

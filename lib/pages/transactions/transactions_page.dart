@@ -354,6 +354,7 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
       onTap: () {
         context.push('/transaction/${t.id}');
       },
+      onLongPress: () => _showTransactionActions(context, t),
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 2),
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 10),
@@ -426,6 +427,62 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                     ),
                   ),
               ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showTransactionActions(BuildContext context, SpendlerTransaction t) {
+    HapticFeedback.mediumImpact();
+    final cat = TransactionCategory.values.firstWhere(
+      (c) => c.name == t.category,
+      orElse: () => TransactionCategory.foodAndDrink,
+    );
+    showSpendlerSheet<void>(
+      context: context,
+      isScrollControlled: false,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+              child: Text(
+                t.merchant ?? cat.label,
+                style: AppTextStyles.headingS,
+              ),
+            ),
+            ListTile(
+              leading: PhosphorIcon(PhosphorIcons.pencilSimple(), color: AppColors.black),
+              title: const Text('Edit'),
+              onTap: () {
+                Navigator.pop(ctx);
+                context.push('/transaction/${t.id}');
+              },
+            ),
+            ListTile(
+              leading: PhosphorIcon(PhosphorIcons.trash(), color: AppColors.red),
+              title: Text('Delete', style: TextStyle(color: AppColors.red)),
+              onTap: () async {
+                Navigator.pop(ctx);
+                final confirmed = await showDialog<bool>(
+                  context: context,
+                  builder: (_) => AlertDialog(
+                    title: const Text('Delete this transaction?'),
+                    content: const Text('This cannot be undone.'),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+                      TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
+                    ],
+                  ),
+                );
+                if (confirmed == true) {
+                  final repo = ref.read(repositoryProvider);
+                  await repo.deleteTransaction(t.id);
+                }
+              },
             ),
           ],
         ),
