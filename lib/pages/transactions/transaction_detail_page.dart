@@ -10,7 +10,7 @@ import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/pages/transactions/split_flow_sheet.dart';
-import 'package:finance_buddy_app/widgets/common/neo_pop_button.dart';
+import 'package:finance_buddy_app/widgets/common/animations.dart';
 import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 import 'package:finance_buddy_app/services/attachment_service.dart';
 import 'package:finance_buddy_app/utils/currency_utils.dart';
@@ -19,8 +19,13 @@ import 'dart:io';
 
 class TransactionDetailPage extends ConsumerStatefulWidget {
   final int transactionId;
+  final bool startInEditMode;
 
-  const TransactionDetailPage({super.key, required this.transactionId});
+  const TransactionDetailPage({
+    super.key,
+    required this.transactionId,
+    this.startInEditMode = false,
+  });
 
   @override
   ConsumerState<TransactionDetailPage> createState() =>
@@ -30,18 +35,28 @@ class TransactionDetailPage extends ConsumerStatefulWidget {
 class _TransactionDetailPageState
     extends ConsumerState<TransactionDetailPage> {
   bool _editing = false;
+  bool _initialEditModePending = false;
 
-  // Edit fields
-  late TextEditingController _amountCtrl;
-  late TextEditingController _merchantCtrl;
-  late TextEditingController _noteCtrl;
+  // Edit fields — nullable to avoid leak on save-then-dispose
+  TextEditingController? _amountCtrl;
+  TextEditingController? _merchantCtrl;
+  TextEditingController? _noteCtrl;
   TransactionCategory _category = TransactionCategory.foodAndDrink;
   DateTime _date = DateTime.now();
   TimeOfDay _time = TimeOfDay.now();
   bool _isExpense = true;
   bool _hasChanges = false;
 
+  @override
+  void initState() {
+    super.initState();
+    _initialEditModePending = widget.startInEditMode;
+  }
+
   void _enterEditMode(SpendlerTransaction t) {
+    _amountCtrl?.dispose();
+    _merchantCtrl?.dispose();
+    _noteCtrl?.dispose();
     _amountCtrl = TextEditingController(text: t.amount.abs().toStringAsFixed(0));
     _merchantCtrl = TextEditingController(text: t.merchant ?? '');
     _noteCtrl = TextEditingController(text: t.note ?? '');
@@ -82,7 +97,7 @@ class _TransactionDetailPageState
   }
 
   Future<void> _saveChanges(int id) async {
-    final amount = double.tryParse(_amountCtrl.text.trim());
+    final amount = double.tryParse(_amountCtrl!.text.trim());
     if (amount == null || amount <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -105,12 +120,12 @@ class _TransactionDetailPageState
       id,
       SpendlerTransactionsCompanion(
         amount: Value(_isExpense ? -amount : amount),
-        merchant: Value(_merchantCtrl.text.trim().isEmpty
+        merchant: Value(_merchantCtrl!.text.trim().isEmpty
             ? null
-            : _merchantCtrl.text.trim()),
+            : _merchantCtrl!.text.trim()),
         category: Value(_category.name),
         happenedAt: Value(happenedAt),
-        note: Value(_noteCtrl.text.trim().isEmpty ? null : _noteCtrl.text.trim()),
+        note: Value(_noteCtrl!.text.trim().isEmpty ? null : _noteCtrl!.text.trim()),
       ),
     );
     if (mounted) {
@@ -121,9 +136,9 @@ class _TransactionDetailPageState
   InputDecoration _inputDecor(String label, {String? prefixText}) {
     return InputDecoration(
       labelText: label,
-      labelStyle: AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
+      labelStyle: AppTextStyles.bodyS.copyWith(color: AppColors.gray600),
       prefixText: prefixText,
-      prefixStyle: AppTextStyles.headingL.copyWith(color: AppColors.gray500),
+      prefixStyle: AppTextStyles.headingL.copyWith(color: AppColors.gray600),
       filled: true,
       fillColor: AppColors.gray100,
       border: OutlineInputBorder(borderRadius: AppRadius.base, borderSide: BorderSide.none),
@@ -134,11 +149,9 @@ class _TransactionDetailPageState
 
   @override
   void dispose() {
-    if (_editing) {
-      _amountCtrl.dispose();
-      _merchantCtrl.dispose();
-      _noteCtrl.dispose();
-    }
+    _amountCtrl?.dispose();
+    _merchantCtrl?.dispose();
+    _noteCtrl?.dispose();
     super.dispose();
   }
 
@@ -156,7 +169,16 @@ class _TransactionDetailPageState
                     style: TextStyle(color: AppColors.gray500)),
               )
             : null,
-        title: Text(_editing ? 'Edit' : ''),
+        title: _editing
+            ? const Text('Edit')
+            : txnAsync.whenOrNull(
+                data: (t) => t != null
+                    ? Text(t.merchant ?? TransactionCategory.values
+                        .firstWhere((c) => c.name == t.category,
+                            orElse: () => TransactionCategory.foodAndDrink)
+                        .label)
+                    : null,
+              ),
         actions: [
           if (!_editing)
             txnAsync.whenOrNull(
@@ -164,6 +186,7 @@ class _TransactionDetailPageState
                   ? IconButton(
                       icon: PhosphorIcon(PhosphorIcons.pencilSimple(),
                           color: AppColors.gray500),
+                      tooltip: 'Edit transaction',
                       onPressed: () => _enterEditMode(t),
                     )
                   : null,
@@ -181,7 +204,17 @@ class _TransactionDetailPageState
                   style: TextStyle(color: AppColors.gray500)),
             );
           }
-          return _editing ? _buildEditMode(t) : _buildReadMode(t);
+          // C1: Auto-enter edit mode when navigated with startInEditMode
+          if (_initialEditModePending && !_editing) {
+            _initialEditModePending = false;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) _enterEditMode(t);
+            });
+          }
+          return AnimatedSwitcher(
+            duration: AppDurations.base,
+            child: _editing ? _buildEditMode(t) : _buildReadMode(t),
+          );
         },
         loading: () => const Center(
             child: CircularProgressIndicator(color: AppColors.black)),
@@ -213,7 +246,7 @@ class _TransactionDetailPageState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Header: icon + amount + merchant ──
+          // ── Header: icon + amount + type chip + merchant ──
           Center(
             child: Column(
               children: [
@@ -223,11 +256,42 @@ class _TransactionDetailPageState
                   child: Icon(cat.iconFill, color: catColor, size: 26),
                 ),
                 const SizedBox(height: AppSpacing.md),
-                Text(
-                  '$_sym${t.amount.abs().toStringAsFixed(t.amount.abs().truncateToDouble() == t.amount.abs() ? 0 : 2)}',
-                  style: AppTextStyles.displayL.copyWith(color: amountColor),
+                Semantics(
+                  label: '${isExpense ? "Expense" : "Income"}, $_sym${t.amount.abs().toStringAsFixed(t.amount.abs().truncateToDouble() == t.amount.abs() ? 0 : 2)}',
+                  child: Text(
+                    '$_sym${t.amount.abs().toStringAsFixed(t.amount.abs().truncateToDouble() == t.amount.abs() ? 0 : 2)}',
+                    style: AppTextStyles.displayL.copyWith(color: amountColor),
+                  ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: AppSpacing.xs),
+                // H4: Expense/Income chip
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xxs),
+                  decoration: BoxDecoration(
+                    color: isExpense
+                        ? AppColors.red.withValues(alpha: 0.1)
+                        : AppColors.green.withValues(alpha: 0.1),
+                    borderRadius: AppRadius.pill,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      PhosphorIcon(
+                        isExpense ? PhosphorIcons.arrowUpRight() : PhosphorIcons.arrowDownLeft(),
+                        size: 12,
+                        color: isExpense ? AppColors.red : AppColors.green,
+                      ),
+                      const SizedBox(width: AppSpacing.xxs),
+                      Text(
+                        isExpense ? 'Expense' : 'Income',
+                        style: AppTextStyles.labelS.copyWith(
+                          color: isExpense ? AppColors.red : AppColors.green,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xs),
                 Text(
                   t.merchant ?? cat.label,
                   style: AppTextStyles.headingS.copyWith(color: AppColors.black),
@@ -256,7 +320,6 @@ class _TransactionDetailPageState
                 _detailRow('Category', cat.label),
                 if (t.incomeSource != null)
                   _detailRow('Source', t.incomeSource![0].toUpperCase() + t.incomeSource!.substring(1)),
-                _detailRow('Type', isExpense ? 'Expense' : 'Income'),
                 _detailRow('Status', isUnconfirmed ? 'Unconfirmed' : 'Confirmed'),
                 if (hasNote) _detailRow('Note', t.note!),
                 if (t.isSplit) ...[
@@ -273,15 +336,22 @@ class _TransactionDetailPageState
 
           // ── Attachment ──
           if (t.attachmentPath != null) ...[
-            GestureDetector(
+            Semantics(
+              label: 'Attached receipt image. Tap to view full size.',
+              button: true,
               onTap: () => context.push('/attachment-viewer', extra: t.attachmentPath!),
-              child: ClipRRect(
-                borderRadius: AppRadius.lg,
-                child: Image.file(
-                  File(t.attachmentPath!),
-                  height: 120,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
+              child: ExcludeSemantics(
+                child: GestureDetector(
+                  onTap: () => context.push('/attachment-viewer', extra: t.attachmentPath!),
+                  child: ClipRRect(
+                    borderRadius: AppRadius.lg,
+                    child: Image.file(
+                      File(t.attachmentPath!),
+                      height: 120,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -295,6 +365,7 @@ class _TransactionDetailPageState
                 child: _actionChip(
                   icon: PhosphorIcons.paperclip(),
                   label: t.attachmentPath != null ? 'Replace bill' : 'Attach bill',
+                  semanticLabel: t.attachmentPath != null ? 'Replace attached bill' : 'Attach a bill photo',
                   onTap: () => _pickAttachment(t),
                 ),
               ),
@@ -304,6 +375,7 @@ class _TransactionDetailPageState
                   child: _actionChip(
                     icon: PhosphorIcons.users(),
                     label: 'Split',
+                    semanticLabel: 'Split this expense',
                     onTap: () {
                       showSpendlerSheet<void>(
                         context: context,
@@ -339,14 +411,15 @@ class _TransactionDetailPageState
             ),
           ],
 
-          const SizedBox(height: AppSpacing.xl),
+          const SizedBox(height: AppSpacing.xxl),
 
           // ── Delete ──
           Center(
-            child: TextButton(
+            child: TextButton.icon(
               onPressed: () => _confirmDelete(t.id),
-              child: Text('Delete transaction',
-                  style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500)),
+              icon: PhosphorIcon(PhosphorIcons.trash(), size: 16, color: AppColors.red),
+              label: Text('Delete transaction',
+                  style: AppTextStyles.bodyS.copyWith(color: AppColors.red)),
             ),
           ),
         ],
@@ -357,23 +430,29 @@ class _TransactionDetailPageState
   Widget _actionChip({
     required IconData icon,
     required String label,
+    required String semanticLabel,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          color: AppColors.gray100,
-          borderRadius: AppRadius.base,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            PhosphorIcon(icon, size: 16, color: AppColors.gray600),
-            const SizedBox(width: 6),
-            Text(label, style: AppTextStyles.bodyS.copyWith(color: AppColors.gray600)),
-          ],
+    return Semantics(
+      button: true,
+      label: semanticLabel,
+      child: PressableCard(
+        onTap: onTap,
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 48),
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+          decoration: BoxDecoration(
+            color: AppColors.gray100,
+            borderRadius: AppRadius.base,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              PhosphorIcon(icon, size: 16, color: AppColors.gray600),
+              const SizedBox(width: AppSpacing.xs),
+              Text(label, style: AppTextStyles.bodyS.copyWith(color: AppColors.gray600)),
+            ],
+          ),
         ),
       ),
     );
@@ -419,7 +498,11 @@ class _TransactionDetailPageState
         content: const Text('This cannot be undone.'),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: AppColors.red),
+            child: const Text('Delete'),
+          ),
         ],
       ),
     );
@@ -496,26 +579,30 @@ class _TransactionDetailPageState
           // Category picker
           Semantics(
             button: true,
-            label: 'Category: ${_category.label}',
-            child: GestureDetector(
-            onTap: () => _pickCategory(),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
-              decoration: BoxDecoration(
-                color: AppColors.gray100,
-                borderRadius: AppRadius.base,
-              ),
-              child: Row(
-                children: [
-                  Icon(_category.iconFill, color: AppColors.categoryColor(_category), size: 20),
-                  const SizedBox(width: AppSpacing.sm),
-                  Text(_category.label, style: AppTextStyles.bodyL.copyWith(color: AppColors.black)),
-                  const Spacer(),
-                  PhosphorIcon(PhosphorIcons.caretDown(), color: AppColors.gray500, size: 16),
-                ],
+            label: 'Category: ${_category.label}. Tap to change.',
+            onTap: _pickCategory,
+            child: ExcludeSemantics(
+              child: PressableCard(
+                onTap: _pickCategory,
+                child: Container(
+                  constraints: const BoxConstraints(minHeight: 48),
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+                  decoration: BoxDecoration(
+                    color: AppColors.gray100,
+                    borderRadius: AppRadius.base,
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(_category.iconFill, color: AppColors.categoryColor(_category), size: 20),
+                      const SizedBox(width: AppSpacing.sm),
+                      Text(_category.label, style: AppTextStyles.bodyL.copyWith(color: AppColors.black)),
+                      const Spacer(),
+                      PhosphorIcon(PhosphorIcons.caretDown(), color: AppColors.gray500, size: 16),
+                    ],
+                  ),
+                ),
               ),
             ),
-          ),
           ),
           const SizedBox(height: AppSpacing.md),
 
@@ -525,65 +612,59 @@ class _TransactionDetailPageState
               Expanded(
                 child: Semantics(
                   button: true,
-                  label: 'Date: ${DateFormat('d MMM yyyy').format(_date)}',
-                  child: GestureDetector(
-                  onTap: () async {
-                    final picked = await showDatePicker(
-                      context: context,
-                      initialDate: _date,
-                      firstDate: DateTime(2020),
-                      lastDate: DateTime.now(),
-                    );
-                    if (picked != null) setState(() { _date = picked; _hasChanges = true; });
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
-                    decoration: BoxDecoration(
-                      color: AppColors.gray100,
-                      borderRadius: AppRadius.base,
-                    ),
-                    child: Row(
-                      children: [
-                        PhosphorIcon(PhosphorIcons.calendar(), color: AppColors.gray500, size: 18),
-                        const SizedBox(width: AppSpacing.xs),
-                        Text(DateFormat('d MMM yyyy').format(_date),
-                            style: AppTextStyles.bodyM.copyWith(color: AppColors.black)),
-                      ],
+                  label: 'Date: ${DateFormat('d MMM yyyy').format(_date)}. Tap to change.',
+                  onTap: () => _pickDate(),
+                  child: ExcludeSemantics(
+                    child: PressableCard(
+                      onTap: () => _pickDate(),
+                      child: Container(
+                        constraints: const BoxConstraints(minHeight: 48),
+                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+                        decoration: BoxDecoration(
+                          color: AppColors.gray100,
+                          borderRadius: AppRadius.base,
+                        ),
+                        child: Row(
+                          children: [
+                            PhosphorIcon(PhosphorIcons.calendar(), color: AppColors.gray500, size: 18),
+                            const SizedBox(width: AppSpacing.xs),
+                            Text(DateFormat('d MMM yyyy').format(_date),
+                                style: AppTextStyles.bodyM.copyWith(color: AppColors.black)),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
               ),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: Semantics(
                   button: true,
-                  label: 'Time: ${_time.format(context)}',
-                  child: GestureDetector(
-                  onTap: () async {
-                    final picked = await showTimePicker(
-                      context: context,
-                      initialTime: _time,
-                    );
-                    if (picked != null) setState(() { _time = picked; _hasChanges = true; });
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
-                    decoration: BoxDecoration(
-                      color: AppColors.gray100,
-                      borderRadius: AppRadius.base,
-                    ),
-                    child: Row(
-                      children: [
-                        PhosphorIcon(PhosphorIcons.clock(), color: AppColors.gray500, size: 18),
-                        const SizedBox(width: AppSpacing.xs),
-                        Text(_time.format(context),
-                            style: AppTextStyles.bodyM.copyWith(color: AppColors.black)),
-                      ],
+                  label: 'Time: ${_time.format(context)}. Tap to change.',
+                  onTap: () => _pickTime(),
+                  child: ExcludeSemantics(
+                    child: PressableCard(
+                      onTap: () => _pickTime(),
+                      child: Container(
+                        constraints: const BoxConstraints(minHeight: 48),
+                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+                        decoration: BoxDecoration(
+                          color: AppColors.gray100,
+                          borderRadius: AppRadius.base,
+                        ),
+                        child: Row(
+                          children: [
+                            PhosphorIcon(PhosphorIcons.clock(), color: AppColors.gray500, size: 18),
+                            const SizedBox(width: AppSpacing.xs),
+                            Text(_time.format(context),
+                                style: AppTextStyles.bodyM.copyWith(color: AppColors.black)),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
               ),
             ],
           ),
@@ -599,20 +680,53 @@ class _TransactionDetailPageState
             onChanged: (_) => _hasChanges = true,
           ),
 
-          // Source (read-only)
-          const SizedBox(height: AppSpacing.md),
-          _detailRow('Source', 'Manual'),
-
           const SizedBox(height: AppSpacing.xl),
 
-          // Save button
-          NeoPOPButton(
-            label: 'Save Changes',
-            onTap: () => _saveChanges(t.id),
+          // Save button (H9: use FilledButton, not NeoPOPButton)
+          SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: FilledButton(
+              onPressed: () => _saveChanges(t.id),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.black,
+                foregroundColor: AppColors.white,
+                shape: RoundedRectangleBorder(borderRadius: AppRadius.base),
+              ),
+              child: const Text('Save Changes'),
+            ),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _date,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null && mounted) {
+      setState(() {
+        _date = picked;
+        _hasChanges = true;
+      });
+    }
+  }
+
+  Future<void> _pickTime() async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: _time,
+    );
+    if (picked != null && mounted) {
+      setState(() {
+        _time = picked;
+        _hasChanges = true;
+      });
+    }
   }
 
   void _pickCategory() {
@@ -655,12 +769,12 @@ class _TransactionDetailPageState
 
   Widget _detailRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xxs),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: AppColors.gray500)),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.w500, color: AppColors.black)),
+          Text(label, style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500)),
+          Text(value, style: AppTextStyles.bodyS.copyWith(fontWeight: FontWeight.w500, color: AppColors.black)),
         ],
       ),
     );

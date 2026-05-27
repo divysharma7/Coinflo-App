@@ -64,11 +64,16 @@ class _NeoPOPButtonState extends State<NeoPOPButton>
   Widget build(BuildContext context) {
     final o = widget.offset;
 
-    return GestureDetector(
-      onTapDown: _onTapDown,
-      onTapUp: _onTapUp,
-      onTapCancel: _onTapCancel,
-      child: AnimatedBuilder(
+    return Semantics(
+      button: true,
+      enabled: widget.onTap != null,
+      label: widget.label,
+      onTap: widget.onTap,
+      child: GestureDetector(
+        onTapDown: _onTapDown,
+        onTapUp: _onTapUp,
+        onTapCancel: _onTapCancel,
+        child: AnimatedBuilder(
         animation: _anim,
         builder: (context, child) {
           final press = _anim.value;
@@ -116,6 +121,7 @@ class _NeoPOPButtonState extends State<NeoPOPButton>
             ),
           );
         },
+        ),
       ),
     );
   }

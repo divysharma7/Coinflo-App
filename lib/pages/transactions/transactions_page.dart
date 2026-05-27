@@ -13,7 +13,6 @@ import 'package:finance_buddy_app/widgets/common/empty_state.dart';
 import 'package:finance_buddy_app/widgets/common/neo_pop_button.dart';
 import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 import 'package:finance_buddy_app/widgets/common/animations.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:finance_buddy_app/utils/currency_utils.dart';
 
 class TransactionsPage extends ConsumerStatefulWidget {
@@ -26,6 +25,7 @@ class TransactionsPage extends ConsumerStatefulWidget {
 class _TransactionsPageState extends ConsumerState<TransactionsPage> {
   final _searchController = TextEditingController();
   String _searchQuery = '';
+  bool _hasAnimatedInitial = false;
 
   @override
   void dispose() {
@@ -53,6 +53,8 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
   Widget build(BuildContext context) {
     final filters = ref.watch(transactionFiltersProvider);
     final txns = ref.watch(filteredTransactionsProvider);
+    // M9: Hoist currency symbol — resolve once per build, not per tile
+    final sym = currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
 
     return Column(
       children: [
@@ -65,67 +67,68 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
             children: [
               const Text('TRANSACTIONS', style: AppTextStyles.labelM),
               const Spacer(),
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  GestureDetector(
-                    onTap: () => _showFilterSheet(context, ref),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: filters.hasAnyFilter
-                            ? AppColors.black.withValues(alpha: 0.12)
-                            : AppColors.white,
-                        borderRadius: AppRadius.pill,
-                        border: Border.all(
-                          color: filters.hasAnyFilter ? AppColors.black : AppColors.gray200,
-                        ),
+              // H12: Semantics for filter button
+              Semantics(
+                button: true,
+                label: filters.hasAnyFilter
+                    ? 'Filter, ${_activeFilterCount(filters)} active'
+                    : 'Filter',
+                child: GestureDetector(
+                  onTap: () => _showFilterSheet(context, ref),
+                  child: Container(
+                    constraints: const BoxConstraints(minHeight: 48),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: AppSpacing.xs),
+                    decoration: BoxDecoration(
+                      color: filters.hasAnyFilter
+                          ? AppColors.black.withValues(alpha: 0.12)
+                          : AppColors.white,
+                      borderRadius: AppRadius.pill,
+                      border: Border.all(
+                        color: filters.hasAnyFilter ? AppColors.black : AppColors.gray200,
                       ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          PhosphorIcon(
-                            PhosphorIcons.funnel(),
-                            size: 14,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        PhosphorIcon(
+                          PhosphorIcons.funnel(),
+                          size: 14,
+                          color: filters.hasAnyFilter ? AppColors.black : AppColors.gray500,
+                        ),
+                        const SizedBox(width: AppSpacing.xxs),
+                        Text(
+                          filters.hasAnyFilter ? 'Filtered' : 'Filter',
+                          style: TextStyle(
                             color: filters.hasAnyFilter ? AppColors.black : AppColors.gray500,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
                           ),
-                          const SizedBox(width: 4),
-                          Text(
-                            filters.hasAnyFilter ? 'Filtered' : 'Filter',
-                            style: TextStyle(
-                              color: filters.hasAnyFilter ? AppColors.black : AppColors.gray500,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
+                        ),
+                        if (filters.hasAnyFilter) ...[
+                          const SizedBox(width: AppSpacing.xxs),
+                          Container(
+                            width: 18,
+                            height: 18,
+                            decoration: const BoxDecoration(
+                              color: AppColors.black,
+                              shape: BoxShape.circle,
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              '${_activeFilterCount(filters)}',
+                              style: const TextStyle(
+                                color: AppColors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                height: 1,
+                              ),
                             ),
                           ),
                         ],
-                      ),
+                      ],
                     ),
                   ),
-                  if (filters.hasAnyFilter)
-                    Positioned(
-                      top: -6,
-                      right: -6,
-                      child: Container(
-                        width: 18,
-                        height: 18,
-                        decoration: const BoxDecoration(
-                          color: AppColors.black,
-                          shape: BoxShape.circle,
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          '${_activeFilterCount(filters)}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            height: 1,
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
+                ),
               ),
             ],
           ),
@@ -144,17 +147,18 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
               hintStyle: const TextStyle(fontSize: 13, color: AppColors.gray500),
               prefixIcon: const Icon(Icons.search, size: 20, color: AppColors.gray500),
               suffixIcon: _searchQuery.isNotEmpty
-                  ? GestureDetector(
-                      onTap: () {
+                  ? IconButton(
+                      icon: const Icon(Icons.close, size: 18, color: AppColors.gray500),
+                      tooltip: 'Clear search',
+                      onPressed: () {
                         _searchController.clear();
                         setState(() => _searchQuery = '');
                       },
-                      child: const Icon(Icons.close, size: 18, color: AppColors.gray500),
                     )
                   : null,
               filled: true,
               fillColor: AppColors.gray100,
-              contentPadding: const EdgeInsets.symmetric(vertical: 10),
+              contentPadding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
               border: OutlineInputBorder(
                 borderRadius: AppRadius.pill,
                 borderSide: BorderSide.none,
@@ -183,7 +187,7 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                           ),
                         if (filters.amount != AmountFilter.all)
                           _ActiveChip(
-                            label: _amountLabel(filters.amount),
+                            label: _amountLabel(filters.amount, sym),
                             onRemove: () => ref.read(transactionFiltersProvider.notifier).state =
                                 filters.copyWith(amount: AmountFilter.all),
                           ),
@@ -205,9 +209,9 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                 ),
                 GestureDetector(
                   onTap: () => ref.read(transactionFiltersProvider.notifier).state = TransactionFilters.empty,
-                  child: const Padding(
-                    padding: EdgeInsets.only(left: 8),
-                    child: Text('Clear all', style: TextStyle(color: AppColors.black, fontSize: 12, fontWeight: FontWeight.w500)),
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: AppSpacing.xs),
+                    child: const Text('Clear all', style: TextStyle(color: AppColors.black, fontSize: 12, fontWeight: FontWeight.w500)),
                   ),
                 ),
               ],
@@ -236,6 +240,14 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
 
               final unconfirmed = filtered.where((t) => t.status == 'unconfirmed').toList();
               final confirmed = filtered.where((t) => t.status != 'unconfirmed').toList();
+
+              // H8: Only animate on first data load
+              final shouldAnimate = !_hasAnimatedInitial;
+              if (shouldAnimate) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) _hasAnimatedInitial = true;
+                });
+              }
 
               final items = <Widget>[];
 
@@ -277,27 +289,43 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
 
               var tileIndex = 0;
               if (unconfirmed.isNotEmpty) {
-                items.add(const Padding(
-                  padding: EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xs),
-                  child: Text('UNCONFIRMED', style: AppTextStyles.labelM),
-                ).animate().fadeIn(duration: AppDurations.normal).slideX(begin: -0.1, duration: AppDurations.normal));
+                items.add(Padding(
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xs),
+                  child: Semantics(
+                    header: true,
+                    child: const Text('UNCONFIRMED', style: AppTextStyles.labelM),
+                  ),
+                ));
                 for (final t in unconfirmed) {
-                  final delay = Duration(milliseconds: 30 * tileIndex);
-                  items.add(_buildTile(context, t, isUnconfirmed: true)
-                      .animate().fadeIn(delay: delay, duration: AppDurations.medium).slideX(begin: 0.05, delay: delay, duration: AppDurations.medium));
+                  if (shouldAnimate) {
+                    items.add(StaggeredItem(
+                      index: tileIndex,
+                      child: _buildTile(context, t, sym, isUnconfirmed: true),
+                    ));
+                  } else {
+                    items.add(_buildTile(context, t, sym, isUnconfirmed: true));
+                  }
                   if (tileIndex < 20) tileIndex++;
                 }
                 items.add(const Divider(color: AppColors.gray200));
               }
               if (confirmed.isNotEmpty) {
-                items.add(const Padding(
-                  padding: EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xs),
-                  child: Text('CONFIRMED', style: AppTextStyles.labelM),
-                ).animate().fadeIn(duration: AppDurations.normal).slideX(begin: -0.1, duration: AppDurations.normal));
+                items.add(Padding(
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xs),
+                  child: Semantics(
+                    header: true,
+                    child: const Text('CONFIRMED', style: AppTextStyles.labelM),
+                  ),
+                ));
                 for (final t in confirmed) {
-                  final delay = Duration(milliseconds: 30 * tileIndex);
-                  items.add(_buildTile(context, t)
-                      .animate().fadeIn(delay: delay, duration: AppDurations.medium).slideX(begin: 0.05, delay: delay, duration: AppDurations.medium));
+                  if (shouldAnimate) {
+                    items.add(StaggeredItem(
+                      index: tileIndex,
+                      child: _buildTile(context, t, sym),
+                    ));
+                  } else {
+                    items.add(_buildTile(context, t, sym));
+                  }
                   if (tileIndex < 20) tileIndex++;
                 }
               }
@@ -321,17 +349,15 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text('Something went wrong', style: AppTextStyles.bodyM.copyWith(color: AppColors.gray500)),
-                  const SizedBox(height: 12),
-                  GestureDetector(
-                    onTap: () => ref.invalidate(filteredTransactionsProvider),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: AppColors.black,
-                        borderRadius: AppRadius.s,
-                      ),
-                      child: Text('Retry', style: AppTextStyles.bodyS.copyWith(color: AppColors.white)),
+                  const SizedBox(height: AppSpacing.sm),
+                  FilledButton(
+                    onPressed: () => ref.invalidate(filteredTransactionsProvider),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.black,
+                      foregroundColor: AppColors.white,
+                      shape: RoundedRectangleBorder(borderRadius: AppRadius.s),
                     ),
+                    child: const Text('Retry'),
                   ),
                 ],
               ),
@@ -342,7 +368,7 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
     );
   }
 
-  Widget _buildTile(BuildContext context, SpendlerTransaction t, {bool isUnconfirmed = false}) {
+  Widget _buildTile(BuildContext context, SpendlerTransaction t, String sym, {bool isUnconfirmed = false}) {
     final cat = TransactionCategory.values.firstWhere(
       (c) => c.name == t.category,
       orElse: () => TransactionCategory.foodAndDrink,
@@ -350,91 +376,101 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
     final catColor = AppColors.categoryColor(cat);
     final isSent = t.amount < 0;
 
-    return PressableCard(
-      onTap: () {
-        context.push('/transaction/${t.id}');
-      },
-      onLongPress: () => _showTransactionActions(context, t),
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 2),
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 10),
-        decoration: BoxDecoration(
-          color: isUnconfirmed ? AppColors.amber.withValues(alpha: 0.06) : null,
-          border: isUnconfirmed
-              ? const Border(left: BorderSide(color: AppColors.amber, width: 3))
-              : null,
-          borderRadius: AppRadius.base,
-        ),
-        child: Row(
-          children: [
-            CircleAvatar(
-              backgroundColor: catColor.withValues(alpha: 0.15),
-              child: Icon(cat.iconFill, color: catColor, size: 20),
+    return Semantics(
+      label: '${t.merchant ?? cat.label}, '
+          '${isSent ? "expense" : "income"}, '
+          '$sym${t.amount.abs().toStringAsFixed(0)}, '
+          '${DateFormat("d MMM").format(t.happenedAt)}'
+          '${isUnconfirmed ? ", pending confirmation" : ""}',
+      button: true,
+      onTap: () => context.push('/transaction/${t.id}'),
+      onLongPress: () => _showTransactionActions(context, t, sym),
+      child: ExcludeSemantics(
+        child: PressableCard(
+          onTap: () => context.push('/transaction/${t.id}'),
+          onLongPress: () => _showTransactionActions(context, t, sym),
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 2),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 10),
+            decoration: BoxDecoration(
+              color: isUnconfirmed ? AppColors.amber.withValues(alpha: 0.06) : null,
+              border: isUnconfirmed
+                  ? const Border(left: BorderSide(color: AppColors.amber, width: 3))
+                  : null,
+              borderRadius: AppRadius.base,
             ),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+            child: Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: catColor.withValues(alpha: 0.15),
+                  child: Icon(cat.iconFill, color: catColor, size: 20),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Text(
-                          t.merchant ?? cat.label,
-                          style: AppTextStyles.bodyM,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              t.merchant ?? cat.label,
+                              style: AppTextStyles.bodyM,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          PhosphorIcon(
+                            isSent ? PhosphorIcons.arrowUpRight() : PhosphorIcons.arrowDownLeft(),
+                            size: 14,
+                            color: isSent ? AppColors.red : AppColors.green,
+                          ),
+                        ],
                       ),
-                      PhosphorIcon(
-                        isSent ? PhosphorIcons.arrowUpRight() : PhosphorIcons.arrowDownLeft(),
-                        size: 14,
-                        color: isSent ? AppColors.red : AppColors.green,
+                      const SizedBox(height: 2),
+                      Text(
+                        DateFormat('d MMM, h:mm a').format(t.happenedAt),
+                        style: const TextStyle(fontSize: 12, color: AppColors.gray500),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    DateFormat('d MMM, h:mm a').format(t.happenedAt),
-                    style: const TextStyle(fontSize: 12, color: AppColors.gray500),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                AmountText(
-                  amount: t.amount.toDouble(),
-                  symbol: currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr'),
                 ),
-                if (isUnconfirmed)
-                  Container(
-                    margin: const EdgeInsets.only(top: 4),
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: AppColors.amber.withValues(alpha: 0.15),
-                      borderRadius: AppRadius.pill,
+                const SizedBox(width: AppSpacing.xs),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    AmountText(
+                      amount: t.amount.toDouble(),
+                      symbol: sym,
                     ),
-                    child: const Text(
-                      'Pending',
-                      style: TextStyle(
-                        color: AppColors.amber,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
+                    if (isUnconfirmed)
+                      Container(
+                        margin: const EdgeInsets.only(top: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: AppColors.amber.withValues(alpha: 0.15),
+                          borderRadius: AppRadius.pill,
+                        ),
+                        child: Text(
+                          'Pending',
+                          style: TextStyle(
+                            color: AppColors.amber.withValues(alpha: 1.0),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
+                  ],
+                ),
               ],
             ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  void _showTransactionActions(BuildContext context, SpendlerTransaction t) {
+  void _showTransactionActions(BuildContext context, SpendlerTransaction t, String sym) {
     HapticFeedback.mediumImpact();
     final cat = TransactionCategory.values.firstWhere(
       (c) => c.name == t.category,
@@ -447,11 +483,21 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // M4: Show merchant + amount + date for identity confirmation
             Padding(
               padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-              child: Text(
-                t.merchant ?? cat.label,
-                style: AppTextStyles.headingS,
+              child: Column(
+                children: [
+                  Text(
+                    t.merchant ?? cat.label,
+                    style: AppTextStyles.headingS,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '$sym${t.amount.abs().toStringAsFixed(0)}  ·  ${DateFormat('d MMM').format(t.happenedAt)}',
+                    style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
+                  ),
+                ],
               ),
             ),
             ListTile(
@@ -459,7 +505,8 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
               title: const Text('Edit'),
               onTap: () {
                 Navigator.pop(ctx);
-                context.push('/transaction/${t.id}');
+                // C1: Navigate to edit mode directly
+                context.push('/transaction/${t.id}', extra: const {'startInEditMode': true});
               },
             ),
             ListTile(
@@ -467,27 +514,35 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
               title: Text('Delete', style: TextStyle(color: AppColors.red)),
               onTap: () async {
                 Navigator.pop(ctx);
-                final confirmed = await showDialog<bool>(
-                  context: context,
-                  builder: (_) => AlertDialog(
-                    title: const Text('Delete this transaction?'),
-                    content: const Text('This cannot be undone.'),
-                    actions: [
-                      TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-                      TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
-                    ],
-                  ),
-                );
-                if (confirmed == true) {
-                  final repo = ref.read(repositoryProvider);
-                  await repo.deleteTransaction(t.id);
-                }
+                await _confirmDeleteFromList(context, t);
               },
             ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _confirmDeleteFromList(BuildContext context, SpendlerTransaction t) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Delete this transaction?'),
+        content: const Text('This cannot be undone.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: AppColors.red),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true && mounted) {
+      final repo = ref.read(repositoryProvider);
+      await repo.deleteTransaction(t.id);
+    }
   }
 
   void _showFilterSheet(BuildContext context, WidgetRef ref) {
@@ -506,8 +561,7 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
     return count;
   }
 
-  String _amountLabel(AmountFilter f) {
-    final s = currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
+  String _amountLabel(AmountFilter f, String s) {
     switch (f) {
       case AmountFilter.upto200:
         return '\u2264 ${s}200';
@@ -535,17 +589,8 @@ class _FilterSheet extends ConsumerStatefulWidget {
 }
 
 class _FilterSheetState extends ConsumerState<_FilterSheet> {
-  String get _sym {
-    final code = ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr';
-    switch (code.toLowerCase()) {
-      case 'inr': return '\u20B9';
-      case 'usd': return '\$';
-      case 'eur': return '\u20AC';
-      case 'gbp': return '\u00A3';
-      case 'jpy': return '\u00A5';
-      default: return '\$';
-    }
-  }
+  // M7: Use currencyUtils instead of duplicating symbol logic
+  String get _sym => currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
 
   late TransactionFilters _draft;
 
@@ -611,8 +656,8 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
           const Text('AMOUNT', style: AppTextStyles.labelM),
           const SizedBox(height: AppSpacing.sm),
           Wrap(
-            spacing: 8,
-            runSpacing: 8,
+            spacing: AppSpacing.xs,
+            runSpacing: AppSpacing.xs,
             children: [
               _ChipOption(label: '≤ ${_sym}200', selected: _draft.amount == AmountFilter.upto200, onTap: () => setState(() => _draft = _draft.copyWith(amount: _draft.amount == AmountFilter.upto200 ? AmountFilter.all : AmountFilter.upto200))),
               _ChipOption(label: '${_sym}200 – 500', selected: _draft.amount == AmountFilter.range200to500, onTap: () => setState(() => _draft = _draft.copyWith(amount: _draft.amount == AmountFilter.range200to500 ? AmountFilter.all : AmountFilter.range200to500))),
@@ -626,8 +671,8 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
           const Text('DATE', style: AppTextStyles.labelM),
           const SizedBox(height: AppSpacing.sm),
           Wrap(
-            spacing: 8,
-            runSpacing: 8,
+            spacing: AppSpacing.xs,
+            runSpacing: AppSpacing.xs,
             children: [
               _ChipOption(label: 'Last 30 days', selected: _draft.date == DateFilter.last30, onTap: () => setState(() => _draft = _draft.copyWith(date: _draft.date == DateFilter.last30 ? DateFilter.all : DateFilter.last30))),
               _ChipOption(label: 'Last 90 days', selected: _draft.date == DateFilter.last90, onTap: () => setState(() => _draft = _draft.copyWith(date: _draft.date == DateFilter.last90 ? DateFilter.all : DateFilter.last90))),
@@ -639,8 +684,8 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
           const Text('CATEGORY', style: AppTextStyles.labelM),
           const SizedBox(height: AppSpacing.sm),
           Wrap(
-            spacing: 8,
-            runSpacing: 8,
+            spacing: AppSpacing.xs,
+            runSpacing: AppSpacing.xs,
             children: TransactionCategory.values.map((cat) {
               final selected = _draft.category == cat;
               return _ChipOption(
@@ -655,13 +700,22 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
           ),
           const SizedBox(height: AppSpacing.xl),
 
-          // ── Apply ──
-          NeoPOPButton(
-            label: 'Apply Filters',
-            onTap: () {
-              ref.read(transactionFiltersProvider.notifier).state = _draft;
-              Navigator.pop(context);
-            },
+          // ── Apply (H9: FilledButton instead of NeoPOPButton) ──
+          SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: FilledButton(
+              onPressed: () {
+                ref.read(transactionFiltersProvider.notifier).state = _draft;
+                Navigator.pop(context);
+              },
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.black,
+                foregroundColor: AppColors.white,
+                shape: RoundedRectangleBorder(borderRadius: AppRadius.base),
+              ),
+              child: const Text('Apply Filters'),
+            ),
           ),
           const SizedBox(height: AppSpacing.md),
         ],
@@ -688,33 +742,39 @@ class _FilterTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: AppDurations.fast,
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          decoration: BoxDecoration(
-            color: selected ? color.withValues(alpha: 0.1) : AppColors.white,
-            borderRadius: AppRadius.base,
-            border: Border.all(
-              color: selected ? color : AppColors.gray200,
-              width: selected ? 1.5 : 1,
-            ),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              PhosphorIcon(icon, size: 18, color: selected ? color : AppColors.gray500),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: TextStyle(
-                  color: selected ? color : AppColors.black,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                ),
+      child: Semantics(
+        label: label,
+        checked: selected,
+        button: true,
+        child: GestureDetector(
+          onTap: onTap,
+          child: AnimatedContainer(
+            duration: AppDurations.fast,
+            constraints: const BoxConstraints(minHeight: 48),
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+            decoration: BoxDecoration(
+              color: selected ? color.withValues(alpha: 0.1) : AppColors.white,
+              borderRadius: AppRadius.base,
+              border: Border.all(
+                color: selected ? color : AppColors.gray200,
+                width: selected ? 1.5 : 1,
               ),
-            ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                PhosphorIcon(icon, size: 18, color: selected ? color : AppColors.gray500),
+                const SizedBox(width: AppSpacing.xs),
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: selected ? color : AppColors.black,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -735,23 +795,29 @@ class _ChipOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: selected ? AppColors.black.withValues(alpha: 0.12) : AppColors.white,
-          borderRadius: AppRadius.pill,
-          border: Border.all(
-            color: selected ? AppColors.black : AppColors.gray200,
+    return Semantics(
+      label: label,
+      checked: selected,
+      button: true,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 48),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+          decoration: BoxDecoration(
+            color: selected ? AppColors.black.withValues(alpha: 0.12) : AppColors.white,
+            borderRadius: AppRadius.pill,
+            border: Border.all(
+              color: selected ? AppColors.black : AppColors.gray200,
+            ),
           ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: selected ? AppColors.black : AppColors.gray500,
-            fontSize: 13,
-            fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+          child: Text(
+            label,
+            style: TextStyle(
+              color: selected ? AppColors.black : AppColors.gray500,
+              fontSize: 13,
+              fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+            ),
           ),
         ),
       ),
@@ -767,8 +833,8 @@ class _ActiveChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(right: 6),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      margin: const EdgeInsets.only(right: AppSpacing.xs),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: AppSpacing.xxs),
       decoration: BoxDecoration(
         color: AppColors.black.withValues(alpha: 0.12),
         borderRadius: AppRadius.pill,
@@ -777,10 +843,15 @@ class _ActiveChip extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(label, style: const TextStyle(color: AppColors.black, fontSize: 11, fontWeight: FontWeight.w500)),
-          const SizedBox(width: 4),
-          GestureDetector(
-            onTap: onRemove,
-            child: PhosphorIcon(PhosphorIcons.x(), size: 12, color: AppColors.black),
+          const SizedBox(width: AppSpacing.xxs),
+          // H2: Minimum touch target for dismiss icon
+          IconButton(
+            onPressed: onRemove,
+            icon: PhosphorIcon(PhosphorIcons.x(), size: 12, color: AppColors.black),
+            tooltip: 'Remove $label filter',
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+            iconSize: 12,
           ),
         ],
       ),

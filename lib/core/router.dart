@@ -146,7 +146,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/transaction/:id',
         builder: (context, state) {
           final id = int.parse(state.pathParameters['id']!);
-          return TransactionDetailPage(transactionId: id);
+          final extra = state.extra;
+          final editMode = extra is Map<String, dynamic> &&
+              extra['startInEditMode'] == true;
+          return TransactionDetailPage(
+            transactionId: id,
+            startInEditMode: editMode,
+          );
         },
       ),
       GoRoute(
