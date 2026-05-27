@@ -8,6 +8,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:finance_buddy_app/app.dart';
 import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/data/repositories/local/local_repository.dart';
+import 'package:finance_buddy_app/design_system/app_durations.dart';
 import 'package:finance_buddy_app/firebase_options.dart';
 import 'package:finance_buddy_app/services/notifications/notification_service.dart';
 
