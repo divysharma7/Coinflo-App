@@ -47,7 +47,7 @@ class AppTextField extends StatelessWidget {
         if (label != null) ...[
           Text(
             label!,
-            style: AppTextStyles.labelM.copyWith(color: AppColors.gray400),
+            style: AppTextStyles.labelM.copyWith(color: AppColors.gray500),
           ),
           const SizedBox(height: AppSpacing.sm),
         ],
@@ -74,9 +74,9 @@ class AppTextField extends StatelessWidget {
             style: style ?? AppTextStyles.bodyM.copyWith(color: AppColors.black),
             decoration: InputDecoration(
               hintText: hintText,
-              hintStyle: AppTextStyles.bodyM.copyWith(color: AppColors.gray400),
+              hintStyle: AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
               prefixText: prefixText,
-              prefixStyle: AppTextStyles.bodyM.copyWith(color: AppColors.gray400),
+              prefixStyle: AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
               border: InputBorder.none,
               isDense: true,
               contentPadding: EdgeInsets.zero,

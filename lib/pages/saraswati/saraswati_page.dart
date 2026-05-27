@@ -98,7 +98,7 @@ class _SaraswatiPageState extends ConsumerState<SaraswatiPage> {
             Text(
               '${messages.length > 1 ? messages.length - 1 : 0} transactions loaded',
               style: const TextStyle(
-                color: AppColors.gray400,
+                color: AppColors.gray500,
                 fontSize: 12,
                 fontWeight: FontWeight.w400,
               ),
@@ -210,7 +210,7 @@ class _EmptyState extends StatelessWidget {
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
-              color: AppColors.gray400,
+              color: AppColors.gray500,
               height: 1.5,
             ),
           ),
@@ -239,7 +239,7 @@ class _EmptyState extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: AppColors.white,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: AppRadius.base,
                       border: Border.all(color: AppColors.gray200),
                     ),
                     child: Row(
@@ -256,7 +256,7 @@ class _EmptyState extends StatelessWidget {
                         ),
                         PhosphorIcon(
                           PhosphorIcons.caretRight(),
-                          color: AppColors.gray400,
+                          color: AppColors.gray500,
                           size: 16,
                         ),
                       ],
@@ -336,7 +336,7 @@ class _AssistantBubble extends StatelessWidget {
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
           color: AppColors.offWhite,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: AppRadius.lg,
         ),
         child: _MarkdownText(text: text),
       ),
@@ -495,7 +495,7 @@ class _TypingIndicatorState extends State<_TypingIndicator>
     super.initState();
     _anim = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: AppDurations.shimmer,
     )..repeat();
   }
 
@@ -517,7 +517,7 @@ class _TypingIndicatorState extends State<_TypingIndicator>
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
           color: AppColors.offWhite,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: AppRadius.lg,
         ),
         child: AnimatedBuilder(
           animation: _anim,
@@ -536,7 +536,7 @@ class _TypingIndicatorState extends State<_TypingIndicator>
                       width: 8,
                       height: 8,
                       decoration: const BoxDecoration(
-                        color: AppColors.gray400,
+                        color: AppColors.gray500,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -588,7 +588,7 @@ class _InputBar extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 color: AppColors.white,
-                borderRadius: BorderRadius.circular(100),
+                borderRadius: AppRadius.pill,
               ),
               child: TextField(
                 controller: controller,
@@ -600,7 +600,7 @@ class _InputBar extends StatelessWidget {
                 decoration: const InputDecoration(
                   hintText: 'Ask about your finances...',
                   hintStyle: TextStyle(
-                    color: AppColors.gray400,
+                    color: AppColors.gray500,
                     fontSize: 15,
                     fontWeight: FontWeight.w400,
                   ),
@@ -636,7 +636,7 @@ class _InputBar extends StatelessWidget {
                   PhosphorIcons.arrowUp(PhosphorIconsStyle.bold),
                   size: 20,
                   color: isProcessing
-                      ? AppColors.gray400
+                      ? AppColors.gray500
                       : Colors.white,
                 ),
               ),

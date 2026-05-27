@@ -31,13 +31,13 @@ class _FamilyEntrySheetState extends ConsumerState<FamilyEntrySheet> {
   InputDecoration _inputDecor(String label, {String? prefix}) {
     return InputDecoration(
       labelText: label,
-      labelStyle: AppTextStyles.bodyS.copyWith(color: AppColors.gray400),
+      labelStyle: AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
       prefixText: prefix,
-      prefixStyle: AppTextStyles.bodyM.copyWith(color: AppColors.gray400),
+      prefixStyle: AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
       filled: true,
       fillColor: AppColors.gray100,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadius.base,
         borderSide: BorderSide.none,
       ),
     );
@@ -59,7 +59,7 @@ class _FamilyEntrySheetState extends ConsumerState<FamilyEntrySheet> {
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               color: AppColors.gray100,
-              borderRadius: BorderRadius.circular(30),
+              borderRadius: AppRadius.xxl,
             ),
             child: Row(
               children: [_EntryType.inflow, _EntryType.outflow].map((t) {
@@ -76,7 +76,7 @@ class _FamilyEntrySheetState extends ConsumerState<FamilyEntrySheet> {
                         color: selected
                             ? AppColors.black
                             : Colors.transparent,
-                        borderRadius: BorderRadius.circular(26),
+                        borderRadius: AppRadius.xlSm,
                       ),
                       child: Center(
                         child: Text(label,

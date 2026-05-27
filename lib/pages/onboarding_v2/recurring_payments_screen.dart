@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/models/recurring_payment_model.dart';
 import 'package:finance_buddy_app/widgets/add_payment_sheet.dart';
+import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 
 const List<Map<String, String>> kPaymentPresets = [
   {'name': 'Netflix', 'category': 'Streaming Services'},
@@ -106,13 +107,8 @@ class _RecurringPaymentsScreenState extends State<RecurringPaymentsScreen>
   }
 
   void _openAddSheet({String? presetName, String? presetCategory}) {
-    showModalBottomSheet<void>(
+    showSpendlerSheet<void>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
       builder: (_) => AddPaymentSheet(
         onSave: _addPayment,
         presetName: presetName,
@@ -434,11 +430,11 @@ class _RecurringPaymentsScreenState extends State<RecurringPaymentsScreen>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.add, size: 18, color: AppColors.gray400),
+            const Icon(Icons.add, size: 18, color: AppColors.gray500),
             const SizedBox(width: AppSpacing.xs),
             Text(
               'Add Payment',
-              style: AppTextStyles.bodyM.copyWith(color: AppColors.gray400),
+              style: AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
             ),
           ],
         ),

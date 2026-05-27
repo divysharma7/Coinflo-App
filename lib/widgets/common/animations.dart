@@ -12,8 +12,8 @@ class StaggeredItem extends StatefulWidget {
     super.key,
     required this.index,
     required this.child,
-    this.delay = const Duration(milliseconds: 40),
-    this.duration = const Duration(milliseconds: 400),
+    this.delay = AppDurations.stagger,
+    this.duration = AppDurations.slow,
     this.offset = 20.0,
   });
 
@@ -103,7 +103,7 @@ class _PressableCardState extends State<PressableCard>
     _ctrl = AnimationController(
       vsync: this,
       duration: AppDurations.fast,
-      reverseDuration: const Duration(milliseconds: 200),
+      reverseDuration: AppDurations.normal,
     );
     _scaleAnim = Tween<double>(begin: 1.0, end: widget.scale).animate(
       CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
@@ -141,7 +141,7 @@ class FadeSlideIn extends StatefulWidget {
     super.key,
     required this.child,
     this.delay = Duration.zero,
-    this.duration = const Duration(milliseconds: 500),
+    this.duration = AppDurations.entrance,
     this.slideOffset = 30.0,
   });
 
@@ -228,7 +228,7 @@ class _ShimmerBoxState extends State<ShimmerBox>
     super.initState();
     _ctrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: AppDurations.shimmer,
     )..repeat();
   }
 

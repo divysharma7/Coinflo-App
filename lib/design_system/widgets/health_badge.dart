@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:finance_buddy_app/core/enums.dart';
 import 'package:finance_buddy_app/design_system/app_colors.dart';
 import 'package:finance_buddy_app/design_system/app_radius.dart';
 import 'package:finance_buddy_app/design_system/app_spacing.dart';
@@ -17,10 +18,10 @@ class HealthBadge extends StatelessWidget {
   factory HealthBadge.fromGoalHealth(GoalHealth health) {
     switch (health) {
       case GoalHealth.onTrack:
-        return const HealthBadge._(
+        return HealthBadge._(
           label: 'On Track',
-          bgColor: AppColors.catGreenBg,
-          textColor: AppColors.catGreenText,
+          bgColor: AppColors.categoryBg(TransactionCategory.healthAndWellness),
+          textColor: AppColors.categoryFg(TransactionCategory.healthAndWellness),
         );
       case GoalHealth.atRisk:
         return const HealthBadge._(
@@ -46,10 +47,10 @@ class HealthBadge extends StatelessWidget {
   factory HealthBadge.fromPaymentHealth(PaymentHealth health) {
     switch (health) {
       case PaymentHealth.onTrack:
-        return const HealthBadge._(
+        return HealthBadge._(
           label: 'On Track',
-          bgColor: AppColors.catGreenBg,
-          textColor: AppColors.catGreenText,
+          bgColor: AppColors.categoryBg(TransactionCategory.healthAndWellness),
+          textColor: AppColors.categoryFg(TransactionCategory.healthAndWellness),
         );
       case PaymentHealth.atRisk:
         return const HealthBadge._(

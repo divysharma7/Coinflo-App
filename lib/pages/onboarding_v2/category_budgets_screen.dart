@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/models/category_budget_model.dart';
 import 'package:finance_buddy_app/widgets/add_category_budget_sheet.dart';
+import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 
 class CategoryBudgetsScreen extends StatefulWidget {
   const CategoryBudgetsScreen({super.key});
@@ -103,13 +104,8 @@ class _CategoryBudgetsScreenState extends State<CategoryBudgetsScreen>
 
   void _openAddSheet() {
     if (_availableGroups.isEmpty) return;
-    showModalBottomSheet<void>(
+    showSpendlerSheet<void>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
       builder: (_) => AddCategoryBudgetSheet(
         availableGroups: _availableGroups,
         onSave: _addBudget,
@@ -118,13 +114,8 @@ class _CategoryBudgetsScreenState extends State<CategoryBudgetsScreen>
   }
 
   void _openEditSheet(CategoryBudgetModel budget) {
-    showModalBottomSheet<void>(
+    showSpendlerSheet<void>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
       builder: (_) => AddCategoryBudgetSheet(
         availableGroups: _availableGroups,
         existingBudget: budget,
@@ -315,7 +306,7 @@ class _CategoryBudgetsScreenState extends State<CategoryBudgetsScreen>
             Icon(
               Icons.pie_chart_outline,
               size: 16,
-              color: _isOverAllocated ? AppColors.red : AppColors.gray400,
+              color: _isOverAllocated ? AppColors.red : AppColors.gray500,
             ),
             const SizedBox(width: AppSpacing.xs),
             Expanded(
@@ -391,7 +382,7 @@ class _CategoryBudgetsScreenState extends State<CategoryBudgetsScreen>
                 Text(
                   '$_currencySymbol${_formatter.format(budget.monthlyLimit)}/mo',
                   style:
-                      AppTextStyles.bodyS.copyWith(color: AppColors.gray400),
+                      AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
                 ),
               ],
             ),

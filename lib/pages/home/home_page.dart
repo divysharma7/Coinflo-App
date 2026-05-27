@@ -1,3 +1,4 @@
+import 'package:finance_buddy_app/widgets/common/error_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -13,6 +14,7 @@ import 'package:finance_buddy_app/widgets/charts/spend_bar_chart.dart';
 import 'package:finance_buddy_app/widgets/common/animated_progress_bar.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:finance_buddy_app/utils/currency_utils.dart';
+import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -23,17 +25,17 @@ class HomePage extends ConsumerWidget {
       slivers: [
         const SliverToBoxAdapter(child: _HeaderSection()),
         SliverToBoxAdapter(child: const _BudgetProgressBar()
-            .animate().fadeIn(duration: 400.ms).slideY(begin: 0.05, duration: 400.ms)),
+            .animate().fadeIn(duration: AppDurations.slow).slideY(begin: 0.05, duration: AppDurations.slow)),
         SliverToBoxAdapter(child: const _QuickStatsRow()
-            .animate().fadeIn(delay: 80.ms, duration: 400.ms).slideY(begin: 0.05, duration: 400.ms, delay: 80.ms)),
+            .animate().fadeIn(delay: 80.ms, duration: AppDurations.slow).slideY(begin: 0.05, duration: AppDurations.slow, delay: 80.ms)),
         SliverToBoxAdapter(child: const _DailySpendChart()
-            .animate().fadeIn(delay: 160.ms, duration: 400.ms).slideY(begin: 0.05, duration: 400.ms, delay: 160.ms)),
+            .animate().fadeIn(delay: 160.ms, duration: AppDurations.slow).slideY(begin: 0.05, duration: AppDurations.slow, delay: 160.ms)),
         SliverToBoxAdapter(child: const _TopCategoriesSection()
-            .animate().fadeIn(delay: 240.ms, duration: 400.ms).slideY(begin: 0.05, duration: 400.ms, delay: 240.ms)),
+            .animate().fadeIn(delay: 240.ms, duration: AppDurations.slow).slideY(begin: 0.05, duration: AppDurations.slow, delay: 240.ms)),
         SliverToBoxAdapter(child: const _SavingsGoalsSection()
-            .animate().fadeIn(delay: 320.ms, duration: 400.ms).slideY(begin: 0.05, duration: 400.ms, delay: 320.ms)),
+            .animate().fadeIn(delay: 320.ms, duration: AppDurations.slow).slideY(begin: 0.05, duration: AppDurations.slow, delay: 320.ms)),
         SliverToBoxAdapter(child: const _RecentTransactionsSection()
-            .animate().fadeIn(delay: 400.ms, duration: 400.ms).slideY(begin: 0.05, duration: 400.ms, delay: 400.ms)),
+            .animate().fadeIn(delay: 400.ms, duration: AppDurations.slow).slideY(begin: 0.05, duration: AppDurations.slow, delay: 400.ms)),
         const SliverToBoxAdapter(child: SizedBox(height: 100)),
       ],
     );
@@ -73,7 +75,7 @@ class _HeaderSection extends ConsumerWidget {
                   height: 36,
                   decoration: BoxDecoration(
                     color: AppColors.white.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: AppRadius.sm,
                   ),
                   child: Icon(PhosphorIcons.user(),
                       color: AppColors.white.withValues(alpha: 0.6), size: 18),
@@ -113,12 +115,9 @@ class _HeaderSection extends ConsumerWidget {
 
   void _showMonthPicker(BuildContext context, WidgetRef ref, DateTime current) {
     final now = DateTime.now();
-    showModalBottomSheet<void>(
+    showSpendlerSheet<void>(
       context: context,
-      backgroundColor: AppColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      isScrollControlled: false,
       builder: (_) {
         final months = List.generate(12, (i) => DateTime(now.year, now.month - i));
         return SafeArea(
@@ -197,7 +196,7 @@ class _BudgetProgressBar extends ConsumerWidget {
             padding: const EdgeInsets.all(AppSpacing.lg),
             decoration: BoxDecoration(
               color: AppColors.white,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: AppRadius.lg,
               boxShadow: const [
                 BoxShadow(
                     color: AppColors.shadowMd,
@@ -216,7 +215,7 @@ class _BudgetProgressBar extends ConsumerWidget {
                             .copyWith(color: AppColors.black)),
                     Text('of $symbol${_formatNumber(budgetVal)}',
                         style: AppTextStyles.bodyM
-                            .copyWith(color: AppColors.gray400)),
+                            .copyWith(color: AppColors.gray500)),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.md),
@@ -241,7 +240,7 @@ class _BudgetProgressBar extends ConsumerWidget {
                     ),
                     Text(
                       '$symbol${_formatNumber(remaining)} left · $daysLeft days',
-                      style: AppTextStyles.bodyS.copyWith(color: AppColors.gray400),
+                      style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
                     ),
                   ],
                 ),
@@ -250,7 +249,7 @@ class _BudgetProgressBar extends ConsumerWidget {
           );
         },
         loading: () => const SizedBox(height: 100),
-        error: (_, _) => const SizedBox.shrink(),
+        error: (_, _) => const ErrorCard(),
       ),
     );
   }
@@ -260,7 +259,7 @@ class _BudgetProgressBar extends ConsumerWidget {
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadius.lg,
         border: Border.all(color: AppColors.gray200, width: 1),
       ),
       child: Row(
@@ -270,9 +269,9 @@ class _BudgetProgressBar extends ConsumerWidget {
             height: 40,
             decoration: BoxDecoration(
               color: AppColors.gray100,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: AppRadius.base,
             ),
-            child: Icon(PhosphorIcons.target(), size: 20, color: AppColors.gray400),
+            child: Icon(PhosphorIcons.target(), size: 20, color: AppColors.gray500),
           ),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
@@ -284,11 +283,11 @@ class _BudgetProgressBar extends ConsumerWidget {
                         .copyWith(fontWeight: FontWeight.w600)),
                 Text('Track your spending against a limit',
                     style: AppTextStyles.bodyS
-                        .copyWith(color: AppColors.gray400)),
+                        .copyWith(color: AppColors.gray500)),
               ],
             ),
           ),
-          Icon(PhosphorIcons.caretRight(), size: 18, color: AppColors.gray400),
+          Icon(PhosphorIcons.caretRight(), size: 18, color: AppColors.gray500),
         ],
       ),
     );
@@ -324,7 +323,7 @@ class _QuickStatsRow extends ConsumerWidget {
               ),
               icon: PhosphorIcons.sun(),
               color: AppColors.black,
-            ).animate().fadeIn(delay: 0.ms, duration: 300.ms).slideX(begin: 0.1, duration: 300.ms),
+            ).animate().fadeIn(delay: 0.ms, duration: AppDurations.medium).slideX(begin: 0.1, duration: AppDurations.medium),
           ),
           const SizedBox(width: AppSpacing.sm),
 
@@ -339,7 +338,7 @@ class _QuickStatsRow extends ConsumerWidget {
               ),
               icon: PhosphorIcons.calendarBlank(),
               color: AppColors.black,
-            ).animate().fadeIn(delay: 60.ms, duration: 300.ms).slideX(begin: 0.1, duration: 300.ms, delay: 60.ms),
+            ).animate().fadeIn(delay: 60.ms, duration: AppDurations.medium).slideX(begin: 0.1, duration: AppDurations.medium, delay: 60.ms),
           ),
           const SizedBox(width: AppSpacing.sm),
 
@@ -363,7 +362,7 @@ class _QuickStatsRow extends ConsumerWidget {
 
     if (lastVal == 0) {
       label = '—';
-      color = AppColors.gray400;
+      color = AppColors.gray500;
       icon = PhosphorIcons.trendUp();
     } else {
       final pct = ((curVal - lastVal) / lastVal * 100).round();
@@ -406,7 +405,7 @@ class _StatCard extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.sm + 2),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadius.mdLg,
         boxShadow: const [
           BoxShadow(
               color: AppColors.shadow, blurRadius: 8, offset: Offset(0, 2)),
@@ -415,7 +414,7 @@ class _StatCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 16, color: AppColors.gray400),
+          Icon(icon, size: 16, color: AppColors.gray500),
           const SizedBox(height: AppSpacing.xs),
           Text(value,
               style: AppTextStyles.headingS
@@ -423,7 +422,7 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 2),
           Text(label,
               style:
-                  AppTextStyles.labelS.copyWith(color: AppColors.gray400)),
+                  AppTextStyles.labelS.copyWith(color: AppColors.gray500)),
         ],
       ),
     );
@@ -459,7 +458,7 @@ class _DailySpendChart extends ConsumerWidget {
         padding: const EdgeInsets.all(AppSpacing.lg),
         decoration: BoxDecoration(
           color: AppColors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: AppRadius.lg,
           boxShadow: const [
             BoxShadow(
                 color: AppColors.shadow,
@@ -483,7 +482,7 @@ class _DailySpendChart extends ConsumerWidget {
                           .read(selectedWeekStartProvider.notifier)
                           .state = weekStart.subtract(const Duration(days: 7)),
                       child: const Icon(Icons.chevron_left,
-                          color: AppColors.gray400, size: 22),
+                          color: AppColors.gray500, size: 22),
                     ),
                     Text(label,
                         style: AppTextStyles.labelS
@@ -496,7 +495,7 @@ class _DailySpendChart extends ConsumerWidget {
                           : null,
                       child: Icon(Icons.chevron_right,
                           color: canForward
-                              ? AppColors.gray400
+                              ? AppColors.gray500
                               : AppColors.gray200,
                           size: 22),
                     ),
@@ -552,7 +551,7 @@ class _TopCategoriesSection extends ConsumerWidget {
             padding: const EdgeInsets.all(AppSpacing.lg),
             decoration: BoxDecoration(
               color: AppColors.white,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: AppRadius.lg,
               boxShadow: const [
                 BoxShadow(
                     color: AppColors.shadow,
@@ -617,7 +616,7 @@ class _TopCategoriesSection extends ConsumerWidget {
         );
       },
       loading: () => const SizedBox.shrink(),
-      error: (_, _) => const SizedBox.shrink(),
+      error: (_, _) => const ErrorCard(),
     );
   }
 }
@@ -663,7 +662,7 @@ class _SavingsGoalsSection extends ConsumerWidget {
                       padding: const EdgeInsets.all(AppSpacing.md),
                       decoration: BoxDecoration(
                         color: AppColors.white,
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: AppRadius.mdLg,
                         boxShadow: const [
                           BoxShadow(
                               color: AppColors.shadow,
@@ -683,7 +682,7 @@ class _SavingsGoalsSection extends ConsumerWidget {
                           Text(
                             '$symbol${_formatNumber(g.currentAmount)} / $symbol${_formatNumber(g.targetAmount)}',
                             style: AppTextStyles.labelS
-                                .copyWith(color: AppColors.gray400),
+                                .copyWith(color: AppColors.gray500),
                           ),
                           AnimatedProgressBar(
                             value: pct,
@@ -725,7 +724,7 @@ class _SavingsGoalsSection extends ConsumerWidget {
         );
       },
       loading: () => const SizedBox.shrink(),
-      error: (_, _) => const SizedBox.shrink(),
+      error: (_, _) => const ErrorCard(),
     );
   }
 }
@@ -777,7 +776,7 @@ class _RecentTransactionsSection extends ConsumerWidget {
               return Container(
                 decoration: BoxDecoration(
                   color: AppColors.white,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: AppRadius.mdLg,
                 ),
                 child: Column(
                   children: recent.asMap().entries.map((e) {
@@ -804,7 +803,7 @@ class _RecentTransactionsSection extends ConsumerWidget {
               child: Center(
                   child: CircularProgressIndicator(color: AppColors.black)),
             ),
-            error: (_, _) => const SizedBox.shrink(),
+            error: (_, _) => const ErrorCard(),
           ),
         ],
       ),
@@ -822,7 +821,7 @@ class _RecentTransactionsSection extends ConsumerWidget {
               height: 56,
               decoration: BoxDecoration(
                 color: AppColors.gray100,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: AppRadius.mdLg,
               ),
               child: Icon(PhosphorIcons.receipt(),
                   size: 24, color: AppColors.gray300),
@@ -832,7 +831,7 @@ class _RecentTransactionsSection extends ConsumerWidget {
                 style: AppTextStyles.bodyM.copyWith(color: AppColors.gray500)),
             const SizedBox(height: AppSpacing.xxs),
             Text('Tap + to log your first spend',
-                style: AppTextStyles.bodyS.copyWith(color: AppColors.gray400)),
+                style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500)),
           ],
         ),
       ),
@@ -871,7 +870,7 @@ class _TransactionRow extends StatelessWidget {
               height: 40,
               decoration: BoxDecoration(
                 color: _catBgColor(cat),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppRadius.base,
               ),
               child: Icon(cat.iconFill, size: 18, color: _catIconColor(cat)),
             ),
@@ -888,7 +887,7 @@ class _TransactionRow extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(cat.label,
                       style: AppTextStyles.bodyS
-                          .copyWith(color: AppColors.gray400, fontSize: 12)),
+                          .copyWith(color: AppColors.gray500, fontSize: 12)),
                 ],
               ),
             ),
@@ -901,39 +900,9 @@ class _TransactionRow extends StatelessWidget {
     );
   }
 
-  Color _catBgColor(TransactionCategory cat) {
-    switch (cat.group) {
-      case TransactionCategory.foodAndDrink:
-        return AppColors.catOrangeBg;
-      case TransactionCategory.transport:
-        return AppColors.catBlueBg;
-      case TransactionCategory.shopping:
-        return AppColors.catPurpleBg;
-      case TransactionCategory.entertainment:
-        return AppColors.catPinkBg;
-      case TransactionCategory.healthAndWellness:
-        return AppColors.catGreenBg;
-      default:
-        return AppColors.catGrayBg;
-    }
-  }
+  Color _catBgColor(TransactionCategory cat) => AppColors.categoryBg(cat);
 
-  Color _catIconColor(TransactionCategory cat) {
-    switch (cat.group) {
-      case TransactionCategory.foodAndDrink:
-        return AppColors.catOrangeText;
-      case TransactionCategory.transport:
-        return AppColors.catBlueText;
-      case TransactionCategory.shopping:
-        return AppColors.catPurpleText;
-      case TransactionCategory.entertainment:
-        return AppColors.catPinkText;
-      case TransactionCategory.healthAndWellness:
-        return AppColors.catGreenText;
-      default:
-        return AppColors.catGrayText;
-    }
-  }
+  Color _catIconColor(TransactionCategory cat) => AppColors.categoryFg(cat);
 }
 
 // ─── User Avatar ──────────────────────────────────────────
@@ -950,7 +919,7 @@ class _UserAvatar extends StatelessWidget {
       height: 36,
       decoration: BoxDecoration(
         color: AppColors.white.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: AppRadius.sm,
       ),
       child: Center(
         child: Text(initials,

@@ -50,7 +50,7 @@ class _HealthRingState extends State<HealthRing>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 800),
+      duration: AppDurations.xSlow,
     );
     _animation = Tween<double>(begin: 0, end: widget.progress).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
@@ -117,7 +117,7 @@ class _HealthRingState extends State<HealthRing>
                       Text(
                         widget.label!,
                         style: const TextStyle(
-                          color: AppColors.gray400,
+                          color: AppColors.gray500,
                           fontSize: 11,
                         ),
                       ),

@@ -104,7 +104,7 @@ class _AddGoalSheetState extends State<AddGoalSheet> {
             // Goal name
             Text(
               'GOAL NAME',
-              style: AppTextStyles.labelM.copyWith(color: AppColors.gray400),
+              style: AppTextStyles.labelM.copyWith(color: AppColors.gray500),
             ),
             const SizedBox(height: AppSpacing.sm),
             Container(
@@ -124,7 +124,7 @@ class _AddGoalSheetState extends State<AddGoalSheet> {
                 decoration: InputDecoration(
                   hintText: 'e.g. Bike, PS5, Goa Trip',
                   hintStyle:
-                      AppTextStyles.bodyM.copyWith(color: AppColors.gray400),
+                      AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
                   border: InputBorder.none,
                   isDense: true,
                   contentPadding: EdgeInsets.zero,
@@ -138,7 +138,7 @@ class _AddGoalSheetState extends State<AddGoalSheet> {
             // Icon picker
             Text(
               'ICON',
-              style: AppTextStyles.labelM.copyWith(color: AppColors.gray400),
+              style: AppTextStyles.labelM.copyWith(color: AppColors.gray500),
             ),
             const SizedBox(height: AppSpacing.sm),
             SizedBox(
@@ -178,7 +178,7 @@ class _AddGoalSheetState extends State<AddGoalSheet> {
                           style: AppTextStyles.labelS.copyWith(
                             color: isSelected
                                 ? AppColors.black
-                                : AppColors.gray400,
+                                : AppColors.gray500,
                           ),
                         ),
                       ],
@@ -193,7 +193,7 @@ class _AddGoalSheetState extends State<AddGoalSheet> {
             // Target amount
             Text(
               'TARGET AMOUNT',
-              style: AppTextStyles.labelM.copyWith(color: AppColors.gray400),
+              style: AppTextStyles.labelM.copyWith(color: AppColors.gray500),
             ),
             const SizedBox(height: AppSpacing.sm),
             Container(
@@ -213,10 +213,10 @@ class _AddGoalSheetState extends State<AddGoalSheet> {
                 decoration: InputDecoration(
                   hintText: 'e.g. 50000',
                   hintStyle:
-                      AppTextStyles.bodyM.copyWith(color: AppColors.gray400),
+                      AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
                   prefixText: '$_currencySymbol ',
                   prefixStyle:
-                      AppTextStyles.bodyM.copyWith(color: AppColors.gray400),
+                      AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
                   border: InputBorder.none,
                   isDense: true,
                   contentPadding: EdgeInsets.zero,
@@ -230,7 +230,7 @@ class _AddGoalSheetState extends State<AddGoalSheet> {
             // Monthly target
             Text(
               'MONTHLY TARGET',
-              style: AppTextStyles.labelM.copyWith(color: AppColors.gray400),
+              style: AppTextStyles.labelM.copyWith(color: AppColors.gray500),
             ),
             const SizedBox(height: AppSpacing.sm),
             Container(
@@ -250,10 +250,10 @@ class _AddGoalSheetState extends State<AddGoalSheet> {
                 decoration: InputDecoration(
                   hintText: 'e.g. 5000',
                   hintStyle:
-                      AppTextStyles.bodyM.copyWith(color: AppColors.gray400),
+                      AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
                   prefixText: '$_currencySymbol ',
                   prefixStyle:
-                      AppTextStyles.bodyM.copyWith(color: AppColors.gray400),
+                      AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
                   border: InputBorder.none,
                   isDense: true,
                   contentPadding: EdgeInsets.zero,

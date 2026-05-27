@@ -78,4 +78,51 @@ class AppColors {
 
   static Color categoryColor(TransactionCategory cat) =>
       categoryHue[cat] ?? const Color(0xFF6E6E73);
+
+  // ── Unified category bg / fg system ────────────────────────
+  // Every TransactionCategory resolves via its `.group` so legacy
+  // subcategories (streaming, gymFitness, productivityTools) inherit
+  // from their parent automatically.
+
+  static const Map<TransactionCategory, Color> _categoryBgMap = {
+    TransactionCategory.foodAndDrink: catOrangeBg,
+    TransactionCategory.transport: catBlueBg,
+    TransactionCategory.shopping: catPurpleBg,
+    TransactionCategory.billsAndUtilities: catOrangeBg,
+    TransactionCategory.healthAndWellness: catGreenBg,
+    TransactionCategory.entertainment: catPinkBg,
+    TransactionCategory.personalCare: catPinkBg,
+    TransactionCategory.education: catPurpleBg,
+    TransactionCategory.travel: catBlueBg,
+    TransactionCategory.income: catGreenBg,
+    TransactionCategory.cash: catGrayBg,
+    TransactionCategory.investments: catBlueBg,
+    TransactionCategory.insurance: catPurpleBg,
+    TransactionCategory.other: catGrayBg,
+  };
+
+  static const Map<TransactionCategory, Color> _categoryFgMap = {
+    TransactionCategory.foodAndDrink: catOrangeText,
+    TransactionCategory.transport: catBlueText,
+    TransactionCategory.shopping: catPurpleText,
+    TransactionCategory.billsAndUtilities: catOrangeText,
+    TransactionCategory.healthAndWellness: catGreenText,
+    TransactionCategory.entertainment: catPinkText,
+    TransactionCategory.personalCare: catPinkText,
+    TransactionCategory.education: catPurpleText,
+    TransactionCategory.travel: catBlueText,
+    TransactionCategory.income: catGreenText,
+    TransactionCategory.cash: catGrayText,
+    TransactionCategory.investments: catBlueText,
+    TransactionCategory.insurance: catPurpleText,
+    TransactionCategory.other: catGrayText,
+  };
+
+  /// Background / tint colour for a category pill or avatar.
+  static Color categoryBg(TransactionCategory cat) =>
+      _categoryBgMap[cat.group] ?? catGrayBg;
+
+  /// Foreground / text colour for a category pill or avatar.
+  static Color categoryFg(TransactionCategory cat) =>
+      _categoryFgMap[cat.group] ?? catGrayText;
 }

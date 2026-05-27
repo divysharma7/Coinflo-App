@@ -108,21 +108,21 @@ class _ExcelImportPageState extends ConsumerState<ExcelImportPage> {
                           child: Column(
                             children: [
                               PhosphorIcon(PhosphorIcons.fileXls(),
-                                  size: 40, color: AppColors.gray400),
+                                  size: 40, color: AppColors.gray500),
                               const SizedBox(height: AppSpacing.sm),
                               Text(
                                 _fileName ?? 'Tap to select .xlsx file',
                                 style: AppTextStyles.bodyM.copyWith(
                                     color: _fileName != null
                                         ? AppColors.black
-                                        : AppColors.gray400),
+                                        : AppColors.gray500),
                                 textAlign: TextAlign.center,
                               ),
                               const SizedBox(height: AppSpacing.xs),
                               Text(
                                 'Expected columns: Date | Amount | Type | Category | Source | Note',
                                 style: AppTextStyles.labelS
-                                    .copyWith(color: AppColors.gray400),
+                                    .copyWith(color: AppColors.gray500),
                                 textAlign: TextAlign.center,
                               ),
                             ],
@@ -246,7 +246,7 @@ class _ExcelImportPageState extends ConsumerState<ExcelImportPage> {
                             child: Text(
                               'Showing first 50 of ${_result!.rows.length} rows',
                               style: AppTextStyles.labelS
-                                  .copyWith(color: AppColors.gray400),
+                                  .copyWith(color: AppColors.gray500),
                             ),
                           ),
 

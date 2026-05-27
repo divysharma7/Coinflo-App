@@ -13,7 +13,7 @@ class NeoPOPButton extends StatefulWidget {
     required this.label,
     required this.onTap,
     this.color = AppColors.black,
-    this.shadowColor = AppColors.gray400,
+    this.shadowColor = AppColors.gray500,
     this.textColor = Colors.black,
     this.offset = 4.0,
   });
@@ -85,7 +85,7 @@ class _NeoPOPButtonState extends State<NeoPOPButton>
                   child: Container(
                     decoration: BoxDecoration(
                       color: widget.shadowColor,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: AppRadius.base,
                     ),
                   ),
                 ),
@@ -99,7 +99,7 @@ class _NeoPOPButtonState extends State<NeoPOPButton>
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color: widget.color,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: AppRadius.base,
                     ),
                     child: Text(
                       widget.label.toUpperCase(),

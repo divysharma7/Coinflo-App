@@ -1,3 +1,4 @@
+import 'package:finance_buddy_app/widgets/common/error_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -83,7 +84,7 @@ class CategoryTransactionsPage extends ConsumerWidget {
                       height: 36,
                       decoration: BoxDecoration(
                         color: catColor.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: AppRadius.sm,
                       ),
                       child: Icon(cat.iconFill, size: 18, color: catColor),
                     ),
@@ -100,7 +101,7 @@ class CategoryTransactionsPage extends ConsumerWidget {
                           Text(
                             monthLabel,
                             style: AppTextStyles.bodyS
-                                .copyWith(color: AppColors.gray400),
+                                .copyWith(color: AppColors.gray500),
                           ),
                         ],
                       ),
@@ -129,7 +130,7 @@ class CategoryTransactionsPage extends ConsumerWidget {
                       ),
                       decoration: BoxDecoration(
                         color: catColor.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: AppRadius.mdLg,
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -155,10 +156,10 @@ class CategoryTransactionsPage extends ConsumerWidget {
                         ],
                       ),
                     ),
-                  ).animate().fadeIn(duration: 300.ms);
+                  ).animate().fadeIn(duration: AppDurations.medium);
                 },
                 loading: () => const SizedBox.shrink(),
-                error: (_, _) => const SizedBox.shrink(),
+                error: (_, _) => const ErrorCard(),
               ),
 
               const SizedBox(height: AppSpacing.sm),
@@ -183,7 +184,7 @@ class CategoryTransactionsPage extends ConsumerWidget {
                               Text(
                                 'No ${cat.label} spending this month.',
                                 style: AppTextStyles.bodyM
-                                    .copyWith(color: AppColors.gray400),
+                                    .copyWith(color: AppColors.gray500),
                                 textAlign: TextAlign.center,
                               ),
                             ],
@@ -206,11 +207,11 @@ class CategoryTransactionsPage extends ConsumerWidget {
                           catColor: catColor,
                         )
                             .animate()
-                            .fadeIn(delay: delay, duration: 300.ms)
+                            .fadeIn(delay: delay, duration: AppDurations.medium)
                             .slideX(
                               begin: 0.05,
                               delay: delay,
-                              duration: 300.ms,
+                              duration: AppDurations.medium,
                             );
                       },
                     );
@@ -222,7 +223,7 @@ class CategoryTransactionsPage extends ConsumerWidget {
                     child: Text(
                       'Failed to load transactions.',
                       style:
-                          AppTextStyles.bodyM.copyWith(color: AppColors.gray400),
+                          AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
                     ),
                   ),
                 ),
@@ -273,7 +274,7 @@ class _TransactionTile extends StatelessWidget {
           vertical: 10,
         ),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: AppRadius.base,
         ),
         child: Row(
           children: [
@@ -310,7 +311,7 @@ class _TransactionTile extends StatelessWidget {
                     DateFormat('d MMM, h:mm a').format(t.happenedAt),
                     style: const TextStyle(
                       fontSize: 12,
-                      color: AppColors.gray400,
+                      color: AppColors.gray500,
                     ),
                   ),
                 ],

@@ -10,6 +10,7 @@ import 'package:finance_buddy_app/widgets/common/empty_state.dart';
 
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:finance_buddy_app/utils/currency_utils.dart';
+import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 
 class SubscriptionsPage extends ConsumerWidget {
   const SubscriptionsPage({super.key});
@@ -73,8 +74,8 @@ class SubscriptionsPage extends ConsumerWidget {
                     ref.read(repositoryProvider).toggleSubscriptionActive(subs[i].id, !subs[i].isActive);
                   },
                   onDelete: () => _confirmDelete(context, ref, subs[i]),
-                ).animate().fadeIn(delay: Duration(milliseconds: 40 * i), duration: 300.ms)
-                    .slideX(begin: 0.05, delay: Duration(milliseconds: 40 * i), duration: 300.ms),
+                ).animate().fadeIn(delay: AppDurations.stagger * i, duration: AppDurations.medium)
+                    .slideX(begin: 0.05, delay: AppDurations.stagger * i, duration: AppDurations.medium),
                 const SizedBox(height: AppSpacing.sm),
               ],
             ],
@@ -116,13 +117,8 @@ class SubscriptionsPage extends ConsumerWidget {
   }
 
   void _showAddSheet(BuildContext context, WidgetRef ref) {
-    showModalBottomSheet<void>(
+    showSpendlerSheet<void>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
       builder: (_) => const _AddSubscriptionSheet(),
     );
   }
@@ -144,7 +140,7 @@ class _MonthlySummaryCard extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.xl),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadius.lg,
         border: Border.all(color: AppColors.gray200),
       ),
       child: Column(
@@ -154,7 +150,7 @@ class _MonthlySummaryCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
-              color: AppColors.gray400,
+              color: AppColors.gray500,
               letterSpacing: 1.5,
             ),
           ),
@@ -172,7 +168,7 @@ class _MonthlySummaryCard extends StatelessWidget {
             ),
             loading: () => const Text(
               '...',
-              style: TextStyle(fontSize: 40, color: AppColors.gray400),
+              style: TextStyle(fontSize: 40, color: AppColors.gray500),
             ),
             error: (_, _) => const Text(
               '—',
@@ -214,7 +210,7 @@ class _SubscriptionCard extends StatelessWidget {
         'Paused',
         style: TextStyle(
           fontSize: 12,
-          color: AppColors.gray400,
+          color: AppColors.gray500,
           fontStyle: FontStyle.italic,
         ),
       );
@@ -236,7 +232,7 @@ class _SubscriptionCard extends StatelessWidget {
         dateText,
         style: const TextStyle(
           fontSize: 12,
-          color: AppColors.gray400,
+          color: AppColors.gray500,
         ),
       );
     }
@@ -258,7 +254,7 @@ class _SubscriptionCard extends StatelessWidget {
           dateText,
           style: const TextStyle(
             fontSize: 12,
-            color: AppColors.gray400,
+            color: AppColors.gray500,
           ),
         ),
         const SizedBox(width: 6),
@@ -266,7 +262,7 @@ class _SubscriptionCard extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
           decoration: BoxDecoration(
             color: badgeColor.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: AppRadius.xxs,
           ),
           child: Text(
             badgeLabel,
@@ -289,7 +285,7 @@ class _SubscriptionCard extends StatelessWidget {
     );
     final catColor = subscription.isActive
         ? AppColors.categoryColor(cat)
-        : AppColors.gray400;
+        : AppColors.gray500;
     final cycle = BillingCycle.values.firstWhere(
       (c) => c.name == subscription.billingCycle,
       orElse: () => BillingCycle.monthly,
@@ -299,7 +295,7 @@ class _SubscriptionCard extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadius.lg,
         border: Border.all(
           color: subscription.isActive ? catColor.withValues(alpha: 0.3) : AppColors.gray200,
         ),
@@ -312,7 +308,7 @@ class _SubscriptionCard extends StatelessWidget {
             height: 44,
             decoration: BoxDecoration(
               color: catColor.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: AppRadius.base,
             ),
             child: Icon(cat.icon, color: catColor, size: 22),
           ),
@@ -330,7 +326,7 @@ class _SubscriptionCard extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                     color: subscription.isActive
                         ? AppColors.black
-                        : AppColors.gray400,
+                        : AppColors.gray500,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -469,7 +465,7 @@ class _AddSubscriptionSheetState extends ConsumerState<_AddSubscriptionSheet> {
                 ),
                 decoration: BoxDecoration(
                   border: Border.all(color: AppColors.gray200),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppRadius.base,
                 ),
                 child: Row(
                   children: [
@@ -496,7 +492,7 @@ class _AddSubscriptionSheetState extends ConsumerState<_AddSubscriptionSheet> {
                   backgroundColor: AppColors.black,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: AppRadius.base,
                   ),
                   elevation: 0,
                 ),
@@ -514,19 +510,19 @@ class _AddSubscriptionSheetState extends ConsumerState<_AddSubscriptionSheet> {
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(color: AppColors.gray400),
+      hintStyle: const TextStyle(color: AppColors.gray500),
       filled: true,
       fillColor: AppColors.offWhite,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadius.base,
         borderSide: const BorderSide(color: AppColors.gray200),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadius.base,
         borderSide: const BorderSide(color: AppColors.gray200),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadius.base,
         borderSide: const BorderSide(color: AppColors.black),
       ),
       contentPadding: const EdgeInsets.symmetric(
@@ -606,7 +602,7 @@ class _SelectorRow extends StatelessWidget {
                     color: i == selected
                         ? AppColors.black.withValues(alpha: 0.1)
                         : AppColors.offWhite,
-                    borderRadius: BorderRadius.circular(100),
+                    borderRadius: AppRadius.pill,
                     border: Border.all(
                       color: i == selected ? AppColors.black : AppColors.gray200,
                     ),

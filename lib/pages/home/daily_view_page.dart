@@ -78,7 +78,7 @@ class DailyViewPage extends ConsumerWidget {
                         ),
                         subtitle: Text(
                           DateFormat('h:mm a').format(t.happenedAt),
-                          style: const TextStyle(color: AppColors.gray400, fontSize: 12),
+                          style: const TextStyle(color: AppColors.gray500, fontSize: 12),
                         ),
                         trailing: AmountText(amount: t.amount, symbol: symbol),
                       );
@@ -104,7 +104,7 @@ class DailyViewPage extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   decoration: BoxDecoration(
                     color: AppColors.black,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: AppRadius.s,
                   ),
                   child: Text('Retry', style: AppTextStyles.bodyS.copyWith(color: AppColors.white)),
                 ),

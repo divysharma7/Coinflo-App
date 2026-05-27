@@ -29,8 +29,8 @@ class EmptyState extends StatelessWidget {
             Builder(builder: (_) {
               final Widget visual = lottie != null
                   ? LottieBuilder.asset(lottie, width: 100, height: 100, repeat: true)
-                  : Icon(icon, size: 64, color: AppColors.gray400);
-              return visual.animate().scale(begin: const Offset(0.8, 0.8), duration: 400.ms, curve: Curves.easeOutCubic);
+                  : Icon(icon, size: 64, color: AppColors.gray500);
+              return visual.animate().scale(begin: const Offset(0.8, 0.8), duration: AppDurations.slow, curve: Curves.easeOutCubic);
             }),
             const SizedBox(height: AppSpacing.md),
             Text(
@@ -42,21 +42,21 @@ class EmptyState extends StatelessWidget {
                 height: 1.6,
               ),
               textAlign: TextAlign.center,
-            ).animate().fadeIn(delay: 150.ms, duration: 300.ms),
+            ).animate().fadeIn(delay: AppDurations.fast, duration: AppDurations.medium),
             if (subtitle != null) ...[
               const SizedBox(height: AppSpacing.xs),
               Text(
                 subtitle!,
                 style: const TextStyle(
-                  color: AppColors.gray400,
+                  color: AppColors.gray500,
                   fontSize: 12,
                 ),
                 textAlign: TextAlign.center,
-              ).animate().fadeIn(delay: 250.ms, duration: 300.ms),
+              ).animate().fadeIn(delay: AppDurations.base, duration: AppDurations.medium),
             ],
           ],
         ),
       ),
-    ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.1, duration: 400.ms);
+    ).animate().fadeIn(duration: AppDurations.slow).slideY(begin: 0.1, duration: AppDurations.slow);
   }
 }

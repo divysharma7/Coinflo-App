@@ -53,11 +53,11 @@ class _FriendCreationSheetState extends ConsumerState<FriendCreationSheet> {
             style: AppTextStyles.bodyM.copyWith(color: AppColors.black),
             decoration: InputDecoration(
               labelText: 'Name',
-              labelStyle: AppTextStyles.bodyS.copyWith(color: AppColors.gray400),
+              labelStyle: AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
               filled: true,
               fillColor: AppColors.gray100,
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppRadius.base,
                 borderSide: BorderSide.none,
               ),
             ),
@@ -70,12 +70,12 @@ class _FriendCreationSheetState extends ConsumerState<FriendCreationSheet> {
             decoration: InputDecoration(
               labelText: 'Note (optional)',
               hintText: 'roommate, college friend, etc',
-              labelStyle: AppTextStyles.bodyS.copyWith(color: AppColors.gray400),
+              labelStyle: AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
               hintStyle: AppTextStyles.bodyS.copyWith(color: AppColors.gray300),
               filled: true,
               fillColor: AppColors.gray100,
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppRadius.base,
                 borderSide: BorderSide.none,
               ),
             ),

@@ -99,9 +99,9 @@ class _CategoryPickerSheetState extends State<CategoryPickerSheet> {
                 decoration: InputDecoration(
                   hintText: 'Search category...',
                   hintStyle:
-                      AppTextStyles.bodyM.copyWith(color: AppColors.gray400),
+                      AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
                   prefixIcon: const Icon(Icons.search,
-                      color: AppColors.gray400, size: 20),
+                      color: AppColors.gray500, size: 20),
                   suffixIcon: _searchQuery.isNotEmpty
                       ? GestureDetector(
                           onTap: () => setState(() {
@@ -109,7 +109,7 @@ class _CategoryPickerSheetState extends State<CategoryPickerSheet> {
                             _searchController.clear();
                           }),
                           child: const Icon(Icons.close,
-                              color: AppColors.gray400, size: 18),
+                              color: AppColors.gray500, size: 18),
                         )
                       : null,
                   border: InputBorder.none,
@@ -129,7 +129,7 @@ class _CategoryPickerSheetState extends State<CategoryPickerSheet> {
                     child: Text(
                       'No categories found',
                       style: AppTextStyles.bodyM
-                          .copyWith(color: AppColors.gray400),
+                          .copyWith(color: AppColors.gray500),
                     ),
                   )
                 : ListView.builder(
@@ -171,7 +171,7 @@ class _CategoryPickerSheetState extends State<CategoryPickerSheet> {
               Text(
                 entry.key.label.toUpperCase(),
                 style:
-                    AppTextStyles.labelM.copyWith(color: AppColors.gray400),
+                    AppTextStyles.labelM.copyWith(color: AppColors.gray500),
               ),
             ],
           ),

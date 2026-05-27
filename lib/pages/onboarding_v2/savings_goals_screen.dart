@@ -9,6 +9,7 @@ import 'package:finance_buddy_app/constants/goal_icons.dart';
 import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/models/savings_goal_model.dart';
 import 'package:finance_buddy_app/widgets/add_goal_sheet.dart';
+import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 
 class SavingsGoalsScreen extends StatefulWidget {
   const SavingsGoalsScreen({super.key});
@@ -90,13 +91,8 @@ class _SavingsGoalsScreenState extends State<SavingsGoalsScreen>
   }
 
   void _openAddSheet() {
-    showModalBottomSheet<void>(
+    showSpendlerSheet<void>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
       builder: (_) => AddGoalSheet(onSave: _addGoal),
     );
   }
@@ -338,7 +334,7 @@ class _SavingsGoalsScreenState extends State<SavingsGoalsScreen>
             child: Text(
               '$_currencySymbol${_formatter.format(goal.monthlyTarget)}/mo · ${goal.monthsRemaining} months left',
               style:
-                  AppTextStyles.labelS.copyWith(color: AppColors.gray400),
+                  AppTextStyles.labelS.copyWith(color: AppColors.gray500),
             ),
           ),
         ],
@@ -384,11 +380,11 @@ class _SavingsGoalsScreenState extends State<SavingsGoalsScreen>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.add, size: 18, color: AppColors.gray400),
+            const Icon(Icons.add, size: 18, color: AppColors.gray500),
             const SizedBox(width: AppSpacing.xs),
             Text(
               'Add Goal',
-              style: AppTextStyles.bodyM.copyWith(color: AppColors.gray400),
+              style: AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
             ),
           ],
         ),

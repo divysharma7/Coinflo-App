@@ -1,3 +1,4 @@
+import 'package:finance_buddy_app/widgets/common/error_card.dart';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ import 'package:finance_buddy_app/widgets/common/animations.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lottie/lottie.dart';
 import 'package:finance_buddy_app/utils/currency_utils.dart';
+import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 
 class PlanPage extends ConsumerWidget {
   const PlanPage({super.key});
@@ -28,10 +30,10 @@ class PlanPage extends ConsumerWidget {
               delegate: SliverChildListDelegate([
                 const SizedBox(height: AppSpacing.xl),
                 const _BudgetsSection()
-                    .animate().fadeIn(duration: 400.ms).slideY(begin: 0.05, duration: 400.ms),
+                    .animate().fadeIn(duration: AppDurations.slow).slideY(begin: 0.05, duration: AppDurations.slow),
                 const SizedBox(height: AppSpacing.xxl),
                 const _GoalsSection()
-                    .animate().fadeIn(delay: 120.ms, duration: 400.ms).slideY(begin: 0.05, delay: 120.ms, duration: 400.ms),
+                    .animate().fadeIn(delay: 120.ms, duration: AppDurations.slow).slideY(begin: 0.05, delay: 120.ms, duration: AppDurations.slow),
                 const SizedBox(height: AppSpacing.xxxl),
               ]),
             ),
@@ -84,7 +86,7 @@ class _HeroHeader extends ConsumerWidget {
                       return Text(
                         'Set budgets to track your spending',
                         style: AppTextStyles.bodyM.copyWith(
-                          color: AppColors.gray400,
+                          color: AppColors.gray500,
                         ),
                       );
                     }
@@ -106,10 +108,10 @@ class _HeroHeader extends ConsumerWidget {
                     margin: const EdgeInsets.only(top: 2),
                     decoration: BoxDecoration(
                       color: AppColors.white.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: AppRadius.s,
                     ),
                   ),
-                  error: (_, _) => const SizedBox.shrink(),
+                  error: (_, _) => const ErrorCard(),
                 ),
               ],
             ),
@@ -208,27 +210,19 @@ class _BudgetsSection extends ConsumerWidget {
                 );
               },
               loading: () => const _LoadingCard(),
-              error: (_, _) => const SizedBox.shrink(),
+              error: (_, _) => const ErrorCard(),
             );
           },
           loading: () => const _LoadingCard(),
-          error: (_, _) => const SizedBox.shrink(),
+          error: (_, _) => const ErrorCard(),
         ),
       ],
     );
   }
 
   void _showAddBudgetSheet(BuildContext context, WidgetRef ref, {CategoryBudget? existingBudget}) {
-    showModalBottomSheet<void>(
+    showSpendlerSheet<void>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(24),
-        ),
-      ),
-      showDragHandle: true,
       builder: (_) => _AddBudgetSheet(existingBudget: existingBudget),
     );
   }
@@ -411,26 +405,13 @@ class _BudgetCard extends StatelessWidget {
   }
 
   void _showOptionsSheet(BuildContext context) {
-    showModalBottomSheet<void>(
+    showSpendlerSheet<void>(
       context: context,
-      backgroundColor: AppColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
+      isScrollControlled: false,
       builder: (ctx) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SizedBox(height: AppSpacing.sm),
-            Container(
-              width: 36,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.gray300,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: AppSpacing.md),
             ListTile(
               leading: PhosphorIcon(PhosphorIcons.pencilSimple(), color: AppColors.black),
               title: const Text('Edit Budget'),
@@ -540,39 +521,23 @@ class _GoalsSection extends ConsumerWidget {
             );
           },
           loading: () => const _LoadingCard(),
-          error: (_, _) => const SizedBox.shrink(),
+          error: (_, _) => const ErrorCard(),
         ),
       ],
     );
   }
 
   void _showAddGoalSheet(BuildContext context, {SavingsGoal? existingGoal}) {
-    showModalBottomSheet<void>(
+    showSpendlerSheet<void>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(24),
-        ),
-      ),
-      showDragHandle: true,
       builder: (_) => _AddGoalSheet(existingGoal: existingGoal),
     );
   }
 
   void _showAddMoneySheet(
       BuildContext context, WidgetRef ref, SavingsGoal goal) {
-    showModalBottomSheet<void>(
+    showSpendlerSheet<void>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(24),
-        ),
-      ),
-      showDragHandle: true,
       builder: (_) => _AddMoneySheet(goal: goal),
     );
   }
@@ -758,7 +723,7 @@ class _GoalCardState extends State<_GoalCard>
                           ),
                           decoration: BoxDecoration(
                             color: _goldColor.withValues(alpha: 0.18),
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: AppRadius.lg,
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -878,26 +843,13 @@ class _GoalCardState extends State<_GoalCard>
   }
 
   void _showOptionsSheet(BuildContext context) {
-    showModalBottomSheet<void>(
+    showSpendlerSheet<void>(
       context: context,
-      backgroundColor: AppColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
+      isScrollControlled: false,
       builder: (ctx) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SizedBox(height: AppSpacing.sm),
-            Container(
-              width: 36,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.gray300,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: AppSpacing.md),
             ListTile(
               leading: PhosphorIcon(PhosphorIcons.pencilSimple(), color: AppColors.black),
               title: const Text('Edit Goal'),
@@ -1503,7 +1455,7 @@ class _LoadingCardState extends State<_LoadingCard>
     super.initState();
     _shimmerCtrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: AppDurations.shimmer,
     )..repeat();
   }
 
@@ -1585,7 +1537,7 @@ class _SkeletonCard extends StatelessWidget {
                 width: 60,
                 decoration: BoxDecoration(
                   color: color,
-                  borderRadius: BorderRadius.circular(6),
+                  borderRadius: AppRadius.xs,
                 ),
               ),
             ],

@@ -278,7 +278,7 @@ class _MonthlyBudgetScreenState extends State<MonthlyBudgetScreen>
           const SizedBox(height: AppSpacing.xs),
           Text(
             'per month',
-            style: AppTextStyles.bodyM.copyWith(color: AppColors.gray400),
+            style: AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
           ),
         ],
       ),

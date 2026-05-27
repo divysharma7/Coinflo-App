@@ -1,3 +1,4 @@
+import 'package:finance_buddy_app/widgets/common/error_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -56,7 +57,7 @@ class _AddSplitSheetState extends ConsumerState<AddSplitSheet> {
 
           // Step 1: Who paid?
           Text('Who paid?',
-              style: AppTextStyles.bodyS.copyWith(color: AppColors.gray400)),
+              style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500)),
           const SizedBox(height: AppSpacing.sm),
           Row(
             children: [
@@ -87,14 +88,14 @@ class _AddSplitSheetState extends ConsumerState<AddSplitSheet> {
 
           // Step 2: Which friend?
           Text('With who?',
-              style: AppTextStyles.bodyS.copyWith(color: AppColors.gray400)),
+              style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500)),
           const SizedBox(height: AppSpacing.sm),
           contacts.when(
             data: (list) {
               if (list.isEmpty) {
                 return Text('Add a friend first.',
                     style: AppTextStyles.bodyS
-                        .copyWith(color: AppColors.gray400));
+                        .copyWith(color: AppColors.gray500));
               }
               return Wrap(
                 spacing: 8,
@@ -107,7 +108,7 @@ class _AddSplitSheetState extends ConsumerState<AddSplitSheet> {
                         'FF${c.avatarColour.replaceFirst('#', '')}',
                         radix: 16));
                   } on FormatException {
-                    chipColor = AppColors.gray400;
+                    chipColor = AppColors.gray500;
                   }
                   return GestureDetector(
                     onTap: () => setState(() => _selectedFriend = c),
@@ -118,7 +119,7 @@ class _AddSplitSheetState extends ConsumerState<AddSplitSheet> {
                         color: selected
                             ? AppColors.black.withValues(alpha: 0.05)
                             : AppColors.white,
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: AppRadius.lg,
                         border: Border.all(
                             color: selected
                                 ? AppColors.black
@@ -158,7 +159,7 @@ class _AddSplitSheetState extends ConsumerState<AddSplitSheet> {
               );
             },
             loading: () => const SizedBox.shrink(),
-            error: (_, _) => const SizedBox.shrink(),
+            error: (_, _) => const ErrorCard(),
           ),
           const SizedBox(height: AppSpacing.lg),
 
@@ -172,13 +173,13 @@ class _AddSplitSheetState extends ConsumerState<AddSplitSheet> {
               labelText: 'Amount',
               prefixText: '${_sym(ref)} ',
               prefixStyle:
-                  AppTextStyles.headingM.copyWith(color: AppColors.gray400),
+                  AppTextStyles.headingM.copyWith(color: AppColors.gray500),
               labelStyle:
-                  AppTextStyles.bodyS.copyWith(color: AppColors.gray400),
+                  AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
               filled: true,
               fillColor: AppColors.gray100,
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppRadius.base,
                 borderSide: BorderSide.none,
               ),
             ),
@@ -190,11 +191,11 @@ class _AddSplitSheetState extends ConsumerState<AddSplitSheet> {
             decoration: InputDecoration(
               labelText: 'What for? (optional)',
               labelStyle:
-                  AppTextStyles.bodyS.copyWith(color: AppColors.gray400),
+                  AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
               filled: true,
               fillColor: AppColors.gray100,
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppRadius.base,
                 borderSide: BorderSide.none,
               ),
             ),
@@ -270,7 +271,7 @@ class _DirectionTile extends StatelessWidget {
           color: selected
               ? color.withValues(alpha: 0.08)
               : AppColors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppRadius.mdLg,
           border: Border.all(
             color: selected ? color : AppColors.gray200,
             width: selected ? 1.5 : 1,
@@ -280,7 +281,7 @@ class _DirectionTile extends StatelessWidget {
           children: [
             PhosphorIcon(icon,
                 size: 24,
-                color: selected ? color : AppColors.gray400),
+                color: selected ? color : AppColors.gray500),
             const SizedBox(height: AppSpacing.sm),
             Text(label,
                 style: AppTextStyles.bodyM.copyWith(
@@ -290,7 +291,7 @@ class _DirectionTile extends StatelessWidget {
                 style: AppTextStyles.labelS.copyWith(
                     color: selected
                         ? color.withValues(alpha: 0.7)
-                        : AppColors.gray400)),
+                        : AppColors.gray500)),
           ],
         ),
       ),

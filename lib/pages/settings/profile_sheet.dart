@@ -151,7 +151,7 @@ class ProfileSheet extends ConsumerWidget {
               child: Text(label, style: AppTextStyles.bodyM),
             ),
             const Icon(Icons.chevron_right,
-                color: AppColors.gray400, size: 20),
+                color: AppColors.gray500, size: 20),
           ],
         ),
       ),

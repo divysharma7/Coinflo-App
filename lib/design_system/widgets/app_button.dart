@@ -64,12 +64,16 @@ class _AppButtonState extends State<AppButton>
   Widget build(BuildContext context) {
     final isPrimary = widget.variant == AppButtonVariant.primary;
 
-    return GestureDetector(
-      onTapDown: _onTapDown,
-      onTapUp: _onTapUp,
-      onTapCancel: _onTapCancel,
-      onTap: widget.disabled ? null : widget.onTap,
-      child: AnimatedBuilder(
+    return Semantics(
+      button: true,
+      enabled: !widget.disabled,
+      label: widget.label,
+      child: GestureDetector(
+        onTapDown: _onTapDown,
+        onTapUp: _onTapUp,
+        onTapCancel: _onTapCancel,
+        onTap: widget.disabled ? null : widget.onTap,
+        child: AnimatedBuilder(
         animation: _scaleAnimation,
         builder: (context, child) {
           return Transform.scale(
@@ -96,6 +100,7 @@ class _AppButtonState extends State<AppButton>
                 color: isPrimary ? AppColors.white : AppColors.black,
               ),
             ),
+          ),
           ),
         ),
       ),

@@ -74,7 +74,7 @@ class _TransactionDetailPageState
           ],
         ),
       ).then((discard) {
-        if (discard == true) setState(() => _editing = false);
+        if (discard == true && mounted) setState(() => _editing = false);
       });
     } else {
       setState(() => _editing = false);
@@ -175,7 +175,7 @@ class _TransactionDetailPageState
           if (t == null) {
             return const Center(
               child: Text('Transaction not found',
-                  style: TextStyle(color: AppColors.gray400)),
+                  style: TextStyle(color: AppColors.gray500)),
             );
           }
           return _editing ? _buildEditMode(t) : _buildReadMode(t);
@@ -243,7 +243,7 @@ class _TransactionDetailPageState
           ),
           Text(
             DateFormat('EEEE, d MMM yyyy • h:mm a').format(t.happenedAt),
-            style: const TextStyle(color: AppColors.gray400),
+            style: const TextStyle(color: AppColors.gray500),
           ),
           if (t.note != null && t.note!.isNotEmpty) ...[
             const SizedBox(height: 8),
@@ -260,7 +260,7 @@ class _TransactionDetailPageState
                 begin: Alignment.topCenter, end: Alignment.bottomCenter,
                 colors: [AppColors.nearBlack, AppColors.white],
               ),
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: AppRadius.lg,
               boxShadow: AppShadows.sm,
             ),
             child: Column(
@@ -286,7 +286,7 @@ class _TransactionDetailPageState
             GestureDetector(
               onTap: () => context.push('/attachment-viewer', extra: t.attachmentPath!),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppRadius.base,
                 child: Image.file(
                   File(t.attachmentPath!),
                   height: 120,
@@ -301,8 +301,9 @@ class _TransactionDetailPageState
             width: double.infinity,
             child: OutlinedButton.icon(
               onPressed: () async {
-                final source = await showModalBottomSheet<ImageSource>(
+                final source = await showSpendlerSheet<ImageSource>(
                   context: context,
+                  isScrollControlled: false,
                   builder: (ctx) => SafeArea(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -337,7 +338,7 @@ class _TransactionDetailPageState
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.gray600,
                 side: const BorderSide(color: AppColors.gray200),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(borderRadius: AppRadius.base),
               ),
             ),
           ),
@@ -357,7 +358,7 @@ class _TransactionDetailPageState
                 label: const Text('Confirm This'),
                 style: FilledButton.styleFrom(
                   backgroundColor: AppColors.black, foregroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(borderRadius: AppRadius.base),
                 ),
               ),
             ),
@@ -380,7 +381,7 @@ class _TransactionDetailPageState
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.black,
                   side: const BorderSide(color: AppColors.gray200),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(borderRadius: AppRadius.base),
                 ),
               ),
             ),
@@ -474,7 +475,7 @@ class _TransactionDetailPageState
                   const SizedBox(width: 10),
                   Text(_category.label, style: const TextStyle(color: AppColors.black, fontSize: 16)),
                   const Spacer(),
-                  PhosphorIcon(PhosphorIcons.caretDown(), color: AppColors.gray400, size: 16),
+                  PhosphorIcon(PhosphorIcons.caretDown(), color: AppColors.gray500, size: 16),
                 ],
               ),
             ),
@@ -583,7 +584,7 @@ class _TransactionDetailPageState
             return ListTile(
               leading: Icon(
                 selected ? cat.iconFill : cat.icon,
-                color: selected ? catColor : AppColors.gray400,
+                color: selected ? catColor : AppColors.gray500,
               ),
               title: Text(
                 cat.label,
@@ -613,7 +614,7 @@ class _TransactionDetailPageState
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: AppColors.gray400)),
+          Text(label, style: const TextStyle(color: AppColors.gray500)),
           Text(value, style: const TextStyle(fontWeight: FontWeight.w500, color: AppColors.black)),
         ],
       ),

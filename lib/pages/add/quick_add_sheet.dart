@@ -73,7 +73,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
       return;
     }
     setState(() => _classifying = true);
-    _debounce = Timer(const Duration(milliseconds: 600), () async {
+    _debounce = Timer(AppDurations.debounce, () async {
       final classifier = ref.read(categoryClassifierProvider);
       final result = await classifier.classify(text.trim());
       if (mounted && result != null && _noteController.text.trim() == text.trim()) {
@@ -246,7 +246,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                   ),
                 ),
               ],
-            ).animate().fadeIn(duration: 300.ms).slideY(begin: -0.1, duration: 300.ms),
+            ).animate().fadeIn(duration: AppDurations.medium).slideY(begin: -0.1, duration: AppDurations.medium),
             const SizedBox(height: AppSpacing.sm),
 
             // Expense/Income toggle
@@ -268,7 +268,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                             horizontal: 14, vertical: 12),
                         decoration: BoxDecoration(
                           color: AppColors.gray100,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: AppRadius.base,
                         ),
                         child: Row(
                           children: [
@@ -290,7 +290,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                             ),
                             const Spacer(),
                             PhosphorIcon(PhosphorIcons.caretDown(),
-                                size: 14, color: AppColors.gray400),
+                                size: 14, color: AppColors.gray500),
                           ],
                         ),
                       ),
@@ -308,11 +308,11 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                       decoration: InputDecoration(
                         hintText: 'What was this for?',
                         hintStyle: AppTextStyles.bodyM
-                            .copyWith(color: AppColors.gray400),
+                            .copyWith(color: AppColors.gray500),
                         filled: true,
                         fillColor: AppColors.gray100,
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: AppRadius.base,
                           borderSide: BorderSide.none,
                         ),
                         isDense: true,
@@ -323,7 +323,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                                   width: 18, height: 18,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    color: AppColors.gray400,
+                                    color: AppColors.gray500,
                                   ),
                                 ),
                               )
@@ -336,12 +336,12 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                     if (_isExpense) ...[
                       Text('Category',
                           style: AppTextStyles.labelS
-                              .copyWith(color: AppColors.gray400)),
+                              .copyWith(color: AppColors.gray500)),
                       const SizedBox(height: AppSpacing.xs),
                       GestureDetector(
                         onTap: _showCategoryPicker,
                         child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 250),
+                          duration: AppDurations.base,
                           curve: Curves.easeOut,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 14, vertical: 10),
@@ -349,7 +349,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                             color: _aiSuggested || _hasTyped
                                 ? catColor.withValues(alpha: 0.10)
                                 : AppColors.gray100,
-                            borderRadius: BorderRadius.circular(24),
+                            borderRadius: AppRadius.lgXl,
                             border: _aiSuggested || _hasTyped
                                 ? Border.all(
                                     color: catColor.withValues(alpha: 0.3))
@@ -382,7 +382,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                               ),
                               const SizedBox(width: 8),
                               PhosphorIcon(PhosphorIcons.caretDown(),
-                                  size: 14, color: AppColors.gray400),
+                                  size: 14, color: AppColors.gray500),
                             ],
                           ),
                         ),
@@ -390,7 +390,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                     ] else ...[
                       Text('Source',
                           style: AppTextStyles.labelS
-                              .copyWith(color: AppColors.gray400)),
+                              .copyWith(color: AppColors.gray500)),
                       const SizedBox(height: AppSpacing.xs),
                       Wrap(
                         spacing: 8,
@@ -400,14 +400,14 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                           return GestureDetector(
                             onTap: () => setState(() => _incomeSource = source),
                             child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
+                              duration: AppDurations.normal,
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 14, vertical: 10),
                               decoration: BoxDecoration(
                                 color: selected
                                     ? AppColors.green.withValues(alpha: 0.12)
                                     : AppColors.gray100,
-                                borderRadius: BorderRadius.circular(24),
+                                borderRadius: AppRadius.lgXl,
                                 border: selected
                                     ? Border.all(color: AppColors.green.withValues(alpha: 0.4))
                                     : null,
@@ -469,7 +469,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: AppRadius.xxl,
         border: Border.all(color: AppColors.gray200),
       ),
       child: Row(
@@ -494,7 +494,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
           color: selected ? AppColors.black : Colors.transparent,
-          borderRadius: BorderRadius.circular(26),
+          borderRadius: AppRadius.xlSm,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -534,12 +534,12 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
         final key = entry.value;
         final i = entry.key;
         return InkWell(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: AppRadius.base,
           onTap: () => _onNumpadTap(key),
           child: Container(
             decoration: BoxDecoration(
               color: AppColors.gray100,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: AppRadius.base,
             ),
             child: Center(
               child: Text(
@@ -548,8 +548,8 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
               ),
             ),
           ),
-        ).animate().fadeIn(delay: Duration(milliseconds: 20 * i), duration: 200.ms)
-            .scale(begin: const Offset(0.85, 0.85), delay: Duration(milliseconds: 20 * i), duration: 200.ms);
+        ).animate().fadeIn(delay: AppDurations.microStagger * i, duration: AppDurations.normal)
+            .scale(begin: const Offset(0.85, 0.85), delay: AppDurations.microStagger * i, duration: AppDurations.normal);
       }).toList(),
     );
   }
@@ -628,17 +628,12 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
       NotificationService(),
     ));
 
-    // Refresh all data providers
-    ref.invalidate(monthlyTransactionsForHomeProvider);
-    ref.invalidate(allTransactionsProvider);
+    // Refresh FutureProvider data (StreamProviders auto-update via Drift)
     ref.invalidate(todaySpendingProvider);
     ref.invalidate(todayTopCategoryProvider);
     ref.invalidate(dailySpendingForWeekProvider);
     ref.invalidate(lastMonthExpenseProvider);
-    ref.invalidate(weeklyTotalsForMonthProvider);
-    ref.invalidate(monthlyTotalsForYearProvider);
-    ref.invalidate(yearlyTotalsProvider);
-    ref.invalidate(monthlyCategorySpendingProvider);
+    ref.invalidate(monthlyTransactionsForHomeProvider);
     invalidateAnalytics(ref);
 
     if (mounted) {
@@ -651,7 +646,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
           duration: const Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
           shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              RoundedRectangleBorder(borderRadius: AppRadius.sm),
         ),
       );
     }

@@ -66,7 +66,7 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen>
     // Pulse animation
     _pulseController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 200),
+      duration: AppDurations.normal,
     );
     _pulseAnimation = TweenSequence<double>([
       TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.02), weight: 1),
@@ -218,7 +218,7 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen>
                             child: Text(
                               'OTHER CURRENCIES',
                               style: AppTextStyles.labelM
-                                  .copyWith(color: AppColors.gray400),
+                                  .copyWith(color: AppColors.gray500),
                             ),
                           ),
                           const Expanded(
@@ -309,14 +309,14 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen>
                 Text(
                   _selectedCurrency.code,
                   style: AppTextStyles.labelM
-                      .copyWith(color: AppColors.gray400),
+                      .copyWith(color: AppColors.gray500),
                 ),
                 if (_selectedCurrency.code == _detectedCurrency.code) ...[
                   const SizedBox(height: 4),
                   Text(
                     'Detected from your region',
                     style: AppTextStyles.labelS
-                        .copyWith(color: AppColors.gray400),
+                        .copyWith(color: AppColors.gray500),
                   ),
                 ],
               ],
@@ -341,9 +341,9 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen>
         style: AppTextStyles.bodyM.copyWith(color: AppColors.black),
         decoration: InputDecoration(
           hintText: 'Search currency...',
-          hintStyle: AppTextStyles.bodyM.copyWith(color: AppColors.gray400),
+          hintStyle: AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
           prefixIcon:
-              const Icon(Icons.search, color: AppColors.gray400, size: 20),
+              const Icon(Icons.search, color: AppColors.gray500, size: 20),
           suffixIcon: _searchQuery.isNotEmpty
               ? GestureDetector(
                   onTap: () => setState(() {
@@ -351,7 +351,7 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen>
                     _searchController.clear();
                   }),
                   child: const Icon(Icons.close,
-                      color: AppColors.gray400, size: 18),
+                      color: AppColors.gray500, size: 18),
                 )
               : null,
           border: InputBorder.none,
@@ -371,7 +371,7 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen>
           padding: const EdgeInsets.all(AppSpacing.xxl),
           child: Text(
             'No currencies found',
-            style: AppTextStyles.bodyM.copyWith(color: AppColors.gray400),
+            style: AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
           ),
         ),
       );
@@ -423,7 +423,7 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen>
                       Text(
                         currency.code,
                         style: AppTextStyles.labelS
-                            .copyWith(color: AppColors.gray400),
+                            .copyWith(color: AppColors.gray500),
                       ),
                     ],
                   ),

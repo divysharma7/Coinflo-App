@@ -26,6 +26,27 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   bool _notificationsEnabled = true;
 
   @override
+  void initState() {
+    super.initState();
+    _loadNotificationPref();
+  }
+
+  Future<void> _loadNotificationPref() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        _notificationsEnabled = prefs.getBool('notifications_enabled') ?? true;
+      });
+    }
+  }
+
+  Future<void> _saveNotificationPref(bool value) async {
+    setState(() => _notificationsEnabled = value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('notifications_enabled', value);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final userName = ref.watch(userNameProvider);
     final userEmail = ref.watch(userEmailProvider);
@@ -204,7 +225,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         iconColor: AppColors.gray600,
                         label: 'Notifications',
                         value: _notificationsEnabled,
-                        onChanged: (v) => setState(() => _notificationsEnabled = v),
+                        onChanged: _saveNotificationPref,
                       ),
                     ],
                   ),
@@ -318,7 +339,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 10),
       child: Text(text,
-          style: AppTextStyles.labelM.copyWith(color: AppColors.gray400)),
+          style: AppTextStyles.labelM.copyWith(color: AppColors.gray500)),
     );
   }
 
@@ -342,12 +363,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     }
 
     if (!mounted) return;
-    await showModalBottomSheet<void>(
+    await showSpendlerSheet<void>(
       context: context,
-      backgroundColor: AppColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      isScrollControlled: false,
       builder: (_) {
         return SafeArea(
           child: Padding(
@@ -368,7 +386,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             .copyWith(color: AppColors.black)),
                     Text('${accounts.length} accounts',
                         style: AppTextStyles.bodyS
-                            .copyWith(color: AppColors.gray400)),
+                            .copyWith(color: AppColors.gray500)),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.lg),
@@ -379,7 +397,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           vertical: AppSpacing.xl),
                       child: Text('No accounts configured.',
                           style: AppTextStyles.bodyM
-                              .copyWith(color: AppColors.gray400)),
+                              .copyWith(color: AppColors.gray500)),
                     ),
                   )
                 else
@@ -396,7 +414,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       padding: const EdgeInsets.all(AppSpacing.md),
                       decoration: BoxDecoration(
                         color: AppColors.offWhite,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: AppRadius.base,
                       ),
                       child: Row(
                         children: [
@@ -405,7 +423,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             height: 40,
                             decoration: BoxDecoration(
                               color: AppColors.white,
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: AppRadius.sm,
                             ),
                             child: Icon(
                               type == 'upi'
@@ -428,7 +446,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 Text(
                                     type.toUpperCase(),
                                     style: AppTextStyles.labelS.copyWith(
-                                        color: AppColors.gray400)),
+                                        color: AppColors.gray500)),
                               ],
                             ),
                           ),
@@ -453,12 +471,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   // ─── Currency Picker ───────────────────────────────────
 
   void _showCurrencyPicker(String currentCode) {
-    showModalBottomSheet<void>(
+    showSpendlerSheet<void>(
       context: context,
-      backgroundColor: AppColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      isScrollControlled: false,
       builder: (_) {
         return SafeArea(
           child: Column(
@@ -505,13 +520,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   // ─── Categories Sheet ──────────────────────────────────
 
   void _showCategoriesSheet() {
-    showModalBottomSheet<void>(
+    showSpendlerSheet<void>(
       context: context,
-      backgroundColor: AppColors.white,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
       builder: (_) {
         final categories = TransactionCategory.groups;
         return DraggableScrollableSheet(
@@ -551,7 +561,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           return ListTile(
                             dense: true,
                             leading: Icon(s.icon, size: 18,
-                                color: AppColors.gray400),
+                                color: AppColors.gray500),
                             title: Text(s.name,
                                 style: AppTextStyles.bodyS),
                           );
@@ -573,13 +583,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   void _showBudgetEditor(double? current) {
     final controller = TextEditingController(
         text: current != null ? current.toStringAsFixed(0) : '');
-    showModalBottomSheet<void>(
+    showSpendlerSheet<void>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
       builder: (ctx) {
         return Padding(
           padding: EdgeInsets.fromLTRB(
@@ -597,7 +602,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               const SizedBox(height: 4),
               Text('This is your total spending limit across all categories for the month.',
                   style: AppTextStyles.bodyS
-                      .copyWith(color: AppColors.gray400)),
+                      .copyWith(color: AppColors.gray500)),
               const SizedBox(height: AppSpacing.md),
               TextField(
                 controller: controller,
@@ -636,13 +641,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   // ─── Help & Support ────────────────────────────────────
 
   void _showHelpSheet() {
-    showModalBottomSheet<void>(
+    showSpendlerSheet<void>(
       context: context,
-      backgroundColor: AppColors.white,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
       builder: (_) => const _HelpSupportSheet(),
     );
   }
@@ -655,7 +655,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       builder: (ctx) {
         return AlertDialog(
           backgroundColor: AppColors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(borderRadius: AppRadius.lg),
           title: Text('Log Out',
               style: AppTextStyles.headingS.copyWith(color: AppColors.black)),
           content: Text('Are you sure you want to log out?',
@@ -692,7 +692,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       builder: (ctx) {
         return AlertDialog(
           backgroundColor: AppColors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(borderRadius: AppRadius.lg),
           title: Text('Delete Account',
               style: AppTextStyles.headingS.copyWith(color: AppColors.red)),
           content: Text(
@@ -717,7 +717,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   await authService.clearLocalAuth();
                   final prefs = await SharedPreferences.getInstance();
                   await prefs.clear();
-                  if (mounted) context.go('/onboarding/step1');
+                  if (mounted) context.go('/onboarding/step2');
                 } on Exception {
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -818,7 +818,7 @@ class _HelpSupportSheetState extends State<_HelpSupportSheet> {
                   // FAQ section
                   Text('FAQ',
                       style: AppTextStyles.labelM
-                          .copyWith(color: AppColors.gray400)),
+                          .copyWith(color: AppColors.gray500)),
                   const SizedBox(height: AppSpacing.sm),
 
                   ...List.generate(kFaqs.length, (i) {
@@ -829,7 +829,7 @@ class _HelpSupportSheetState extends State<_HelpSupportSheet> {
                           const EdgeInsets.only(bottom: AppSpacing.xs),
                       decoration: BoxDecoration(
                         color: AppColors.white,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: AppRadius.base,
                         border: Border.all(
                           color: expanded
                               ? AppColors.black
@@ -860,7 +860,7 @@ class _HelpSupportSheetState extends State<_HelpSupportSheet> {
                                     expanded
                                         ? Icons.keyboard_arrow_up
                                         : Icons.keyboard_arrow_down,
-                                    color: AppColors.gray400,
+                                    color: AppColors.gray500,
                                     size: 20,
                                   ),
                                 ],
@@ -914,7 +914,7 @@ class _HelpSupportSheetState extends State<_HelpSupportSheet> {
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
           color: AppColors.offWhite,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: AppRadius.md,
         ),
         child: Row(
           children: [
@@ -923,7 +923,7 @@ class _HelpSupportSheetState extends State<_HelpSupportSheet> {
               height: 40,
               decoration: BoxDecoration(
                 color: AppColors.white,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: AppRadius.sm,
               ),
               child: Icon(icon, size: 20, color: AppColors.gray600),
             ),
@@ -937,12 +937,12 @@ class _HelpSupportSheetState extends State<_HelpSupportSheet> {
                           .copyWith(fontWeight: FontWeight.w600)),
                   Text(subtitle,
                       style: AppTextStyles.bodyS
-                          .copyWith(color: AppColors.gray400)),
+                          .copyWith(color: AppColors.gray500)),
                 ],
               ),
             ),
             const Icon(Icons.chevron_right,
-                color: AppColors.gray400, size: 20),
+                color: AppColors.gray500, size: 20),
           ],
         ),
       ),
@@ -977,7 +977,7 @@ class _ReportBugDialogState extends State<_ReportBugDialog> {
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: RoundedRectangleBorder(borderRadius: AppRadius.lg),
       insetPadding: const EdgeInsets.all(AppSpacing.lg),
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
@@ -992,7 +992,7 @@ class _ReportBugDialogState extends State<_ReportBugDialog> {
                   height: 40,
                   decoration: BoxDecoration(
                     color: AppColors.red.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: AppRadius.sm,
                   ),
                   child: const Icon(Icons.bug_report_outlined,
                       color: AppColors.red, size: 22),
@@ -1014,7 +1014,7 @@ class _ReportBugDialogState extends State<_ReportBugDialog> {
                 filled: true,
                 fillColor: AppColors.gray100,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppRadius.base,
                   borderSide: BorderSide.none,
                 ),
                 isDense: true,
@@ -1032,7 +1032,7 @@ class _ReportBugDialogState extends State<_ReportBugDialog> {
                 filled: true,
                 fillColor: AppColors.gray100,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppRadius.base,
                   borderSide: BorderSide.none,
                 ),
                 isDense: true,
@@ -1049,7 +1049,7 @@ class _ReportBugDialogState extends State<_ReportBugDialog> {
                           const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
                         color: AppColors.gray100,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: AppRadius.base,
                       ),
                       alignment: Alignment.center,
                       child: Text('Cancel',
@@ -1068,7 +1068,7 @@ class _ReportBugDialogState extends State<_ReportBugDialog> {
                           const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
                         color: AppColors.black,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: AppRadius.base,
                       ),
                       alignment: Alignment.center,
                       child: _sending

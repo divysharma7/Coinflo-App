@@ -343,7 +343,7 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
                 Text(
                   account.type == AccountType.cash ? 'Cash' : 'UPI',
                   style:
-                      AppTextStyles.labelS.copyWith(color: AppColors.gray400),
+                      AppTextStyles.labelS.copyWith(color: AppColors.gray500),
                 ),
               ],
             ),
@@ -410,7 +410,7 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
               Text(
                 'ACCOUNT NAME',
                 style:
-                    AppTextStyles.labelM.copyWith(color: AppColors.gray400),
+                    AppTextStyles.labelM.copyWith(color: AppColors.gray500),
               ),
               const Spacer(),
               // Live logo preview
@@ -441,7 +441,7 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
             decoration: InputDecoration(
               hintText: 'e.g. HDFC Bank, Paytm...',
               hintStyle:
-                  AppTextStyles.bodyM.copyWith(color: AppColors.gray400),
+                  AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
               border: InputBorder.none,
               isDense: true,
               contentPadding: EdgeInsets.zero,
@@ -453,7 +453,7 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
           // Type selector
           Text(
             'TYPE',
-            style: AppTextStyles.labelM.copyWith(color: AppColors.gray400),
+            style: AppTextStyles.labelM.copyWith(color: AppColors.gray500),
           ),
           const SizedBox(height: AppSpacing.xs),
           Row(
@@ -471,7 +471,7 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
                 child: Text(
                   'Cash',
                   style:
-                      AppTextStyles.bodyM.copyWith(color: AppColors.gray400),
+                      AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
                 ),
               ),
               const SizedBox(width: AppSpacing.xs),
@@ -499,7 +499,7 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
           // Opening balance
           Text(
             'OPENING BALANCE',
-            style: AppTextStyles.labelM.copyWith(color: AppColors.gray400),
+            style: AppTextStyles.labelM.copyWith(color: AppColors.gray500),
           ),
           const SizedBox(height: AppSpacing.xs),
           TextField(
@@ -510,10 +510,10 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
             decoration: InputDecoration(
               hintText: 'e.g. $_currencySymbol 24,000',
               hintStyle:
-                  AppTextStyles.bodyM.copyWith(color: AppColors.gray400),
+                  AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
               prefixText: '$_currencySymbol ',
               prefixStyle:
-                  AppTextStyles.bodyM.copyWith(color: AppColors.gray400),
+                  AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
               border: InputBorder.none,
               isDense: true,
               contentPadding: EdgeInsets.zero,

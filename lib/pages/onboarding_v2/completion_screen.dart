@@ -296,7 +296,7 @@ class _CompletionScreenState extends ConsumerState<CompletionScreen>
                                   _obscurePassword
                                       ? Icons.visibility_off_outlined
                                       : Icons.visibility_outlined,
-                                  color: AppColors.gray400,
+                                  color: AppColors.gray500,
                                   size: 20,
                                 ),
                               ),
@@ -430,8 +430,8 @@ class _CompletionScreenState extends ConsumerState<CompletionScreen>
         style: AppTextStyles.bodyM.copyWith(color: AppColors.black),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: AppTextStyles.bodyM.copyWith(color: AppColors.gray400),
-          prefixIcon: Icon(icon, color: AppColors.gray400, size: 20),
+          hintStyle: AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
+          prefixIcon: Icon(icon, color: AppColors.gray500, size: 20),
           suffixIcon: suffixIcon,
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(vertical: 16),

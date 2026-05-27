@@ -9,6 +9,7 @@ import 'package:finance_buddy_app/pages/report/report_page.dart';
 import 'package:finance_buddy_app/pages/plan/plan_page.dart';
 import 'package:finance_buddy_app/pages/settings/settings_page.dart';
 import 'package:finance_buddy_app/pages/add/quick_add_sheet.dart';
+import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 
 class ShellPage extends ConsumerWidget {
   const ShellPage({super.key});
@@ -62,13 +63,8 @@ class ShellPage extends ConsumerWidget {
   }
 
   void _onFabPressed(BuildContext context) {
-    showModalBottomSheet<void>(
+    showSpendlerSheet<void>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
       builder: (_) => const QuickAddSheet(),
     );
   }

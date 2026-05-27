@@ -28,7 +28,7 @@ class SpendBarChart extends StatelessWidget {
         height: height,
         child: Center(
           child: Text('No data yet',
-              style: AppTextStyles.bodyM.copyWith(color: AppColors.gray400)),
+              style: AppTextStyles.bodyM.copyWith(color: AppColors.gray500)),
         ),
       );
     }
@@ -85,7 +85,7 @@ class SpendBarChart extends StatelessWidget {
                     child: Text(
                       labels[idx],
                       style: AppTextStyles.labelS.copyWith(
-                        color: AppColors.gray400,
+                        color: AppColors.gray500,
                         fontSize: 11,
                       ),
                     ),
@@ -115,7 +115,7 @@ class SpendBarChart extends StatelessWidget {
             );
           }),
         ),
-        duration: const Duration(milliseconds: 400),
+        duration: AppDurations.slow,
         curve: Curves.easeInOut,
       ),
     );

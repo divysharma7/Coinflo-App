@@ -7,6 +7,7 @@ import 'package:finance_buddy_app/constants/app_categories.dart';
 import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/models/recurring_payment_model.dart';
 import 'package:finance_buddy_app/widgets/category_picker_sheet.dart';
+import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 
 class AddPaymentSheet extends StatefulWidget {
   const AddPaymentSheet({
@@ -70,13 +71,8 @@ class _AddPaymentSheetState extends State<AddPaymentSheet> {
   }
 
   void _openCategoryPicker() {
-    showModalBottomSheet<void>(
+    showSpendlerSheet<void>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
       builder: (_) => DraggableScrollableSheet(
         initialChildSize: 0.7,
         maxChildSize: 0.9,
@@ -99,7 +95,7 @@ class _AddPaymentSheetState extends State<AddPaymentSheet> {
       name: _nameController.text.trim(),
       categoryName: _selectedCategory?.name ?? 'Miscellaneous',
       categoryIcon: _selectedCategory?.icon ?? Icons.more_horiz,
-      categoryColor: _selectedCategory?.iconColor ?? AppColors.gray400,
+      categoryColor: _selectedCategory?.iconColor ?? AppColors.gray500,
       amount: int.parse(_amountController.text),
       frequency: _frequency,
       dueDayOfMonth: _dueDay,
@@ -152,7 +148,7 @@ class _AddPaymentSheetState extends State<AddPaymentSheet> {
             // Payment name
             Text(
               'PAYMENT NAME',
-              style: AppTextStyles.labelM.copyWith(color: AppColors.gray400),
+              style: AppTextStyles.labelM.copyWith(color: AppColors.gray500),
             ),
             const SizedBox(height: AppSpacing.sm),
             Container(
@@ -172,7 +168,7 @@ class _AddPaymentSheetState extends State<AddPaymentSheet> {
                 decoration: InputDecoration(
                   hintText: 'e.g. Netflix, Rent, Gym',
                   hintStyle:
-                      AppTextStyles.bodyM.copyWith(color: AppColors.gray400),
+                      AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
                   border: InputBorder.none,
                   isDense: true,
                   contentPadding: EdgeInsets.zero,
@@ -186,7 +182,7 @@ class _AddPaymentSheetState extends State<AddPaymentSheet> {
             // Category
             Text(
               'CATEGORY',
-              style: AppTextStyles.labelM.copyWith(color: AppColors.gray400),
+              style: AppTextStyles.labelM.copyWith(color: AppColors.gray500),
             ),
             const SizedBox(height: AppSpacing.sm),
             GestureDetector(
@@ -215,10 +211,10 @@ class _AddPaymentSheetState extends State<AddPaymentSheet> {
                       Expanded(
                         child: Text('Select category',
                             style: AppTextStyles.bodyM
-                                .copyWith(color: AppColors.gray400)),
+                                .copyWith(color: AppColors.gray500)),
                       ),
                     const Icon(Icons.chevron_right,
-                        size: 20, color: AppColors.gray400),
+                        size: 20, color: AppColors.gray500),
                   ],
                 ),
               ),
@@ -229,7 +225,7 @@ class _AddPaymentSheetState extends State<AddPaymentSheet> {
             // Amount
             Text(
               'AMOUNT',
-              style: AppTextStyles.labelM.copyWith(color: AppColors.gray400),
+              style: AppTextStyles.labelM.copyWith(color: AppColors.gray500),
             ),
             const SizedBox(height: AppSpacing.sm),
             Container(
@@ -249,10 +245,10 @@ class _AddPaymentSheetState extends State<AddPaymentSheet> {
                 decoration: InputDecoration(
                   hintText: 'e.g. 680',
                   hintStyle:
-                      AppTextStyles.bodyM.copyWith(color: AppColors.gray400),
+                      AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
                   prefixText: '$_currencySymbol ',
                   prefixStyle:
-                      AppTextStyles.bodyM.copyWith(color: AppColors.gray400),
+                      AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
                   border: InputBorder.none,
                   isDense: true,
                   contentPadding: EdgeInsets.zero,
@@ -266,7 +262,7 @@ class _AddPaymentSheetState extends State<AddPaymentSheet> {
             // Frequency
             Text(
               'FREQUENCY',
-              style: AppTextStyles.labelM.copyWith(color: AppColors.gray400),
+              style: AppTextStyles.labelM.copyWith(color: AppColors.gray500),
             ),
             const SizedBox(height: AppSpacing.sm),
             Row(
@@ -306,7 +302,7 @@ class _AddPaymentSheetState extends State<AddPaymentSheet> {
             // Due day
             Text(
               'DUE DAY OF MONTH',
-              style: AppTextStyles.labelM.copyWith(color: AppColors.gray400),
+              style: AppTextStyles.labelM.copyWith(color: AppColors.gray500),
             ),
             const SizedBox(height: AppSpacing.sm),
             SizedBox(

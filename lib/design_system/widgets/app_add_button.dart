@@ -17,9 +17,12 @@ class AppAddButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
+    return Semantics(
+      button: true,
+      label: label,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.md,
           vertical: AppSpacing.sm,
@@ -38,6 +41,7 @@ class AppAddButton extends StatelessWidget {
               style: AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
             ),
           ],
+        ),
         ),
       ),
     );

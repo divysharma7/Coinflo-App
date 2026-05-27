@@ -4,6 +4,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/providers/notification_providers.dart';
 import 'package:finance_buddy_app/widgets/common/notification_sheet.dart';
+import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 
 /// Bell icon with a yellow unread dot. Taps open the notification centre sheet.
 class NotificationBell extends ConsumerWidget {
@@ -20,16 +21,8 @@ class NotificationBell extends ConsumerWidget {
 
     return GestureDetector(
       onTap: () {
-        showModalBottomSheet<void>(
+        showSpendlerSheet<void>(
           context: context,
-          isScrollControlled: true,
-          backgroundColor: AppColors.white,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(24),
-            ),
-          ),
-          showDragHandle: true,
           builder: (_) => const NotificationSheet(),
         );
       },

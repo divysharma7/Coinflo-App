@@ -51,6 +51,15 @@ class SpendlerApp extends StatelessWidget {
                 thickness: 1,
                 space: 0,
               ),
+              snackBarTheme: SnackBarThemeData(
+                backgroundColor: AppColors.nearBlack,
+                contentTextStyle:
+                    AppTextStyles.bodyM.copyWith(color: AppColors.white),
+                behavior: SnackBarBehavior.floating,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: AppRadius.md,
+                ),
+              ),
             ),
             darkTheme: ThemeData.light(useMaterial3: true),
             routerConfig: router,

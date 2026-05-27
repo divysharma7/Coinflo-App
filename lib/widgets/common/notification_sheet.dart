@@ -1,3 +1,4 @@
+import 'package:finance_buddy_app/widgets/common/error_card.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -62,7 +63,7 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('COINFLO', style: AppTextStyles.labelM.copyWith(
-                    color: AppColors.gray400,
+                    color: AppColors.gray500,
                     letterSpacing: 1.5,
                   )),
                   GestureDetector(
@@ -84,7 +85,7 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
               Text(
                 'RECENT',
                 style: AppTextStyles.labelM.copyWith(
-                  color: AppColors.gray400,
+                  color: AppColors.gray500,
                   letterSpacing: 1.5,
                 ),
               ),
@@ -101,7 +102,7 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
                         child: Text(
                           'All quiet — no notifications yet',
                           style: TextStyle(
-                            color: AppColors.gray400,
+                            color: AppColors.gray500,
                             fontSize: 14,
                           ),
                         ),
@@ -127,7 +128,7 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
                     ),
                   ),
                 ),
-                error: (_, _) => const SizedBox.shrink(),
+                error: (_, _) => const ErrorCard(),
               ),
 
               const SizedBox(height: AppSpacing.xl),
@@ -138,7 +139,7 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
               Text(
                 'SETTINGS',
                 style: AppTextStyles.labelM.copyWith(
-                  color: AppColors.gray400,
+                  color: AppColors.gray500,
                   letterSpacing: 1.5,
                 ),
               ),
@@ -186,7 +187,7 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
                   ),
                   decoration: BoxDecoration(
                     color: AppColors.white,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: AppRadius.base,
                   ),
                   child: Row(
                     children: [
@@ -207,7 +208,7 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
                       ),
                       PhosphorIcon(
                         PhosphorIcons.caretRight(),
-                        color: AppColors.gray400,
+                        color: AppColors.gray500,
                         size: 18,
                       ),
                     ],
@@ -235,7 +236,7 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
                   ),
                   decoration: BoxDecoration(
                     color: AppColors.white,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: AppRadius.base,
                   ),
                   child: Row(
                     children: [
@@ -256,7 +257,7 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
                       ),
                       PhosphorIcon(
                         PhosphorIcons.caretRight(),
-                        color: AppColors.gray400,
+                        color: AppColors.gray500,
                         size: 18,
                       ),
                     ],
@@ -332,7 +333,7 @@ class _NotificationRow extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           color: AppColors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: AppRadius.base,
           border: notification.isRead
               ? null
               : const Border(
@@ -379,7 +380,7 @@ class _NotificationRow extends StatelessWidget {
             Text(
               _relativeTime(notification.sentAt),
               style: const TextStyle(
-                color: AppColors.gray400,
+                color: AppColors.gray500,
                 fontSize: 11,
               ),
             ),
@@ -454,7 +455,7 @@ class _ToggleRow extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadius.base,
       ),
       child: Row(
         children: [
@@ -475,7 +476,7 @@ class _ToggleRow extends StatelessWidget {
                 Text(
                   subtitle,
                   style: const TextStyle(
-                    color: AppColors.gray400,
+                    color: AppColors.gray500,
                     fontSize: 12,
                   ),
                 ),
@@ -488,7 +489,7 @@ class _ToggleRow extends StatelessWidget {
             activeThumbColor: AppColors.black,
             activeTrackColor: AppColors.black.withValues(alpha: 0.3),
             inactiveTrackColor: AppColors.gray200,
-            inactiveThumbColor: AppColors.gray400,
+            inactiveThumbColor: AppColors.gray500,
           ),
         ],
       ),

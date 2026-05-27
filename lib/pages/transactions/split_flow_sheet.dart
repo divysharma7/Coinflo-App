@@ -180,7 +180,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
         setState(() => _mode = mode);
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
+        duration: AppDurations.fast,
         padding: const EdgeInsets.symmetric(
           vertical: AppSpacing.md,
           horizontal: AppSpacing.sm,
@@ -189,7 +189,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
           color: selected
               ? AppColors.black.withValues(alpha: 0.1)
               : AppColors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: AppRadius.lg,
           border: Border.all(
             color: selected ? AppColors.black : AppColors.gray200,
             width: selected ? 1.5 : 1,
@@ -221,7 +221,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
                 style: TextStyle(
                   color: selected
                       ? AppColors.black.withValues(alpha: 0.7)
-                      : AppColors.gray400,
+                      : AppColors.gray500,
                   fontSize: 11,
                 ),
               ),
@@ -244,7 +244,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
           padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
           decoration: BoxDecoration(
             color: AppColors.white,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: AppRadius.lg,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -261,7 +261,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
               ),
               const SizedBox(width: AppSpacing.lg),
               AnimatedSwitcher(
-                duration: const Duration(milliseconds: 150),
+                duration: AppDurations.fast,
                 transitionBuilder: (child, anim) => ScaleTransition(
                   scale: anim,
                   child: FadeTransition(opacity: anim, child: child),
@@ -297,7 +297,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
               end: Alignment.bottomCenter,
               colors: [AppColors.nearBlack, AppColors.white],
             ),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: AppRadius.lg,
             boxShadow: AppShadows.sm,
           ),
           child: Column(
@@ -379,9 +379,9 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
         // Confirm button
         NeoPOPButton(
           label: 'Confirm Split',
-          color: isBalanced ? AppColors.black : AppColors.gray400,
+          color: isBalanced ? AppColors.black : AppColors.gray500,
           shadowColor:
-              isBalanced ? AppColors.gray400 : AppColors.gray200,
+              isBalanced ? AppColors.gray500 : AppColors.gray200,
           onTap: isBalanced
               ? () => _confirmCustomSplit()
               : () => _showUnallocatedToast(remaining),
@@ -475,7 +475,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadius.lg,
         border: Border.all(color: AppColors.gray200),
       ),
       child: Column(
@@ -510,12 +510,12 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
   Widget _buildPersonRow(int index) {
     final row = _customRows[index];
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 150),
+      duration: AppDurations.fast,
       curve: Curves.easeOutCubic,
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadius.lg,
         border: Border.all(color: AppColors.gray200),
       ),
       child: Column(
@@ -542,7 +542,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
                   child: PhosphorIcon(
                     PhosphorIcons.xCircle(),
                     size: 20,
-                    color: AppColors.gray400,
+                    color: AppColors.gray500,
                   ),
                 ),
             ],
@@ -596,7 +596,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
       ),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadius.lg,
         border: Border.all(color: AppColors.gray200),
       ),
       child: Wrap(
@@ -679,7 +679,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
           icon,
           color: filled && enabled
               ? Colors.black
-              : (enabled ? AppColors.black : AppColors.gray400),
+              : (enabled ? AppColors.black : AppColors.gray500),
           size: 20,
         ),
       ),

@@ -110,7 +110,7 @@ class _AddCategoryBudgetSheetState extends State<AddCategoryBudgetSheet> {
             // Category group label
             Text(
               'CATEGORY GROUP',
-              style: AppTextStyles.labelM.copyWith(color: AppColors.gray400),
+              style: AppTextStyles.labelM.copyWith(color: AppColors.gray500),
             ),
             const SizedBox(height: AppSpacing.sm),
 
@@ -130,7 +130,7 @@ class _AddCategoryBudgetSheetState extends State<AddCategoryBudgetSheet> {
             // Monthly limit label
             Text(
               'MONTHLY LIMIT',
-              style: AppTextStyles.labelM.copyWith(color: AppColors.gray400),
+              style: AppTextStyles.labelM.copyWith(color: AppColors.gray500),
             ),
             const SizedBox(height: AppSpacing.sm),
 
@@ -146,7 +146,7 @@ class _AddCategoryBudgetSheetState extends State<AddCategoryBudgetSheet> {
                   Text(
                     _currencySymbol,
                     style: AppTextStyles.displayL
-                        .copyWith(color: AppColors.gray400),
+                        .copyWith(color: AppColors.gray500),
                   ),
                   const SizedBox(width: AppSpacing.xs),
                   Expanded(
@@ -160,7 +160,7 @@ class _AddCategoryBudgetSheetState extends State<AddCategoryBudgetSheet> {
                       decoration: InputDecoration(
                         hintText: '0',
                         hintStyle: AppTextStyles.displayL
-                            .copyWith(color: AppColors.gray400),
+                            .copyWith(color: AppColors.gray500),
                         border: InputBorder.none,
                         isDense: true,
                         contentPadding: EdgeInsets.zero,

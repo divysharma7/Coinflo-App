@@ -76,7 +76,7 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                         color: filters.hasAnyFilter
                             ? AppColors.black.withValues(alpha: 0.12)
                             : AppColors.white,
-                        borderRadius: BorderRadius.circular(100),
+                        borderRadius: AppRadius.pill,
                         border: Border.all(
                           color: filters.hasAnyFilter ? AppColors.black : AppColors.gray200,
                         ),
@@ -141,22 +141,22 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
             style: const TextStyle(fontSize: 14, color: AppColors.black),
             decoration: InputDecoration(
               hintText: 'Search by merchant, note, or category',
-              hintStyle: const TextStyle(fontSize: 13, color: AppColors.gray400),
-              prefixIcon: const Icon(Icons.search, size: 20, color: AppColors.gray400),
+              hintStyle: const TextStyle(fontSize: 13, color: AppColors.gray500),
+              prefixIcon: const Icon(Icons.search, size: 20, color: AppColors.gray500),
               suffixIcon: _searchQuery.isNotEmpty
                   ? GestureDetector(
                       onTap: () {
                         _searchController.clear();
                         setState(() => _searchQuery = '');
                       },
-                      child: const Icon(Icons.close, size: 18, color: AppColors.gray400),
+                      child: const Icon(Icons.close, size: 18, color: AppColors.gray500),
                     )
                   : null,
               filled: true,
               fillColor: AppColors.gray100,
               contentPadding: const EdgeInsets.symmetric(vertical: 10),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(100),
+                borderRadius: AppRadius.pill,
                 borderSide: BorderSide.none,
               ),
             ),
@@ -280,11 +280,11 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                 items.add(const Padding(
                   padding: EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xs),
                   child: Text('UNCONFIRMED', style: AppTextStyles.labelM),
-                ).animate().fadeIn(duration: 200.ms).slideX(begin: -0.1, duration: 200.ms));
+                ).animate().fadeIn(duration: AppDurations.normal).slideX(begin: -0.1, duration: AppDurations.normal));
                 for (final t in unconfirmed) {
                   final delay = Duration(milliseconds: 30 * tileIndex);
                   items.add(_buildTile(context, t, isUnconfirmed: true)
-                      .animate().fadeIn(delay: delay, duration: 300.ms).slideX(begin: 0.05, delay: delay, duration: 300.ms));
+                      .animate().fadeIn(delay: delay, duration: AppDurations.medium).slideX(begin: 0.05, delay: delay, duration: AppDurations.medium));
                   if (tileIndex < 20) tileIndex++;
                 }
                 items.add(const Divider(color: AppColors.gray200));
@@ -293,11 +293,11 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                 items.add(const Padding(
                   padding: EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xs),
                   child: Text('CONFIRMED', style: AppTextStyles.labelM),
-                ).animate().fadeIn(duration: 200.ms).slideX(begin: -0.1, duration: 200.ms));
+                ).animate().fadeIn(duration: AppDurations.normal).slideX(begin: -0.1, duration: AppDurations.normal));
                 for (final t in confirmed) {
                   final delay = Duration(milliseconds: 30 * tileIndex);
                   items.add(_buildTile(context, t)
-                      .animate().fadeIn(delay: delay, duration: 300.ms).slideX(begin: 0.05, delay: delay, duration: 300.ms));
+                      .animate().fadeIn(delay: delay, duration: AppDurations.medium).slideX(begin: 0.05, delay: delay, duration: AppDurations.medium));
                   if (tileIndex < 20) tileIndex++;
                 }
               }
@@ -328,7 +328,7 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                       decoration: BoxDecoration(
                         color: AppColors.black,
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: AppRadius.s,
                       ),
                       child: Text('Retry', style: AppTextStyles.bodyS.copyWith(color: AppColors.white)),
                     ),
@@ -362,7 +362,7 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
           border: isUnconfirmed
               ? const Border(left: BorderSide(color: AppColors.amber, width: 3))
               : null,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: AppRadius.base,
         ),
         child: Row(
           children: [
@@ -395,7 +395,7 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                   const SizedBox(height: 2),
                   Text(
                     DateFormat('d MMM, h:mm a').format(t.happenedAt),
-                    style: const TextStyle(fontSize: 12, color: AppColors.gray400),
+                    style: const TextStyle(fontSize: 12, color: AppColors.gray500),
                   ),
                 ],
               ),
@@ -414,7 +414,7 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: AppColors.amber.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(100),
+                      borderRadius: AppRadius.pill,
                     ),
                     child: const Text(
                       'Pending',
@@ -634,11 +634,11 @@ class _FilterTile extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
+          duration: AppDurations.fast,
           padding: const EdgeInsets.symmetric(vertical: 14),
           decoration: BoxDecoration(
             color: selected ? color.withValues(alpha: 0.1) : AppColors.white,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppRadius.base,
             border: Border.all(
               color: selected ? color : AppColors.gray200,
               width: selected ? 1.5 : 1,
@@ -684,7 +684,7 @@ class _ChipOption extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: selected ? AppColors.black.withValues(alpha: 0.12) : AppColors.white,
-          borderRadius: BorderRadius.circular(100),
+          borderRadius: AppRadius.pill,
           border: Border.all(
             color: selected ? AppColors.black : AppColors.gray200,
           ),
@@ -714,7 +714,7 @@ class _ActiveChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: AppColors.black.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(100),
+        borderRadius: AppRadius.pill,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

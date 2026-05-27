@@ -1,3 +1,4 @@
+import 'package:finance_buddy_app/widgets/common/error_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -58,7 +59,7 @@ class PeoplePage extends ConsumerWidget {
             TabBar(
               indicatorColor: AppColors.black,
               labelColor: AppColors.black,
-              unselectedLabelColor: AppColors.gray400,
+              unselectedLabelColor: AppColors.gray500,
               dividerColor: AppColors.gray200,
               labelStyle: AppTextStyles.bodyM
                   .copyWith(fontWeight: FontWeight.w600),
@@ -84,12 +85,9 @@ class PeoplePage extends ConsumerWidget {
   }
 
   void _showAddOptions(BuildContext context) {
-    showModalBottomSheet<void>(
+    showSpendlerSheet<void>(
       context: context,
-      backgroundColor: AppColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      isScrollControlled: false,
       builder: (_) => SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
@@ -169,7 +167,7 @@ class _AddOptionTile extends StatelessWidget {
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
           color: AppColors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppRadius.mdLg,
           border: Border.all(color: AppColors.gray200),
         ),
         child: Row(
@@ -179,7 +177,7 @@ class _AddOptionTile extends StatelessWidget {
               height: 40,
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppRadius.base,
               ),
               child: Icon(icon, color: color, size: 20),
             ),
@@ -194,12 +192,12 @@ class _AddOptionTile extends StatelessWidget {
                           fontWeight: FontWeight.w600)),
                   Text(subtitle,
                       style: AppTextStyles.bodyS
-                          .copyWith(color: AppColors.gray400)),
+                          .copyWith(color: AppColors.gray500)),
                 ],
               ),
             ),
             const Icon(Icons.chevron_right,
-                color: AppColors.gray400, size: 20),
+                color: AppColors.gray500, size: 20),
           ],
         ),
       ),
@@ -232,7 +230,7 @@ class _FriendsTab extends ConsumerWidget {
               padding: const EdgeInsets.all(AppSpacing.lg),
               decoration: BoxDecoration(
                 color: AppColors.white,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: AppRadius.mdLg,
                 boxShadow: AppShadows.sm,
               ),
               child: Row(
@@ -243,7 +241,7 @@ class _FriendsTab extends ConsumerWidget {
                       children: [
                         Text('TO COLLECT',
                             style: AppTextStyles.labelM
-                                .copyWith(color: AppColors.gray400)),
+                                .copyWith(color: AppColors.gray500)),
                         const SizedBox(height: 4),
                         AnimatedAmount(
                           value: bal.totalReceivable,
@@ -264,7 +262,7 @@ class _FriendsTab extends ConsumerWidget {
                         children: [
                           Text('TO PAY',
                               style: AppTextStyles.labelM
-                                  .copyWith(color: AppColors.gray400)),
+                                  .copyWith(color: AppColors.gray500)),
                           const SizedBox(height: 4),
                           AnimatedAmount(
                             value: bal.totalPayable,
@@ -281,7 +279,7 @@ class _FriendsTab extends ConsumerWidget {
             );
           },
           loading: () => const SizedBox.shrink(),
-          error: (_, _) => const SizedBox.shrink(),
+          error: (_, _) => const ErrorCard(),
         ),
 
         // Friend cards
@@ -299,7 +297,7 @@ class _FriendsTab extends ConsumerWidget {
                       const SizedBox(height: AppSpacing.md),
                       Text('Add someone to start\nsplitting expenses.',
                           style: AppTextStyles.bodyM
-                              .copyWith(color: AppColors.gray400),
+                              .copyWith(color: AppColors.gray500),
                           textAlign: TextAlign.center),
                     ],
                   ),
@@ -313,8 +311,8 @@ class _FriendsTab extends ConsumerWidget {
                         padding:
                             const EdgeInsets.only(bottom: AppSpacing.sm),
                         child: _FriendCard(contact: entry.value),
-                      ).animate().fadeIn(delay: Duration(milliseconds: 40 * entry.key), duration: 300.ms)
-                          .slideX(begin: 0.05, delay: Duration(milliseconds: 40 * entry.key), duration: 300.ms))
+                      ).animate().fadeIn(delay: AppDurations.stagger * entry.key, duration: AppDurations.medium)
+                          .slideX(begin: 0.05, delay: AppDurations.stagger * entry.key, duration: AppDurations.medium))
                   .toList(),
             );
           },
@@ -324,7 +322,7 @@ class _FriendsTab extends ConsumerWidget {
                 child: CircularProgressIndicator(
                     color: AppColors.black, strokeWidth: 2)),
           ),
-          error: (_, _) => const SizedBox.shrink(),
+          error: (_, _) => const ErrorCard(),
         ),
       ],
     );
@@ -342,7 +340,7 @@ class _FriendCard extends ConsumerWidget {
       return Color(
           int.parse('FF${hex.replaceFirst('#', '')}', radix: 16));
     } on FormatException {
-      return AppColors.gray400;
+      return AppColors.gray500;
     }
   }
 
@@ -358,7 +356,7 @@ class _FriendCard extends ConsumerWidget {
       child: Container(
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadius.mdLg,
         boxShadow: const [
           BoxShadow(
             color: AppColors.shadow,
@@ -406,7 +404,7 @@ class _FriendCard extends ConsumerWidget {
                           contact.note!.isNotEmpty)
                         Text(contact.note!,
                             style: AppTextStyles.bodyS
-                                .copyWith(color: AppColors.gray400)),
+                                .copyWith(color: AppColors.gray500)),
                     ],
                   ),
                 ),
@@ -503,7 +501,7 @@ class _FriendCard extends ConsumerWidget {
                   child: CircularProgressIndicator(
                       color: AppColors.black, strokeWidth: 2)),
             ),
-            error: (_, _) => const SizedBox.shrink(),
+            error: (_, _) => const ErrorCard(),
           ),
         ],
       ),
@@ -513,12 +511,9 @@ class _FriendCard extends ConsumerWidget {
 
   void _showFriendActions(BuildContext context, WidgetRef ref) {
     HapticFeedback.mediumImpact();
-    showModalBottomSheet<void>(
+    showSpendlerSheet<void>(
       context: context,
-      backgroundColor: AppColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      isScrollControlled: false,
       builder: (_) => SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
@@ -601,12 +596,9 @@ class _FriendCard extends ConsumerWidget {
       return;
     }
 
-    showModalBottomSheet<void>(
+    showSpendlerSheet<void>(
       context: context,
-      backgroundColor: AppColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      isScrollControlled: false,
       builder: (_) => _SettlementPicker(
         splits: pending,
         friendName: contact.name,
@@ -672,7 +664,7 @@ class _SettlementPickerState extends ConsumerState<_SettlementPicker> {
                     color: selected
                         ? AppColors.black.withValues(alpha: 0.05)
                         : AppColors.white,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: AppRadius.base,
                     border: Border.all(
                       color: selected
                           ? AppColors.black
@@ -702,7 +694,7 @@ class _SettlementPickerState extends ConsumerState<_SettlementPicker> {
                       Text(
                         DateFormat('d MMM').format(s.createdAt),
                         style: AppTextStyles.bodyS
-                            .copyWith(color: AppColors.gray400),
+                            .copyWith(color: AppColors.gray500),
                       ),
                     ],
                   ),
@@ -773,14 +765,14 @@ class _FamilyTab extends ConsumerWidget {
             padding: const EdgeInsets.all(AppSpacing.lg),
             decoration: BoxDecoration(
               color: AppColors.white,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: AppRadius.mdLg,
               boxShadow: AppShadows.sm,
             ),
             child: Column(
               children: [
                 Text('NET FAMILY FLOW',
                     style: AppTextStyles.labelM
-                        .copyWith(color: AppColors.gray400)),
+                        .copyWith(color: AppColors.gray500)),
                 const SizedBox(height: AppSpacing.sm),
                 AnimatedAmount(
                   value: total,
@@ -792,7 +784,7 @@ class _FamilyTab extends ConsumerWidget {
             ),
           ),
           loading: () => const SizedBox.shrink(),
-          error: (_, _) => const SizedBox.shrink(),
+          error: (_, _) => const ErrorCard(),
         ),
 
         // Inflows
@@ -846,7 +838,7 @@ class _FamilyList extends StatelessWidget {
       children: [
         Text(label,
             style:
-                AppTextStyles.labelM.copyWith(color: AppColors.gray400)),
+                AppTextStyles.labelM.copyWith(color: AppColors.gray500)),
         const SizedBox(height: AppSpacing.sm),
         data.when(
           data: (list) {
@@ -856,7 +848,7 @@ class _FamilyList extends StatelessWidget {
                     const EdgeInsets.symmetric(vertical: AppSpacing.sm),
                 child: Text(emptyText,
                     style: AppTextStyles.bodyS
-                        .copyWith(color: AppColors.gray400)),
+                        .copyWith(color: AppColors.gray500)),
               );
             }
             return Column(
@@ -874,7 +866,7 @@ class _FamilyList extends StatelessWidget {
                         height: 36,
                         decoration: BoxDecoration(
                           color: color.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: AppRadius.base,
                         ),
                         child: Icon(icon, color: color, size: 18),
                       ),
@@ -893,7 +885,7 @@ class _FamilyList extends StatelessWidget {
                             const SizedBox(height: 2),
                             Text(sub,
                                 style: AppTextStyles.bodyS.copyWith(
-                                    color: AppColors.gray400)),
+                                    color: AppColors.gray500)),
                           ],
                         ),
                       ),
@@ -904,7 +896,7 @@ class _FamilyList extends StatelessWidget {
             );
           },
           loading: () => const SizedBox.shrink(),
-          error: (_, _) => const SizedBox.shrink(),
+          error: (_, _) => const ErrorCard(),
         ),
       ],
     );
@@ -928,7 +920,7 @@ class _BalanceBar extends StatelessWidget {
           const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: AppRadius.sm,
       ),
       child: Row(
         children: [
@@ -958,7 +950,7 @@ class _ActionBtn extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: AppRadius.sm,
           border: Border.all(color: color.withValues(alpha: 0.3)),
         ),
         alignment: Alignment.center,
@@ -993,7 +985,7 @@ class _FriendActionTile extends StatelessWidget {
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
           color: AppColors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppRadius.mdLg,
           border: Border.all(color: AppColors.gray200),
         ),
         child: Row(
@@ -1003,7 +995,7 @@ class _FriendActionTile extends StatelessWidget {
               height: 40,
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppRadius.base,
               ),
               child: Icon(icon, color: color, size: 20),
             ),
@@ -1067,11 +1059,11 @@ class _EditFriendSheetState extends ConsumerState<_EditFriendSheet> {
             decoration: InputDecoration(
               labelText: 'Name',
               labelStyle:
-                  AppTextStyles.bodyS.copyWith(color: AppColors.gray400),
+                  AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
               filled: true,
               fillColor: AppColors.gray100,
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppRadius.base,
                 borderSide: BorderSide.none,
               ),
             ),
@@ -1085,13 +1077,13 @@ class _EditFriendSheetState extends ConsumerState<_EditFriendSheet> {
               labelText: 'Note (optional)',
               hintText: 'roommate, college friend, etc',
               labelStyle:
-                  AppTextStyles.bodyS.copyWith(color: AppColors.gray400),
+                  AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
               hintStyle:
                   AppTextStyles.bodyS.copyWith(color: AppColors.gray300),
               filled: true,
               fillColor: AppColors.gray100,
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppRadius.base,
                 borderSide: BorderSide.none,
               ),
             ),

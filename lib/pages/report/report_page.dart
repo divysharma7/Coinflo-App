@@ -1,3 +1,4 @@
+import 'package:finance_buddy_app/widgets/common/error_card.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter/material.dart';
@@ -111,25 +112,25 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                 _buildPeriodNavigator(),
                 const SizedBox(height: AppSpacing.xl),
                 _buildBarChartSection(scope, symbol)
-                    .animate().fadeIn(duration: 400.ms).slideY(begin: 0.05, duration: 400.ms),
+                    .animate().fadeIn(duration: AppDurations.slow).slideY(begin: 0.05, duration: AppDurations.slow),
                 const SizedBox(height: AppSpacing.lg),
                 _ProjectionCard(symbol: symbol)
-                    .animate().fadeIn(delay: 80.ms, duration: 400.ms).slideY(begin: 0.05, delay: 80.ms, duration: 400.ms),
+                    .animate().fadeIn(delay: 80.ms, duration: AppDurations.slow).slideY(begin: 0.05, delay: 80.ms, duration: AppDurations.slow),
                 const SizedBox(height: AppSpacing.lg),
                 _buildBudgetVsActual(symbol)
-                    .animate().fadeIn(delay: 160.ms, duration: 400.ms).slideY(begin: 0.05, delay: 160.ms, duration: 400.ms),
+                    .animate().fadeIn(delay: 160.ms, duration: AppDurations.slow).slideY(begin: 0.05, delay: 160.ms, duration: AppDurations.slow),
                 const SizedBox(height: AppSpacing.lg),
                 const _SavingsGoalsSection()
-                    .animate().fadeIn(delay: 240.ms, duration: 400.ms).slideY(begin: 0.05, delay: 240.ms, duration: 400.ms),
+                    .animate().fadeIn(delay: 240.ms, duration: AppDurations.slow).slideY(begin: 0.05, delay: 240.ms, duration: AppDurations.slow),
                 const SizedBox(height: AppSpacing.lg),
                 _StreakBadge(symbol: symbol)
-                    .animate().fadeIn(delay: 320.ms, duration: 400.ms).slideY(begin: 0.05, delay: 320.ms, duration: 400.ms),
+                    .animate().fadeIn(delay: 320.ms, duration: AppDurations.slow).slideY(begin: 0.05, delay: 320.ms, duration: AppDurations.slow),
                 const SizedBox(height: AppSpacing.lg),
                 _buildDonutSection(symbol)
-                    .animate().fadeIn(delay: 400.ms, duration: 400.ms).slideY(begin: 0.05, delay: 400.ms, duration: 400.ms),
+                    .animate().fadeIn(delay: 400.ms, duration: AppDurations.slow).slideY(begin: 0.05, delay: 400.ms, duration: AppDurations.slow),
                 const SizedBox(height: AppSpacing.xxl),
                 _buildCategoryBreakdown(symbol)
-                    .animate().fadeIn(delay: 480.ms, duration: 400.ms).slideY(begin: 0.05, delay: 480.ms, duration: 400.ms),
+                    .animate().fadeIn(delay: 480.ms, duration: AppDurations.slow).slideY(begin: 0.05, delay: 480.ms, duration: AppDurations.slow),
                 const SizedBox(height: 100),
               ],
             ),
@@ -157,7 +158,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: AppColors.gray100,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppRadius.base,
               ),
               child: Icon(PhosphorIcons.export(), color: AppColors.black, size: 20),
             ),
@@ -174,7 +175,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.lg),
         title: Text('Export Report',
             style: AppTextStyles.headingS.copyWith(color: AppColors.black)),
         content: Text(
@@ -254,7 +255,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                 HapticFeedback.selectionClick();
                 _navigate(-1, scope, month, year);
               },
-              child: const Icon(Icons.chevron_left, color: AppColors.gray400, size: 28),
+              child: const Icon(Icons.chevron_left, color: AppColors.gray500, size: 28),
             )
           else
             const SizedBox(width: 28),
@@ -268,7 +269,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                     }
                   : null,
               child: Icon(Icons.chevron_right,
-                  color: canForward ? AppColors.gray400 : AppColors.gray200,
+                  color: canForward ? AppColors.gray500 : AppColors.gray200,
                   size: 28),
             )
           else
@@ -368,7 +369,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                     style: AppTextStyles.headingS.copyWith(color: AppColors.black)),
                 const SizedBox(height: 4),
                 Text('How each category is tracking',
-                    style: AppTextStyles.bodyS.copyWith(color: AppColors.gray400)),
+                    style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500)),
                 const SizedBox(height: AppSpacing.lg),
                 ...budgetList.map((b) {
                   final cat = TransactionCategory.values.firstWhere(
@@ -421,7 +422,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
         );
       },
       loading: () => const SizedBox.shrink(),
-      error: (_, _) => const SizedBox.shrink(),
+      error: (_, _) => const ErrorCard(),
     );
   }
 
@@ -441,7 +442,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
               decoration: _cardDecor(),
               child: Center(
                 child: Text('No spending this period — nice!',
-                    style: AppTextStyles.bodyM.copyWith(color: AppColors.gray400)),
+                    style: AppTextStyles.bodyM.copyWith(color: AppColors.gray500)),
               ),
             );
           }
@@ -505,7 +506,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                                   .copyWith(color: AppColors.black, fontSize: 32)),
                           Text('of budget',
                               style: AppTextStyles.bodyS
-                                  .copyWith(color: AppColors.gray400)),
+                                  .copyWith(color: AppColors.gray500)),
                         ],
                       ),
                     ],
@@ -553,7 +554,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
         loading: () => const SizedBox(
             height: 250,
             child: Center(child: CircularProgressIndicator(color: AppColors.black))),
-        error: (_, _) => const SizedBox.shrink(),
+        error: (_, _) => const ErrorCard(),
       ),
     );
   }
@@ -585,13 +586,13 @@ class _ReportPageState extends ConsumerState<ReportPage> {
               style: AppTextStyles.headingS.copyWith(color: AppColors.black)),
           const SizedBox(height: 4),
           Text('Tap to see where each rupee went',
-              style: AppTextStyles.bodyS.copyWith(color: AppColors.gray400)),
+              style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500)),
           const SizedBox(height: AppSpacing.lg),
           catTotals.when(
             data: (data) {
               if (data.isEmpty) {
                 return Text('No spending data yet.',
-                    style: AppTextStyles.bodyM.copyWith(color: AppColors.gray400));
+                    style: AppTextStyles.bodyM.copyWith(color: AppColors.gray500));
               }
               final sorted = data.entries.toList()
                 ..sort((a, b) => b.value.compareTo(a.value));
@@ -634,7 +635,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                             width: 40, height: 40,
                             decoration: BoxDecoration(
                               color: catColor.withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: AppRadius.base,
                             ),
                             child: Icon(cat.iconFill, size: 20, color: catColor),
                           ),
@@ -662,7 +663,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                                   const SizedBox(height: 2),
                                   Text('Same as last month',
                                       style: AppTextStyles.labelS
-                                          .copyWith(color: AppColors.gray400)),
+                                          .copyWith(color: AppColors.gray500)),
                                 ],
                               ],
                             ),
@@ -677,7 +678,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                               children: [
                                 Text('${(pct * 100).round()}%',
                                     style: AppTextStyles.labelS
-                                        .copyWith(color: AppColors.gray400)),
+                                        .copyWith(color: AppColors.gray500)),
                                 const SizedBox(height: 4),
                                 AnimatedProgressBar(
                                   value: pct,
@@ -699,7 +700,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
               );
             },
             loading: () => const SizedBox.shrink(),
-            error: (_, _) => const SizedBox.shrink(),
+            error: (_, _) => const ErrorCard(),
           ),
         ],
       ),
@@ -713,7 +714,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
 
 BoxDecoration _cardDecor() => BoxDecoration(
       color: AppColors.white,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: AppRadius.lg,
       boxShadow: const [
         BoxShadow(color: AppColors.shadow, blurRadius: 16, offset: Offset(0, 4)),
       ],
@@ -735,7 +736,7 @@ class _PeriodSelector extends ConsumerWidget {
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
           color: AppColors.gray100,
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: AppRadius.xxl,
         ),
         child: Row(
           children: _ReportScope.values.map((scope) {
@@ -751,7 +752,7 @@ class _PeriodSelector extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
                     color: isSel ? AppColors.black : Colors.transparent,
-                    borderRadius: BorderRadius.circular(26),
+                    borderRadius: AppRadius.xlSm,
                   ),
                   child: Center(
                     child: Text(
@@ -826,7 +827,7 @@ class _YearlyBarChart extends ConsumerWidget {
         if (data.isEmpty) {
           return SizedBox(height: 180,
               child: Center(child: Text('Not enough data yet',
-                  style: AppTextStyles.bodyM.copyWith(color: AppColors.gray400))));
+                  style: AppTextStyles.bodyM.copyWith(color: AppColors.gray500))));
         }
         final years = data.keys.toList()..sort();
         return SpendBarChart(
@@ -927,14 +928,14 @@ class _ProjectionCard extends ConsumerWidget {
                 ],
                 const SizedBox(height: AppSpacing.xs),
                 Text('${proj.daysLeft} days remaining',
-                    style: AppTextStyles.labelS.copyWith(color: AppColors.gray400)),
+                    style: AppTextStyles.labelS.copyWith(color: AppColors.gray500)),
               ],
             ),
           ),
         );
       },
       loading: () => const SizedBox.shrink(),
-      error: (_, _) => const SizedBox.shrink(),
+      error: (_, _) => const ErrorCard(),
     );
   }
 }
@@ -966,7 +967,7 @@ class _SavingsGoalsSection extends ConsumerWidget {
                     style: AppTextStyles.headingS.copyWith(color: AppColors.black)),
                 const SizedBox(height: 4),
                 Text('Your goals at a glance',
-                    style: AppTextStyles.bodyS.copyWith(color: AppColors.gray400)),
+                    style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500)),
                 const SizedBox(height: AppSpacing.lg),
                 ...goals.map((g) {
                   final pct = g.targetAmount > 0
@@ -1005,7 +1006,7 @@ class _SavingsGoalsSection extends ConsumerWidget {
         );
       },
       loading: () => const SizedBox.shrink(),
-      error: (_, _) => const SizedBox.shrink(),
+      error: (_, _) => const ErrorCard(),
     );
   }
 }
@@ -1030,7 +1031,7 @@ class _StreakBadge extends ConsumerWidget {
             padding: const EdgeInsets.all(AppSpacing.lg),
             decoration: BoxDecoration(
               color: AppColors.green.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: AppRadius.lg,
               border: Border.all(
                   color: AppColors.green.withValues(alpha: 0.2)),
             ),
@@ -1040,7 +1041,7 @@ class _StreakBadge extends ConsumerWidget {
                   width: 44, height: 44,
                   decoration: BoxDecoration(
                     color: AppColors.green.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: AppRadius.md,
                   ),
                   child: const Icon(Icons.local_fire_department,
                       color: AppColors.green, size: 24),
@@ -1065,7 +1066,7 @@ class _StreakBadge extends ConsumerWidget {
         );
       },
       loading: () => const SizedBox.shrink(),
-      error: (_, _) => const SizedBox.shrink(),
+      error: (_, _) => const ErrorCard(),
     );
   }
 }

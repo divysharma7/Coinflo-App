@@ -20,7 +20,7 @@ void main() {
       WidgetsFlutterBinding.ensureInitialized();
 
       // Configure flutter_animate defaults
-      Animate.defaultDuration = const Duration(milliseconds: 250);
+      Animate.defaultDuration = AppDurations.base;
       Animate.defaultCurve = Curves.easeOutCubic;
 
       // Show user-friendly error widget in release mode
@@ -63,9 +63,9 @@ void main() {
           options: DefaultFirebaseOptions.currentPlatform,
         );
         firebaseInitialized = true;
-        debugPrint('Firebase initialized successfully');
+        if (kDebugMode) debugPrint('Firebase initialized successfully');
       } on Exception catch (e) {
-        debugPrint('Firebase initialization skipped: $e');
+        if (kDebugMode) debugPrint('Firebase initialization skipped: $e');
       }
 
       // Initialize notifications
@@ -80,8 +80,10 @@ void main() {
       runApp(const SpendlerApp());
     },
     (Object error, StackTrace stack) {
-      debugPrint('Unhandled async error: $error');
-      debugPrint('Stack trace: $stack');
+      if (kDebugMode) {
+        debugPrint('Unhandled async error: $error');
+        debugPrint('Stack trace: $stack');
+      }
       if (firebaseInitialized) {
         FirebaseCrashlytics.instance.recordError(error, stack);
       }

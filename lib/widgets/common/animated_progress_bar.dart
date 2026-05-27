@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:finance_buddy_app/design_system/design_system.dart';
 
 /// A LinearProgressIndicator that animates smoothly when [value] changes.
 class AnimatedProgressBar extends StatelessWidget {
@@ -9,7 +10,7 @@ class AnimatedProgressBar extends StatelessWidget {
     this.valueColor = Colors.black,
     this.minHeight = 6,
     this.borderRadius = 3,
-    this.duration = const Duration(milliseconds: 400),
+    this.duration = AppDurations.slow,
     this.curve = Curves.easeInOut,
   });
 
