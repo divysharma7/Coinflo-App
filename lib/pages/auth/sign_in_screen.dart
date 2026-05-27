@@ -74,6 +74,10 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
         await firestoreService.hydrateLocalFromFirestore(user.uid);
       }
 
+      // Returning user has already onboarded — set the flag so router allows /home
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('onboarding_completed', true);
+
       // Sync hydrated budgets & goals from SharedPreferences into Drift
       await _syncOnboardingDataToDrift();
 
