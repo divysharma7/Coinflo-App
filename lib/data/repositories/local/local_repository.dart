@@ -1,11 +1,8 @@
 import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/data/repositories/base_repository.dart';
-import 'package:finance_buddy_app/data/repositories/friend_split_repository.dart';
 import 'package:finance_buddy_app/data/repositories/split_repository.dart';
 import 'package:finance_buddy_app/data/repositories/transaction_repository.dart';
 import 'package:finance_buddy_app/data/repositories/local/local_budget_repository.dart';
-import 'package:finance_buddy_app/data/repositories/local/local_family_repository.dart';
-import 'package:finance_buddy_app/data/repositories/local/local_friend_split_repository.dart';
 import 'package:finance_buddy_app/data/repositories/local/local_goal_repository.dart';
 import 'package:finance_buddy_app/data/repositories/local/local_group_repository.dart';
 import 'package:finance_buddy_app/data/repositories/local/local_metrics_repository.dart';
@@ -20,11 +17,9 @@ class LocalRepository extends BaseRepository {
   final SpendlerDatabase db;
 
   late final LocalTransactionRepository _txnRepo;
-  late final LocalFamilyRepository _familyRepo;
   late final LocalReflectionRepository _reflectionRepo;
   late final LocalMetricsRepository _metricsRepo;
   late final LocalNotificationRepository _notifRepo;
-  late final LocalFriendSplitRepository _friendSplitRepo;
   late final LocalSubscriptionRepository _subscriptionRepo;
   late final LocalBudgetRepository _budgetRepo;
   late final LocalGoalRepository _goalRepo;
@@ -34,11 +29,9 @@ class LocalRepository extends BaseRepository {
 
   LocalRepository(this.db) {
     _txnRepo = LocalTransactionRepository(db);
-    _familyRepo = LocalFamilyRepository(db);
     _reflectionRepo = LocalReflectionRepository(db);
     _metricsRepo = LocalMetricsRepository(db);
     _notifRepo = LocalNotificationRepository(db);
-    _friendSplitRepo = LocalFriendSplitRepository(db);
     _subscriptionRepo = LocalSubscriptionRepository(db);
     _budgetRepo = LocalBudgetRepository(db);
     _goalRepo = LocalGoalRepository(db);
@@ -152,28 +145,7 @@ class LocalRepository extends BaseRepository {
   Future<List<String>> getWeeklyAlerts({double singleTxnThreshold = 2000}) =>
       _txnRepo.getWeeklyAlerts(singleTxnThreshold: singleTxnThreshold);
 
-  // ─��─ Family delegates ───────────────────────────────
-
-  @override
-  Stream<List<FamilyEntry>> watchAllFamilyEntries() => _familyRepo.watchAllFamilyEntries();
-
-  @override
-  Stream<List<FamilyEntry>> watchFamilyByType(String type) => _familyRepo.watchFamilyByType(type);
-
-  @override
-  Future<double> getTotalWealth() => _familyRepo.getTotalWealth();
-
-  @override
-  Future<int> insertEntry(FamilyEntriesCompanion entry) => _familyRepo.insertEntry(entry);
-
-  @override
-  Future<void> updateEntry(int id, FamilyEntriesCompanion entry) =>
-      _familyRepo.updateEntry(id, entry);
-
-  @override
-  Future<void> deleteEntry(int id) => _familyRepo.deleteEntry(id);
-
-  // ─── Reflection delegates ─────────���─────────────────
+  // ─── Reflection delegates ─────────────────────────────
 
   @override
   Future<WeeklyReflection?> getForWeek(DateTime weekStart) =>
@@ -223,52 +195,6 @@ class LocalRepository extends BaseRepository {
 
   @override
   Future<int> getUnreadCount() => _notifRepo.getUnreadCount();
-
-  // ─── Friend split delegates ─────────────────────────
-
-  @override
-  Stream<List<FriendContact>> watchAllContacts() =>
-      _friendSplitRepo.watchAllContacts();
-
-  @override
-  Future<FriendContact?> getContact(int id) =>
-      _friendSplitRepo.getContact(id);
-
-  @override
-  Future<int> createContact(FriendContactsCompanion entry) =>
-      _friendSplitRepo.createContact(entry);
-
-  @override
-  Future<FriendBalance> getBalance(int friendContactId) =>
-      _friendSplitRepo.getBalance(friendContactId);
-
-  @override
-  Stream<TotalFriendBalance> watchTotalBalance() =>
-      _friendSplitRepo.watchTotalBalance();
-
-  @override
-  Stream<List<FriendSplit>> watchPendingSplitsForFriend(int friendContactId) =>
-      _friendSplitRepo.watchPendingSplitsForFriend(friendContactId);
-
-  @override
-  Stream<List<FriendSplit>> watchSettledSplits() =>
-      _friendSplitRepo.watchSettledSplits();
-
-  @override
-  Future<void> markSettled(int friendSplitId, String method) =>
-      _friendSplitRepo.markSettled(friendSplitId, method);
-
-  @override
-  Future<void> markPartialPayment(int friendSplitId, double amountPaid, String method) =>
-      _friendSplitRepo.markPartialPayment(friendSplitId, amountPaid, method);
-
-  @override
-  Future<void> markWrittenOff(int friendSplitId) =>
-      _friendSplitRepo.markWrittenOff(friendSplitId);
-
-  @override
-  Future<int> createSplit(FriendSplitsCompanion entry) =>
-      _friendSplitRepo.createSplit(entry);
 
   // ─── Subscription delegates ────────────────────────────
 

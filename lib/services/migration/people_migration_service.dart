@@ -10,6 +10,8 @@ class PeopleMigrationService {
     await db.transaction(() async {
       await _migrateFriendContacts();
       await _migrateFriendSplits();
+      await _migrateFamilyEntries();
+      await _createFamilyGroupIfNeeded();
     });
   }
 
@@ -53,7 +55,14 @@ class PeopleMigrationService {
 
       var txnId = s.transactionId;
 
-      if (txnId == 0) {
+      // Create synthetic transaction if orphaned (id=0 or missing)
+      final txnExists = txnId > 0
+          ? await (db.select(db.spendlerTransactions)
+                ..where((t) => t.id.equals(txnId)))
+              .getSingleOrNull()
+          : null;
+
+      if (txnId == 0 || txnExists == null) {
         txnId = await db.into(db.spendlerTransactions).insert(
           SpendlerTransactionsCompanion(
             amount: Value(-s.amount),
@@ -84,6 +93,74 @@ class PeopleMigrationService {
           ),
         );
       }
+    }
+  }
+
+  Future<void> _migrateFamilyEntries() async {
+    final entries = await db.select(db.familyEntries).get();
+    if (entries.isEmpty) return;
+
+    // Ensure each fromPerson exists in Persons table with tag='family'
+    final existingPersons = await db.select(db.persons).get();
+    final existingNames = existingPersons.map((p) => p.name).toSet();
+
+    for (final e in entries) {
+      if (!existingNames.contains(e.fromPerson)) {
+        await db.into(db.persons).insert(PersonsCompanion(
+          name: Value(e.fromPerson),
+          tag: const Value('family'),
+          avatarColor: const Value('6B7280'),
+          note: const Value('Migrated from family entries'),
+        ));
+        existingNames.add(e.fromPerson);
+      }
+    }
+
+    // Convert entries to transactions
+    for (final e in entries) {
+      final txnType = e.type == 'inflow' ? 'income' : 'transfer';
+      final category = e.type == 'inflow' ? 'income' : 'transfer';
+      await db.into(db.spendlerTransactions).insert(
+        SpendlerTransactionsCompanion(
+          amount: Value(e.amount),
+          category: Value(category),
+          txnType: Value(txnType),
+          source: const Value('migration'),
+          status: const Value('confirmed'),
+          note: Value(e.note ?? 'From ${e.fromPerson}'),
+          happenedAt: Value(e.happenedAt),
+          incomeSource: e.type == 'inflow'
+              ? const Value('gift')
+              : Value(e.investmentType),
+        ),
+      );
+    }
+  }
+
+  Future<void> _createFamilyGroupIfNeeded() async {
+    final familyPersons = await (db.select(db.persons)
+          ..where((p) => p.tag.equals('family')))
+        .get();
+
+    if (familyPersons.length < 2) return;
+
+    // Check if a "Family" group already exists
+    final existing = await (db.select(db.groups)
+          ..where((g) => g.name.equals('Family'))
+          ..limit(1))
+        .getSingleOrNull();
+    if (existing != null) return;
+
+    final groupId = await db.into(db.groups).insert(GroupsCompanion(
+      name: const Value('Family'),
+      description: const Value('Auto-created from legacy family entries'),
+    ));
+
+    for (final p in familyPersons) {
+      await db.into(db.groupMembers).insert(GroupMembersCompanion(
+        groupId: Value(groupId),
+        personId: Value(p.id),
+      ));
     }
   }
 }

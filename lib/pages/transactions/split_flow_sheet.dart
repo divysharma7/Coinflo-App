@@ -3,7 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:finance_buddy_app/design_system/design_system.dart';
+import 'package:drift/drift.dart' show Value;
 import 'package:finance_buddy_app/data/db.dart';
+import 'package:finance_buddy_app/data/repositories/split_repository.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/widgets/common/neo_pop_button.dart';
 
@@ -424,7 +426,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
       widget.totalAmount - _customMyShare,
     );
 
-    // Create FriendContact + FriendSplit for each named custom row
+    // Create Person + TransactionSplit for each named custom row
     for (final row in _customRows) {
       final name = row.nameController.text.trim();
       final amount = double.tryParse(row.amountController.text.trim()) ?? 0;
@@ -433,21 +435,17 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
       final colour = _avatarPalette[_avatarIndex % _avatarPalette.length];
       _avatarIndex++;
 
-      final contactId = await repo.createContact(
-        FriendContactsCompanion.insert(
-          name: name,
-          avatarColour: colour,
+      final personId = await repo.createPerson(
+        PersonsCompanion(
+          name: Value(name),
+          tag: const Value('friend'),
+          avatarColor: Value(colour),
         ),
       );
 
-      await repo.createSplit(
-        FriendSplitsCompanion.insert(
-          transactionId: widget.transactionId,
-          friendContactId: contactId,
-          amount: amount,
-          direction: 'they_owe_me',
-        ),
-      );
+      await repo.createSplits(widget.transactionId, [
+        SplitEntry(personId: personId, shareAmount: amount),
+      ]);
     }
 
     if (mounted) {

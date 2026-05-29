@@ -4,6 +4,7 @@ import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:finance_buddy_app/services/migration/people_migration_service.dart';
 
 part 'db.g.dart';
 
@@ -273,7 +274,7 @@ class SpendlerDatabase extends _$SpendlerDatabase {
 
   // TODO: Rename DB file from spendler.sqlite → coinflo.sqlite in a separate migration PR.
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -413,6 +414,10 @@ class SpendlerDatabase extends _$SpendlerDatabase {
             await customStatement(
               'CREATE INDEX IF NOT EXISTS idx_split_person_txn ON transaction_splits (person_id, transaction_id)',
             );
+          }
+          if (from < 11) {
+            // Migrate legacy Friends/Family data to unified People model
+            await PeopleMigrationService(this).migrate();
           }
         },
       );

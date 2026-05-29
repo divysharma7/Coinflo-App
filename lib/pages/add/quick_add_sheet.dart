@@ -12,6 +12,9 @@ import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/services/notifications/notification_service.dart';
 import 'package:finance_buddy_app/services/notifications/spending_alert_service.dart';
+import 'package:finance_buddy_app/services/split/split_calculator.dart';
+import 'package:finance_buddy_app/data/repositories/split_repository.dart';
+import 'package:finance_buddy_app/pages/add/split_picker_sheet.dart';
 import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:finance_buddy_app/utils/currency_utils.dart';
@@ -37,6 +40,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
   DateTime _selectedDate = DateTime.now();
   Timer? _debounce;
   String _incomeSource = 'salary';
+  List<int> _splitPersonIds = [];
 
   static const List<String> _incomeSources = [
     'salary', 'freelance', 'refund', 'gift', 'other',
@@ -376,6 +380,61 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                       ),
                     ],
 
+                    // ── Split with... (expense only) ──
+                    if (_isExpense) ...[
+                      const SizedBox(height: AppSpacing.lg),
+                      GestureDetector(
+                        onTap: _openSplitPicker,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: _splitPersonIds.isNotEmpty
+                                ? AppColors.black.withValues(alpha: 0.05)
+                                : AppColors.gray100,
+                            borderRadius: AppRadius.base,
+                            border: _splitPersonIds.isNotEmpty
+                                ? Border.all(color: AppColors.black.withValues(alpha: 0.2))
+                                : null,
+                          ),
+                          child: Row(
+                            children: [
+                              PhosphorIcon(PhosphorIcons.users(),
+                                  size: 18,
+                                  color: _splitPersonIds.isNotEmpty
+                                      ? AppColors.black
+                                      : AppColors.gray500),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  _splitPersonIds.isEmpty
+                                      ? 'Split with...'
+                                      : 'Split ${_splitPersonIds.length + 1} ways',
+                                  style: AppTextStyles.bodyM.copyWith(
+                                    color: _splitPersonIds.isNotEmpty
+                                        ? AppColors.black
+                                        : AppColors.gray500,
+                                    fontWeight: _splitPersonIds.isNotEmpty
+                                        ? FontWeight.w500
+                                        : FontWeight.w400,
+                                  ),
+                                ),
+                              ),
+                              if (_splitPersonIds.isNotEmpty)
+                                GestureDetector(
+                                  onTap: () => setState(() => _splitPersonIds = []),
+                                  child: PhosphorIcon(PhosphorIcons.x(),
+                                      size: 16, color: AppColors.gray500),
+                                )
+                              else
+                                PhosphorIcon(PhosphorIcons.caretRight(),
+                                    size: 14, color: AppColors.gray500),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+
                   ],
                 ),
               ),
@@ -458,6 +517,16 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
   }
 
 
+  Future<void> _openSplitPicker() async {
+    final result = await showSpendlerSheet<SplitPickerResult>(
+      context: context,
+      builder: (_) => const SplitPickerSheet(),
+    );
+    if (result != null && mounted) {
+      setState(() => _splitPersonIds = result.personIds);
+    }
+  }
+
   Future<void> _save() async {
     final amount = double.tryParse(_amountController.text);
     if (amount == null || amount <= 0 || _saving) return;
@@ -510,8 +579,16 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
     // ── Insert transaction ───────────────────────────────
     final note = _noteController.text.trim();
     final merchant = note.isNotEmpty ? note : null;
+    final hasSplit = _isExpense && _splitPersonIds.isNotEmpty;
 
-    await repo.insertTransaction(
+    final splits = hasSplit
+        ? SplitCalculator.equal(amount, _splitPersonIds)
+        : <SplitEntry>[];
+    final userShare = hasSplit
+        ? splits.firstWhere((s) => s.personId == null).shareAmount
+        : amount;
+
+    final txnId = await repo.insertTransaction(
           SpendlerTransactionsCompanion.insert(
             amount: _isExpense ? -amount : amount,
             category: _isExpense ? _category.name : 'income',
@@ -525,6 +602,12 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                 : drift.Value(_incomeSource),
           ),
         );
+
+    if (hasSplit) {
+      await repo.createSplits(txnId, splits);
+      await repo.markSplit(
+          txnId, _splitPersonIds.length + 1, userShare, amount - userShare);
+    }
 
     // ── Spending alerts (fire-and-forget) ────────────────
     unawaited(SpendingAlertService.instance.checkBudgetAlerts(

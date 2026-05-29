@@ -144,22 +144,34 @@ final weeklyMerchantCountsProvider =
   return repo.getTopMerchantCountsForWeek(weekStart);
 });
 
+// ─── Helpers ────────────────────────────────────────
+
+/// Returns the user's effective expense for a transaction.
+/// For split transactions, returns splitMyShare; otherwise returns full amount.
+double _userExpense(SpendlerTransaction t) {
+  if (t.isSplit && t.splitMyShare != null) return t.splitMyShare!;
+  return t.amount.abs();
+}
+
+bool _isUserExpense(SpendlerTransaction t) =>
+    t.amount < 0 && t.category != 'settlement';
+
 // ─── Computed providers ─────────────────────────────
 
 /// Sorted category totals from weekly transactions.
-/// Centralizes category aggregation used in home_page.
+/// Uses user's share for split transactions. Excludes settlements.
 final weeklyCategoryTotalsProvider =
     Provider.autoDispose<AsyncValue<List<MapEntry<TransactionCategory, double>>>>((ref) {
   final weeklyTxns = ref.watch(weeklyTransactionsProvider);
   return weeklyTxns.whenData((txns) {
     final totals = <TransactionCategory, double>{};
     for (final t in txns) {
-      if (t.amount < 0) {
+      if (_isUserExpense(t)) {
         final cat = TransactionCategory.values.firstWhere(
           (c) => c.name == t.category,
           orElse: () => TransactionCategory.other,
         );
-        totals[cat] = (totals[cat] ?? 0) + t.amount.abs();
+        totals[cat] = (totals[cat] ?? 0) + _userExpense(t);
       }
     }
     final sorted = totals.entries.toList()
@@ -168,12 +180,12 @@ final weeklyCategoryTotalsProvider =
   });
 });
 
-/// Total weekly expenses (absolute value).
+/// Total weekly expenses (absolute value). Uses user's share for splits.
 final weeklyTotalSpentProvider =
     Provider.autoDispose<AsyncValue<double>>((ref) {
   final weeklyTxns = ref.watch(weeklyTransactionsProvider);
   return weeklyTxns.whenData((txns) =>
-      txns.where((t) => t.amount < 0).fold<double>(0, (s, t) => s + t.amount.abs()));
+      txns.where(_isUserExpense).fold<double>(0, (s, t) => s + _userExpense(t)));
 });
 
 // ─── Home screen providers ────────────────────────────
@@ -202,34 +214,34 @@ final monthlyIncomeProvider = Provider.autoDispose<AsyncValue<double>>((ref) {
       );
 });
 
-/// Monthly expense (abs sum of negative amounts) for selected month.
+/// Monthly expense for selected month. Uses user's share for splits.
 final monthlyExpenseProvider = Provider.autoDispose<AsyncValue<double>>((ref) {
   return ref.watch(monthlyTransactionsForHomeProvider).whenData(
         (txns) => txns
-            .where((t) => t.amount < 0)
-            .fold<double>(0, (s, t) => s + t.amount.abs()),
+            .where(_isUserExpense)
+            .fold<double>(0, (s, t) => s + _userExpense(t)),
       );
 });
 
-/// Last month's total expense for comparison.
+/// Last month's total expense for comparison. Uses user's share for splits.
 final lastMonthExpenseProvider = FutureProvider.autoDispose<double>((ref) async {
   final repo = ref.watch(repositoryProvider);
   final month = ref.watch(selectedMonthProvider);
   final prev = DateTime(month.year, month.month - 1);
   final txns = await repo.getTransactionsForMonth(prev);
   return txns
-      .where((t) => t.amount < 0)
-      .fold<double>(0, (s, t) => s + t.amount.abs());
+      .where(_isUserExpense)
+      .fold<double>(0, (s, t) => s + _userExpense(t));
 });
 
-/// Top 3 spending categories for the selected month.
+/// Top 3 spending categories for the selected month. Uses user's share.
 final topCategoriesProvider =
     Provider.autoDispose<AsyncValue<List<MapEntry<String, double>>>>((ref) {
   return ref.watch(monthlyTransactionsForHomeProvider).whenData((txns) {
     final totals = <String, double>{};
     for (final t in txns) {
-      if (t.amount < 0) {
-        totals[t.category] = (totals[t.category] ?? 0) + t.amount.abs();
+      if (_isUserExpense(t)) {
+        totals[t.category] = (totals[t.category] ?? 0) + _userExpense(t);
       }
     }
     final sorted = totals.entries.toList()
