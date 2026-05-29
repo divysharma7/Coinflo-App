@@ -1,7 +1,14 @@
+import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:finance_buddy_app/providers/database_providers.dart';
 import 'package:finance_buddy_app/providers/transaction_providers.dart';
 import 'package:finance_buddy_app/providers/plan_providers.dart';
+import 'package:finance_buddy_app/services/saraswati/cache/intent_cache_repository.dart';
+import 'package:finance_buddy_app/services/saraswati/intent/intent_executor.dart';
+import 'package:finance_buddy_app/services/saraswati/intent/keyword_intent_matcher.dart';
+import 'package:finance_buddy_app/services/saraswati/intent/saraswati_intent.dart';
+import 'package:finance_buddy_app/services/saraswati/llm/llm_classifier_prompt.dart';
+import 'package:finance_buddy_app/services/saraswati/llm/llm_intent_classifier.dart';
 import 'package:finance_buddy_app/services/saraswati/saraswati_service.dart';
 import 'package:intl/intl.dart';
 
@@ -18,11 +25,47 @@ class SaraswatiMessage {
   final DateTime timestamp;
 }
 
-/// Provides the SaraswatiService instance backed by the app repository.
-final saraswatiServiceProvider = Provider<SaraswatiService>((ref) {
+// ─── Dependency providers ────────────────────────────────
+
+/// Intent executor backed by the app repository.
+final _intentExecutorProvider = Provider<IntentExecutor>((ref) {
   final repo = ref.watch(repositoryProvider);
-  return SaraswatiService(repo);
+  return IntentExecutor(repo);
 });
+
+/// Intent cache backed by the app database.
+final _intentCacheProvider = Provider<IntentCacheRepository>((ref) {
+  final db = ref.watch(databaseProvider);
+  return IntentCacheRepository(db);
+});
+
+/// Gemini model configured for intent classification.
+final _classifierModelProvider = Provider<GenerativeModel>((ref) {
+  return FirebaseAI.googleAI().generativeModel(
+    model: 'gemini-2.0-flash',
+    systemInstruction: Content.system(kClassifierSystemPrompt),
+  );
+});
+
+/// LLM intent classifier.
+final _llmClassifierProvider = Provider<LlmIntentClassifier>((ref) {
+  final model = ref.watch(_classifierModelProvider);
+  return LlmIntentClassifier(model);
+});
+
+// ─── Service provider ────────────────────────────────────
+
+/// Provides the SaraswatiService with all dependencies wired.
+final saraswatiServiceProvider = Provider<SaraswatiService>((ref) {
+  return SaraswatiService(
+    executor: ref.watch(_intentExecutorProvider),
+    keywordMatcher: const KeywordIntentMatcher(),
+    cache: ref.watch(_intentCacheProvider),
+    llm: ref.watch(_llmClassifierProvider),
+  );
+});
+
+// ─── Financial context ───────────────────────────────────
 
 /// Builds a financial context summary string from the user's data.
 ///
@@ -72,6 +115,8 @@ final saraswatiFinancialContextProvider = Provider<String>((ref) {
   return "User's financial context: ${parts.join('. ')}.";
 });
 
+// ─── Chat state ──────────────────────────────────────────
+
 /// Manages the chat message history and handles sending new queries.
 class SaraswatiChatNotifier extends StateNotifier<List<SaraswatiMessage>> {
   SaraswatiChatNotifier(this._service, this._financialContext)
@@ -111,6 +156,35 @@ class SaraswatiChatNotifier extends StateNotifier<List<SaraswatiMessage>> {
         SaraswatiMessage(
           text: "Oops, something went wrong while crunching the numbers. "
               "Give it another try!",
+          isUser: false,
+        ),
+      ];
+    } finally {
+      _isProcessing = false;
+    }
+  }
+
+  /// Correct the last classification and replace the response.
+  Future<void> correct(
+    String originalQuery,
+    SaraswatiIntent correctedIntent,
+  ) async {
+    if (_isProcessing) return;
+    _isProcessing = true;
+    state = [...state];
+
+    try {
+      final reply = await _service.correctIntent(
+        originalQuery,
+        correctedIntent,
+        context: _financialContext,
+      );
+      state = [...state, SaraswatiMessage(text: reply, isUser: false)];
+    } on Exception catch (_) {
+      state = [
+        ...state,
+        SaraswatiMessage(
+          text: "Couldn't apply that correction — please try again.",
           isUser: false,
         ),
       ];

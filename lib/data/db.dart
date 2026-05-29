@@ -5,6 +5,7 @@ import 'package:drift/native.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:finance_buddy_app/services/migration/people_migration_service.dart';
+import 'package:finance_buddy_app/services/saraswati/cache/intent_cache_repository.dart';
 
 part 'db.g.dart';
 
@@ -274,13 +275,16 @@ class SpendlerDatabase extends _$SpendlerDatabase {
 
   // TODO: Rename DB file from spendler.sqlite → coinflo.sqlite in a separate migration PR.
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 12;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onCreate: (Migrator m) async {
           await m.createAll();
           await _createV7Indexes(m);
+          // Saraswati intent cache (not a Drift table — raw SQL)
+          await customStatement(kCreateIntentCacheTable);
+          await customStatement(kCreateIntentCacheIndex);
         },
         onUpgrade: (Migrator m, int from, int to) async {
           if (from < 2) {
@@ -418,6 +422,11 @@ class SpendlerDatabase extends _$SpendlerDatabase {
           if (from < 11) {
             // Migrate legacy Friends/Family data to unified People model
             await PeopleMigrationService(this).migrate();
+          }
+          if (from < 12) {
+            // Saraswati intent cache for LLM classifier
+            await customStatement(kCreateIntentCacheTable);
+            await customStatement(kCreateIntentCacheIndex);
           }
         },
       );
