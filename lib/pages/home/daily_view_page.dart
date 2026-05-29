@@ -8,6 +8,9 @@ import 'package:finance_buddy_app/widgets/common/amount_text.dart';
 import 'package:finance_buddy_app/widgets/common/empty_state.dart';
 import 'package:finance_buddy_app/widgets/common/hero_amount.dart';
 import 'package:finance_buddy_app/utils/currency_utils.dart';
+import 'package:finance_buddy_app/widgets/common/transaction_actions.dart';
+import 'package:finance_buddy_app/widgets/common/animations.dart';
+import 'package:go_router/go_router.dart';
 
 class DailyViewPage extends ConsumerWidget {
   final DateTime date;
@@ -67,20 +70,42 @@ class DailyViewPage extends ConsumerWidget {
                         orElse: () => TransactionCategory.foodAndDrink,
                       );
                       final catColor = AppColors.categoryColor(cat);
-                      return ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: catColor.withValues(alpha: 0.15),
-                          child: Icon(cat.iconFill, color: catColor, size: 20),
+                      return PressableCard(
+                        onTap: () => context.push('/transaction/${t.id}'),
+                        onLongPress: () => showTransactionActions(context, ref, t, symbol),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.md, vertical: 10,
+                          ),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                backgroundColor: catColor.withValues(alpha: 0.15),
+                                child: Icon(cat.iconFill, color: catColor, size: 20),
+                              ),
+                              const SizedBox(width: AppSpacing.sm),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      t.merchant ?? cat.label,
+                                      style: AppTextStyles.bodyM,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      DateFormat('h:mm a').format(t.happenedAt),
+                                      style: const TextStyle(color: AppColors.gray500, fontSize: 12),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              AmountText(amount: t.amount, symbol: symbol),
+                            ],
+                          ),
                         ),
-                        title: Text(
-                          t.merchant ?? cat.label,
-                          style: AppTextStyles.bodyM,
-                        ),
-                        subtitle: Text(
-                          DateFormat('h:mm a').format(t.happenedAt),
-                          style: const TextStyle(color: AppColors.gray500, fontSize: 12),
-                        ),
-                        trailing: AmountText(amount: t.amount, symbol: symbol),
                       );
                     },
                   ),

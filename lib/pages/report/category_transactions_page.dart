@@ -12,6 +12,8 @@ import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/widgets/common/animations.dart';
+import 'package:finance_buddy_app/widgets/common/transaction_actions.dart';
+import 'package:finance_buddy_app/utils/currency_utils.dart';
 
 // ---------------------------------------------------------------------------
 // Provider: transactions for a specific category within a month
@@ -50,7 +52,7 @@ class CategoryTransactionsPage extends ConsumerWidget {
       orElse: () => TransactionCategory.other,
     );
     final catColor = AppColors.categoryColor(cat);
-    final symbol = _sym(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
+    final symbol = currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
     final monthLabel = DateFormat('MMMM yyyy').format(month);
 
     final txnsAsync = ref.watch(
@@ -147,7 +149,7 @@ class CategoryTransactionsPage extends ConsumerWidget {
                             ],
                           ),
                           Text(
-                            '$symbol${_fmt(total)}',
+                            '$symbol${_fmtAmount(total)}',
                             style: AppTextStyles.numericL.copyWith(
                               color: AppColors.black,
                               fontWeight: FontWeight.w700,
@@ -240,7 +242,7 @@ class CategoryTransactionsPage extends ConsumerWidget {
 // Single transaction tile (mirrors TransactionsPage style)
 // ---------------------------------------------------------------------------
 
-class _TransactionTile extends StatelessWidget {
+class _TransactionTile extends ConsumerWidget {
   const _TransactionTile({
     required this.transaction,
     required this.symbol,
@@ -252,7 +254,7 @@ class _TransactionTile extends StatelessWidget {
   final Color catColor;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final t = transaction;
     final cat = TransactionCategory.values.firstWhere(
       (c) => c.name == t.category,
@@ -264,6 +266,7 @@ class _TransactionTile extends StatelessWidget {
       onTap: () {
         context.push('/transaction/${t.id}');
       },
+      onLongPress: () => showTransactionActions(context, ref, t, symbol),
       child: Container(
         margin: const EdgeInsets.symmetric(
           horizontal: AppSpacing.lg,
@@ -319,7 +322,7 @@ class _TransactionTile extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Text(
-              '$symbol${_fmt(t.amount.abs())}',
+              '$symbol${_fmtAmount(t.amount.abs())}',
               style: AppTextStyles.numericL.copyWith(
                 color: isSent ? AppColors.black : AppColors.green,
               ),
@@ -335,22 +338,7 @@ class _TransactionTile extends StatelessWidget {
 // Helpers (mirrored from report_page.dart)
 // ---------------------------------------------------------------------------
 
-String _sym(String code) {
-  switch (code.toLowerCase()) {
-    case 'inr':
-      return '\u20B9';
-    case 'usd':
-      return '\$';
-    case 'eur':
-      return '\u20AC';
-    case 'gbp':
-      return '\u00A3';
-    default:
-      return '\$';
-  }
-}
-
-String _fmt(double v) {
+String _fmtAmount(double v) {
   if (v >= 100000) return NumberFormat('#,##,###', 'en_IN').format(v.toInt());
   return NumberFormat('#,###').format(v.toInt());
 }

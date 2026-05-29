@@ -1,5 +1,6 @@
 import 'package:finance_buddy_app/widgets/common/error_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -15,6 +16,7 @@ import 'package:finance_buddy_app/widgets/common/animated_progress_bar.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:finance_buddy_app/utils/currency_utils.dart';
 import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
+import 'package:finance_buddy_app/widgets/common/transaction_actions.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -192,59 +194,62 @@ class _BudgetProgressBar extends ConsumerWidget {
                   ? AppColors.amber
                   : AppColors.red;
 
-          return Container(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: AppRadius.lg,
-              boxShadow: const [
-                BoxShadow(
-                    color: AppColors.shadowMd,
-                    blurRadius: 20,
-                    offset: Offset(0, 4)),
-              ],
-            ),
-            child: Column(
-              children: [
-                // Spent / Budget labels
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('$symbol${_formatNumber(spent)} spent',
-                        style: AppTextStyles.headingS
-                            .copyWith(color: AppColors.black)),
-                    Text('of $symbol${_formatNumber(budgetVal)}',
-                        style: AppTextStyles.bodyM
-                            .copyWith(color: AppColors.gray500)),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.md),
+          return GestureDetector(
+            onTap: () => ref.read(selectedTabProvider.notifier).state = 2,
+            child: Container(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: AppRadius.lg,
+                boxShadow: const [
+                  BoxShadow(
+                      color: AppColors.shadowMd,
+                      blurRadius: 20,
+                      offset: Offset(0, 4)),
+                ],
+              ),
+              child: Column(
+                children: [
+                  // Spent / Budget labels
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('$symbol${_formatNumber(spent)} spent',
+                          style: AppTextStyles.headingS
+                              .copyWith(color: AppColors.black)),
+                      Text('of $symbol${_formatNumber(budgetVal)}',
+                          style: AppTextStyles.bodyM
+                              .copyWith(color: AppColors.gray500)),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.md),
 
-                // Progress bar
-                AnimatedProgressBar(
-                  value: pct,
-                  backgroundColor: AppColors.gray200,
-                  valueColor: barColor,
-                  minHeight: 12,
-                  borderRadius: 6,
-                ),
-                const SizedBox(height: AppSpacing.sm),
+                  // Progress bar
+                  AnimatedProgressBar(
+                    value: pct,
+                    backgroundColor: AppColors.gray200,
+                    valueColor: barColor,
+                    minHeight: 12,
+                    borderRadius: 6,
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
 
-                // Stats below bar
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      '${(pct * 100).round()}% used',
-                      style: AppTextStyles.bodyS.copyWith(color: barColor, fontWeight: FontWeight.w600),
-                    ),
-                    Text(
-                      '$symbol${_formatNumber(remaining)} left · $daysLeft days',
-                      style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
-                    ),
-                  ],
-                ),
-              ],
+                  // Stats below bar
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '${(pct * 100).round()}% used',
+                        style: AppTextStyles.bodyS.copyWith(color: barColor, fontWeight: FontWeight.w600),
+                      ),
+                      Text(
+                        '$symbol${_formatNumber(remaining)} left · $daysLeft days',
+                        style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           );
         },
@@ -344,7 +349,7 @@ class _QuickStatsRow extends ConsumerWidget {
 
           // vs Last month
           Expanded(
-            child: _vsLastMonthCard(monthExpense, lastMonthAsync),
+            child: _vsLastMonthCard(context, ref, monthExpense, lastMonthAsync),
           ),
         ],
       ),
@@ -352,6 +357,7 @@ class _QuickStatsRow extends ConsumerWidget {
   }
 
   Widget _vsLastMonthCard(
+      BuildContext context, WidgetRef ref,
       AsyncValue<double> current, AsyncValue<double> last) {
     final curVal = current.valueOrNull ?? 0;
     final lastVal = last.valueOrNull ?? 0;
@@ -377,11 +383,14 @@ class _QuickStatsRow extends ConsumerWidget {
       }
     }
 
-    return _StatCard(
-      label: 'vs Last month',
-      value: label,
-      icon: icon,
-      color: color,
+    return GestureDetector(
+      onTap: () => ref.read(selectedTabProvider.notifier).state = 1,
+      child: _StatCard(
+        label: 'vs Last month',
+        value: label,
+        icon: icon,
+        color: color,
+      ),
     );
   }
 }
@@ -574,7 +583,15 @@ class _TopCategoriesSection extends ConsumerWidget {
                   final color = AppColors.categoryColor(cat.group);
                   final pct = maxVal > 0 ? entry.value / maxVal : 0.0;
 
-                  return Padding(
+                  return GestureDetector(
+                    onTap: () {
+                      final month = ref.read(selectedMonthProvider);
+                      context.push('/report/category', extra: {
+                        'category': cat.name,
+                        'month': month,
+                      });
+                    },
+                    child: Padding(
                     padding: const EdgeInsets.only(bottom: AppSpacing.md),
                     child: Row(
                       children: [
@@ -608,6 +625,7 @@ class _TopCategoriesSection extends ConsumerWidget {
                         ),
                       ],
                     ),
+                  ),
                   );
                 }),
               ],
@@ -657,43 +675,47 @@ class _SavingsGoalsSection extends ConsumerWidget {
                     final pct = g.targetAmount > 0
                         ? (g.currentAmount / g.targetAmount).clamp(0.0, 1.0)
                         : 0.0;
-                    return Container(
-                      width: 160,
-                      padding: const EdgeInsets.all(AppSpacing.md),
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: AppRadius.mdLg,
-                        boxShadow: const [
-                          BoxShadow(
-                              color: AppColors.shadow,
-                              blurRadius: 8,
-                              offset: Offset(0, 2)),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(g.name,
-                              style: AppTextStyles.bodyM.copyWith(
-                                  fontWeight: FontWeight.w600),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis),
-                          Text(
-                            '$symbol${_formatNumber(g.currentAmount)} / $symbol${_formatNumber(g.targetAmount)}',
-                            style: AppTextStyles.labelS
-                                .copyWith(color: AppColors.gray500),
-                          ),
-                          AnimatedProgressBar(
-                            value: pct,
-                            backgroundColor: AppColors.gray200,
-                            valueColor: AppColors.green,
-                          ),
-                          Text('${(pct * 100).round()}%',
-                              style: AppTextStyles.labelS.copyWith(
-                                  color: AppColors.green,
-                                  fontWeight: FontWeight.w600)),
-                        ],
+                    return GestureDetector(
+                      onTap: () => ref.read(selectedTabProvider.notifier).state = 2,
+                      onLongPress: () => _showGoalActions(context, ref, g),
+                      child: Container(
+                        width: 160,
+                        padding: const EdgeInsets.all(AppSpacing.md),
+                        decoration: BoxDecoration(
+                          color: AppColors.white,
+                          borderRadius: AppRadius.mdLg,
+                          boxShadow: const [
+                            BoxShadow(
+                                color: AppColors.shadow,
+                                blurRadius: 8,
+                                offset: Offset(0, 2)),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(g.name,
+                                style: AppTextStyles.bodyM.copyWith(
+                                    fontWeight: FontWeight.w600),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis),
+                            Text(
+                              '$symbol${_formatNumber(g.currentAmount)} / $symbol${_formatNumber(g.targetAmount)}',
+                              style: AppTextStyles.labelS
+                                  .copyWith(color: AppColors.gray500),
+                            ),
+                            AnimatedProgressBar(
+                              value: pct,
+                              backgroundColor: AppColors.gray200,
+                              valueColor: AppColors.green,
+                            ),
+                            Text('${(pct * 100).round()}%',
+                                style: AppTextStyles.labelS.copyWith(
+                                    color: AppColors.green,
+                                    fontWeight: FontWeight.w600)),
+                          ],
+                        ),
                       ),
                     );
                   },
@@ -725,6 +747,73 @@ class _SavingsGoalsSection extends ConsumerWidget {
       },
       loading: () => const SizedBox.shrink(),
       error: (_, _) => const ErrorCard(),
+    );
+  }
+
+  void _showGoalActions(BuildContext context, WidgetRef ref, SavingsGoal g) {
+    HapticFeedback.mediumImpact();
+    showSpendlerSheet<void>(
+      context: context,
+      isScrollControlled: false,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+              child: Text(g.name,
+                  style: AppTextStyles.headingS
+                      .copyWith(color: AppColors.black)),
+            ),
+            ListTile(
+              leading: PhosphorIcon(PhosphorIcons.pencilSimple(),
+                  color: AppColors.black),
+              title: const Text('Edit Goal'),
+              onTap: () {
+                Navigator.pop(ctx);
+                context.push('/plan');
+              },
+            ),
+            ListTile(
+              leading: PhosphorIcon(PhosphorIcons.trash(),
+                  color: AppColors.red),
+              title: Text('Delete Goal',
+                  style: TextStyle(color: AppColors.red)),
+              onTap: () {
+                Navigator.pop(ctx);
+                _confirmDeleteGoal(context, ref, g);
+              },
+            ),
+            const SizedBox(height: AppSpacing.md),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _confirmDeleteGoal(BuildContext context, WidgetRef ref, SavingsGoal g) {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Goal'),
+        content: Text('Delete "${g.name}"? This cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              final repo = ref.read(repositoryProvider);
+              await deleteGoal(repo, g.id);
+              invalidateAnalytics(ref);
+            },
+            child: Text('Delete',
+                style: TextStyle(color: AppColors.red)),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -841,14 +930,14 @@ class _RecentTransactionsSection extends ConsumerWidget {
 
 // ─── Transaction Row ──────────────────────────────────────
 
-class _TransactionRow extends StatelessWidget {
+class _TransactionRow extends ConsumerWidget {
   const _TransactionRow({required this.transaction, required this.symbol});
 
   final SpendlerTransaction transaction;
   final String symbol;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final cat = TransactionCategory.values.firstWhere(
       (c) => c.name == transaction.category,
       orElse: () => TransactionCategory.other,
@@ -858,7 +947,8 @@ class _TransactionRow extends StatelessWidget {
         '${isExpense ? '-' : '+'}$symbol${transaction.amount.abs().toStringAsFixed(0)}';
 
     return GestureDetector(
-      onTap: () => context.push('/daily-view', extra: transaction.happenedAt),
+      onTap: () => context.push('/transaction/${transaction.id}'),
+      onLongPress: () => showTransactionActions(context, ref, transaction, symbol),
       behavior: HitTestBehavior.opaque,
       child: Padding(
         padding: const EdgeInsets.symmetric(
@@ -869,10 +959,10 @@ class _TransactionRow extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: _catBgColor(cat),
+                color: AppColors.categoryBg(cat),
                 borderRadius: AppRadius.base,
               ),
-              child: Icon(cat.iconFill, size: 18, color: _catIconColor(cat)),
+              child: Icon(cat.iconFill, size: 18, color: AppColors.categoryFg(cat)),
             ),
             const SizedBox(width: AppSpacing.sm),
             Expanded(
@@ -899,10 +989,6 @@ class _TransactionRow extends StatelessWidget {
       ),
     );
   }
-
-  Color _catBgColor(TransactionCategory cat) => AppColors.categoryBg(cat);
-
-  Color _catIconColor(TransactionCategory cat) => AppColors.categoryFg(cat);
 }
 
 // ─── User Avatar ──────────────────────────────────────────

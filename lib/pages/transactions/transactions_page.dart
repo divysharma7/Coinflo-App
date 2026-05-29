@@ -12,6 +12,7 @@ import 'package:finance_buddy_app/widgets/common/amount_text.dart';
 import 'package:finance_buddy_app/widgets/common/empty_state.dart';
 import 'package:finance_buddy_app/widgets/common/neo_pop_button.dart';
 import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
+import 'package:finance_buddy_app/widgets/common/transaction_actions.dart';
 import 'package:finance_buddy_app/widgets/common/animations.dart';
 import 'package:finance_buddy_app/utils/currency_utils.dart';
 
@@ -384,11 +385,11 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
           '${isUnconfirmed ? ", pending confirmation" : ""}',
       button: true,
       onTap: () => context.push('/transaction/${t.id}'),
-      onLongPress: () => _showTransactionActions(context, t, sym),
+      onLongPress: () => showTransactionActions(context, ref, t, sym),
       child: ExcludeSemantics(
         child: PressableCard(
           onTap: () => context.push('/transaction/${t.id}'),
-          onLongPress: () => _showTransactionActions(context, t, sym),
+          onLongPress: () => showTransactionActions(context, ref, t, sym),
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 2),
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 10),
@@ -470,80 +471,7 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
     );
   }
 
-  void _showTransactionActions(BuildContext context, SpendlerTransaction t, String sym) {
-    HapticFeedback.mediumImpact();
-    final cat = TransactionCategory.values.firstWhere(
-      (c) => c.name == t.category,
-      orElse: () => TransactionCategory.foodAndDrink,
-    );
-    showSpendlerSheet<void>(
-      context: context,
-      isScrollControlled: false,
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // M4: Show merchant + amount + date for identity confirmation
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-              child: Column(
-                children: [
-                  Text(
-                    t.merchant ?? cat.label,
-                    style: AppTextStyles.headingS,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '$sym${t.amount.abs().toStringAsFixed(0)}  ·  ${DateFormat('d MMM').format(t.happenedAt)}',
-                    style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
-                  ),
-                ],
-              ),
-            ),
-            ListTile(
-              leading: PhosphorIcon(PhosphorIcons.pencilSimple(), color: AppColors.black),
-              title: const Text('Edit'),
-              onTap: () {
-                Navigator.pop(ctx);
-                // C1: Navigate to edit mode directly
-                context.push('/transaction/${t.id}', extra: const {'startInEditMode': true});
-              },
-            ),
-            ListTile(
-              leading: PhosphorIcon(PhosphorIcons.trash(), color: AppColors.red),
-              title: Text('Delete', style: TextStyle(color: AppColors.red)),
-              onTap: () async {
-                Navigator.pop(ctx);
-                await _confirmDeleteFromList(context, t);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<void> _confirmDeleteFromList(BuildContext context, SpendlerTransaction t) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Delete this transaction?'),
-        content: const Text('This cannot be undone.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: AppColors.red),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
-    );
-    if (confirmed == true && mounted) {
-      final repo = ref.read(repositoryProvider);
-      await repo.deleteTransaction(t.id);
-    }
-  }
+  // Transaction actions and delete now use shared util from transaction_actions.dart
 
   void _showFilterSheet(BuildContext context, WidgetRef ref) {
     showSpendlerSheet<void>(
