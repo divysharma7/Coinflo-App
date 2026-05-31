@@ -1,8 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:finance_buddy_app/design_system/design_system.dart';
+import 'package:finance_buddy_app/pages/add/quick_add_sheet.dart';
 import 'package:finance_buddy_app/providers/saraswati_providers.dart';
+import 'package:finance_buddy_app/services/saraswati/entry/entry_action.dart';
+import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 
 /// Ask Saraswati — an AI chat assistant that answers questions about
 /// the user's transaction data.
@@ -17,16 +23,39 @@ class _SaraswatiPageState extends ConsumerState<SaraswatiPage> {
   final _controller = TextEditingController();
   final _scrollController = ScrollController();
   final _focusNode = FocusNode();
+  Timer? _hintTimer;
+  int _hintIndex = 0;
 
-  static const _suggestions = [
+  static const _entrySuggestions = [
+    '100 coffee',
+    '500 grocery',
+    'split 600 with rahul',
+  ];
+
+  static const _querySuggestions = [
     'How much did I spend this month?',
-    'What is my top spending category?',
     'Show my spending by category',
     'How does this month compare to last month?',
   ];
 
+  static const _hints = [
+    'Ask about your finances...',
+    'Log an expense \u2014 try "100 coffee"',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _hintTimer = Timer.periodic(const Duration(seconds: 4), (_) {
+      if (!_focusNode.hasFocus && mounted) {
+        setState(() => _hintIndex++);
+      }
+    });
+  }
+
   @override
   void dispose() {
+    _hintTimer?.cancel();
     _controller.dispose();
     _scrollController.dispose();
     _focusNode.dispose();
@@ -127,13 +156,41 @@ class _SaraswatiPageState extends ConsumerState<SaraswatiPage> {
                         return const _TypingIndicator();
                       }
                       final msg = messages[index];
-                      return msg.isUser
-                          ? _UserBubble(text: msg.text)
-                          : _AssistantBubble(text: msg.text);
+                      if (msg.isUser) return _UserBubble(text: msg.text);
+                      if (msg.entryAction != null) {
+                        return _EntryActionBubble(
+                          message: msg,
+                          onChipTap: (field, value) {
+                            ref.read(saraswatiChatProvider.notifier)
+                                .confirmEntryField(msg.entryAction!, field, value);
+                          },
+                          onUndo: () async {
+                            final ok = await ref
+                                .read(saraswatiChatProvider.notifier)
+                                .undoLastEntry();
+                            if (ok && context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Entry undone'),
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            }
+                          },
+                          onFormFallback: () {
+                            showSpendlerSheet<void>(
+                              context: context,
+                              builder: (_) => const QuickAddSheet(),
+                            );
+                          },
+                        );
+                      }
+                      return _AssistantBubble(text: msg.text);
                     },
                   )
                 : _EmptyState(
-                    suggestions: _suggestions,
+                    entrySuggestions: _entrySuggestions,
+                    querySuggestions: _querySuggestions,
                     onSuggestionTap: _send,
                   ),
           ),
@@ -144,6 +201,7 @@ class _SaraswatiPageState extends ConsumerState<SaraswatiPage> {
             focusNode: _focusNode,
             onSend: () => _send(),
             isProcessing: isProcessing,
+            hintText: _hints[_hintIndex % _hints.length],
           ),
         ],
           ),
@@ -157,15 +215,18 @@ class _SaraswatiPageState extends ConsumerState<SaraswatiPage> {
 
 class _EmptyState extends StatelessWidget {
   const _EmptyState({
-    required this.suggestions,
+    required this.entrySuggestions,
+    required this.querySuggestions,
     required this.onSuggestionTap,
   });
 
-  final List<String> suggestions;
+  final List<String> entrySuggestions;
+  final List<String> querySuggestions;
   final void Function(String) onSuggestionTap;
 
   @override
   Widget build(BuildContext context) {
+    var delay = 0;
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.lg,
@@ -193,7 +254,6 @@ class _EmptyState extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.xl),
 
-          // Title
           const Text(
             "Hi, I'm Saraswati",
             style: TextStyle(
@@ -204,9 +264,8 @@ class _EmptyState extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.xs),
 
-          // Subtitle
           const Text(
-            'Ask me anything about your finances\u2009\u2014\u2009spending, trends, categories.',
+            'Ask me anything about your finances, or log expenses by typing naturally.',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
@@ -216,54 +275,110 @@ class _EmptyState extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.xxl),
 
-          // Suggestions label
+          // ─── Quick Log section ──────────────────────────
           const Align(
             alignment: Alignment.centerLeft,
-            child: Text(
-              'SUGGESTIONS',
-              style: AppTextStyles.labelM,
-            ),
+            child: Text('QUICK LOG', style: AppTextStyles.labelM),
           ),
           const SizedBox(height: AppSpacing.sm),
 
-          // Suggestion cards
-          ...suggestions.map((s) => Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-                child: GestureDetector(
-                  onTap: () => onSuggestionTap(s),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.md,
-                      vertical: 14,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: AppRadius.base,
-                      border: Border.all(color: AppColors.gray200),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            s,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                              color: AppColors.black,
-                            ),
+          ...entrySuggestions.map((s) {
+            final d = Duration(milliseconds: delay);
+            delay += 80;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+              child: GestureDetector(
+                onTap: () => onSuggestionTap(s),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.md,
+                    vertical: 14,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.catGreenBg,
+                    borderRadius: AppRadius.base,
+                    border: Border.all(color: AppColors.green.withValues(alpha: 0.3)),
+                  ),
+                  child: Row(
+                    children: [
+                      PhosphorIcon(
+                        PhosphorIcons.arrowUpRight(),
+                        color: AppColors.catGreenText,
+                        size: 16,
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: Text(
+                          s,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.catGreenText,
                           ),
                         ),
-                        PhosphorIcon(
-                          PhosphorIcons.caretRight(),
-                          color: AppColors.gray500,
-                          size: 16,
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-              )),
+              ),
+            ).animate()
+                .fadeIn(delay: d, duration: AppDurations.slow)
+                .slideY(begin: 0.05, delay: d, duration: AppDurations.slow);
+          }),
+
+          const SizedBox(height: AppSpacing.lg),
+
+          // ─── Ask Saraswati section ──────────────────────
+          const Align(
+            alignment: Alignment.centerLeft,
+            child: Text('ASK SARASWATI', style: AppTextStyles.labelM),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+
+          ...querySuggestions.map((s) {
+            final d = Duration(milliseconds: delay);
+            delay += 80;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+              child: GestureDetector(
+                onTap: () => onSuggestionTap(s),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.md,
+                    vertical: 14,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: AppRadius.base,
+                    border: Border.all(color: AppColors.gray200),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          s,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.black,
+                          ),
+                        ),
+                      ),
+                      PhosphorIcon(
+                        PhosphorIcons.caretRight(),
+                        color: AppColors.gray500,
+                        size: 16,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ).animate()
+                .fadeIn(delay: d, duration: AppDurations.slow)
+                .slideY(begin: 0.05, delay: d, duration: AppDurations.slow);
+          }),
         ],
       ),
     );
@@ -340,7 +455,275 @@ class _AssistantBubble extends StatelessWidget {
         ),
         child: _MarkdownText(text: text),
       ),
+    ).animate()
+        .fadeIn(duration: AppDurations.base)
+        .slideY(
+            begin: 0.03,
+            duration: AppDurations.base,
+            curve: Curves.easeOutCubic);
+  }
+}
+
+// ─── Entry Action Bubble ─────────────────────────────────────
+
+class _EntryActionBubble extends StatefulWidget {
+  const _EntryActionBubble({
+    required this.message,
+    required this.onChipTap,
+    required this.onUndo,
+    required this.onFormFallback,
+  });
+
+  final SaraswatiMessage message;
+  final void Function(String field, String value) onChipTap;
+  final VoidCallback onUndo;
+  final VoidCallback onFormFallback;
+
+  @override
+  State<_EntryActionBubble> createState() => _EntryActionBubbleState();
+}
+
+class _EntryActionBubbleState extends State<_EntryActionBubble>
+    with SingleTickerProviderStateMixin {
+  bool _undoAvailable = false;
+  bool _undoFading = false;
+  Timer? _undoTimer;
+  late final AnimationController _undoProgress;
+
+  @override
+  void initState() {
+    super.initState();
+    _undoProgress = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 5),
     );
+    if (widget.message.entryAction is SilentCommitAction) {
+      _undoAvailable = true;
+      _undoProgress.forward();
+      _undoTimer = Timer(const Duration(seconds: 5), () {
+        if (mounted) setState(() => _undoFading = true);
+        // Fade out then remove.
+        Future.delayed(AppDurations.fast, () {
+          if (mounted) setState(() => _undoAvailable = false);
+        });
+      });
+    }
+    if (widget.message.entryAction is QuickFormFallbackAction) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        widget.onFormFallback();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _undoTimer?.cancel();
+    _undoProgress.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final action = widget.message.entryAction!;
+    final isCommit = action is SilentCommitAction;
+
+    return Padding(
+      padding: const EdgeInsets.only(
+        top: AppSpacing.xs,
+        bottom: AppSpacing.xs,
+      ),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(AppSpacing.md),
+        decoration: BoxDecoration(
+          color: isCommit ? AppColors.catGreenBg : AppColors.offWhite,
+          borderRadius: AppRadius.lg,
+          border: isCommit
+              ? Border(
+                  left: BorderSide(color: AppColors.green, width: 3))
+              : null,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // ─── Commit: checkmark + text ─────────────────
+            if (isCommit)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  PhosphorIcon(
+                    PhosphorIcons.checkCircle(PhosphorIconsStyle.fill),
+                    color: AppColors.catGreenText,
+                    size: 18,
+                  ).animate().scale(
+                        begin: const Offset(0.5, 0.5),
+                        duration: AppDurations.fast,
+                        curve: Curves.easeOutBack,
+                      ),
+                  const SizedBox(width: AppSpacing.xs),
+                  Expanded(child: _MarkdownText(text: widget.message.text)),
+                ],
+              )
+            else
+              _MarkdownText(text: widget.message.text),
+
+            // ─── Undo pill with countdown ─────────────────
+            if (isCommit && _undoAvailable) ...[
+              const SizedBox(height: AppSpacing.sm),
+              AnimatedOpacity(
+                opacity: _undoFading ? 0.0 : 1.0,
+                duration: AppDurations.fast,
+                child: _UndoPill(
+                  progress: _undoProgress,
+                  onTap: () {
+                    _undoTimer?.cancel();
+                    _undoProgress.stop();
+                    setState(() => _undoAvailable = false);
+                    widget.onUndo();
+                  },
+                ),
+              ),
+            ],
+
+            // ─── Chips for AskOneQuestion ─────────────────
+            if (action is AskOneQuestionAction) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Wrap(
+                spacing: AppSpacing.sm,
+                runSpacing: AppSpacing.sm,
+                children: [
+                  for (var i = 0; i < action.chipOptions.length; i++)
+                    _TactileChip(
+                      label: action.chipOptions[i],
+                      onTap: () => widget.onChipTap(
+                          action.fieldToConfirm, action.chipOptions[i]),
+                      delay: Duration(milliseconds: 50 * i),
+                    ),
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    ).animate()
+        .fadeIn(duration: AppDurations.base)
+        .slideY(
+            begin: 0.03,
+            duration: AppDurations.base,
+            curve: Curves.easeOutCubic);
+  }
+}
+
+// ─── Undo Pill with Countdown Bar ────────────────────────────
+
+class _UndoPill extends StatelessWidget {
+  const _UndoPill({required this.progress, required this.onTap});
+
+  final AnimationController progress;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 80,
+        height: 32,
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: AppColors.gray100,
+          borderRadius: AppRadius.pill,
+        ),
+        child: Stack(
+          children: [
+            // Shrinking progress bar
+            AnimatedBuilder(
+              animation: progress,
+              builder: (context, _) {
+                return FractionallySizedBox(
+                  widthFactor: 1.0 - progress.value,
+                  child: Container(color: AppColors.gray200),
+                );
+              },
+            ),
+            // Label
+            const Center(
+              child: Text(
+                'Undo',
+                style: TextStyle(
+                  color: AppColors.gray500,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Tactile Chip with Press State ───────────────────────────
+
+class _TactileChip extends StatefulWidget {
+  const _TactileChip({
+    required this.label,
+    required this.onTap,
+    required this.delay,
+  });
+
+  final String label;
+  final VoidCallback onTap;
+  final Duration delay;
+
+  @override
+  State<_TactileChip> createState() => _TactileChipState();
+}
+
+class _TactileChipState extends State<_TactileChip> {
+  double _scale = 1.0;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _scale = 0.96),
+      onTapUp: (_) {
+        setState(() => _scale = 1.0);
+        widget.onTap();
+      },
+      onTapCancel: () => setState(() => _scale = 1.0),
+      child: AnimatedScale(
+        scale: _scale,
+        duration: AppDurations.fast,
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 36),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: AppSpacing.sm,
+          ),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: AppRadius.base,
+            border: Border.all(color: AppColors.gray200),
+          ),
+          child: Text(
+            widget.label,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: AppColors.black,
+            ),
+          ),
+        ),
+      ),
+    ).animate()
+        .fadeIn(delay: widget.delay, duration: AppDurations.fast)
+        .slideY(
+            begin: 0.1,
+            delay: widget.delay,
+            duration: AppDurations.fast);
   }
 }
 
@@ -559,12 +942,14 @@ class _InputBar extends StatelessWidget {
     required this.focusNode,
     required this.onSend,
     required this.isProcessing,
+    required this.hintText,
   });
 
   final TextEditingController controller;
   final FocusNode focusNode;
   final VoidCallback onSend;
   final bool isProcessing;
+  final String hintText;
 
   @override
   Widget build(BuildContext context) {
@@ -597,9 +982,9 @@ class _InputBar extends StatelessWidget {
                   color: AppColors.black,
                   fontSize: 15,
                 ),
-                decoration: const InputDecoration(
-                  hintText: 'Ask about your finances...',
-                  hintStyle: TextStyle(
+                decoration: InputDecoration(
+                  hintText: hintText,
+                  hintStyle: const TextStyle(
                     color: AppColors.gray500,
                     fontSize: 15,
                     fontWeight: FontWeight.w400,

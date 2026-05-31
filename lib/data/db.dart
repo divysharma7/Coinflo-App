@@ -6,6 +6,8 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:finance_buddy_app/services/migration/people_migration_service.dart';
 import 'package:finance_buddy_app/services/saraswati/cache/intent_cache_repository.dart';
+import 'package:finance_buddy_app/services/saraswati/entry/entry_cache_repository.dart';
+import 'package:finance_buddy_app/services/saraswati/entry/personal_defaults_repository.dart';
 
 part 'db.g.dart';
 
@@ -48,6 +50,10 @@ class SpendlerTransactions extends Table {
   IntColumn get counterpartyPersonId => integer().nullable()();    // settlements only
   TextColumn get settlementDirection => text().nullable()();       // paid_to / received_from
   IntColumn get groupId => integer().nullable()();
+
+  // ─── v13 columns (Saraswati entry pipeline) ─────────
+  TextColumn get rawInput => text().nullable()();          // original chat text
+  TextColumn get extractionMeta => text().nullable()();    // JSON: per-field confidence + stage
 }
 
 class FamilyEntries extends Table {
@@ -275,7 +281,7 @@ class SpendlerDatabase extends _$SpendlerDatabase {
 
   // TODO: Rename DB file from spendler.sqlite → coinflo.sqlite in a separate migration PR.
   @override
-  int get schemaVersion => 12;
+  int get schemaVersion => 13;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -285,6 +291,10 @@ class SpendlerDatabase extends _$SpendlerDatabase {
           // Saraswati intent cache (not a Drift table — raw SQL)
           await customStatement(kCreateIntentCacheTable);
           await customStatement(kCreateIntentCacheIndex);
+          // Saraswati entry cache + personal defaults (v13)
+          await customStatement(kCreateEntryCacheTable);
+          await customStatement(kCreateEntryCacheIndex);
+          await customStatement(kCreateUserDefaultsTable);
         },
         onUpgrade: (Migrator m, int from, int to) async {
           if (from < 2) {
@@ -427,6 +437,21 @@ class SpendlerDatabase extends _$SpendlerDatabase {
             // Saraswati intent cache for LLM classifier
             await customStatement(kCreateIntentCacheTable);
             await customStatement(kCreateIntentCacheIndex);
+          }
+          if (from < 13) {
+            // Saraswati entry pipeline: audit columns on transactions
+            await m.addColumn(
+              spendlerTransactions,
+              spendlerTransactions.rawInput,
+            );
+            await m.addColumn(
+              spendlerTransactions,
+              spendlerTransactions.extractionMeta,
+            );
+            // Entry cache + personal defaults tables
+            await customStatement(kCreateEntryCacheTable);
+            await customStatement(kCreateEntryCacheIndex);
+            await customStatement(kCreateUserDefaultsTable);
           }
         },
       );

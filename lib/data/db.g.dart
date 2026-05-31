@@ -352,6 +352,28 @@ class $SpendlerTransactionsTable extends SpendlerTransactions
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _rawInputMeta = const VerificationMeta(
+    'rawInput',
+  );
+  @override
+  late final GeneratedColumn<String> rawInput = GeneratedColumn<String>(
+    'raw_input',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _extractionMetaMeta = const VerificationMeta(
+    'extractionMeta',
+  );
+  @override
+  late final GeneratedColumn<String> extractionMeta = GeneratedColumn<String>(
+    'extraction_meta',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -384,6 +406,8 @@ class $SpendlerTransactionsTable extends SpendlerTransactions
     counterpartyPersonId,
     settlementDirection,
     groupId,
+    rawInput,
+    extractionMeta,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -617,6 +641,21 @@ class $SpendlerTransactionsTable extends SpendlerTransactions
         groupId.isAcceptableOrUnknown(data['group_id']!, _groupIdMeta),
       );
     }
+    if (data.containsKey('raw_input')) {
+      context.handle(
+        _rawInputMeta,
+        rawInput.isAcceptableOrUnknown(data['raw_input']!, _rawInputMeta),
+      );
+    }
+    if (data.containsKey('extraction_meta')) {
+      context.handle(
+        _extractionMetaMeta,
+        extractionMeta.isAcceptableOrUnknown(
+          data['extraction_meta']!,
+          _extractionMetaMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -746,6 +785,14 @@ class $SpendlerTransactionsTable extends SpendlerTransactions
         DriftSqlType.int,
         data['${effectivePrefix}group_id'],
       ),
+      rawInput: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}raw_input'],
+      ),
+      extractionMeta: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}extraction_meta'],
+      ),
     );
   }
 
@@ -787,6 +834,8 @@ class SpendlerTransaction extends DataClass
   final int? counterpartyPersonId;
   final String? settlementDirection;
   final int? groupId;
+  final String? rawInput;
+  final String? extractionMeta;
   const SpendlerTransaction({
     required this.id,
     required this.amount,
@@ -818,6 +867,8 @@ class SpendlerTransaction extends DataClass
     this.counterpartyPersonId,
     this.settlementDirection,
     this.groupId,
+    this.rawInput,
+    this.extractionMeta,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -888,6 +939,12 @@ class SpendlerTransaction extends DataClass
     if (!nullToAbsent || groupId != null) {
       map['group_id'] = Variable<int>(groupId);
     }
+    if (!nullToAbsent || rawInput != null) {
+      map['raw_input'] = Variable<String>(rawInput);
+    }
+    if (!nullToAbsent || extractionMeta != null) {
+      map['extraction_meta'] = Variable<String>(extractionMeta);
+    }
     return map;
   }
 
@@ -955,6 +1012,12 @@ class SpendlerTransaction extends DataClass
       groupId: groupId == null && nullToAbsent
           ? const Value.absent()
           : Value(groupId),
+      rawInput: rawInput == null && nullToAbsent
+          ? const Value.absent()
+          : Value(rawInput),
+      extractionMeta: extractionMeta == null && nullToAbsent
+          ? const Value.absent()
+          : Value(extractionMeta),
     );
   }
 
@@ -1004,6 +1067,8 @@ class SpendlerTransaction extends DataClass
         json['settlementDirection'],
       ),
       groupId: serializer.fromJson<int?>(json['groupId']),
+      rawInput: serializer.fromJson<String?>(json['rawInput']),
+      extractionMeta: serializer.fromJson<String?>(json['extractionMeta']),
     );
   }
   @override
@@ -1042,6 +1107,8 @@ class SpendlerTransaction extends DataClass
       'counterpartyPersonId': serializer.toJson<int?>(counterpartyPersonId),
       'settlementDirection': serializer.toJson<String?>(settlementDirection),
       'groupId': serializer.toJson<int?>(groupId),
+      'rawInput': serializer.toJson<String?>(rawInput),
+      'extractionMeta': serializer.toJson<String?>(extractionMeta),
     };
   }
 
@@ -1076,6 +1143,8 @@ class SpendlerTransaction extends DataClass
     Value<int?> counterpartyPersonId = const Value.absent(),
     Value<String?> settlementDirection = const Value.absent(),
     Value<int?> groupId = const Value.absent(),
+    Value<String?> rawInput = const Value.absent(),
+    Value<String?> extractionMeta = const Value.absent(),
   }) => SpendlerTransaction(
     id: id ?? this.id,
     amount: amount ?? this.amount,
@@ -1125,6 +1194,10 @@ class SpendlerTransaction extends DataClass
         ? settlementDirection.value
         : this.settlementDirection,
     groupId: groupId.present ? groupId.value : this.groupId,
+    rawInput: rawInput.present ? rawInput.value : this.rawInput,
+    extractionMeta: extractionMeta.present
+        ? extractionMeta.value
+        : this.extractionMeta,
   );
   SpendlerTransaction copyWithCompanion(SpendlerTransactionsCompanion data) {
     return SpendlerTransaction(
@@ -1190,6 +1263,10 @@ class SpendlerTransaction extends DataClass
           ? data.settlementDirection.value
           : this.settlementDirection,
       groupId: data.groupId.present ? data.groupId.value : this.groupId,
+      rawInput: data.rawInput.present ? data.rawInput.value : this.rawInput,
+      extractionMeta: data.extractionMeta.present
+          ? data.extractionMeta.value
+          : this.extractionMeta,
     );
   }
 
@@ -1225,7 +1302,9 @@ class SpendlerTransaction extends DataClass
           ..write('payerPersonId: $payerPersonId, ')
           ..write('counterpartyPersonId: $counterpartyPersonId, ')
           ..write('settlementDirection: $settlementDirection, ')
-          ..write('groupId: $groupId')
+          ..write('groupId: $groupId, ')
+          ..write('rawInput: $rawInput, ')
+          ..write('extractionMeta: $extractionMeta')
           ..write(')'))
         .toString();
   }
@@ -1262,6 +1341,8 @@ class SpendlerTransaction extends DataClass
     counterpartyPersonId,
     settlementDirection,
     groupId,
+    rawInput,
+    extractionMeta,
   ]);
   @override
   bool operator ==(Object other) =>
@@ -1296,7 +1377,9 @@ class SpendlerTransaction extends DataClass
           other.payerPersonId == this.payerPersonId &&
           other.counterpartyPersonId == this.counterpartyPersonId &&
           other.settlementDirection == this.settlementDirection &&
-          other.groupId == this.groupId);
+          other.groupId == this.groupId &&
+          other.rawInput == this.rawInput &&
+          other.extractionMeta == this.extractionMeta);
 }
 
 class SpendlerTransactionsCompanion
@@ -1331,6 +1414,8 @@ class SpendlerTransactionsCompanion
   final Value<int?> counterpartyPersonId;
   final Value<String?> settlementDirection;
   final Value<int?> groupId;
+  final Value<String?> rawInput;
+  final Value<String?> extractionMeta;
   const SpendlerTransactionsCompanion({
     this.id = const Value.absent(),
     this.amount = const Value.absent(),
@@ -1362,6 +1447,8 @@ class SpendlerTransactionsCompanion
     this.counterpartyPersonId = const Value.absent(),
     this.settlementDirection = const Value.absent(),
     this.groupId = const Value.absent(),
+    this.rawInput = const Value.absent(),
+    this.extractionMeta = const Value.absent(),
   });
   SpendlerTransactionsCompanion.insert({
     this.id = const Value.absent(),
@@ -1394,6 +1481,8 @@ class SpendlerTransactionsCompanion
     this.counterpartyPersonId = const Value.absent(),
     this.settlementDirection = const Value.absent(),
     this.groupId = const Value.absent(),
+    this.rawInput = const Value.absent(),
+    this.extractionMeta = const Value.absent(),
   }) : amount = Value(amount),
        category = Value(category);
   static Insertable<SpendlerTransaction> custom({
@@ -1427,6 +1516,8 @@ class SpendlerTransactionsCompanion
     Expression<int>? counterpartyPersonId,
     Expression<String>? settlementDirection,
     Expression<int>? groupId,
+    Expression<String>? rawInput,
+    Expression<String>? extractionMeta,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1464,6 +1555,8 @@ class SpendlerTransactionsCompanion
       if (settlementDirection != null)
         'settlement_direction': settlementDirection,
       if (groupId != null) 'group_id': groupId,
+      if (rawInput != null) 'raw_input': rawInput,
+      if (extractionMeta != null) 'extraction_meta': extractionMeta,
     });
   }
 
@@ -1498,6 +1591,8 @@ class SpendlerTransactionsCompanion
     Value<int?>? counterpartyPersonId,
     Value<String?>? settlementDirection,
     Value<int?>? groupId,
+    Value<String?>? rawInput,
+    Value<String?>? extractionMeta,
   }) {
     return SpendlerTransactionsCompanion(
       id: id ?? this.id,
@@ -1531,6 +1626,8 @@ class SpendlerTransactionsCompanion
       counterpartyPersonId: counterpartyPersonId ?? this.counterpartyPersonId,
       settlementDirection: settlementDirection ?? this.settlementDirection,
       groupId: groupId ?? this.groupId,
+      rawInput: rawInput ?? this.rawInput,
+      extractionMeta: extractionMeta ?? this.extractionMeta,
     );
   }
 
@@ -1631,6 +1728,12 @@ class SpendlerTransactionsCompanion
     if (groupId.present) {
       map['group_id'] = Variable<int>(groupId.value);
     }
+    if (rawInput.present) {
+      map['raw_input'] = Variable<String>(rawInput.value);
+    }
+    if (extractionMeta.present) {
+      map['extraction_meta'] = Variable<String>(extractionMeta.value);
+    }
     return map;
   }
 
@@ -1666,7 +1769,9 @@ class SpendlerTransactionsCompanion
           ..write('payerPersonId: $payerPersonId, ')
           ..write('counterpartyPersonId: $counterpartyPersonId, ')
           ..write('settlementDirection: $settlementDirection, ')
-          ..write('groupId: $groupId')
+          ..write('groupId: $groupId, ')
+          ..write('rawInput: $rawInput, ')
+          ..write('extractionMeta: $extractionMeta')
           ..write(')'))
         .toString();
   }
@@ -9457,6 +9562,8 @@ typedef $$SpendlerTransactionsTableCreateCompanionBuilder =
       Value<int?> counterpartyPersonId,
       Value<String?> settlementDirection,
       Value<int?> groupId,
+      Value<String?> rawInput,
+      Value<String?> extractionMeta,
     });
 typedef $$SpendlerTransactionsTableUpdateCompanionBuilder =
     SpendlerTransactionsCompanion Function({
@@ -9490,6 +9597,8 @@ typedef $$SpendlerTransactionsTableUpdateCompanionBuilder =
       Value<int?> counterpartyPersonId,
       Value<String?> settlementDirection,
       Value<int?> groupId,
+      Value<String?> rawInput,
+      Value<String?> extractionMeta,
     });
 
 class $$SpendlerTransactionsTableFilterComposer
@@ -9648,6 +9757,16 @@ class $$SpendlerTransactionsTableFilterComposer
 
   ColumnFilters<int> get groupId => $composableBuilder(
     column: $table.groupId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get rawInput => $composableBuilder(
+    column: $table.rawInput,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get extractionMeta => $composableBuilder(
+    column: $table.extractionMeta,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -9810,6 +9929,16 @@ class $$SpendlerTransactionsTableOrderingComposer
     column: $table.groupId,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get rawInput => $composableBuilder(
+    column: $table.rawInput,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get extractionMeta => $composableBuilder(
+    column: $table.extractionMeta,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$SpendlerTransactionsTableAnnotationComposer
@@ -9942,6 +10071,14 @@ class $$SpendlerTransactionsTableAnnotationComposer
 
   GeneratedColumn<int> get groupId =>
       $composableBuilder(column: $table.groupId, builder: (column) => column);
+
+  GeneratedColumn<String> get rawInput =>
+      $composableBuilder(column: $table.rawInput, builder: (column) => column);
+
+  GeneratedColumn<String> get extractionMeta => $composableBuilder(
+    column: $table.extractionMeta,
+    builder: (column) => column,
+  );
 }
 
 class $$SpendlerTransactionsTableTableManager
@@ -10017,6 +10154,8 @@ class $$SpendlerTransactionsTableTableManager
                 Value<int?> counterpartyPersonId = const Value.absent(),
                 Value<String?> settlementDirection = const Value.absent(),
                 Value<int?> groupId = const Value.absent(),
+                Value<String?> rawInput = const Value.absent(),
+                Value<String?> extractionMeta = const Value.absent(),
               }) => SpendlerTransactionsCompanion(
                 id: id,
                 amount: amount,
@@ -10048,6 +10187,8 @@ class $$SpendlerTransactionsTableTableManager
                 counterpartyPersonId: counterpartyPersonId,
                 settlementDirection: settlementDirection,
                 groupId: groupId,
+                rawInput: rawInput,
+                extractionMeta: extractionMeta,
               ),
           createCompanionCallback:
               ({
@@ -10081,6 +10222,8 @@ class $$SpendlerTransactionsTableTableManager
                 Value<int?> counterpartyPersonId = const Value.absent(),
                 Value<String?> settlementDirection = const Value.absent(),
                 Value<int?> groupId = const Value.absent(),
+                Value<String?> rawInput = const Value.absent(),
+                Value<String?> extractionMeta = const Value.absent(),
               }) => SpendlerTransactionsCompanion.insert(
                 id: id,
                 amount: amount,
@@ -10112,6 +10255,8 @@ class $$SpendlerTransactionsTableTableManager
                 counterpartyPersonId: counterpartyPersonId,
                 settlementDirection: settlementDirection,
                 groupId: groupId,
+                rawInput: rawInput,
+                extractionMeta: extractionMeta,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

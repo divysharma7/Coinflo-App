@@ -96,7 +96,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
         children: [
           const Text('CATEGORY', style: AppTextStyles.labelM),
           const SizedBox(height: AppSpacing.md),
-          ...TransactionCategory.groups.map((cat) {
+          ...TransactionCategory.pickableGroups.map((cat) {
             final selected = _category == cat;
             final catColor = AppColors.categoryColor(cat);
             return ListTile(

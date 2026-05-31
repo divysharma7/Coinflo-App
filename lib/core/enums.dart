@@ -16,6 +16,7 @@ enum TransactionCategory {
   investments,
   insurance,
   other,
+  settlement,
 
   // Legacy subcategory values kept for backward compatibility.
   streaming,
@@ -52,7 +53,12 @@ enum TransactionCategory {
         investments,
         insurance,
         other,
+        settlement,
       ];
+
+  /// Categories available for manual expense/income entry (excludes settlement).
+  static List<TransactionCategory> get pickableGroups =>
+      groups.where((c) => c != settlement).toList();
 
   String get label {
     switch (this) {
@@ -90,6 +96,8 @@ enum TransactionCategory {
         return 'Insurance';
       case other:
         return 'Other';
+      case settlement:
+        return 'Settlement';
     }
   }
 
@@ -130,6 +138,8 @@ enum TransactionCategory {
         return PhosphorIcons.shieldCheck();
       case other:
         return PhosphorIcons.dotsThreeCircle();
+      case settlement:
+        return PhosphorIcons.handshake();
     }
   }
 
@@ -170,6 +180,8 @@ enum TransactionCategory {
         return PhosphorIconsFill.shieldCheck;
       case other:
         return PhosphorIconsFill.dotsThreeCircle;
+      case settlement:
+        return PhosphorIconsFill.handshake;
     }
   }
 }

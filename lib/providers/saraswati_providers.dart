@@ -4,11 +4,24 @@ import 'package:finance_buddy_app/providers/database_providers.dart';
 import 'package:finance_buddy_app/providers/transaction_providers.dart';
 import 'package:finance_buddy_app/providers/plan_providers.dart';
 import 'package:finance_buddy_app/services/saraswati/cache/intent_cache_repository.dart';
+import 'package:finance_buddy_app/services/saraswati/entry/amount_sanity_checker.dart';
+import 'package:finance_buddy_app/services/saraswati/entry/disambiguation_engine.dart';
+import 'package:finance_buddy_app/services/saraswati/entry/entry_action.dart';
+import 'package:finance_buddy_app/services/saraswati/entry/entry_cache_repository.dart';
+import 'package:finance_buddy_app/services/saraswati/entry/entry_executor.dart';
+import 'package:finance_buddy_app/services/saraswati/entry/llm/entry_extractor_prompt.dart';
+import 'package:finance_buddy_app/services/saraswati/entry/llm/llm_entry_extractor.dart';
+import 'package:finance_buddy_app/services/saraswati/entry/pattern_matcher.dart';
+import 'package:finance_buddy_app/services/saraswati/entry/personal_defaults_repository.dart';
+import 'package:finance_buddy_app/services/saraswati/entry/quickadd_matcher.dart';
 import 'package:finance_buddy_app/services/saraswati/intent/intent_executor.dart';
 import 'package:finance_buddy_app/services/saraswati/intent/keyword_intent_matcher.dart';
 import 'package:finance_buddy_app/services/saraswati/intent/saraswati_intent.dart';
 import 'package:finance_buddy_app/services/saraswati/llm/llm_classifier_prompt.dart';
 import 'package:finance_buddy_app/services/saraswati/llm/llm_intent_classifier.dart';
+import 'package:finance_buddy_app/services/saraswati/saraswati_entry_service.dart';
+import 'package:finance_buddy_app/services/saraswati/saraswati_router.dart';
+import 'package:finance_buddy_app/services/saraswati/entry/transaction_draft.dart';
 import 'package:finance_buddy_app/services/saraswati/saraswati_service.dart';
 import 'package:intl/intl.dart';
 
@@ -18,11 +31,15 @@ class SaraswatiMessage {
     required this.text,
     required this.isUser,
     DateTime? timestamp,
+    this.entryAction,
   }) : timestamp = timestamp ?? DateTime.now();
 
   final String text;
   final bool isUser;
   final DateTime timestamp;
+
+  /// Non-null when this message is an entry pipeline response.
+  final EntryAction? entryAction;
 }
 
 // ─── Dependency providers ────────────────────────────────
@@ -63,6 +80,57 @@ final saraswatiServiceProvider = Provider<SaraswatiService>((ref) {
     cache: ref.watch(_intentCacheProvider),
     llm: ref.watch(_llmClassifierProvider),
   );
+});
+
+// ─── Entry pipeline providers ───────────────────────────────
+
+/// Gemini model configured for transaction extraction.
+final _entryExtractorModelProvider = Provider<GenerativeModel>((ref) {
+  return FirebaseAI.googleAI().generativeModel(
+    model: 'gemini-2.0-flash',
+    systemInstruction: Content.system(kEntryExtractorSystemPrompt),
+  );
+});
+
+final _llmEntryExtractorProvider = Provider<LlmEntryExtractor>((ref) {
+  return LlmEntryExtractor(ref.watch(_entryExtractorModelProvider));
+});
+
+final _entryCacheProvider = Provider<EntryCacheRepository>((ref) {
+  return EntryCacheRepository(ref.watch(databaseProvider));
+});
+
+final _personalDefaultsProvider = Provider<PersonalDefaultsRepository>((ref) {
+  return PersonalDefaultsRepository(ref.watch(databaseProvider));
+});
+
+final _entryExecutorProvider = Provider<EntryExecutor>((ref) {
+  return EntryExecutor(
+    ref.watch(repositoryProvider),
+    ref.watch(_personalDefaultsProvider),
+  );
+});
+
+final saraswatiEntryServiceProvider = Provider<SaraswatiEntryService>((ref) {
+  return SaraswatiEntryService(
+    quickaddMatcher: const QuickaddMatcher(),
+    patternMatcher: const PatternMatcher(),
+    cache: ref.watch(_entryCacheProvider),
+    llm: ref.watch(_llmEntryExtractorProvider),
+    defaults: ref.watch(_personalDefaultsProvider),
+    disambiguation: const DisambiguationEngine(
+      sanityChecker: AmountSanityChecker(),
+    ),
+  );
+});
+
+final saraswatiRouterProvider = Provider<SaraswatiRouter>((ref) {
+  return const SaraswatiRouter();
+});
+
+/// Provides the entry executor for undo operations.
+final saraswatiEntryExecutorProvider = Provider<EntryExecutor>((ref) {
+  return ref.watch(_entryExecutorProvider);
 });
 
 // ─── Financial context ───────────────────────────────────
@@ -119,17 +187,26 @@ final saraswatiFinancialContextProvider = Provider<String>((ref) {
 
 /// Manages the chat message history and handles sending new queries.
 class SaraswatiChatNotifier extends StateNotifier<List<SaraswatiMessage>> {
-  SaraswatiChatNotifier(this._service, this._financialContext)
-      : super([_welcomeMessage]);
+  SaraswatiChatNotifier(
+    this._service,
+    this._entryService,
+    this._router,
+    this._entryExecutor,
+    this._financialContext,
+  ) : super([_welcomeMessage]);
 
   final SaraswatiService _service;
+  final SaraswatiEntryService _entryService;
+  final SaraswatiRouter _router;
+  final EntryExecutor _entryExecutor;
   final String _financialContext;
 
   static final _welcomeMessage = SaraswatiMessage(
     text: "Hey, I'm Saraswati! I live inside your transaction data "
         "and I'm here to help you make sense of it all.\n\n"
         "Ask me anything \u2014 like *\"how much did I spend this week?\"* "
-        "or *\"show me a category breakdown\"*.",
+        "or *\"show me a category breakdown\"*. You can also log expenses "
+        "\u2014 just type *\"100 coffee\"* or *\"split 600 with rahul\"*.",
     isUser: false,
   );
 
@@ -144,23 +221,128 @@ class SaraswatiChatNotifier extends StateNotifier<List<SaraswatiMessage>> {
     state = [...state, SaraswatiMessage(text: trimmed, isUser: true)];
 
     _isProcessing = true;
-    // Force a state update so UI can show typing indicator
     state = [...state];
 
     try {
-      final reply = await _service.ask(trimmed, context: _financialContext);
-      state = [...state, SaraswatiMessage(text: reply, isUser: false)];
+      final route = _router.classify(trimmed.toLowerCase());
+
+      switch (route) {
+        case SaraswatiRoute.entry:
+          await _handleEntry(trimmed);
+        case SaraswatiRoute.question:
+          await _handleQuery(trimmed);
+        case SaraswatiRoute.ambiguous:
+          // Try entry first; if it falls back to form, try query instead.
+          final action = await _entryService.processEntry(trimmed);
+          if (action is QuickFormFallbackAction &&
+              action.reason == 'unrecognized') {
+            await _handleQuery(trimmed);
+          } else {
+            _addEntryAction(action);
+          }
+      }
     } on Exception catch (_) {
       state = [
         ...state,
         SaraswatiMessage(
-          text: "Oops, something went wrong while crunching the numbers. "
-              "Give it another try!",
+          text: "Oops, something went wrong. Give it another try!",
           isUser: false,
         ),
       ];
     } finally {
       _isProcessing = false;
+    }
+  }
+
+  /// Handle a chip selection from an AskOneQuestionAction.
+  Future<void> confirmEntryField(
+    EntryAction originalAction,
+    String fieldName,
+    String selectedValue,
+  ) async {
+    if (_isProcessing) return;
+    if (originalAction is! AskOneQuestionAction) return;
+
+    _isProcessing = true;
+    state = [...state];
+
+    try {
+      var draft = originalAction.partialDraft;
+
+      // Apply the confirmed field.
+      switch (fieldName) {
+        case 'category':
+          draft = draft.copyWith(
+            category: () => selectedValue,
+            fieldConfidence: {
+              ...draft.fieldConfidence,
+              'category': 1.0,
+            },
+          );
+        case 'counterparty':
+          draft = draft.copyWith(
+            counterparty: () => selectedValue,
+            fieldConfidence: {
+              ...draft.fieldConfidence,
+              'counterparty': 1.0,
+            },
+          );
+        case 'amount':
+          final amount = double.tryParse(selectedValue);
+          if (amount != null) {
+            draft = draft.copyWith(
+              amount: () => amount,
+              fieldConfidence: {
+                ...draft.fieldConfidence,
+                'amount': 1.0,
+              },
+            );
+          }
+        case 'split_with':
+          // Confirmation tap on split — proceed with commit.
+          break;
+      }
+
+      // Commit the confirmed draft.
+      final txnId = await _entryExecutor.commit(draft);
+      await _entryService.cacheConfirmedEntry(draft.rawInput, draft);
+
+      state = [
+        ...state,
+        SaraswatiMessage(
+          text: _formatCommitMessage(draft),
+          isUser: false,
+          entryAction: SilentCommitAction(draft),
+        ),
+      ];
+
+      // Store the transaction ID for undo.
+      _lastCommittedTxnId = txnId;
+    } on Exception catch (_) {
+      state = [
+        ...state,
+        SaraswatiMessage(
+          text: "Couldn't save that entry. Please try again.",
+          isUser: false,
+        ),
+      ];
+    } finally {
+      _isProcessing = false;
+    }
+  }
+
+  /// Undo the last committed entry.
+  int? _lastCommittedTxnId;
+
+  Future<bool> undoLastEntry() async {
+    final txnId = _lastCommittedTxnId;
+    if (txnId == null) return false;
+    try {
+      await _entryExecutor.undo(txnId);
+      _lastCommittedTxnId = null;
+      return true;
+    } on Exception catch (_) {
+      return false;
     }
   }
 
@@ -196,6 +378,79 @@ class SaraswatiChatNotifier extends StateNotifier<List<SaraswatiMessage>> {
   void clear() {
     state = [_welcomeMessage];
     _isProcessing = false;
+    _lastCommittedTxnId = null;
+  }
+
+  // ─── Private ──────────────────────────────────────────
+
+  Future<void> _handleQuery(String query) async {
+    final reply = await _service.ask(query, context: _financialContext);
+    state = [...state, SaraswatiMessage(text: reply, isUser: false)];
+  }
+
+  Future<void> _handleEntry(String query) async {
+    final action = await _entryService.processEntry(query);
+    _addEntryAction(action);
+  }
+
+  void _addEntryAction(EntryAction action) {
+    switch (action) {
+      case SilentCommitAction(:final draft):
+        // Auto-commit and show undo.
+        _autoCommit(draft);
+      case AskOneQuestionAction():
+        state = [
+          ...state,
+          SaraswatiMessage(
+            text: action.questionText,
+            isUser: false,
+            entryAction: action,
+          ),
+        ];
+      case QuickFormFallbackAction():
+        state = [
+          ...state,
+          SaraswatiMessage(
+            text: "I'll open the form for you to fill in the details.",
+            isUser: false,
+            entryAction: action,
+          ),
+        ];
+    }
+  }
+
+  Future<void> _autoCommit(TransactionDraft draft) async {
+    try {
+      final txnId = await _entryExecutor.commit(draft);
+      _lastCommittedTxnId = txnId;
+      await _entryService.cacheConfirmedEntry(draft.rawInput, draft);
+      state = [
+        ...state,
+        SaraswatiMessage(
+          text: _formatCommitMessage(draft),
+          isUser: false,
+          entryAction: SilentCommitAction(draft),
+        ),
+      ];
+    } on Exception catch (_) {
+      state = [
+        ...state,
+        SaraswatiMessage(
+          text: "Couldn't save that entry. Please try again.",
+          isUser: false,
+        ),
+      ];
+    }
+  }
+
+  String _formatCommitMessage(TransactionDraft draft) {
+    final amount = draft.amount?.toStringAsFixed(
+            draft.amount == draft.amount!.roundToDouble() ? 0 : 2) ??
+        '?';
+    final category = draft.category ?? draft.kind.name;
+    final who = draft.counterparty ?? '';
+    final whoSuffix = who.isNotEmpty ? ' ($who)' : '';
+    return 'Logged \u20B9$amount $category$whoSuffix';
   }
 }
 
@@ -203,8 +458,17 @@ class SaraswatiChatNotifier extends StateNotifier<List<SaraswatiMessage>> {
 final saraswatiChatProvider =
     StateNotifierProvider<SaraswatiChatNotifier, List<SaraswatiMessage>>((ref) {
   final service = ref.watch(saraswatiServiceProvider);
+  final entryService = ref.watch(saraswatiEntryServiceProvider);
+  final router = ref.watch(saraswatiRouterProvider);
+  final entryExecutor = ref.watch(_entryExecutorProvider);
   final context = ref.watch(saraswatiFinancialContextProvider);
-  return SaraswatiChatNotifier(service, context);
+  return SaraswatiChatNotifier(
+    service,
+    entryService,
+    router,
+    entryExecutor,
+    context,
+  );
 });
 
 /// Whether Saraswati is currently processing a query.

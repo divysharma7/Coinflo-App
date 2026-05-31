@@ -11,4 +11,5 @@ abstract class SplitRepository {
   Stream<List<TransactionSplit>> watchSplitsForTransaction(int txnId);
   Future<double> getBalanceForPerson(int personId);
   Stream<double> watchBalanceForPerson(int personId);
+  Stream<List<SpendlerTransaction>> watchTransactionsForPerson(int personId);
 }

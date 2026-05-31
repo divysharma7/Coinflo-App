@@ -73,4 +73,17 @@ class LocalSplitRepository implements SplitRepository {
       return rows.first.read<double>('balance');
     });
   }
+
+  @override
+  Stream<List<SpendlerTransaction>> watchTransactionsForPerson(int personId) {
+    final splitTxnIds = db.selectOnly(db.transactionSplits)
+      ..addColumns([db.transactionSplits.transactionId])
+      ..where(db.transactionSplits.personId.equals(personId));
+
+    return (db.select(db.spendlerTransactions)
+          ..where((t) =>
+              t.id.isInQuery(splitTxnIds) | t.payerPersonId.equals(personId))
+          ..orderBy([(t) => OrderingTerm.desc(t.happenedAt)]))
+        .watch();
+  }
 }

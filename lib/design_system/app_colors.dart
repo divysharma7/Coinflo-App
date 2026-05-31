@@ -74,6 +74,7 @@ class AppColors {
     TransactionCategory.investments: Color(0xFF2563EB),
     TransactionCategory.insurance: Color(0xFF7C3AED),
     TransactionCategory.other: Color(0xFF6E6E73),
+    TransactionCategory.settlement: Color(0xFF059669),
   };
 
   static Color categoryColor(TransactionCategory cat) =>
@@ -99,6 +100,7 @@ class AppColors {
     TransactionCategory.investments: catBlueBg,
     TransactionCategory.insurance: catPurpleBg,
     TransactionCategory.other: catGrayBg,
+    TransactionCategory.settlement: catGreenBg,
   };
 
   static const Map<TransactionCategory, Color> _categoryFgMap = {
@@ -116,6 +118,7 @@ class AppColors {
     TransactionCategory.investments: catBlueText,
     TransactionCategory.insurance: catPurpleText,
     TransactionCategory.other: catGrayText,
+    TransactionCategory.settlement: catGreenText,
   };
 
   /// Background / tint colour for a category pill or avatar.

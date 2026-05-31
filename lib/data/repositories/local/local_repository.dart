@@ -347,6 +347,10 @@ class LocalRepository extends BaseRepository {
   Stream<double> watchBalanceForPerson(int personId) =>
       _splitRepo.watchBalanceForPerson(personId);
 
+  @override
+  Stream<List<SpendlerTransaction>> watchTransactionsForPerson(int personId) =>
+      _splitRepo.watchTransactionsForPerson(personId);
+
   // ─── Cross-cutting ────────────────────────────────
 
   @override

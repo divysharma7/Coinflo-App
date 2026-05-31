@@ -18,3 +18,9 @@ final personBalanceProvider =
   final repo = ref.watch(repositoryProvider);
   return repo.watchPersonBalance(personId);
 });
+
+final personTransactionsProvider =
+    StreamProvider.family<List<SpendlerTransaction>, int>((ref, personId) {
+  final repo = ref.watch(repositoryProvider);
+  return repo.watchTransactionsForPerson(personId);
+});

@@ -8,8 +8,13 @@ import 'package:finance_buddy_app/widgets/common/animated_amount.dart';
 import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 import 'package:finance_buddy_app/widgets/common/error_card.dart';
 import 'package:finance_buddy_app/pages/people/person_edit_sheet.dart';
-import 'package:finance_buddy_app/pages/add/settlement_form.dart';
+import 'package:finance_buddy_app/pages/people/expense_sheet.dart';
 import 'package:finance_buddy_app/utils/currency_utils.dart';
+import 'package:finance_buddy_app/core/enums.dart';
+import 'package:finance_buddy_app/widgets/common/transaction_actions.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:finance_buddy_app/widgets/common/animations.dart';
 
 final _personProvider =
     FutureProvider.family<Person?, int>((ref, id) async {
@@ -166,15 +171,14 @@ class PersonDetailPage extends ConsumerWidget {
                       ),
                       const SizedBox(height: AppSpacing.md),
 
-                      // Settle Up button
+                      // Record expense button (always visible)
                       balanceAsync.when(
                         data: (balance) {
-                          if (balance == 0) return const SizedBox.shrink();
                           return AppButton(
-                            label: 'Settle Up',
+                            label: 'Record expense',
                             onTap: () => showSpendlerSheet<void>(
                               context: context,
-                              builder: (_) => SettlementForm(
+                              builder: (_) => ExpenseSheet(
                                 person: person,
                                 balance: balance,
                               ),
@@ -187,28 +191,104 @@ class PersonDetailPage extends ConsumerWidget {
 
                       const SizedBox(height: AppSpacing.xl),
 
-                      // Transaction history placeholder
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(AppSpacing.xl),
-                        decoration: BoxDecoration(
-                          color: AppColors.white,
-                          borderRadius: AppRadius.mdLg,
-                          border: Border.all(color: AppColors.gray200),
-                        ),
-                        child: Column(
-                          children: [
-                            PhosphorIcon(PhosphorIcons.receipt(),
-                                size: 36, color: AppColors.gray300),
-                            const SizedBox(height: AppSpacing.sm),
-                            Text(
-                              'Transaction history will appear here\nonce splits are added.',
-                              style: AppTextStyles.bodyS
-                                  .copyWith(color: AppColors.gray500),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
+                      // Transaction history
+                      ref.watch(personTransactionsProvider(personId)).when(
+                        data: (txns) {
+                          if (txns.isEmpty) {
+                            return Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(AppSpacing.xl),
+                              decoration: BoxDecoration(
+                                color: AppColors.white,
+                                borderRadius: AppRadius.mdLg,
+                                border: Border.all(color: AppColors.gray200),
+                              ),
+                              child: Column(
+                                children: [
+                                  PhosphorIcon(PhosphorIcons.receipt(),
+                                      size: 36, color: AppColors.gray300),
+                                  const SizedBox(height: AppSpacing.sm),
+                                  Text(
+                                    'No transactions yet.\nTap "Record expense" to get started.',
+                                    style: AppTextStyles.bodyS
+                                        .copyWith(color: AppColors.gray500),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('HISTORY',
+                                  style: AppTextStyles.labelM
+                                      .copyWith(color: AppColors.gray500)),
+                              const SizedBox(height: AppSpacing.sm),
+                              ...txns.map((t) {
+                                final cat = TransactionCategory.values.firstWhere(
+                                  (c) => c.name == t.category,
+                                  orElse: () => TransactionCategory.other,
+                                );
+                                final catColor = AppColors.categoryColor(cat);
+                                final isSettlement = t.category == 'settlement';
+                                final isPositive = t.amount > 0;
+
+                                return PressableCard(
+                                  onTap: () => context.push('/transaction/${t.id}'),
+                                  onLongPress: () => showTransactionActions(context, ref, t, sym),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 10, horizontal: AppSpacing.xs),
+                                    child: Row(
+                                      children: [
+                                        CircleAvatar(
+                                          backgroundColor:
+                                              catColor.withValues(alpha: 0.15),
+                                          child: Icon(cat.iconFill,
+                                              color: catColor, size: 20),
+                                        ),
+                                        const SizedBox(width: AppSpacing.sm),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                t.note ?? t.merchant ?? cat.label,
+                                                style: AppTextStyles.bodyM,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              const SizedBox(height: 2),
+                                              Text(
+                                                DateFormat('d MMM, h:mm a')
+                                                    .format(t.happenedAt),
+                                                style: const TextStyle(
+                                                    fontSize: 12,
+                                                    color: AppColors.gray500),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Text(
+                                          '${isPositive ? '+' : '-'}$sym${t.amount.abs().toStringAsFixed(0)}',
+                                          style: AppTextStyles.numericL.copyWith(
+                                            color: isSettlement && isPositive
+                                                ? AppColors.green
+                                                : AppColors.black,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }),
+                            ],
+                          );
+                        },
+                        loading: () => const SizedBox(height: 48),
+                        error: (_, __) => const ErrorCard(),
                       ),
                       const SizedBox(height: AppSpacing.xxxl),
                     ],
