@@ -98,7 +98,7 @@ class FirestoreService {
 
     // Commit everything atomically
     await batch.commit();
-    debugPrint('Firestore: synced all onboarding data for $uid');
+    if (kDebugMode) debugPrint('Firestore: synced all onboarding data for $uid');
   }
 
   // ─── Fetch data for returning users ───────────────────
@@ -171,7 +171,7 @@ class FirestoreService {
       await prefs.setString('recurring_payments', jsonEncode(paymentsList));
     }
 
-    debugPrint('Firestore: hydrated local data for $uid');
+    if (kDebugMode) debugPrint('Firestore: hydrated local data for $uid');
   }
 
   /// Update user profile fields.

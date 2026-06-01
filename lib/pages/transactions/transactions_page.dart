@@ -68,16 +68,16 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
             children: [
               const Text('TRANSACTIONS', style: AppTextStyles.labelM),
               const Spacer(),
-              // H12: Semantics for filter button
               Semantics(
                 button: true,
                 label: filters.hasAnyFilter
-                    ? 'Filter, ${_activeFilterCount(filters)} active'
-                    : 'Filter',
+                    ? 'Filter transactions, ${_activeFilterCount(filters)} filters active'
+                    : 'Filter transactions',
+                hint: 'Opens filter options',
                 child: GestureDetector(
                   onTap: () => _showFilterSheet(context, ref),
                   child: Container(
-                    constraints: const BoxConstraints(minHeight: 48),
+                    constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: AppSpacing.xs),
                     decoration: BoxDecoration(
                       color: filters.hasAnyFilter
@@ -208,11 +208,19 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                     ),
                   ),
                 ),
-                GestureDetector(
-                  onTap: () => ref.read(transactionFiltersProvider.notifier).state = TransactionFilters.empty,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: AppSpacing.xs),
-                    child: const Text('Clear all', style: TextStyle(color: AppColors.black, fontSize: 12, fontWeight: FontWeight.w500)),
+                Semantics(
+                  button: true,
+                  label: 'Clear all filters',
+                  child: GestureDetector(
+                    onTap: () => ref.read(transactionFiltersProvider.notifier).state = TransactionFilters.empty,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: AppSpacing.xs),
+                      child: Container(
+                        constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+                        alignment: Alignment.center,
+                        child: const Text('Clear all', style: TextStyle(color: AppColors.black, fontSize: 12, fontWeight: FontWeight.w500)),
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -335,6 +343,7 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
               return RefreshIndicator(
                 color: AppColors.black,
                 backgroundColor: AppColors.white,
+                semanticsLabel: 'Pull to refresh transactions',
                 onRefresh: () async {
                   ref.invalidate(filteredTransactionsProvider);
                 },
@@ -344,7 +353,12 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                 ),
               );
             },
-            loading: () => const Center(child: CircularProgressIndicator(color: AppColors.black)),
+            loading: () => Center(
+              child: Semantics(
+                label: 'Loading transactions',
+                child: CircularProgressIndicator(color: AppColors.black),
+              ),
+            ),
             error: (_, __) => Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -358,7 +372,7 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                       foregroundColor: AppColors.white,
                       shape: RoundedRectangleBorder(borderRadius: AppRadius.s),
                     ),
-                    child: const Text('Retry'),
+                    child: const Text('Retry loading transactions'),
                   ),
                 ],
               ),
@@ -383,8 +397,10 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
           '$sym${t.amount.abs().toStringAsFixed(0)}, '
           '${DateFormat("d MMM").format(t.happenedAt)}'
           '${isUnconfirmed ? ", pending confirmation" : ""}',
+      hint: 'Double-tap to view details. Double-tap and hold for more options.',
       button: true,
       onTap: () => context.push('/transaction/${t.id}'),
+      onLongPressHint: 'Edit or delete',
       onLongPress: () => showTransactionActions(context, ref, t, sym),
       child: ExcludeSemantics(
         child: PressableCard(
@@ -421,10 +437,12 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          PhosphorIcon(
-                            isSent ? PhosphorIcons.arrowUpRight() : PhosphorIcons.arrowDownLeft(),
-                            size: 14,
-                            color: isSent ? AppColors.red : AppColors.green,
+                          ExcludeSemantics(
+                            child: PhosphorIcon(
+                              isSent ? PhosphorIcons.arrowUpRight() : PhosphorIcons.arrowDownLeft(),
+                              size: 14,
+                              color: isSent ? AppColors.red : AppColors.green,
+                            ),
                           ),
                         ],
                       ),
@@ -540,9 +558,17 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text('FILTERS', style: AppTextStyles.labelM),
-              GestureDetector(
-                onTap: () => setState(() => _draft = TransactionFilters.empty),
-                child: const Text('Clear all', style: TextStyle(color: AppColors.black, fontSize: 12, fontWeight: FontWeight.w500)),
+              Semantics(
+                button: true,
+                label: 'Clear all filters',
+                child: GestureDetector(
+                  onTap: () => setState(() => _draft = TransactionFilters.empty),
+                  child: Container(
+                    constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+                    alignment: Alignment.center,
+                    child: const Text('Clear all', style: TextStyle(color: AppColors.black, fontSize: 12, fontWeight: FontWeight.w500)),
+                  ),
+                ),
               ),
             ],
           ),
@@ -727,10 +753,11 @@ class _ChipOption extends StatelessWidget {
       label: label,
       checked: selected,
       button: true,
+      hint: selected ? 'Double-tap to remove filter' : 'Double-tap to apply filter',
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          constraints: const BoxConstraints(minHeight: 48),
+          constraints: const BoxConstraints(minHeight: 44),
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
           decoration: BoxDecoration(
             color: selected ? AppColors.black.withValues(alpha: 0.12) : AppColors.white,
@@ -772,13 +799,12 @@ class _ActiveChip extends StatelessWidget {
         children: [
           Text(label, style: const TextStyle(color: AppColors.black, fontSize: 11, fontWeight: FontWeight.w500)),
           const SizedBox(width: AppSpacing.xxs),
-          // H2: Minimum touch target for dismiss icon
           IconButton(
             onPressed: onRemove,
             icon: PhosphorIcon(PhosphorIcons.x(), size: 12, color: AppColors.black),
             tooltip: 'Remove $label filter',
             padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
             iconSize: 12,
           ),
         ],

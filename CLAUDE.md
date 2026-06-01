@@ -7,9 +7,9 @@ CoinFlo (codebase: `finance_buddy_app`, legacy prefix: `Spendler`) is a Flutter 
 ## Tech Stack
 
 - Flutter + Dart
-- Drift ORM (SQLite), schema v11, 19 tables
+- Drift ORM (SQLite), schema v13, 19 tables
 - Riverpod (providers, streams, FutureProvider.family)
-- GoRouter with ShellRoute (4-tab + nested)
+- GoRouter: single `/home` route hosts a 4-tab `IndexedStack` (Home/Report/Plan/Settings) via `selectedTabProvider` (`shell_page.dart`); other screens are nested push routes — **no ShellRoute**
 - Custom design system: AppColors, AppTextStyles, AppSpacing, AppRadius, AppShadows, AppDurations
 - Phosphor Flutter icons, flutter_animate
 
@@ -61,7 +61,7 @@ All 6 phases of the People & Debts plan are complete. The plan file lives at `.c
 ### Known Gaps
 | Gap | Fix |
 |-----|-----|
-| Transaction tile gesture inconsistency (3/4 screens) | Extract `_showTransactionActions()` to shared util |
+| ~~Transaction tile gesture inconsistency~~ ✅ RESOLVED | Shared `showTransactionActions` in `lib/widgets/common/transaction_actions.dart`, wired across home, daily-view, transactions, category & person screens |
 | Home goal cards read-only | Wire existing `_AddGoalSheet` from plan_page |
 | Single Firebase project (dev+prod) | Firebase project config split |
 
