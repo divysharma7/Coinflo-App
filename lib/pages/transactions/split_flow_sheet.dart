@@ -138,28 +138,31 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
   // Mode selection tiles
   // ────────────────────────────────────────────────────────
   Widget _buildModeTiles() {
-    return Row(
-      children: [
-        Expanded(
-          child: _modeTile(
-            mode: _SplitMode.equal,
-            icon: PhosphorIcons.divide(),
-            label: 'Equal Split',
-            sublabel: _mode != null
-                ? '$_sym${(_equalMyShare).toStringAsFixed(0)} each'
-                : null,
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: _modeTile(
+              mode: _SplitMode.equal,
+              icon: PhosphorIcons.divide(),
+              label: 'Equal Split',
+              sublabel: _mode == _SplitMode.equal
+                  ? '$_sym${(_equalMyShare).toStringAsFixed(0)} each'
+                  : 'Divide it evenly',
+            ),
           ),
-        ),
-        const SizedBox(width: AppSpacing.sm),
-        Expanded(
-          child: _modeTile(
-            mode: _SplitMode.custom,
-            icon: PhosphorIcons.slidersHorizontal(),
-            label: 'Custom Amounts',
-            sublabel: "Set each person's share",
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: _modeTile(
+              mode: _SplitMode.custom,
+              icon: PhosphorIcons.slidersHorizontal(),
+              label: 'Custom Amounts',
+              sublabel: "Set each person's share",
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -196,6 +199,7 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
           ),
         ),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             PhosphorIcon(
               icon,
@@ -284,25 +288,28 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
         ),
         const SizedBox(height: AppSpacing.md),
 
-        // Summary card
+        // Summary card — near-black hero surface
         Container(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [AppColors.gray600, AppColors.white],
-            ),
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          decoration: const BoxDecoration(
+            color: AppColors.nearBlack,
             borderRadius: AppRadius.lg,
-            boxShadow: AppShadows.sm,
+            boxShadow: AppShadows.hero,
           ),
           child: Column(
             children: [
               _summaryRow(
-                  'Your share', '$_sym${_equalMyShare.toStringAsFixed(0)}'),
-              const SizedBox(height: AppSpacing.sm),
+                'Your share',
+                '$_sym${_equalMyShare.toStringAsFixed(0)}',
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Divider(height: 1, color: AppColors.white.withValues(alpha: 0.1)),
+              const SizedBox(height: AppSpacing.md),
               _summaryRow(
-                  'Others owe you', '$_sym${_equalOthersOwe.toStringAsFixed(0)}'),
+                'Others owe you',
+                '$_sym${_equalOthersOwe.toStringAsFixed(0)}',
+                valueColor: AppColors.greenLifted,
+              ),
             ],
           ),
         ),
@@ -310,6 +317,8 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
 
         NeoPOPButton(
           label: 'Confirm Split',
+          textColor: AppColors.white,
+          shadowColor: AppColors.gray600,
           onTap: () => _confirmEqualSplit(),
         ),
       ],
@@ -385,6 +394,8 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
           opacity: isBalanced ? 1.0 : 0.4,
           child: NeoPOPButton(
             label: 'Confirm Split',
+            textColor: AppColors.white,
+            shadowColor: AppColors.gray600,
             onTap: isBalanced
                 ? () => _confirmCustomSplit()
                 : null,
@@ -625,18 +636,18 @@ class _SplitFlowSheetState extends ConsumerState<SplitFlowSheet> {
     );
   }
 
-  Widget _summaryRow(String label, String value) {
+  Widget _summaryRow(String label, String value, {Color? valueColor}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           label,
-          style:
-              AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
+          style: AppTextStyles.bodyM.copyWith(color: AppColors.gray400),
         ),
         Text(
           value,
-          style: AppTextStyles.headingM.copyWith(color: AppColors.black),
+          style: AppTextStyles.headingM
+              .copyWith(color: valueColor ?? AppColors.white),
         ),
       ],
     );
