@@ -17,14 +17,28 @@ class AssistantBubble extends StatelessWidget {
         top: AppSpacing.xs,
         bottom: AppSpacing.xs,
       ),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(AppSpacing.md),
-        decoration: BoxDecoration(
-          color: AppColors.offWhite,
-          borderRadius: AppRadius.lg,
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.sizeOf(context).width * 0.82,
+          ),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: 13,
+          ),
+          decoration: const BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+              bottomRight: Radius.circular(20),
+              bottomLeft: Radius.circular(6), // squared corner
+            ),
+            boxShadow: AppShadows.sm,
+          ),
+          child: MarkdownText(text: text),
         ),
-        child: MarkdownText(text: text),
       ),
     ).animate()
         .fadeIn(duration: AppDurations.base)

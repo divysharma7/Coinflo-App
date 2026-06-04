@@ -5,6 +5,21 @@ import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 
+/// Indian-style digit grouping for amounts (₹12,450 / ₹1,20,000).
+String _grouped(num value) {
+  final s = value.abs().toStringAsFixed(0);
+  if (s.length <= 3) return s;
+  final last3 = s.substring(s.length - 3);
+  var rest = s.substring(0, s.length - 3);
+  final groups = <String>[];
+  while (rest.length > 2) {
+    groups.insert(0, rest.substring(rest.length - 2));
+    rest = rest.substring(0, rest.length - 2);
+  }
+  groups.insert(0, rest);
+  return '${groups.join(',')},$last3';
+}
+
 class BudgetCard extends StatelessWidget {
   const BudgetCard({
     super.key,
@@ -30,32 +45,16 @@ class BudgetCard extends StatelessWidget {
     final progress = budget.monthlyLimit > 0
         ? (spent / budget.monthlyLimit).clamp(0.0, 1.0)
         : 0.0;
-    final percent = budget.monthlyLimit > 0
-        ? (spent / budget.monthlyLimit * 100)
-        : 0.0;
     final isOver = spent > budget.monthlyLimit;
-    final isCritical = percent > 150;
-    final categoryColor = AppColors.categoryColor(category);
-    final barColor = isCritical
-        ? AppColors.red
-        : isOver
-            ? AppColors.orange
-            : categoryColor;
+    // Over-budget renders the figure + bar in red, bar pinned to 100%.
+    final barColor = isOver ? AppColors.red : AppColors.black;
+    final barFraction = isOver ? 1.0 : progress;
 
     return GestureDetector(
       onLongPress: () => _showOptionsSheet(context),
-      child: Container(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: AppRadius.lg,
-          boxShadow: AppShadows.sm,
-          border: isCritical
-              ? Border.all(color: AppColors.red.withValues(alpha: 0.4), width: 1.5)
-              : isOver
-                  ? Border.all(color: AppColors.orange.withValues(alpha: 0.3), width: 1)
-                  : null,
-        ),
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -65,95 +64,67 @@ class BudgetCard extends StatelessWidget {
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: isOver
-                        ? barColor.withValues(alpha: 0.12)
-                        : categoryColor.withValues(alpha: 0.12),
+                    color: AppColors.categoryBg(category),
                     borderRadius: AppRadius.sm,
                   ),
                   child: Center(
                     child: PhosphorIcon(
                       category.iconFill,
                       size: 18,
-                      color: isOver ? barColor : categoryColor,
+                      color: AppColors.categoryFg(category),
                     ),
                   ),
                 ),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        category.label,
-                        style: AppTextStyles.bodyM.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.black,
-                        ),
-                      ),
-                      if (isOver)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 2),
-                          child: Row(
-                            children: [
-                              PhosphorIcon(
-                                isCritical
-                                    ? PhosphorIconsFill.warning
-                                    : PhosphorIcons.warning(),
-                                size: 12,
-                                color: barColor,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                isCritical
-                                    ? 'Way over budget (${percent.toStringAsFixed(0)}%)'
-                                    : 'Over budget (${percent.toStringAsFixed(0)}%)',
-                                style: AppTextStyles.labelS.copyWith(
-                                  color: barColor,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 10,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                    ],
+                  child: Text(
+                    category.label,
+                    style: AppTextStyles.bodyM.copyWith(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.2,
+                      color: AppColors.black,
+                    ),
                   ),
                 ),
-                Text(
-                  '$symbol${spent.toStringAsFixed(0)} / $symbol${budget.monthlyLimit.toStringAsFixed(0)}',
-                  style: AppTextStyles.bodyS.copyWith(
-                    fontWeight: FontWeight.w500,
-                    color: isOver ? barColor : AppColors.gray500,
+                const SizedBox(width: AppSpacing.xs),
+                RichText(
+                  text: TextSpan(
+                    style: AppTextStyles.numericM.copyWith(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w600,
+                      color: isOver ? AppColors.red : AppColors.black,
+                    ),
+                    children: [
+                      TextSpan(text: '$symbol${_grouped(spent)} '),
+                      TextSpan(
+                        text: '/ $symbol${_grouped(budget.monthlyLimit)}',
+                        style: AppTextStyles.numericM.copyWith(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.gray400,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
             const SizedBox(height: AppSpacing.sm),
-            // Progress bar — 6pt tall, fully rounded
+            // Thin progress bar — 6pt tall, fully rounded.
             ClipRRect(
-              borderRadius: const BorderRadius.all(Radius.circular(3)),
+              borderRadius: AppRadius.full,
               child: SizedBox(
                 height: 6,
                 child: Stack(
                   children: [
-                    // Track
-                    Container(
-                      decoration: BoxDecoration(
-                        color: isOver
-                            ? barColor.withValues(alpha: 0.15)
-                            : AppColors.gray200,
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(3)),
-                      ),
-                    ),
-                    // Fill
+                    Container(color: AppColors.gray100),
                     FractionallySizedBox(
-                      widthFactor: progress.clamp(0.0, 1.0),
+                      widthFactor: barFraction.clamp(0.0, 1.0),
                       child: Container(
                         decoration: BoxDecoration(
                           color: barColor,
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(3)),
+                          borderRadius: AppRadius.full,
                         ),
                       ),
                     ),
@@ -161,16 +132,6 @@ class BudgetCard extends StatelessWidget {
                 ),
               ),
             ),
-            if (isOver) ...[
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                '$symbol${(spent - budget.monthlyLimit).toStringAsFixed(0)} over limit',
-                style: AppTextStyles.labelS.copyWith(
-                  color: barColor,
-                  fontWeight: isCritical ? FontWeight.w700 : FontWeight.w400,
-                ),
-              ),
-            ],
           ],
         ),
       ),

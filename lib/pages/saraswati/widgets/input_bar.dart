@@ -40,9 +40,10 @@ class InputBar extends StatelessWidget {
         children: [
           Expanded(
             child: Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.white,
                 borderRadius: AppRadius.pill,
+                boxShadow: AppShadows.sm,
               ),
               child: TextField(
                 controller: controller,
@@ -54,14 +55,14 @@ class InputBar extends StatelessWidget {
                 decoration: InputDecoration(
                   hintText: hintText,
                   hintStyle: const TextStyle(
-                    color: AppColors.gray500,
+                    color: AppColors.gray400,
                     fontSize: 15,
                     fontWeight: FontWeight.w400,
                   ),
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: AppSpacing.md,
-                    vertical: AppSpacing.sm,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 14,
                   ),
                 ),
                 textCapitalization: TextCapitalization.sentences,
@@ -71,27 +72,22 @@ class InputBar extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: AppSpacing.xs),
-          // Circular black send button
+          const SizedBox(width: AppSpacing.sm),
+          // Ink circular send button
           GestureDetector(
             onTap: isProcessing ? null : onSend,
             child: Container(
-              width: 40,
-              height: 40,
+              width: 46,
+              height: 46,
               decoration: BoxDecoration(
-                color: isProcessing
-                    ? AppColors.white
-                    : AppColors.black,
+                color: isProcessing ? AppColors.gray300 : AppColors.black,
                 shape: BoxShape.circle,
-                border: Border.all(color: AppColors.gray200, width: 1),
               ),
               child: Center(
                 child: PhosphorIcon(
                   PhosphorIcons.arrowUp(PhosphorIconsStyle.bold),
                   size: 20,
-                  color: isProcessing
-                      ? AppColors.gray500
-                      : Colors.white,
+                  color: Colors.white,
                 ),
               ),
             ),

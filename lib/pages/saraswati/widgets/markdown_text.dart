@@ -96,10 +96,13 @@ class MarkdownText extends StatelessWidget {
       }
 
       if (match.group(1) != null) {
-        // **bold**
+        // **bold** — numbers/figures render in mono w700 per design
         spans.add(TextSpan(
           text: match.group(1),
-          style: _baseStyle.copyWith(fontWeight: FontWeight.w700),
+          style: _baseStyle.copyWith(
+            fontFamily: 'JetBrainsMono',
+            fontWeight: FontWeight.w700,
+          ),
         ));
       } else if (match.group(2) != null) {
         // *italic*

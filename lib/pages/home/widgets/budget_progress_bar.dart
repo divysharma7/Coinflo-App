@@ -5,7 +5,6 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
-import 'package:finance_buddy_app/widgets/common/animated_progress_bar.dart';
 import 'package:finance_buddy_app/utils/currency_utils.dart';
 
 import 'home_format_helpers.dart';
@@ -23,6 +22,7 @@ class BudgetProgressBar extends ConsumerWidget {
 
     final budgetVal = budgetAsync.valueOrNull;
     final now = DateTime.now();
+    final monthName = _monthName(month.month);
     final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
     final daysLeft = month.year == now.year && month.month == now.month
         ? daysInMonth - now.day
@@ -30,7 +30,7 @@ class BudgetProgressBar extends ConsumerWidget {
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-          AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.sm),
+          AppSpacing.lg, AppSpacing.md + 4, AppSpacing.lg, AppSpacing.xs),
       child: expense.when(
         data: (spent) {
           if (budgetVal == null || budgetVal <= 0) {
@@ -41,95 +41,141 @@ class BudgetProgressBar extends ConsumerWidget {
           }
           final pct = (spent / budgetVal).clamp(0.0, 1.0);
           final remaining = (budgetVal - spent).clamp(0.0, double.infinity);
-          final barColor = pct < 0.6
-              ? AppColors.green
-              : pct < 0.85
-                  ? AppColors.amber
-                  : AppColors.red;
+          final isOver = spent > budgetVal;
+          // Per-day budget left to stay on track.
+          final perDay = daysLeft > 0
+              ? formatHomeNumber(remaining / daysLeft)
+              : formatHomeNumber(remaining);
 
           return GestureDetector(
             onTap: () => ref.read(selectedTabProvider.notifier).state = 2,
-            child: Container(
-              padding: const EdgeInsets.all(AppSpacing.lg),
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: AppRadius.lg,
-                boxShadow: const [
-                  BoxShadow(
-                      color: AppColors.shadowMd,
-                      blurRadius: 20,
-                      offset: Offset(0, 4)),
-                ],
-              ),
+            child: DarkHeroCard(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Spent / Budget labels
+                  // Label + status pill
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('$symbol${formatHomeNumber(spent)} spent',
-                          style: AppTextStyles.headingS
-                              .copyWith(color: AppColors.black)),
-                      Text('of $symbol${formatHomeNumber(budgetVal)}',
-                          style: AppTextStyles.bodyM
-                              .copyWith(color: AppColors.gray500)),
+                      Text('Spent in $monthName',
+                          style: AppTextStyles.bodyS.copyWith(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.2,
+                            color: AppColors.white.withValues(alpha: 0.6),
+                          )),
+                      _statusPill(isOver),
                     ],
                   ),
-                  const SizedBox(height: AppSpacing.md),
-
-                  // Progress bar
-                  AnimatedProgressBar(
-                    value: pct,
-                    backgroundColor: AppColors.gray200,
-                    valueColor: barColor,
-                    minHeight: 12,
-                    borderRadius: 6,
+                  const SizedBox(height: 6),
+                  // Big mono hero amount
+                  Text('$symbol${formatHomeNumber(spent)}',
+                      style: AppTextStyles.displayXL.copyWith(
+                        color: AppColors.white,
+                        letterSpacing: -1.6,
+                      )),
+                  const SizedBox(height: AppSpacing.md + 2),
+                  // of budget · left
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('of $symbol${formatHomeNumber(budgetVal)} budget',
+                          style: AppTextStyles.bodyS.copyWith(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.white.withValues(alpha: 0.6),
+                          )),
+                      Text('$symbol${formatHomeNumber(remaining)} left',
+                          style: AppTextStyles.numericM.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.white,
+                          )),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  // White progress bar on white-16 track
+                  ClipRRect(
+                    borderRadius: AppRadius.full,
+                    child: LinearProgressIndicator(
+                      value: pct,
+                      minHeight: 8,
+                      backgroundColor: AppColors.white.withValues(alpha: 0.16),
+                      valueColor: const AlwaysStoppedAnimation(AppColors.white),
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
-
-                  // Stats below bar
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '${(pct * 100).round()}% used',
-                        style: AppTextStyles.bodyS.copyWith(color: barColor, fontWeight: FontWeight.w600),
-                      ),
-                      Text(
-                        '$symbol${formatHomeNumber(remaining)} left · $daysLeft days',
-                        style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
-                      ),
-                    ],
+                  // Days left · per-day to stay on track
+                  Text(
+                    '$daysLeft days left · $symbol$perDay/day to stay on track',
+                    style: AppTextStyles.bodyS.copyWith(
+                      fontSize: 11.5,
+                      color: AppColors.white.withValues(alpha: 0.45),
+                    ),
                   ),
                 ],
               ),
             ),
           );
         },
-        loading: () => const SizedBox(height: 100),
+        loading: () => const SizedBox(height: 160),
         error: (_, _) => const ErrorCard(),
       ),
     );
   }
 
+  Widget _statusPill(bool isOver) {
+    final bg = isOver
+        ? AppColors.red.withValues(alpha: 0.16)
+        : AppColors.green.withValues(alpha: 0.16);
+    final fg = isOver ? const Color(0xFFFCA5A5) : const Color(0xFF4ADE80);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(color: bg, borderRadius: AppRadius.full),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(isOver ? PhosphorIcons.warning(PhosphorIconsStyle.bold)
+              : PhosphorIcons.check(PhosphorIconsStyle.bold),
+              size: 12, color: fg),
+          const SizedBox(width: 5),
+          Text(isOver ? 'Over budget' : 'On track',
+              style: AppTextStyles.labelS.copyWith(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.2,
+                color: fg,
+              )),
+        ],
+      ),
+    );
+  }
+
+  String _monthName(int month) {
+    const names = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return names[(month - 1) % 12];
+  }
+
   Widget _noBudgetCard(BuildContext context, WidgetRef ref) {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColors.white,
-        borderRadius: AppRadius.lg,
-        border: Border.all(color: AppColors.gray200, width: 1),
+        borderRadius: AppRadius.xl,
+        boxShadow: AppShadows.sm,
       ),
       child: Row(
         children: [
           Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
+            width: 44,
+            height: 44,
+            decoration: const BoxDecoration(
               color: AppColors.gray100,
-              borderRadius: AppRadius.base,
+              borderRadius: AppRadius.md,
             ),
-            child: Icon(PhosphorIcons.target(), size: 20, color: AppColors.gray500),
+            child: Icon(PhosphorIcons.target(), size: 22, color: AppColors.gray500),
           ),
           const SizedBox(width: AppSpacing.sm),
           Expanded(

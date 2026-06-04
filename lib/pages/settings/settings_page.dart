@@ -73,7 +73,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(0, 24, 0, 20),
                   child: Text('Settings',
-                      style: AppTextStyles.headingL
+                      style: AppTextStyles.displayL
                           .copyWith(color: AppColors.black)),
                 ),
 
@@ -81,7 +81,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 GestureDetector(
                   onTap: () => _showProfileSheet(context),
                   child: Container(
-                    padding: const EdgeInsets.all(AppSpacing.md),
+                    padding: const EdgeInsets.all(18),
                     decoration: const BoxDecoration(
                       color: AppColors.white,
                       borderRadius: AppRadius.xl,
@@ -90,25 +90,29 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     child: Row(
                       children: [
                         Container(
-                          width: 36,
-                          height: 36,
+                          width: 52,
+                          height: 52,
                           decoration: const BoxDecoration(
-                            color: AppColors.gray100,
+                            color: AppColors.black,
                             shape: BoxShape.circle,
                           ),
                           child: Center(
-                            child: PhosphorIcon(PhosphorIcons.user(),
-                                color: AppColors.gray600, size: 18),
+                            child: Text(_initials(name),
+                                style: AppTextStyles.bodyL.copyWith(
+                                    color: AppColors.white,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0)),
                           ),
                         ),
-                        const SizedBox(width: AppSpacing.sm),
+                        const SizedBox(width: 14),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(name,
-                                  style: AppTextStyles.headingS
-                                      .copyWith(color: AppColors.black),
+                                  style: AppTextStyles.headingS.copyWith(
+                                      color: AppColors.black,
+                                      fontWeight: FontWeight.w700),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis),
                               const SizedBox(height: 2),
@@ -121,7 +125,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           ),
                         ),
                         PhosphorIcon(PhosphorIcons.caretRight(),
-                            color: AppColors.gray500, size: 18),
+                            color: AppColors.gray400, size: 18),
                       ],
                     ),
                   ),
@@ -132,9 +136,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 // ─── GENERAL Section ─────────────────────
                 _sectionLabel('GENERAL'),
                 Container(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
                   decoration: const BoxDecoration(
                     color: AppColors.white,
                     borderRadius: AppRadius.xl,
+                    boxShadow: AppShadows.sm,
                   ),
                   child: Column(
                     children: [
@@ -144,6 +150,19 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         iconColor: AppColors.gray600,
                         label: 'Ask Saraswati',
                         onTap: () => context.push('/settings/saraswati'),
+                      ),
+                      const SettingsDivider(),
+                      SettingsRow(
+                        icon: PhosphorIcons.currencyInr(),
+                        iconBg: AppColors.gray100,
+                        iconColor: AppColors.gray600,
+                        label: 'Currency',
+                        trailing: Text(
+                          '${currency.code} (${currency.symbol})',
+                          style: AppTextStyles.bodyS
+                              .copyWith(color: AppColors.gray500),
+                        ),
+                        showChevron: false,
                       ),
                       const SettingsDivider(),
                       SettingsRow(
@@ -220,9 +239,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 // ─── DATA Section ───────────────────────
                 _sectionLabel('DATA'),
                 Container(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
                   decoration: const BoxDecoration(
                     color: AppColors.white,
                     borderRadius: AppRadius.xl,
+                    boxShadow: AppShadows.sm,
                   ),
                   child: Column(
                     children: [
@@ -242,9 +263,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 // ─── ABOUT Section ───────────────────────
                 _sectionLabel('ABOUT'),
                 Container(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
                   decoration: const BoxDecoration(
                     color: AppColors.white,
                     borderRadius: AppRadius.xl,
+                    boxShadow: AppShadows.sm,
                   ),
                   child: Column(
                     children: [
@@ -323,8 +346,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 10),
       child: Text(text,
-          style: AppTextStyles.labelM.copyWith(color: AppColors.gray500)),
+          style: AppTextStyles.section.copyWith(color: AppColors.gray400)),
     );
+  }
+
+  String _initials(String name) {
+    final parts = name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty);
+    if (parts.isEmpty) return '?';
+    if (parts.length == 1) return parts.first[0].toUpperCase();
+    return (parts.first[0] + parts.last[0]).toUpperCase();
   }
 
   // ─── Accounts Sheet ─────────────────────────────────────

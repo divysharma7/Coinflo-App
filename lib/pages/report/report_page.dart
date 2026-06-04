@@ -12,6 +12,7 @@ import 'package:finance_buddy_app/pages/report/widgets/period_navigator.dart';
 import 'package:finance_buddy_app/pages/report/widgets/period_selector.dart';
 import 'package:finance_buddy_app/pages/report/widgets/projection_card.dart';
 import 'package:finance_buddy_app/pages/report/widgets/report_header.dart';
+import 'package:finance_buddy_app/pages/report/widgets/report_overview_card.dart';
 import 'package:finance_buddy_app/pages/report/widgets/report_helpers.dart';
 import 'package:finance_buddy_app/pages/report/widgets/report_scope.dart';
 import 'package:finance_buddy_app/pages/report/widgets/savings_goals_section.dart';
@@ -59,6 +60,12 @@ class ReportPage extends ConsumerWidget {
                 const PeriodSelector(),
                 const SizedBox(height: AppSpacing.lg),
                 const PeriodNavigator(),
+                const SizedBox(height: AppSpacing.sm),
+                CategoryDonutCard(symbol: symbol)
+                    .animate().fadeIn(duration: AppDurations.slow).slideY(begin: 0.05, duration: AppDurations.slow),
+                const SizedBox(height: AppSpacing.sm),
+                DailySpendCard(symbol: symbol)
+                    .animate().fadeIn(delay: 80.ms, duration: AppDurations.slow).slideY(begin: 0.05, delay: 80.ms, duration: AppDurations.slow),
                 const SizedBox(height: AppSpacing.xl),
                 BarChartSection(scope: scope, symbol: symbol)
                     .animate().fadeIn(duration: AppDurations.slow).slideY(begin: 0.05, duration: AppDurations.slow),

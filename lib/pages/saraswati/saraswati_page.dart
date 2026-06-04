@@ -114,28 +114,53 @@ class _SaraswatiPageState extends ConsumerState<SaraswatiPage> {
       appBar: AppBar(
         backgroundColor: AppColors.offWhite,
         surfaceTintColor: Colors.transparent,
+        titleSpacing: 0,
         leading: IconButton(
           icon: PhosphorIcon(PhosphorIcons.caretLeft(), color: AppColors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        title: Row(
           children: [
-            const Text(
-              'Ask Saraswati',
-              style: TextStyle(
+            // Ink rounded tile with white glyph
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
                 color: AppColors.black,
-                fontSize: 17,
-                fontWeight: FontWeight.w600,
+                borderRadius: BorderRadius.circular(11),
+              ),
+              child: Center(
+                child: PhosphorIcon(
+                  PhosphorIcons.lightning(PhosphorIconsStyle.fill),
+                  color: Colors.white,
+                  size: 20,
+                ),
               ),
             ),
-            Text(
-              '${messages.length > 1 ? messages.length - 1 : 0} transactions loaded',
-              style: const TextStyle(
-                color: AppColors.gray500,
-                fontSize: 12,
-                fontWeight: FontWeight.w400,
-              ),
+            const SizedBox(width: AppSpacing.sm),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Saraswati',
+                  style: TextStyle(
+                    fontFamily: AppTextStyles.uiFont,
+                    color: AppColors.black,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.3,
+                  ),
+                ),
+                Text(
+                  '${messages.length > 1 ? messages.length - 1 : 0} transactions loaded',
+                  style: const TextStyle(
+                    color: AppColors.gray500,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ],
             ),
           ],
         ),

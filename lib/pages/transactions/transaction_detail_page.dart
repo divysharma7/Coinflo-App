@@ -160,34 +160,40 @@ class _TransactionDetailPageState
     final txnAsync = ref.watch(singleTransactionProvider(widget.transactionId));
 
     return Scaffold(
+      backgroundColor: AppColors.offWhite,
       appBar: AppBar(
-        leadingWidth: 80,
+        backgroundColor: AppColors.offWhite,
+        scrolledUnderElevation: 0,
+        leadingWidth: _editing ? 80 : 64,
         leading: _editing
             ? TextButton(
                 onPressed: _cancelEdit,
                 child: const Text('Cancel',
                     style: TextStyle(color: AppColors.gray500)),
               )
-            : null,
+            : Center(
+                child: _HeaderIconButton(
+                  icon: PhosphorIcons.caretLeft(),
+                  tooltip: 'Back',
+                  onTap: () => Navigator.pop(context),
+                ),
+              ),
+        centerTitle: true,
         title: _editing
             ? const Text('Edit')
-            : txnAsync.whenOrNull(
-                data: (t) => t != null
-                    ? Text(t.merchant ?? TransactionCategory.values
-                        .firstWhere((c) => c.name == t.category,
-                            orElse: () => TransactionCategory.foodAndDrink)
-                        .label)
-                    : null,
-              ),
+            : Text('Details',
+                style: AppTextStyles.headingS.copyWith(color: AppColors.black)),
         actions: [
           if (!_editing)
             txnAsync.whenOrNull(
               data: (t) => t != null
-                  ? IconButton(
-                      icon: PhosphorIcon(PhosphorIcons.pencilSimple(),
-                          color: AppColors.gray500),
-                      tooltip: 'Edit transaction',
-                      onPressed: () => _enterEditMode(t),
+                  ? Padding(
+                      padding: const EdgeInsets.only(right: AppSpacing.lg),
+                      child: _HeaderIconButton(
+                        icon: PhosphorIcons.dotsThreeOutline(),
+                        tooltip: 'Edit transaction',
+                        onTap: () => _enterEditMode(t),
+                      ),
                     )
                   : null,
             ) ?? const SizedBox.shrink(),
@@ -238,104 +244,160 @@ class _TransactionDetailPageState
     final catColor = AppColors.categoryColor(cat);
     final isUnconfirmed = t.status == 'unconfirmed';
     final isExpense = t.amount < 0;
-    final amountColor = isExpense ? AppColors.amountNeutral : AppColors.green;
+    final amountColor = isExpense ? AppColors.black : AppColors.green;
     final hasNote = t.note != null && t.note!.isNotEmpty && t.note != t.merchant;
+    final amountStr =
+        '$_sym${t.amount.abs().toStringAsFixed(t.amount.abs().truncateToDouble() == t.amount.abs() ? 0 : 2)}';
 
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Header: icon + amount + type chip + merchant ──
+          // ── Hero record: 64px tile + name + big mono amount + pill·date ──
           Center(
             child: Column(
               children: [
-                CircleAvatar(
-                  radius: 28,
-                  backgroundColor: catColor.withValues(alpha: 0.12),
-                  child: Icon(cat.iconFill, color: catColor, size: 26),
+                const SizedBox(height: AppSpacing.sm),
+                Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    color: AppColors.categoryBg(cat),
+                    borderRadius: AppRadius.lg,
+                  ),
+                  child: Icon(cat.iconFill, color: catColor, size: 30),
                 ),
                 const SizedBox(height: AppSpacing.md),
-                Semantics(
-                  label: '${isExpense ? "Expense" : "Income"}, $_sym${t.amount.abs().toStringAsFixed(t.amount.abs().truncateToDouble() == t.amount.abs() ? 0 : 2)}',
-                  child: Text(
-                    '$_sym${t.amount.abs().toStringAsFixed(t.amount.abs().truncateToDouble() == t.amount.abs() ? 0 : 2)}',
-                    style: AppTextStyles.displayL.copyWith(color: amountColor),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                // H4: Expense/Income chip
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xxs),
-                  decoration: BoxDecoration(
-                    color: isExpense
-                        ? AppColors.red.withValues(alpha: 0.1)
-                        : AppColors.green.withValues(alpha: 0.1),
-                    borderRadius: AppRadius.pill,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      PhosphorIcon(
-                        isExpense ? PhosphorIcons.arrowUpRight() : PhosphorIcons.arrowDownLeft(),
-                        size: 12,
-                        color: isExpense ? AppColors.red : AppColors.green,
-                      ),
-                      const SizedBox(width: AppSpacing.xxs),
-                      Text(
-                        isExpense ? 'Expense' : 'Income',
-                        style: AppTextStyles.labelS.copyWith(
-                          color: isExpense ? AppColors.red : AppColors.green,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xs),
                 Text(
                   t.merchant ?? cat.label,
-                  style: AppTextStyles.headingS.copyWith(color: AppColors.black),
+                  style: AppTextStyles.headingM
+                      .copyWith(color: AppColors.black, fontSize: 20),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  DateFormat('EEE, d MMM yyyy • h:mm a').format(t.happenedAt),
-                  style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
+                const SizedBox(height: AppSpacing.sm),
+                Semantics(
+                  label:
+                      '${isExpense ? "Expense" : "Income"}, $amountStr',
+                  child: Text(
+                    '${isExpense ? "−" : "+"}$amountStr',
+                    softWrap: false,
+                    overflow: TextOverflow.visible,
+                    style: AppTextStyles.displayXL.copyWith(
+                      fontSize: 38,
+                      color: amountColor,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CategoryPill(category: cat.label),
+                    const SizedBox(width: AppSpacing.xs),
+                    Text(
+                      _relativeDateTime(t.happenedAt),
+                      style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-          const SizedBox(height: AppSpacing.xl),
+          const SizedBox(height: AppSpacing.xxl),
 
-          // ── Details card ──
+          // ── Meta card (definition list) ──
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(AppSpacing.md),
             decoration: BoxDecoration(
               color: AppColors.white,
               borderRadius: AppRadius.xl,
               boxShadow: AppShadows.sm,
             ),
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.lg, vertical: AppSpacing.xxs),
             child: Column(
               children: [
-                _detailRow('Category', cat.label),
-                if (t.incomeSource != null)
-                  _detailRow('Source', t.incomeSource![0].toUpperCase() + t.incomeSource!.substring(1)),
-                _detailRow('Status', isUnconfirmed ? 'Unconfirmed' : 'Confirmed'),
-                if (hasNote) _detailRow('Note', t.note!),
-                if (t.isSplit) ...[
-                  const Divider(height: 20, color: AppColors.gray100),
-                  _detailRow('Split', '${t.splitCount} people'),
-                  _detailRow('My Share', '$_sym${t.splitMyShare?.toStringAsFixed(0) ?? "—"}'),
-                  _detailRow('Pending', '$_sym${t.splitPendingAmount?.toStringAsFixed(0) ?? "0"}'),
-                  _detailRow('Settled', t.splitSettled ? 'Yes' : 'No'),
-                ],
+                _dlRows([
+                  _DlRow(
+                    'Type',
+                    Text(isExpense ? 'Expense' : 'Income',
+                        style: _dlValueStyle.copyWith(
+                            color: isExpense ? AppColors.black : AppColors.green)),
+                  ),
+                  _DlRow('Category', Text(cat.label, style: _dlValueStyle)),
+                  if (t.incomeSource != null)
+                    _DlRow(
+                        'Source',
+                        Text(
+                            t.incomeSource![0].toUpperCase() +
+                                t.incomeSource!.substring(1),
+                            style: _dlValueStyle)),
+                  _DlRow('Date',
+                      Text(DateFormat('d MMM yyyy').format(t.happenedAt), style: _dlValueStyle)),
+                  _DlRow('Time',
+                      Text(DateFormat('h:mm a').format(t.happenedAt), style: _dlValueStyle)),
+                  _DlRow(
+                    'Status',
+                    Text(isUnconfirmed ? 'Unconfirmed' : 'Confirmed',
+                        style: _dlValueStyle.copyWith(
+                            color: isUnconfirmed
+                                ? AppColors.orange
+                                : AppColors.catGreenText)),
+                  ),
+                  _DlRow(
+                    'Counts toward budget',
+                    Text(isExpense ? 'Yes' : 'No',
+                        style: _dlValueStyle.copyWith(
+                            color: isExpense
+                                ? AppColors.catGreenText
+                                : AppColors.gray500)),
+                  ),
+                  if (t.isSplit) ...[
+                    _DlRow('Split', Text('${t.splitCount} people', style: _dlValueStyle)),
+                    _DlRow('My share',
+                        Text('$_sym${t.splitMyShare?.toStringAsFixed(0) ?? "—"}',
+                            style: _dlValueStyle)),
+                    _DlRow('Pending',
+                        Text('$_sym${t.splitPendingAmount?.toStringAsFixed(0) ?? "0"}',
+                            style: _dlValueStyle)),
+                    _DlRow(
+                      'Settled',
+                      Text(t.splitSettled ? 'Yes' : 'No',
+                          style: _dlValueStyle.copyWith(
+                              color: t.splitSettled
+                                  ? AppColors.catGreenText
+                                  : AppColors.gray500)),
+                    ),
+                  ],
+                ]),
               ],
             ),
           ),
-          const SizedBox(height: AppSpacing.lg),
+
+          // ── Note section ──
+          if (hasNote) ...[
+            const SizedBox(height: AppSpacing.xl),
+            Text('Note', style: AppTextStyles.section),
+            const SizedBox(height: AppSpacing.xs),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: AppRadius.xl,
+                boxShadow: AppShadows.sm,
+              ),
+              child: Text(
+                t.note!,
+                style: AppTextStyles.bodyM
+                    .copyWith(color: AppColors.gray600, height: 1.5),
+              ),
+            ),
+          ],
 
           // ── Attachment ──
           if (t.attachmentPath != null) ...[
+            const SizedBox(height: AppSpacing.lg),
             Semantics(
               label: 'Attached receipt image. Tap to view full size.',
               button: true,
@@ -355,10 +417,11 @@ class _TransactionDetailPageState
                 ),
               ),
             ),
-            const SizedBox(height: AppSpacing.md),
           ],
 
-          // ── Action buttons row ──
+          const SizedBox(height: AppSpacing.xl),
+
+          // ── Secondary action chips (attach / split) ──
           Row(
             children: [
               Expanded(
@@ -411,18 +474,93 @@ class _TransactionDetailPageState
             ),
           ],
 
-          const SizedBox(height: AppSpacing.xxl),
+          const SizedBox(height: AppSpacing.lg),
 
-          // ── Delete ──
-          Center(
-            child: TextButton.icon(
-              onPressed: () => _confirmDelete(t.id),
-              icon: PhosphorIcon(PhosphorIcons.trash(), size: 16, color: AppColors.red),
-              label: Text('Delete transaction',
-                  style: AppTextStyles.bodyS.copyWith(color: AppColors.red)),
-            ),
+          // ── Primary actions: Edit (ghost) + Delete (danger) ──
+          Row(
+            children: [
+              Expanded(
+                child: _bigButton(
+                  icon: PhosphorIcons.pencilSimple(),
+                  label: 'Edit',
+                  foreground: AppColors.black,
+                  onTap: () => _enterEditMode(t),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: _bigButton(
+                  icon: PhosphorIcons.trash(),
+                  label: 'Delete',
+                  foreground: AppColors.red,
+                  onTap: () => _confirmDelete(t.id),
+                ),
+              ),
+            ],
           ),
+          const SizedBox(height: AppSpacing.xl),
         ],
+      ),
+    );
+  }
+
+  /// Relative "Today/Yesterday · 9:02 PM" line, matching the Hi-Fi design.
+  String _relativeDateTime(DateTime when) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final day = DateTime(when.year, when.month, when.day);
+    final diff = today.difference(day).inDays;
+    final time = DateFormat('h:mm a').format(when);
+    if (diff == 0) return 'Today · $time';
+    if (diff == 1) return 'Yesterday · $time';
+    return '${DateFormat('d MMM').format(when)} · $time';
+  }
+
+  static const TextStyle _dlValueStyle = TextStyle(
+    fontFamily: AppTextStyles.uiFont,
+    fontSize: 14.5,
+    fontWeight: FontWeight.w600,
+    letterSpacing: -0.2,
+    color: AppColors.black,
+  );
+
+  /// Renders a definition list with hairline dividers between rows.
+  Widget _dlRows(List<_DlRow> rows) {
+    final children = <Widget>[];
+    for (var i = 0; i < rows.length; i++) {
+      if (i > 0) {
+        children.add(const Divider(height: 1, thickness: 1, color: AppColors.gray100));
+      }
+      children.add(rows[i]);
+    }
+    return Column(children: children);
+  }
+
+  Widget _bigButton({
+    required IconData icon,
+    required String label,
+    required Color foreground,
+    required VoidCallback onTap,
+  }) {
+    return PressableCard(
+      onTap: onTap,
+      child: Container(
+        height: 56,
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: AppRadius.full,
+          boxShadow: AppShadows.sm,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            PhosphorIcon(icon, size: 18, color: foreground),
+            const SizedBox(width: AppSpacing.xs),
+            Text(label,
+                style: AppTextStyles.headingS
+                    .copyWith(color: foreground, fontSize: 15)),
+          ],
+        ),
       ),
     );
   }
@@ -442,15 +580,16 @@ class _TransactionDetailPageState
           constraints: const BoxConstraints(minHeight: 48),
           padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
           decoration: BoxDecoration(
-            color: AppColors.gray100,
-            borderRadius: AppRadius.base,
+            color: AppColors.white,
+            borderRadius: AppRadius.full,
+            boxShadow: AppShadows.sm,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               PhosphorIcon(icon, size: 16, color: AppColors.gray600),
               const SizedBox(width: AppSpacing.xs),
-              Text(label, style: AppTextStyles.bodyS.copyWith(color: AppColors.gray600)),
+              Text(label, style: AppTextStyles.bodyM.copyWith(color: AppColors.gray600, fontWeight: FontWeight.w600)),
             ],
           ),
         ),
@@ -767,15 +906,78 @@ class _TransactionDetailPageState
     );
   }
 
-  Widget _detailRow(String label, String value) {
+}
+
+/// A single `.dl-row` — left key (gray500) and a right value widget.
+class _DlRow extends StatelessWidget {
+  const _DlRow(this.label, this.value);
+
+  final String label;
+  final Widget value;
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xxs),
+      padding: const EdgeInsets.symmetric(vertical: 15),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(label, style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500)),
-          Text(value, style: AppTextStyles.bodyS.copyWith(fontWeight: FontWeight.w500, color: AppColors.black)),
+          Text(
+            label,
+            style: AppTextStyles.bodyM.copyWith(
+              color: AppColors.gray500,
+              fontWeight: FontWeight.w500,
+              height: 1.0,
+            ),
+          ),
+          Flexible(
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: value,
+            ),
+          ),
         ],
+      ),
+    );
+  }
+}
+
+/// Round white icon button used in the detail header (`.icon-btn`).
+class _HeaderIconButton extends StatelessWidget {
+  const _HeaderIconButton({
+    required this.icon,
+    required this.tooltip,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: AppColors.white,
+        shape: const CircleBorder(),
+        elevation: 0,
+        shadowColor: Colors.transparent,
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: onTap,
+          child: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              shape: BoxShape.circle,
+              boxShadow: AppShadows.sm,
+            ),
+            child: PhosphorIcon(icon, size: 19, color: AppColors.black),
+          ),
+        ),
       ),
     );
   }

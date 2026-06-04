@@ -2,6 +2,7 @@ import 'package:finance_buddy_app/widgets/common/error_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import 'package:finance_buddy_app/design_system/design_system.dart';
@@ -10,6 +11,8 @@ import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/utils/currency_utils.dart';
 import 'package:finance_buddy_app/widgets/common/transaction_actions.dart';
+
+import 'home_format_helpers.dart';
 
 class RecentTransactionsSection extends ConsumerWidget {
   const RecentTransactionsSection({super.key});
@@ -21,26 +24,34 @@ class RecentTransactionsSection extends ConsumerWidget {
     final symbol = currencySymbol(currencyAsync.valueOrNull ?? 'inr');
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+      padding: const EdgeInsets.fromLTRB(
+          AppSpacing.lg, AppSpacing.md + 6, AppSpacing.lg, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header with See All
+          // Section header (ink, w700, not uppercase) + See all ›
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Recent',
-                  style:
-                      AppTextStyles.headingS.copyWith(color: AppColors.black)),
+              Text('Recent activity',
+                  style: AppTextStyles.headingS.copyWith(
+                      color: AppColors.black,
+                      fontSize: 17,
+                      letterSpacing: -0.3)),
               GestureDetector(
-                onTap: () {
-                  // Switch to transactions tab
-                  ref.read(selectedTabProvider.notifier).state = 1;
-                },
-                child: Text('See all',
-                    style: AppTextStyles.bodyS.copyWith(
-                        color: AppColors.gray500,
-                        fontWeight: FontWeight.w500)),
+                onTap: () => ref.read(selectedTabProvider.notifier).state = 1,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('See all',
+                        style: AppTextStyles.bodyS.copyWith(
+                            color: AppColors.gray500,
+                            fontWeight: FontWeight.w600)),
+                    const SizedBox(width: 2),
+                    Icon(PhosphorIcons.caretRight(PhosphorIconsStyle.bold),
+                        size: 13, color: AppColors.gray500),
+                  ],
+                ),
               ),
             ],
           ),
@@ -54,9 +65,11 @@ class RecentTransactionsSection extends ConsumerWidget {
               final recent = sorted.take(5).toList();
 
               return Container(
-                decoration: BoxDecoration(
+                padding: const EdgeInsets.symmetric(horizontal: 18),
+                decoration: const BoxDecoration(
                   color: AppColors.white,
-                  borderRadius: AppRadius.mdLg,
+                  borderRadius: AppRadius.xl,
+                  boxShadow: AppShadows.sm,
                 ),
                 child: Column(
                   children: recent.asMap().entries.map((e) {
@@ -65,13 +78,10 @@ class RecentTransactionsSection extends ConsumerWidget {
                       children: [
                         _TransactionRow(transaction: e.value, symbol: symbol),
                         if (!isLast)
-                          const Padding(
-                            padding: EdgeInsets.only(left: 56),
-                            child: Divider(
-                                height: 1,
-                                thickness: 0.5,
-                                color: AppColors.gray200),
-                          ),
+                          const Divider(
+                              height: 1,
+                              thickness: 1,
+                              color: AppColors.gray100),
                       ],
                     );
                   }).toList(),
@@ -91,17 +101,22 @@ class RecentTransactionsSection extends ConsumerWidget {
   }
 
   Widget _buildEmptyState() {
-    return Padding(
+    return Container(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.xxl),
+      decoration: const BoxDecoration(
+        color: AppColors.white,
+        borderRadius: AppRadius.xl,
+        boxShadow: AppShadows.sm,
+      ),
       child: Center(
         child: Column(
           children: [
             Container(
               width: 56,
               height: 56,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.gray100,
-                borderRadius: AppRadius.mdLg,
+                borderRadius: AppRadius.md,
               ),
               child: Icon(PhosphorIcons.receipt(),
                   size: 24, color: AppColors.gray300),
@@ -135,49 +150,71 @@ class _TransactionRow extends ConsumerWidget {
     );
     final isExpense = transaction.amount < 0;
     final displayAmount =
-        '${isExpense ? '-' : '+'}$symbol${transaction.amount.abs().toStringAsFixed(0)}';
+        '${isExpense ? '−' : '+'}$symbol${formatHomeNumber(transaction.amount.abs())}';
+
+    final name = transaction.note ?? transaction.merchant ?? cat.label;
+    final meta = '${cat.label} · ${_timeLabel(transaction.happenedAt)}';
 
     return GestureDetector(
       onTap: () => context.push('/transaction/${transaction.id}'),
       onLongPress: () => showTransactionActions(context, ref, transaction, symbol),
       behavior: HitTestBehavior.opaque,
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+        padding: const EdgeInsets.symmetric(vertical: 11),
         child: Row(
           children: [
             Container(
-              width: 40,
-              height: 40,
+              width: 44,
+              height: 44,
               decoration: BoxDecoration(
                 color: AppColors.categoryBg(cat),
-                borderRadius: AppRadius.base,
+                borderRadius: AppRadius.md,
               ),
-              child: Icon(cat.iconFill, size: 18, color: AppColors.categoryFg(cat)),
+              child: Icon(cat.iconFill,
+                  size: 22, color: AppColors.categoryColor(cat)),
             ),
-            const SizedBox(width: AppSpacing.sm),
+            const SizedBox(width: 13),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(transaction.note ?? transaction.merchant ?? cat.label,
+                  Text(name,
                       style: AppTextStyles.bodyM.copyWith(
-                          fontWeight: FontWeight.w500, color: AppColors.black),
+                          fontSize: 15.5,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: -0.2,
+                          color: AppColors.black),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 2),
-                  Text(cat.label,
-                      style: AppTextStyles.bodyS
-                          .copyWith(color: AppColors.gray500, fontSize: 12)),
+                  Text(meta,
+                      style: AppTextStyles.bodyS.copyWith(
+                          fontSize: 12.5, color: AppColors.gray500),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis),
                 ],
               ),
             ),
+            const SizedBox(width: 8),
             Text(displayAmount,
                 style: AppTextStyles.numericL.copyWith(
-                    color: isExpense ? AppColors.black : AppColors.green)),
+                    fontSize: 15.5,
+                    fontWeight: FontWeight.w600,
+                    color: isExpense ? AppColors.black : AppColors.catGreenText)),
           ],
         ),
       ),
     );
+  }
+
+  /// "8:24 PM" today, "Yesterday", else "12 May".
+  String _timeLabel(DateTime when) {
+    final now = DateTime.now();
+    final day = DateTime(when.year, when.month, when.day);
+    final today = DateTime(now.year, now.month, now.day);
+    final diff = today.difference(day).inDays;
+    if (diff == 0) return DateFormat('h:mm a').format(when);
+    if (diff == 1) return 'Yesterday';
+    return DateFormat('d MMM').format(when);
   }
 }

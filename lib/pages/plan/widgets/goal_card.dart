@@ -1,11 +1,24 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 import 'package:lottie/lottie.dart';
+
+/// Indian-style digit grouping for amounts (₹78,000 / ₹1,20,000).
+String _grouped(num value) {
+  final s = value.abs().toStringAsFixed(0);
+  if (s.length <= 3) return s;
+  final last3 = s.substring(s.length - 3);
+  var rest = s.substring(0, s.length - 3);
+  final groups = <String>[];
+  while (rest.length > 2) {
+    groups.insert(0, rest.substring(rest.length - 2));
+    rest = rest.substring(0, rest.length - 2);
+  }
+  groups.insert(0, rest);
+  return '${groups.join(',')},$last3';
+}
 
 class GoalCard extends StatefulWidget {
   const GoalCard({
@@ -37,29 +50,6 @@ class _GoalCardState extends State<GoalCard>
   static const _goldDark = AppColors.amber;
 
   bool get _isCompleted => widget.goal.currentAmount >= widget.goal.targetAmount;
-
-  IconData _resolveIcon(String iconName) {
-    switch (iconName) {
-      case 'airplane':
-        return PhosphorIconsFill.airplane;
-      case 'car':
-        return PhosphorIconsFill.car;
-      case 'house':
-        return PhosphorIconsFill.house;
-      case 'graduationCap':
-        return PhosphorIconsFill.graduationCap;
-      case 'heartbeat':
-        return PhosphorIconsFill.heartbeat;
-      case 'laptop':
-        return PhosphorIconsFill.laptop;
-      case 'gift':
-        return PhosphorIconsFill.gift;
-      case 'piggyBank':
-        return PhosphorIconsFill.piggyBank;
-      default:
-        return PhosphorIconsFill.star;
-    }
-  }
 
   @override
   void initState() {
@@ -111,153 +101,95 @@ class _GoalCardState extends State<GoalCard>
     final progress = goal.targetAmount > 0
         ? (goal.currentAmount / goal.targetAmount).clamp(0.0, 1.0)
         : 0.0;
-    final remaining = goal.targetAmount - goal.currentAmount;
+    final percent = (progress * 100).round();
 
     final ringFg = _isCompleted ? _goldDark : AppColors.black;
-    final ringBg = _isCompleted ? _goldColor.withValues(alpha: 0.25) : AppColors.gray200;
+    final ringBg = _isCompleted ? _goldColor.withValues(alpha: 0.25) : AppColors.gray100;
 
     Widget card = GestureDetector(
+      onTap: _isCompleted ? null : widget.onAddMoney,
       onLongPress: () => _showOptionsSheet(context),
+      behavior: HitTestBehavior.opaque,
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
           color: AppColors.white,
-          borderRadius: const BorderRadius.all(Radius.circular(16)),
-          boxShadow: const [
-            ...AppShadows.sm,
-          ],
+          borderRadius: AppRadius.xl,
+          boxShadow: const [...AppShadows.sm],
           border: _isCompleted
               ? Border.all(color: _goldColor.withValues(alpha: 0.6), width: 1.5)
               : null,
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Progress ring
-            SizedBox(
-              width: 64,
-              height: 64,
-              child: CustomPaint(
-                painter: GoalRingPainter(
-                  progress: progress,
-                  strokeWidth: 5,
-                  foregroundColor: ringFg,
-                  backgroundColor: ringBg,
-                ),
-                child: Center(
-                  child: _isCompleted
-                      ? const PhosphorIcon(
-                          PhosphorIconsFill.trophy,
-                          size: 24,
-                          color: _goldDark,
-                        )
-                      : PhosphorIcon(
-                          _resolveIcon(goal.iconName),
-                          size: 22,
+            Center(
+              child: ProgressRing(
+                progress: progress,
+                size: 72,
+                strokeWidth: 7,
+                color: ringFg,
+                trackColor: ringBg,
+                center: _isCompleted
+                    ? const PhosphorIcon(
+                        PhosphorIconsFill.trophy,
+                        size: 22,
+                        color: _goldDark,
+                      )
+                    : Text(
+                        '$percent%',
+                        style: AppTextStyles.numericM.copyWith(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.5,
                           color: AppColors.black,
                         ),
-                ),
+                      ),
               ),
             ),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              goal.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.bodyM.copyWith(
+                fontSize: 14.5,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.2,
+                color: _isCompleted ? _goldDark : AppColors.black,
+              ),
+            ),
+            const SizedBox(height: 2),
+            RichText(
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              text: TextSpan(
+                style: AppTextStyles.bodyS.copyWith(
+                  fontSize: 12,
+                  color: AppColors.gray500,
+                ),
                 children: [
-                  Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          goal.name,
-                          style: AppTextStyles.bodyM.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.black,
-                          ),
-                        ),
-                      ),
-                      if (_isCompleted) ...[
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: _goldColor.withValues(alpha: 0.18),
-                            borderRadius: AppRadius.lg,
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const PhosphorIcon(
-                                PhosphorIconsFill.star,
-                                size: 12,
-                                color: _goldDark,
-                              ),
-                              const SizedBox(width: 3),
-                              Text(
-                                'Goal reached!',
-                                style: AppTextStyles.labelS.copyWith(
-                                  color: _goldDark,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 10,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${widget.symbol}${goal.currentAmount.toStringAsFixed(0)} of ${widget.symbol}${goal.targetAmount.toStringAsFixed(0)}',
-                    style: AppTextStyles.bodyS.copyWith(
-                      color: _isCompleted ? _goldDark : AppColors.gray500,
+                  TextSpan(
+                    text: '${widget.symbol}${_grouped(goal.currentAmount)} ',
+                    style: AppTextStyles.numericM.copyWith(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: _isCompleted ? _goldDark : AppColors.black,
                     ),
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    remaining > 0
-                        ? '${widget.symbol}${remaining.toStringAsFixed(0)} to go'
-                        : 'Congratulations!',
-                    style: AppTextStyles.labelS.copyWith(
-                      color: remaining > 0
-                          ? AppColors.gray500
-                          : _goldDark,
-                      fontWeight: remaining > 0
-                          ? FontWeight.w400
-                          : FontWeight.w600,
-                    ),
+                  TextSpan(
+                    text: '/ ${widget.symbol}${_grouped(goal.targetAmount)}',
                   ),
                 ],
               ),
             ),
-            // Add money button
-            if (!_isCompleted)
-              GestureDetector(
-                onTap: widget.onAddMoney,
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: AppColors.black.withValues(alpha: 0.1),
-                    borderRadius: AppRadius.sm,
-                  ),
-                  child: Center(
-                    child: Icon(
-                      PhosphorIcons.plus(),
-                      size: 20,
-                      color: AppColors.black,
-                    ),
-                  ),
-                ),
-              ),
           ],
         ),
       ),
     );
 
-    // Wrap in animated scale + glow when completed
+    // Wrap in animated scale + glow when completed.
     if (_isCompleted) {
       card = AnimatedBuilder(
         animation: _celebrationCtrl,
@@ -266,7 +198,7 @@ class _GoalCardState extends State<GoalCard>
             scale: _scaleAnim.value,
             child: Container(
               decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(Radius.circular(16)),
+                borderRadius: AppRadius.xl,
                 boxShadow: [
                   BoxShadow(
                     color: _goldColor.withValues(alpha: _glowAnim.value),
@@ -281,7 +213,7 @@ class _GoalCardState extends State<GoalCard>
         },
         child: card,
       );
-      // Add confetti Lottie overlay
+      // Add confetti Lottie overlay.
       card = Stack(
         clipBehavior: Clip.none,
         children: [
@@ -310,6 +242,15 @@ class _GoalCardState extends State<GoalCard>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            if (!_isCompleted)
+              ListTile(
+                leading: PhosphorIcon(PhosphorIcons.plus(), color: AppColors.black),
+                title: const Text('Add Money'),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  widget.onAddMoney();
+                },
+              ),
             ListTile(
               leading: PhosphorIcon(PhosphorIcons.pencilSimple(), color: AppColors.black),
               title: const Text('Edit Goal'),
@@ -332,49 +273,4 @@ class _GoalCardState extends State<GoalCard>
       ),
     );
   }
-}
-
-// ─── Goal Ring Painter ────────────────────────────────
-
-class GoalRingPainter extends CustomPainter {
-  GoalRingPainter({
-    required this.progress,
-    required this.strokeWidth,
-    required this.foregroundColor,
-    required this.backgroundColor,
-  });
-
-  final double progress;
-  final double strokeWidth;
-  final Color foregroundColor;
-  final Color backgroundColor;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = (size.width - strokeWidth) / 2;
-    final rect = Rect.fromCircle(center: center, radius: radius);
-
-    final bgPaint = Paint()
-      ..color = backgroundColor
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth
-      ..strokeCap = StrokeCap.round;
-    canvas.drawArc(rect, 0, 2 * pi, false, bgPaint);
-
-    if (progress > 0) {
-      final fgPaint = Paint()
-        ..color = foregroundColor
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = strokeWidth
-        ..strokeCap = StrokeCap.round;
-      canvas.drawArc(rect, -pi / 2, progress * 2 * pi, false, fgPaint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant GoalRingPainter old) =>
-      old.progress != progress ||
-      old.foregroundColor != foregroundColor ||
-      old.backgroundColor != backgroundColor;
 }

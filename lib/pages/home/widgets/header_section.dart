@@ -16,62 +16,64 @@ class HeaderSection extends ConsumerWidget {
     final month = ref.watch(selectedMonthProvider);
     final userName = ref.watch(userNameProvider);
 
-    final monthLabel = DateFormat('MMMM yyyy').format(month);
+    final dateLabel = DateFormat('EEEE, d MMM').format(DateTime.now());
     final name = userName.valueOrNull;
     final hasName = name != null && name.trim().isNotEmpty;
     final greeting = hasName ? 'Hi, $name' : 'Hi there';
 
-    return Container(
-      color: AppColors.black,
+    return Padding(
       padding: EdgeInsets.fromLTRB(
         AppSpacing.lg,
-        MediaQuery.paddingOf(context).top + AppSpacing.md,
+        MediaQuery.paddingOf(context).top + AppSpacing.sm + 6,
         AppSpacing.lg,
-        AppSpacing.lg,
+        AppSpacing.xs,
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Avatar
-          hasName
-              ? _UserAvatar(userName: name)
-              : Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: AppColors.white.withValues(alpha: 0.15),
-                    borderRadius: AppRadius.sm,
-                  ),
-                  child: Icon(PhosphorIcons.user(),
-                      color: AppColors.white.withValues(alpha: 0.6), size: 18),
-                ),
-          const SizedBox(width: AppSpacing.sm),
-          // Greeting + month
+          // Greeting: date eyebrow + big grotesk title
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(greeting,
-                    style: AppTextStyles.headingS
-                        .copyWith(color: AppColors.white)),
                 GestureDetector(
                   onTap: () => _showMonthPicker(context, ref, month),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(monthLabel,
-                          style: AppTextStyles.bodyS.copyWith(
-                              color: AppColors.white.withValues(alpha: 0.6))),
+                      Text(dateLabel,
+                          style: AppTextStyles.section
+                              .copyWith(color: AppColors.gray400)),
                       const SizedBox(width: 4),
-                      Icon(Icons.keyboard_arrow_down,
-                          color: AppColors.white.withValues(alpha: 0.6),
-                          size: 16),
+                      const Icon(Icons.keyboard_arrow_down,
+                          color: AppColors.gray400, size: 15),
                     ],
                   ),
                 ),
+                const SizedBox(height: 6),
+                Text(greeting,
+                    style: AppTextStyles.displayL
+                        .copyWith(color: AppColors.black)),
               ],
             ),
           ),
-          const NotificationBell(color: AppColors.white),
+          const SizedBox(width: AppSpacing.sm),
+          // 46px ink circle avatar with white initials
+          hasName
+              ? _UserAvatar(userName: name)
+              : Container(
+                  width: 46,
+                  height: 46,
+                  decoration: const BoxDecoration(
+                    color: AppColors.black,
+                    shape: BoxShape.circle,
+                    boxShadow: AppShadows.md,
+                  ),
+                  child: Icon(PhosphorIcons.user(),
+                      color: AppColors.white.withValues(alpha: 0.7), size: 20),
+                ),
+          const SizedBox(width: AppSpacing.xs),
+          const NotificationBell(color: AppColors.black),
         ],
       ),
     );
@@ -125,16 +127,20 @@ class _UserAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     final initials = _getInitials(userName);
     return Container(
-      width: 36,
-      height: 36,
-      decoration: BoxDecoration(
-        color: AppColors.white.withValues(alpha: 0.15),
-        borderRadius: AppRadius.sm,
+      width: 46,
+      height: 46,
+      decoration: const BoxDecoration(
+        color: AppColors.black,
+        shape: BoxShape.circle,
+        boxShadow: AppShadows.md,
       ),
       child: Center(
         child: Text(initials,
-            style: AppTextStyles.bodyS
-                .copyWith(color: AppColors.white, fontWeight: FontWeight.w700)),
+            style: AppTextStyles.headingS.copyWith(
+                color: AppColors.white,
+                fontSize: 16,
+                letterSpacing: 0.5,
+                fontWeight: FontWeight.w700)),
       ),
     );
   }

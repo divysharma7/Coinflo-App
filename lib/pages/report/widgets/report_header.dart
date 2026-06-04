@@ -27,16 +27,19 @@ class _ReportHeaderState extends ConsumerState<ReportHeader> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text('Report',
-              style: AppTextStyles.headingL.copyWith(color: AppColors.black)),
+              style: AppTextStyles.displayL.copyWith(color: AppColors.black)),
           GestureDetector(
             onTap: () => _showExportConfirmation(),
             child: Container(
-              padding: const EdgeInsets.all(10),
+              width: 44,
+              height: 44,
               decoration: BoxDecoration(
-                color: AppColors.gray100,
-                borderRadius: AppRadius.base,
+                color: AppColors.white,
+                shape: BoxShape.circle,
+                boxShadow: AppShadows.sm,
               ),
-              child: Icon(PhosphorIcons.export(), color: AppColors.black, size: 20),
+              child: Icon(PhosphorIcons.downloadSimple(),
+                  color: AppColors.black, size: 20),
             ),
           ),
         ],

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import 'package:finance_buddy_app/design_system/design_system.dart';
@@ -14,133 +13,69 @@ class QuickStatsRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final todayAsync = ref.watch(todaySpendingProvider);
-    final monthExpense = ref.watch(monthlyExpenseProvider);
-    final lastMonthAsync = ref.watch(lastMonthExpenseProvider);
+    final incomeAsync = ref.watch(monthlyIncomeProvider);
+    final expenseAsync = ref.watch(monthlyExpenseProvider);
+    final month = ref.watch(selectedMonthProvider);
     final currencyAsync = ref.watch(selectedCurrencyProvider);
     final symbol = currencySymbol(currencyAsync.valueOrNull ?? 'inr');
+
+    final income = incomeAsync.valueOrNull ?? 0;
+    final expense = expenseAsync.valueOrNull ?? 0;
+    final netFlow = income - expense;
+
+    // Average expense per elapsed day of the selected month.
+    final now = DateTime.now();
+    final isCurrentMonth = month.year == now.year && month.month == now.month;
+    final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
+    final elapsed = isCurrentMonth ? now.day : daysInMonth;
+    final avgPerDay = elapsed > 0 ? expense / elapsed : 0;
+
+    String money(num v) => '$symbol${formatHomeNumber(v.toDouble())}';
+    final hasIncome = !incomeAsync.isLoading && incomeAsync.hasValue;
+    final hasExpense = !expenseAsync.isLoading && expenseAsync.hasValue;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
           AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.md),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Today
+          // Income
           Expanded(
-            child: StatCard(
-              label: 'Today',
-              value: todayAsync.when(
-                data: (v) => '$symbol${formatHomeNumber(v)}',
-                loading: () => '—',
-                error: (_, _) => '—',
+            child: StatTile(
+              icon: Icon(PhosphorIcons.arrowUpRight(PhosphorIconsStyle.bold),
+                  color: AppColors.catGreenText),
+              label: 'Income',
+              value: hasIncome ? money(income) : '—',
+            ),
+          ),
+          const SizedBox(width: 10),
+          // Net flow (tap → report tab)
+          Expanded(
+            child: GestureDetector(
+              onTap: () => ref.read(selectedTabProvider.notifier).state = 1,
+              child: StatTile(
+                icon: Icon(PhosphorIcons.pulse(PhosphorIconsStyle.bold),
+                    color: AppColors.black),
+                label: 'Net flow',
+                value: (hasIncome && hasExpense)
+                    ? '${netFlow >= 0 ? '+' : '-'}${money(netFlow.abs())}'
+                    : '—',
+                valueColor:
+                    netFlow >= 0 ? AppColors.catGreenText : AppColors.black,
               ),
-              icon: PhosphorIcons.sun(),
-              color: AppColors.black,
-            ).animate().fadeIn(delay: 0.ms, duration: AppDurations.medium).slideX(begin: 0.1, duration: AppDurations.medium),
+            ),
           ),
-          const SizedBox(width: AppSpacing.sm),
-
-          // This month
+          const SizedBox(width: 10),
+          // Avg / day
           Expanded(
-            child: StatCard(
-              label: 'This month',
-              value: monthExpense.when(
-                data: (v) => '$symbol${formatHomeNumber(v)}',
-                loading: () => '—',
-                error: (_, _) => '—',
-              ),
-              icon: PhosphorIcons.calendarBlank(),
-              color: AppColors.black,
-            ).animate().fadeIn(delay: 60.ms, duration: AppDurations.medium).slideX(begin: 0.1, duration: AppDurations.medium, delay: 60.ms),
+            child: StatTile(
+              icon: Icon(PhosphorIcons.calendarBlank(PhosphorIconsStyle.bold),
+                  color: AppColors.black),
+              label: 'Avg / day',
+              value: hasExpense ? money(avgPerDay) : '—',
+            ),
           ),
-          const SizedBox(width: AppSpacing.sm),
-
-          // vs Last month
-          Expanded(
-            child: _vsLastMonthCard(context, ref, monthExpense, lastMonthAsync),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _vsLastMonthCard(
-      BuildContext context, WidgetRef ref,
-      AsyncValue<double> current, AsyncValue<double> last) {
-    final curVal = current.valueOrNull ?? 0;
-    final lastVal = last.valueOrNull ?? 0;
-
-    String label;
-    Color color;
-    IconData icon;
-
-    if (lastVal == 0) {
-      label = '—';
-      color = AppColors.gray500;
-      icon = PhosphorIcons.trendUp();
-    } else {
-      final pct = ((curVal - lastVal) / lastVal * 100).round();
-      if (pct >= 0) {
-        label = '↑ $pct%';
-        color = AppColors.red;
-        icon = PhosphorIcons.trendUp();
-      } else {
-        label = '↓ ${pct.abs()}%';
-        color = AppColors.green;
-        icon = PhosphorIcons.trendDown();
-      }
-    }
-
-    return GestureDetector(
-      onTap: () => ref.read(selectedTabProvider.notifier).state = 1,
-      child: StatCard(
-        label: 'vs Last month',
-        value: label,
-        icon: icon,
-        color: color,
-      ),
-    );
-  }
-}
-
-class StatCard extends StatelessWidget {
-  const StatCard({
-    super.key,
-    required this.label,
-    required this.value,
-    required this.icon,
-    required this.color,
-  });
-
-  final String label;
-  final String value;
-  final IconData icon;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.sm + 2),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppRadius.mdLg,
-        boxShadow: const [
-          BoxShadow(
-              color: AppColors.shadow, blurRadius: 8, offset: Offset(0, 2)),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 16, color: AppColors.gray500),
-          const SizedBox(height: AppSpacing.xs),
-          Text(value,
-              style: AppTextStyles.headingS
-                  .copyWith(color: color, fontSize: 16)),
-          const SizedBox(height: 2),
-          Text(label,
-              style:
-                  AppTextStyles.labelS.copyWith(color: AppColors.gray500)),
         ],
       ),
     );

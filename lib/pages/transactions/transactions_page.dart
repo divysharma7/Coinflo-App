@@ -8,7 +8,6 @@ import 'package:finance_buddy_app/core/enums.dart';
 import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
-import 'package:finance_buddy_app/widgets/common/amount_text.dart';
 import 'package:finance_buddy_app/widgets/common/empty_state.dart';
 import 'package:finance_buddy_app/widgets/common/neo_pop_button.dart';
 import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
@@ -61,12 +60,73 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
       children: [
         SizedBox(height: MediaQuery.paddingOf(context).top + AppSpacing.md),
 
-        // Header + filter button
+        // "Pushed" month-nav header: ‹  [ Month YYYY ⌄ ]  ›
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          child: const _MonthNavHeader(),
+        ),
+        const SizedBox(height: 14),
+
+        // Search field (white, rounded-14, soft shadow)
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: AppRadius.md,
+              boxShadow: AppShadows.sm,
+            ),
+            child: TextField(
+              controller: _searchController,
+              onChanged: (v) => setState(() => _searchQuery = v.trim()),
+              style: const TextStyle(fontSize: 15, color: AppColors.black),
+              decoration: InputDecoration(
+                hintText: 'Search transactions…',
+                hintStyle: const TextStyle(fontSize: 15, color: AppColors.gray400),
+                prefixIcon: const Icon(Icons.search, size: 18, color: AppColors.gray400),
+                suffixIcon: _searchQuery.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.close, size: 18, color: AppColors.gray500),
+                        tooltip: 'Clear search',
+                        onPressed: () {
+                          _searchController.clear();
+                          setState(() => _searchQuery = '');
+                        },
+                      )
+                    : null,
+                filled: false,
+                isDense: true,
+                contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                border: const OutlineInputBorder(
+                  borderRadius: AppRadius.md,
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: const OutlineInputBorder(
+                  borderRadius: AppRadius.md,
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: const OutlineInputBorder(
+                  borderRadius: AppRadius.md,
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 14),
+
+        // Summary row: Expenses (dark) · Income · Net (green when +)
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          child: _SummaryRow(sym: sym),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+
+        // Filter button (kept; preserves filter sheet behaviour)
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
           child: Row(
             children: [
-              const Text('TRANSACTIONS', style: AppTextStyles.labelM),
               const Spacer(),
               Semantics(
                 button: true,
@@ -132,39 +192,6 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                 ),
               ),
             ],
-          ),
-        ),
-        const SizedBox(height: AppSpacing.sm),
-
-        // Search bar
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-          child: TextField(
-            controller: _searchController,
-            onChanged: (v) => setState(() => _searchQuery = v.trim()),
-            style: const TextStyle(fontSize: 14, color: AppColors.black),
-            decoration: InputDecoration(
-              hintText: 'Search by merchant, note, or category',
-              hintStyle: const TextStyle(fontSize: 13, color: AppColors.gray500),
-              prefixIcon: const Icon(Icons.search, size: 20, color: AppColors.gray500),
-              suffixIcon: _searchQuery.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(Icons.close, size: 18, color: AppColors.gray500),
-                      tooltip: 'Clear search',
-                      onPressed: () {
-                        _searchController.clear();
-                        setState(() => _searchQuery = '');
-                      },
-                    )
-                  : null,
-              filled: true,
-              fillColor: AppColors.gray100,
-              contentPadding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-              border: OutlineInputBorder(
-                borderRadius: AppRadius.pill,
-                borderSide: BorderSide.none,
-              ),
-            ),
           ),
         ),
         const SizedBox(height: AppSpacing.sm),
@@ -260,6 +287,19 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
 
               final items = <Widget>[];
 
+              // "N transactions" count (grotesk w700)
+              items.add(Padding(
+                padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.xs, AppSpacing.lg, 0),
+                child: Text(
+                  '${filtered.length} transaction${filtered.length == 1 ? '' : 's'}',
+                  style: AppTextStyles.bodyM.copyWith(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.3,
+                  ),
+                ),
+              ));
+
               // Confirm All
               if (unconfirmed.length >= 2) {
                 items.add(Padding(
@@ -297,45 +337,63 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
               }
 
               var tileIndex = 0;
-              if (unconfirmed.isNotEmpty) {
-                items.add(Padding(
-                  padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xs),
-                  child: Semantics(
-                    header: true,
-                    child: const Text('UNCONFIRMED', style: AppTextStyles.labelM),
-                  ),
-                ));
-                for (final t in unconfirmed) {
-                  if (shouldAnimate) {
-                    items.add(StaggeredItem(
-                      index: tileIndex,
-                      child: _buildTile(context, t, sym, isUnconfirmed: true),
-                    ));
-                  } else {
-                    items.add(_buildTile(context, t, sym, isUnconfirmed: true));
-                  }
+
+              // Wraps a list of transaction rows in a white card, inserting
+              // hairline dividers between rows (matches the Hi-Fi `.card`).
+              Widget cardFor(List<SpendlerTransaction> group, {bool unconfirmed = false}) {
+                final rows = <Widget>[];
+                for (var i = 0; i < group.length; i++) {
+                  final tile = _buildTile(context, group[i], sym, isUnconfirmed: unconfirmed);
+                  rows.add(shouldAnimate
+                      ? StaggeredItem(index: tileIndex, child: tile)
+                      : tile);
                   if (tileIndex < 20) tileIndex++;
+                  if (i < group.length - 1) {
+                    rows.add(const Divider(
+                      height: 1, thickness: 1, color: AppColors.gray100,
+                      indent: AppSpacing.sm, endIndent: AppSpacing.sm,
+                    ));
+                  }
                 }
-                items.add(const Divider(color: AppColors.gray200));
-              }
-              if (confirmed.isNotEmpty) {
-                items.add(Padding(
-                  padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xs),
-                  child: Semantics(
-                    header: true,
-                    child: const Text('CONFIRMED', style: AppTextStyles.labelM),
+                return Padding(
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.lg, 0, AppSpacing.lg, 0),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      borderRadius: AppRadius.xl,
+                      boxShadow: AppShadows.sm,
+                    ),
+                    child: Column(children: rows),
                   ),
-                ));
+                );
+              }
+
+              Widget sectionEyebrow(String label) => Padding(
+                    padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
+                    child: Semantics(
+                      header: true,
+                      child: Text(label, style: AppTextStyles.section),
+                    ),
+                  );
+
+              // Unconfirmed transactions — own section + white card.
+              if (unconfirmed.isNotEmpty) {
+                items.add(sectionEyebrow('Unconfirmed'));
+                items.add(cardFor(unconfirmed, unconfirmed: true));
+              }
+
+              // Confirmed transactions — grouped by day, one white card per day.
+              if (confirmed.isNotEmpty) {
+                final byDay = <DateTime, List<SpendlerTransaction>>{};
                 for (final t in confirmed) {
-                  if (shouldAnimate) {
-                    items.add(StaggeredItem(
-                      index: tileIndex,
-                      child: _buildTile(context, t, sym),
-                    ));
-                  } else {
-                    items.add(_buildTile(context, t, sym));
-                  }
-                  if (tileIndex < 20) tileIndex++;
+                  final d = DateTime(t.happenedAt.year, t.happenedAt.month, t.happenedAt.day);
+                  byDay.putIfAbsent(d, () => []).add(t);
+                }
+                final days = byDay.keys.toList()..sort((a, b) => b.compareTo(a));
+                for (final day in days) {
+                  items.add(sectionEyebrow(_dayLabel(day)));
+                  items.add(cardFor(byDay[day]!));
                 }
               }
               items.add(const SizedBox(height: 80));
@@ -388,8 +446,11 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
       (c) => c.name == t.category,
       orElse: () => TransactionCategory.foodAndDrink,
     );
-    final catColor = AppColors.categoryColor(cat);
+    final catBg = AppColors.categoryBg(cat);
+    final catFg = AppColors.categoryFg(cat);
     final isSent = t.amount < 0;
+    // Right-aligned mono amount: ink for expenses, green-deep for income.
+    final amountText = '${isSent ? '−' : '+'}$sym${t.amount.abs().toStringAsFixed(0)}';
 
     return Semantics(
       label: '${t.merchant ?? cat.label}, '
@@ -407,49 +468,55 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
           onTap: () => context.push('/transaction/${t.id}'),
           onLongPress: () => showTransactionActions(context, ref, t, sym),
           child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 2),
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 11),
             decoration: BoxDecoration(
               color: isUnconfirmed ? AppColors.amber.withValues(alpha: 0.06) : null,
               border: isUnconfirmed
                   ? const Border(left: BorderSide(color: AppColors.amber, width: 3))
                   : null,
-              borderRadius: AppRadius.base,
+              borderRadius: AppRadius.md,
             ),
             child: Row(
               children: [
-                CircleAvatar(
-                  backgroundColor: catColor.withValues(alpha: 0.15),
-                  child: Icon(cat.iconFill, color: catColor, size: 20),
+                // Category tile (rounded-14, catBg/catFg)
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: catBg,
+                    borderRadius: AppRadius.md,
+                  ),
+                  child: Icon(cat.iconFill, color: catFg, size: 22),
                 ),
-                const SizedBox(width: AppSpacing.sm),
+                const SizedBox(width: 13),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Text(
+                        t.merchant ?? cat.label,
+                        style: AppTextStyles.bodyM.copyWith(
+                          fontSize: 15.5,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: -0.2,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 3),
+                      // Meta: category pill · time
                       Row(
                         children: [
-                          Expanded(
+                          CategoryPill(category: cat.label),
+                          Flexible(
                             child: Text(
-                              t.merchant ?? cat.label,
-                              style: AppTextStyles.bodyM,
+                              ' · ${DateFormat('h:mm a').format(t.happenedAt)}',
+                              style: const TextStyle(fontSize: 12.5, color: AppColors.gray500),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          ExcludeSemantics(
-                            child: PhosphorIcon(
-                              isSent ? PhosphorIcons.arrowUpRight() : PhosphorIcons.arrowDownLeft(),
-                              size: 14,
-                              color: isSent ? AppColors.red : AppColors.green,
-                            ),
-                          ),
                         ],
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        DateFormat('d MMM, h:mm a').format(t.happenedAt),
-                        style: const TextStyle(fontSize: 12, color: AppColors.gray500),
                       ),
                     ],
                   ),
@@ -458,9 +525,14 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    AmountText(
-                      amount: t.amount.toDouble(),
-                      symbol: sym,
+                    Text(
+                      amountText,
+                      style: AppTextStyles.numericM.copyWith(
+                        fontSize: 15.5,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: -0.5,
+                        color: isSent ? AppColors.black : AppColors.catGreenText,
+                      ),
                     ),
                     if (isUnconfirmed)
                       Container(
@@ -487,6 +559,16 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
         ),
       ),
     );
+  }
+
+  /// Human day label for a section eyebrow: "Today" / "Yesterday" / "Sun, 10 May".
+  static String _dayLabel(DateTime day) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final diff = today.difference(day).inDays;
+    if (diff == 0) return 'Today';
+    if (diff == 1) return 'Yesterday';
+    return DateFormat('EEE, d MMM').format(day);
   }
 
   // Transaction actions and delete now use shared util from transaction_actions.dart
@@ -809,6 +891,190 @@ class _ActiveChip extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────
+// "Pushed" month-nav header  (‹  Month YYYY ⌄  ›)
+// ─────────────────────────────────────────────────────
+
+class _MonthNavHeader extends ConsumerWidget {
+  const _MonthNavHeader();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final month = ref.watch(selectedMonthProvider);
+    final label = DateFormat('MMMM yyyy').format(month);
+
+    void shift(int delta) => ref.read(selectedMonthProvider.notifier).state =
+        DateTime(month.year, month.month + delta);
+
+    return Row(
+      children: [
+        _RoundIconButton(
+          icon: PhosphorIcons.caretLeft(),
+          tooltip: 'Previous month',
+          onTap: () => shift(-1),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        Expanded(
+          child: Semantics(
+            button: true,
+            label: 'Selected month $label, change month',
+            child: GestureDetector(
+              onTap: () => _showMonthPicker(context, ref, month),
+              child: Container(
+                height: 44,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: AppRadius.full,
+                  boxShadow: AppShadows.sm,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      label,
+                      style: AppTextStyles.headingS.copyWith(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.3,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.xs),
+                    Icon(Icons.keyboard_arrow_down, size: 18, color: AppColors.gray400),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        _RoundIconButton(
+          icon: PhosphorIcons.caretRight(),
+          tooltip: 'Next month',
+          onTap: () => shift(1),
+        ),
+      ],
+    );
+  }
+
+  void _showMonthPicker(BuildContext context, WidgetRef ref, DateTime current) {
+    final now = DateTime.now();
+    showSpendlerSheet<void>(
+      context: context,
+      isScrollControlled: false,
+      builder: (_) {
+        final months = List.generate(12, (i) => DateTime(now.year, now.month - i));
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ...months.map((m) {
+                final isSelected = m.year == current.year && m.month == current.month;
+                return ListTile(
+                  title: Text(
+                    DateFormat('MMMM yyyy').format(m),
+                    style: AppTextStyles.bodyM.copyWith(
+                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
+                      color: isSelected ? AppColors.black : AppColors.gray500,
+                    ),
+                  ),
+                  trailing: isSelected
+                      ? const Icon(Icons.check, color: AppColors.black, size: 20)
+                      : null,
+                  onTap: () {
+                    ref.read(selectedMonthProvider.notifier).state = m;
+                    Navigator.pop(context);
+                  },
+                );
+              }),
+              const SizedBox(height: AppSpacing.md),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _RoundIconButton extends StatelessWidget {
+  const _RoundIconButton({required this.icon, required this.tooltip, required this.onTap});
+
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: tooltip,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            shape: BoxShape.circle,
+            boxShadow: AppShadows.sm,
+          ),
+          child: Center(child: PhosphorIcon(icon, size: 19, color: AppColors.black)),
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────
+// Summary row — Expenses (dark) · Income · Net
+// ─────────────────────────────────────────────────────
+
+class _SummaryRow extends ConsumerWidget {
+  const _SummaryRow({required this.sym});
+
+  final String sym;
+
+  String _fmt(double v) => '$sym${v.abs().toStringAsFixed(0)}';
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final expense = ref.watch(monthlyExpenseProvider).valueOrNull ?? 0;
+    final income = ref.watch(monthlyIncomeProvider).valueOrNull ?? 0;
+    final net = income - expense;
+    final netPositive = net >= 0;
+
+    return Row(
+      children: [
+        Expanded(
+          child: StatTile(
+            dark: true,
+            icon: PhosphorIcon(PhosphorIcons.arrowDownRight(), color: AppColors.white),
+            label: 'Expenses',
+            value: _fmt(expense),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: StatTile(
+            icon: PhosphorIcon(PhosphorIcons.arrowUpRight(), color: AppColors.catGreenText),
+            label: 'Income',
+            value: _fmt(income),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: StatTile(
+            icon: PhosphorIcon(PhosphorIcons.pulse(), color: AppColors.black),
+            label: 'Net',
+            value: '${netPositive ? '+' : '−'}${_fmt(net)}',
+            valueColor: netPositive ? AppColors.catGreenText : AppColors.black,
+          ),
+        ),
+      ],
     );
   }
 }

@@ -23,74 +23,119 @@ class SubscriptionsPage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.offWhite,
-      appBar: AppBar(
-        title: const Text(
-          'Subscriptions',
-          style: TextStyle(
-            color: AppColors.black,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        backgroundColor: AppColors.offWhite,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        iconTheme: const IconThemeData(color: AppColors.black),
-      ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: AppColors.black,
-        onPressed: () => _showAddSheet(context, ref),
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 700),
-          child: subsAsync.when(
-        data: (subs) {
-          if (subs.isEmpty) {
-            return const EmptyState(
-              icon: Icons.autorenew,
-              message: 'No subscriptions tracked yet',
-              subtitle: 'Tap + to add your first one.',
-            );
-          }
-          return ListView(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.lg,
-              AppSpacing.xs,
-              AppSpacing.lg,
-              100,
-            ),
-            children: [
-              // ── Monthly cost summary ──
-              _MonthlySummaryCard(monthlyTotal: monthlyTotal, count: subs.where((s) => s.isActive).length, symbol: sym),
-              const SizedBox(height: AppSpacing.xl),
-
-              // ── Subscription cards ──
-              for (int i = 0; i < subs.length; i++) ...[
-                _SubscriptionCard(
-                  subscription: subs[i],
-                  symbol: sym,
-                  onToggle: () {
-                    ref.read(repositoryProvider).toggleSubscriptionActive(subs[i].id, !subs[i].isActive);
-                  },
-                  onDelete: () => _confirmDelete(context, ref, subs[i]),
-                ).animate().fadeIn(delay: AppDurations.stagger * i, duration: AppDurations.medium)
-                    .slideX(begin: 0.05, delay: AppDurations.stagger * i, duration: AppDurations.medium),
-                const SizedBox(height: AppSpacing.sm),
+      body: SafeArea(
+        bottom: false,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 700),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _PushedHeader(
+                  onBack: () => Navigator.of(context).maybePop(),
+                  onAdd: () => _showAddSheet(context, ref),
+                ),
+                Expanded(
+                  child: subsAsync.when(
+                    data: (subs) => _buildList(context, ref, subs, monthlyTotal, sym),
+                    loading: () => const Center(
+                      child: CircularProgressIndicator(color: AppColors.black),
+                    ),
+                    error: (_, _) => const Center(
+                      child: Text('Something went wrong',
+                          style: TextStyle(color: AppColors.gray500)),
+                    ),
+                  ),
+                ),
               ],
-            ],
-          );
-        },
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: AppColors.black),
-        ),
-        error: (_, _) => const Center(
-          child: Text('Something went wrong', style: TextStyle(color: AppColors.gray500)),
-        ),
+            ),
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildList(
+    BuildContext context,
+    WidgetRef ref,
+    List<Subscription> subs,
+    AsyncValue<double> monthlyTotal,
+    String sym,
+  ) {
+    if (subs.isEmpty) {
+      return const EmptyState(
+        icon: Icons.autorenew,
+        message: 'No subscriptions tracked yet',
+        subtitle: 'Tap + to add your first one.',
+      );
+    }
+
+    final activeSubs = subs.where((s) => s.isActive).toList();
+    final nextRenewal = _nextRenewal(activeSubs);
+
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.xs,
+        AppSpacing.lg,
+        100,
+      ),
+      children: [
+        // ── Dark hero: monthly total + next renewal ──
+        _SubscriptionHero(
+          monthlyTotal: monthlyTotal,
+          activeCount: activeSubs.length,
+          nextRenewal: nextRenewal,
+          symbol: sym,
+        ),
+        const SizedBox(height: AppSpacing.xl),
+
+        // ── Active section ──
+        const Padding(
+          padding: EdgeInsets.only(bottom: AppSpacing.sm, left: 2),
+          child: Text('Active', style: AppTextStyles.section),
+        ),
+
+        // ── One white card of subscription rows ──
+        Container(
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: AppRadius.xl,
+            boxShadow: AppShadows.sm,
+          ),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.lg,
+            vertical: AppSpacing.xs,
+          ),
+          child: Column(
+            children: [
+              for (int i = 0; i < subs.length; i++) ...[
+                if (i > 0) const Divider(height: 1, thickness: 1, color: AppColors.gray100),
+                _SubscriptionRow(
+                  subscription: subs[i],
+                  symbol: sym,
+                  onToggle: () {
+                    ref.read(repositoryProvider).toggleSubscriptionActive(
+                        subs[i].id, !subs[i].isActive);
+                  },
+                  onDelete: () => _confirmDelete(context, ref, subs[i]),
+                ).animate()
+                    .fadeIn(delay: AppDurations.stagger * i, duration: AppDurations.medium)
+                    .slideX(begin: 0.05, delay: AppDurations.stagger * i, duration: AppDurations.medium),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// The active subscription with the soonest upcoming billing date.
+  static Subscription? _nextRenewal(List<Subscription> activeSubs) {
+    if (activeSubs.isEmpty) return null;
+    final sorted = [...activeSubs]
+      ..sort((a, b) => a.nextBillingDate.compareTo(b.nextBillingDate));
+    return sorted.first;
   }
 
   void _confirmDelete(BuildContext context, WidgetRef ref, Subscription sub) {
@@ -124,64 +169,172 @@ class SubscriptionsPage extends ConsumerWidget {
   }
 }
 
-// ─── Monthly Summary Card ─────────────────────────────
+// ─── Pushed header (‹ · title · +) ────────────────────
 
-class _MonthlySummaryCard extends StatelessWidget {
-  const _MonthlySummaryCard({required this.monthlyTotal, required this.count, required this.symbol});
+class _PushedHeader extends StatelessWidget {
+  const _PushedHeader({required this.onBack, required this.onAdd});
+
+  final VoidCallback onBack;
+  final VoidCallback onAdd;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.xs,
+        AppSpacing.lg,
+        AppSpacing.xs,
+      ),
+      child: Row(
+        children: [
+          _IconButton(icon: PhosphorIcons.caretLeft(), onTap: onBack),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(
+              'Subscriptions',
+              style: AppTextStyles.displayL.copyWith(
+                fontSize: 20,
+                letterSpacing: -0.6,
+              ),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          _IconButton(icon: PhosphorIcons.plus(), onTap: onAdd),
+        ],
+      ),
+    );
+  }
+}
+
+/// White circular icon button used in the pushed header.
+class _IconButton extends StatelessWidget {
+  const _IconButton({required this.icon, required this.onTap});
+
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.white,
+      shape: const CircleBorder(),
+      elevation: 0,
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const CircleBorder(),
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            boxShadow: AppShadows.sm,
+          ),
+          child: Icon(icon, size: 19, color: AppColors.black),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Dark hero: monthly total + next renewal ──────────
+
+class _SubscriptionHero extends StatelessWidget {
+  const _SubscriptionHero({
+    required this.monthlyTotal,
+    required this.activeCount,
+    required this.nextRenewal,
+    required this.symbol,
+  });
 
   final AsyncValue<double> monthlyTotal;
-  final int count;
+  final int activeCount;
+  final Subscription? nextRenewal;
   final String symbol;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(AppSpacing.xl),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppRadius.lg,
-        border: Border.all(color: AppColors.gray200),
-      ),
-      child: Column(
+    final next = nextRenewal;
+    return DarkHeroCard(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'MONTHLY COST',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: AppColors.gray500,
-              letterSpacing: 1.5,
+          // Left — monthly total
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Monthly total',
+                  style: AppTextStyles.labelM.copyWith(
+                    color: Colors.white.withValues(alpha: 0.6),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                monthlyTotal.when(
+                  data: (total) => Text(
+                    '$symbol${total.toStringAsFixed(0)}',
+                    style: AppTextStyles.displayXL.copyWith(
+                      fontSize: 34,
+                      color: AppColors.white,
+                      letterSpacing: -1.6,
+                    ),
+                  ),
+                  loading: () => Text(
+                    '…',
+                    style: AppTextStyles.displayXL.copyWith(
+                      fontSize: 34,
+                      color: Colors.white.withValues(alpha: 0.6),
+                    ),
+                  ),
+                  error: (_, _) => Text(
+                    '—',
+                    style: AppTextStyles.displayXL.copyWith(
+                      fontSize: 34,
+                      color: AppColors.white,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: AppSpacing.xs),
-          monthlyTotal.when(
-            data: (total) => Text(
-              '$symbol${total.toStringAsFixed(0)}',
-              style: const TextStyle(
-                fontSize: 40,
-                fontWeight: FontWeight.w700,
-                color: AppColors.black,
-                fontFeatures: [FontFeature.tabularFigures()],
-                letterSpacing: -1.5,
+          const SizedBox(width: AppSpacing.md),
+
+          // Right — next renewal
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                'Next renewal',
+                style: AppTextStyles.labelS.copyWith(
+                  color: Colors.white.withValues(alpha: 0.55),
+                ),
               ),
-            ),
-            loading: () => const Text(
-              '...',
-              style: TextStyle(fontSize: 40, color: AppColors.gray500),
-            ),
-            error: (_, _) => const Text(
-              '—',
-              style: TextStyle(fontSize: 40, color: AppColors.red),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.xxs),
-          Text(
-            '$count active subscription${count == 1 ? '' : 's'}',
-            style: const TextStyle(
-              fontSize: 13,
-              color: AppColors.gray500,
-            ),
+              const SizedBox(height: 6),
+              Text(
+                next == null
+                    ? '—'
+                    : '${next.name} · ${DateFormat('d MMM').format(next.nextBillingDate)}',
+                textAlign: TextAlign.right,
+                style: AppTextStyles.bodyM.copyWith(
+                  color: AppColors.white,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.xs),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.14),
+                  borderRadius: AppRadius.full,
+                ),
+                child: Text(
+                  '$activeCount active',
+                  style: AppTextStyles.labelS.copyWith(color: AppColors.white),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -189,10 +342,10 @@ class _MonthlySummaryCard extends StatelessWidget {
   }
 }
 
-// ─── Subscription Card ────────────────────────────────
+// ─── Subscription row (mono-tile + name + ₹amount/mo) ─
 
-class _SubscriptionCard extends StatelessWidget {
-  const _SubscriptionCard({
+class _SubscriptionRow extends StatelessWidget {
+  const _SubscriptionRow({
     required this.subscription,
     required this.onToggle,
     required this.onDelete,
@@ -204,169 +357,102 @@ class _SubscriptionCard extends StatelessWidget {
   final VoidCallback onDelete;
   final String symbol;
 
-  Widget _buildBillingDateRow() {
-    if (!subscription.isActive) {
-      return const Text(
-        'Paused',
-        style: TextStyle(
-          fontSize: 12,
-          color: AppColors.gray500,
-          fontStyle: FontStyle.italic,
-        ),
-      );
-    }
-
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final billing = DateTime(
-      subscription.nextBillingDate.year,
-      subscription.nextBillingDate.month,
-      subscription.nextBillingDate.day,
-    );
-    final daysUntil = billing.difference(today).inDays;
-
-    final dateText = 'Next: ${DateFormat('d MMM yyyy').format(subscription.nextBillingDate)}';
-
-    if (daysUntil > 7 || daysUntil < 0) {
-      return Text(
-        dateText,
-        style: const TextStyle(
-          fontSize: 12,
-          color: AppColors.gray500,
-        ),
-      );
-    }
-
-    // Billing is within 7 days — show urgency badge
-    final badgeColor = daysUntil <= 2 ? AppColors.alertRed : AppColors.alertOrange;
-    final String badgeLabel;
-    if (daysUntil == 0) {
-      badgeLabel = 'Due today';
-    } else if (daysUntil == 1) {
-      badgeLabel = 'Due tomorrow';
-    } else {
-      badgeLabel = 'Due in $daysUntil days';
-    }
-
-    return Row(
-      children: [
-        Text(
-          dateText,
-          style: const TextStyle(
-            fontSize: 12,
-            color: AppColors.gray500,
-          ),
-        ),
-        const SizedBox(width: 6),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-          decoration: BoxDecoration(
-            color: badgeColor.withValues(alpha: 0.12),
-            borderRadius: AppRadius.xxs,
-          ),
-          child: Text(
-            badgeLabel,
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: badgeColor,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final cat = TransactionCategory.values.firstWhere(
       (c) => c.name == subscription.category,
       orElse: () => TransactionCategory.other,
     );
-    final catColor = subscription.isActive
-        ? AppColors.categoryColor(cat)
-        : AppColors.gray500;
+    final isActive = subscription.isActive;
+    final tileBg = isActive ? AppColors.categoryBg(cat) : AppColors.gray100;
+    final tileFg = isActive ? AppColors.categoryFg(cat) : AppColors.gray500;
     final cycle = BillingCycle.values.firstWhere(
       (c) => c.name == subscription.billingCycle,
       orElse: () => BillingCycle.monthly,
     );
+    final monogram = subscription.name.isEmpty
+        ? '?'
+        : subscription.name.characters.first.toUpperCase();
+    final meta = isActive
+        ? '${cycle.label} · renews ${DateFormat('d MMM').format(subscription.nextBillingDate)}'
+        : 'Paused';
 
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppRadius.lg,
-        border: Border.all(
-          color: subscription.isActive ? catColor.withValues(alpha: 0.3) : AppColors.gray200,
-        ),
-      ),
-      child: Row(
-        children: [
-          // Category icon
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: catColor.withValues(alpha: 0.12),
-              borderRadius: AppRadius.base,
+    return InkWell(
+      onTap: onToggle,
+      onLongPress: onDelete,
+      borderRadius: AppRadius.md,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 11),
+        child: Row(
+          children: [
+            // mono-tile monogram (46px, rounded-14)
+            Container(
+              width: 46,
+              height: 46,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: tileBg,
+                borderRadius: AppRadius.md,
+              ),
+              child: Text(
+                monogram,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 17,
+                  letterSpacing: -0.5,
+                ).copyWith(color: tileFg),
+              ),
             ),
-            child: Icon(cat.icon, color: catColor, size: 22),
-          ),
-          const SizedBox(width: AppSpacing.md),
+            const SizedBox(width: 13),
 
-          // Name + details
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            // name + meta
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    subscription.name,
+                    style: AppTextStyles.bodyM.copyWith(
+                      fontSize: 15.5,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.2,
+                      color: isActive ? AppColors.black : AppColors.gray500,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    meta,
+                    style: AppTextStyles.labelM.copyWith(color: AppColors.gray500),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+
+            // ₹amount + tiny /cycle
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  subscription.name,
-                  style: TextStyle(
-                    fontSize: 15,
+                  '$symbol${subscription.amount.toStringAsFixed(0)}',
+                  style: AppTextStyles.numericM.copyWith(
+                    fontSize: 15.5,
                     fontWeight: FontWeight.w600,
-                    color: subscription.isActive
-                        ? AppColors.black
-                        : AppColors.gray500,
+                    color: isActive ? AppColors.black : AppColors.gray500,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 2),
                 Text(
-                  '$symbol${subscription.amount.toStringAsFixed(0)}${cycle.shortLabel} · ${cat.label}',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppColors.gray500,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  cycle.shortLabel,
+                  style: AppTextStyles.labelS.copyWith(color: AppColors.gray400),
                 ),
-                const SizedBox(height: 2),
-                _buildBillingDateRow(),
               ],
             ),
-          ),
-
-          // Actions column
-          IconButton(
-            onPressed: onToggle,
-            icon: Icon(
-              subscription.isActive ? PhosphorIcons.pause() : PhosphorIcons.play(),
-              color: subscription.isActive ? AppColors.amber : AppColors.green,
-              size: 20,
-            ),
-            tooltip: subscription.isActive ? 'Pause' : 'Resume',
-          ),
-          IconButton(
-            onPressed: onDelete,
-            icon: Icon(
-              PhosphorIcons.trash(),
-              color: AppColors.red.withValues(alpha: 0.7),
-              size: 20,
-            ),
-            tooltip: 'Delete',
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

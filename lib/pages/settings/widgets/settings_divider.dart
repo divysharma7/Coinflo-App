@@ -10,9 +10,6 @@ class SettingsDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.only(left: 64),
-      child: Divider(height: 1, thickness: 0.5, color: AppColors.gray200),
-    );
+    return const Divider(height: 1, thickness: 1, color: AppColors.gray100);
   }
 }

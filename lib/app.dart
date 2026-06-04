@@ -22,6 +22,11 @@ class SpendlerApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             themeMode: ThemeMode.light,
             theme: ThemeData.light(useMaterial3: true).copyWith(
+              // Schibsted Grotesk is the app-wide UI typeface (CoinFlo Hi-Fi);
+              // amounts override to JetBrains Mono via AppTextStyles.
+              textTheme: ThemeData.light(useMaterial3: true)
+                  .textTheme
+                  .apply(fontFamily: 'SchibstedGrotesk'),
               scaffoldBackgroundColor: AppColors.offWhite,
               colorScheme: const ColorScheme.light(
                 surface: AppColors.white,

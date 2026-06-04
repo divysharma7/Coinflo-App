@@ -14,6 +14,7 @@ import 'package:finance_buddy_app/services/notifications/notification_service.da
 import 'package:finance_buddy_app/services/notifications/spending_alert_service.dart';
 import 'package:finance_buddy_app/services/split/split_calculator.dart';
 import 'package:finance_buddy_app/data/repositories/split_repository.dart';
+import 'package:finance_buddy_app/pages/add/category_search_sheet.dart';
 import 'package:finance_buddy_app/pages/add/split_picker_sheet.dart';
 import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -37,8 +38,10 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
   bool _classifying = false;
   bool _hasTyped = false;
   bool _saving = false;
+  bool _caretOn = true;
   DateTime _selectedDate = DateTime.now();
   Timer? _debounce;
+  Timer? _caretTimer;
   String _incomeSource = 'salary';
   List<int> _splitPersonIds = [];
 
@@ -58,6 +61,40 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
   void initState() {
     super.initState();
     _amountController.addListener(() => setState(() {}));
+    _caretTimer = Timer.periodic(const Duration(milliseconds: 550), (_) {
+      if (mounted) setState(() => _caretOn = !_caretOn);
+    });
+  }
+
+  /// Custom-numpad input handler. Mutates [_amountController] through the same
+  /// constraints as the original TextField formatters (max 10 chars, up to 2
+  /// decimals, single leading dot) so amount parsing/save logic is unchanged.
+  void _onKeyTap(String key) {
+    HapticFeedback.selectionClick();
+    final current = _amountController.text;
+    String next = current;
+    if (key == '.') {
+      if (current.contains('.')) return;
+      next = current.isEmpty ? '0.' : '$current.';
+    } else {
+      if (current == '0') {
+        next = key; // replace leading zero
+      } else if (current.contains('.') &&
+          current.substring(current.indexOf('.') + 1).length >= 2) {
+        return; // already 2 decimals
+      } else {
+        next = '$current$key';
+      }
+    }
+    if (next.length > 10) return;
+    _amountController.text = next;
+  }
+
+  void _onBackspace() {
+    HapticFeedback.selectionClick();
+    final current = _amountController.text;
+    if (current.isEmpty) return;
+    _amountController.text = current.substring(0, current.length - 1);
   }
 
   void _onNoteChanged(String text) {
@@ -88,45 +125,20 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
     });
   }
 
-  void _showCategoryPicker() {
-    showSpendlerSheet<void>(
+  /// State 04 of the Add Expense Flow — tapping the category opens the full
+  /// searchable list with the current guess pre-selected. A correction is
+  /// usually a single tap, after which the AUTO tag is cleared.
+  Future<void> _showCategoryPicker() async {
+    final picked = await showSpendlerSheet<TransactionCategory>(
       context: context,
-      builder: (_) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Text('CATEGORY', style: AppTextStyles.labelM),
-          const SizedBox(height: AppSpacing.md),
-          ...TransactionCategory.pickableGroups.map((cat) {
-            final selected = _category == cat;
-            final catColor = AppColors.categoryColor(cat);
-            return ListTile(
-              leading: Icon(
-                selected ? cat.iconFill : cat.icon,
-                color: selected ? catColor : AppColors.gray500,
-              ),
-              title: Text(
-                cat.label,
-                style: TextStyle(
-                  color: selected ? AppColors.black : AppColors.gray500,
-                  fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-                ),
-              ),
-              trailing: selected
-                  ? const Icon(Icons.check, color: AppColors.black, size: 20)
-                  : null,
-              onTap: () {
-                setState(() {
-                  _category = cat;
-                  _aiSuggested = false;
-                });
-                Navigator.pop(context);
-              },
-            );
-          }),
-          const SizedBox(height: AppSpacing.md),
-        ],
-      ),
+      builder: (_) => CategorySearchSheet(selected: _category),
     );
+    if (picked != null && mounted) {
+      setState(() {
+        _category = picked;
+        _aiSuggested = false;
+      });
+    }
   }
 
   Future<void> _pickDate() async {
@@ -145,6 +157,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
   @override
   void dispose() {
     _debounce?.cancel();
+    _caretTimer?.cancel();
     _amountController.dispose();
     _amountFocus.dispose();
     _noteController.dispose();
@@ -159,360 +172,472 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
     final symbol = currencySymbol(currency);
     final amountColor = _isExpense ? AppColors.amountNeutral : AppColors.green;
     final bottomPad = MediaQuery.of(context).viewInsets.bottom;
-    final catColor = AppColors.categoryColor(_category);
-    final isToday = _selectedDate.year == DateTime.now().year &&
-        _selectedDate.month == DateTime.now().month &&
-        _selectedDate.day == DateTime.now().day;
 
     return Padding(
       padding: EdgeInsets.only(bottom: bottomPad),
-      child: SizedBox(
-        height: MediaQuery.of(context).size.height * 0.88,
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.9,
+        decoration: const BoxDecoration(
+          color: AppColors.offWhite,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 22),
         child: Column(
           children: [
-            // Amount display — tappable with cursor
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
-              children: [
-                Text(symbol,
-                    style: AppTextStyles.headingM.copyWith(color: amountColor)),
-                const SizedBox(width: AppSpacing.xxs),
-                IntrinsicWidth(
-                  child: TextField(
-                    controller: _amountController,
-                    focusNode: _amountFocus,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
-                      LengthLimitingTextInputFormatter(10),
-                    ],
-                    showCursor: true,
-                    cursorColor: amountColor,
-                    style: AppTextStyles.displayXL.copyWith(color: amountColor),
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      isCollapsed: true,
-                      hintText: '0',
-                      hintStyle: AppTextStyles.displayXL
-                          .copyWith(color: amountColor.withValues(alpha: 0.4)),
+            // Handle
+            Container(
+              width: 38,
+              height: 5,
+              margin: const EdgeInsets.fromLTRB(0, 12, 0, 6),
+              decoration: const BoxDecoration(
+                color: AppColors.gray300,
+                borderRadius: AppRadius.xs,
+              ),
+            ),
+
+            // Header — "New expense" + circular close button
+            Padding(
+              padding: const EdgeInsets.only(top: 6, bottom: 2),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    _isExpense ? 'New expense' : 'New income',
+                    style: AppTextStyles.headingM.copyWith(
+                      fontSize: 19,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.4,
                     ),
                   ),
-                ),
-              ],
-            ).animate().fadeIn(duration: AppDurations.medium).slideY(begin: -0.1, duration: AppDurations.medium),
-            const SizedBox(height: AppSpacing.sm),
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      width: 34,
+                      height: 34,
+                      decoration: const BoxDecoration(
+                        color: AppColors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: AppShadows.sm,
+                      ),
+                      child: const Icon(Icons.close,
+                          size: 18, color: AppColors.black),
+                    ),
+                  ),
+                ],
+              ),
+            ),
 
-            // Expense/Income toggle
-            _buildToggle(),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: 14),
 
-            // Scrollable middle section
+            // Expense / Income segmented control
+            AppSegmentedControl(
+              segments: const ['Expense', 'Income'],
+              selectedIndex: _isExpense ? 0 : 1,
+              onChanged: (i) => setState(() => _isExpense = i == 0),
+            ),
+
+            // Centered amount display + chips
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Date picker row
-                    GestureDetector(
-                      onTap: _pickDate,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 12),
-                        decoration: BoxDecoration(
-                          color: AppColors.gray100,
-                          borderRadius: AppRadius.base,
-                        ),
-                        child: Row(
-                          children: [
-                            PhosphorIcon(PhosphorIcons.calendar(),
-                                size: 18, color: AppColors.gray500),
-                            const SizedBox(width: 10),
-                            Text(
-                              isToday
-                                  ? 'Today'
-                                  : DateFormat('EEE, d MMM yyyy')
-                                      .format(_selectedDate),
-                              style: AppTextStyles.bodyM.copyWith(
-                                color: isToday
-                                    ? AppColors.gray500
-                                    : AppColors.black,
-                                fontWeight:
-                                    isToday ? FontWeight.w400 : FontWeight.w500,
-                              ),
-                            ),
-                            const Spacer(),
-                            PhosphorIcon(PhosphorIcons.caretDown(),
-                                size: 14, color: AppColors.gray500),
-                          ],
-                        ),
-                      ),
+                    const SizedBox(height: AppSpacing.lg),
+                    Text(
+                      'Amount',
+                      style: AppTextStyles.section.copyWith(fontSize: 11),
                     ),
-                    const SizedBox(height: AppSpacing.sm),
-
-                    // Note / merchant field
-                    TextField(
-                      controller: _noteController,
-                      focusNode: _noteFocus,
-                      onChanged: _onNoteChanged,
-                      textCapitalization: TextCapitalization.sentences,
-                      style:
-                          AppTextStyles.bodyM.copyWith(color: AppColors.black),
-                      decoration: InputDecoration(
-                        hintText: 'What was this for?',
-                        hintStyle: AppTextStyles.bodyM
-                            .copyWith(color: AppColors.gray500),
-                        filled: true,
-                        fillColor: AppColors.gray100,
-                        border: OutlineInputBorder(
-                          borderRadius: AppRadius.base,
-                          borderSide: BorderSide.none,
-                        ),
-                        isDense: true,
-                        suffixIcon: _classifying
-                            ? const Padding(
-                                padding: EdgeInsets.all(12),
-                                child: SizedBox(
-                                  width: 18, height: 18,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: AppColors.gray500,
-                                  ),
-                                ),
-                              )
-                            : null,
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-
-                    // Category / Income Source — toggle-driven swap
-                    if (_isExpense) ...[
-                      Text('Category',
-                          style: AppTextStyles.labelS
-                              .copyWith(color: AppColors.gray500)),
-                      const SizedBox(height: AppSpacing.xs),
-                      GestureDetector(
-                        onTap: _showCategoryPicker,
-                        child: AnimatedContainer(
-                          duration: AppDurations.base,
-                          curve: Curves.easeOut,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 14, vertical: 10),
-                          decoration: BoxDecoration(
-                            color: _aiSuggested || _hasTyped
-                                ? catColor.withValues(alpha: 0.10)
-                                : AppColors.gray100,
-                            borderRadius: AppRadius.lgXl,
-                            border: _aiSuggested || _hasTyped
-                                ? Border.all(
-                                    color: catColor.withValues(alpha: 0.3))
-                                : null,
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (_aiSuggested) ...[
-                                PhosphorIcon(
-                                  PhosphorIcons.sparkle(
-                                      PhosphorIconsStyle.fill),
-                                  size: 14,
-                                  color: AppColors.aiPurple,
-                                ),
-                                const SizedBox(width: 6),
-                              ],
-                              Icon(_category.iconFill, size: 16, color: catColor),
-                              const SizedBox(width: 6),
-                              Text(
-                                _category.label,
-                                style: AppTextStyles.bodyM.copyWith(
-                                  fontWeight: _aiSuggested || _hasTyped
-                                      ? FontWeight.w600
-                                      : FontWeight.w400,
-                                  color: _aiSuggested || _hasTyped
-                                      ? catColor
-                                      : AppColors.gray500,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              PhosphorIcon(PhosphorIcons.caretDown(),
-                                  size: 14, color: AppColors.gray500),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ] else ...[
-                      Text('Source',
-                          style: AppTextStyles.labelS
-                              .copyWith(color: AppColors.gray500)),
-                      const SizedBox(height: AppSpacing.xs),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: _incomeSources.map((source) {
-                          final selected = _incomeSource == source;
-                          return GestureDetector(
-                            onTap: () => setState(() => _incomeSource = source),
-                            child: AnimatedContainer(
-                              duration: AppDurations.normal,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 14, vertical: 10),
-                              decoration: BoxDecoration(
-                                color: selected
-                                    ? AppColors.green.withValues(alpha: 0.12)
-                                    : AppColors.gray100,
-                                borderRadius: AppRadius.lgXl,
-                                border: selected
-                                    ? Border.all(color: AppColors.green.withValues(alpha: 0.4))
-                                    : null,
-                              ),
-                              child: Text(
-                                _incomeSourceLabels[source]!,
-                                style: AppTextStyles.bodyM.copyWith(
-                                  fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-                                  color: selected ? AppColors.green : AppColors.gray500,
-                                ),
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      ),
+                    const SizedBox(height: 10),
+                    _buildAmount(symbol, amountColor),
+                    const SizedBox(height: 18),
+                    _buildChips(),
+                    const SizedBox(height: AppSpacing.lg),
+                    // Note / merchant field (real AI classifier wiring)
+                    _buildNoteField(),
+                    if (!_isExpense) ...[
+                      const SizedBox(height: AppSpacing.md),
+                      _buildIncomeSources(),
                     ],
-
-                    // ── Split with... (expense only) ──
                     if (_isExpense) ...[
-                      const SizedBox(height: AppSpacing.lg),
-                      GestureDetector(
-                        onTap: _openSplitPicker,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 14, vertical: 12),
-                          decoration: BoxDecoration(
-                            color: _splitPersonIds.isNotEmpty
-                                ? AppColors.black.withValues(alpha: 0.05)
-                                : AppColors.gray100,
-                            borderRadius: AppRadius.base,
-                            border: _splitPersonIds.isNotEmpty
-                                ? Border.all(color: AppColors.black.withValues(alpha: 0.2))
-                                : null,
-                          ),
-                          child: Row(
-                            children: [
-                              PhosphorIcon(PhosphorIcons.users(),
-                                  size: 18,
-                                  color: _splitPersonIds.isNotEmpty
-                                      ? AppColors.black
-                                      : AppColors.gray500),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  _splitPersonIds.isEmpty
-                                      ? 'Split with...'
-                                      : 'Split ${_splitPersonIds.length + 1} ways',
-                                  style: AppTextStyles.bodyM.copyWith(
-                                    color: _splitPersonIds.isNotEmpty
-                                        ? AppColors.black
-                                        : AppColors.gray500,
-                                    fontWeight: _splitPersonIds.isNotEmpty
-                                        ? FontWeight.w500
-                                        : FontWeight.w400,
-                                  ),
-                                ),
-                              ),
-                              if (_splitPersonIds.isNotEmpty)
-                                GestureDetector(
-                                  onTap: () => setState(() => _splitPersonIds = []),
-                                  child: PhosphorIcon(PhosphorIcons.x(),
-                                      size: 16, color: AppColors.gray500),
-                                )
-                              else
-                                PhosphorIcon(PhosphorIcons.caretRight(),
-                                    size: 14, color: AppColors.gray500),
-                            ],
-                          ),
-                        ),
-                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      _buildSplitRow(),
                     ],
-
                   ],
                 ),
               ),
             ),
 
-            // Done button
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.md),
-              child: SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: _saving
-                    ? const Center(
-                        child: CircularProgressIndicator(
-                            color: AppColors.black, strokeWidth: 2.5))
-                    : AppButton(
-                        label: 'Done',
-                        onTap: _save,
-                        disabled: _amountController.text.isEmpty,
+            // Custom numpad
+            _buildKeypad(),
+            const SizedBox(height: 14),
+
+            // Primary "Add expense" ink pill — normal-height (no flex)
+            SizedBox(
+              width: double.infinity,
+              height: 54,
+              child: _saving
+                  ? Container(
+                      alignment: Alignment.center,
+                      decoration: const BoxDecoration(
+                        color: AppColors.black,
+                        borderRadius: AppRadius.full,
                       ),
-              ),
+                      child: const SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                            color: AppColors.white, strokeWidth: 2.5),
+                      ),
+                    )
+                  : AppButton(
+                      label: _isExpense ? 'Add expense' : 'Add income',
+                      onTap: _save,
+                      disabled: _amountController.text.isEmpty,
+                    ),
             ),
-            SizedBox(height: MediaQuery.of(context).padding.bottom),
+            SizedBox(height: 26 + MediaQuery.of(context).padding.bottom),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildToggle() {
+  // ── Big centered amount with blinking ink caret ──────────────
+  Widget _buildAmount(String symbol, Color amountColor) {
+    final text = _amountController.text;
+    final amountStyle = AppTextStyles.displayXL.copyWith(
+      fontSize: 52,
+      fontWeight: FontWeight.w700,
+      letterSpacing: -2,
+      height: 1,
+      color: amountColor,
+    );
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(symbol, style: amountStyle),
+        Flexible(
+          child: Text(
+            text.isEmpty ? '0' : text,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: amountStyle.copyWith(
+              color: text.isEmpty
+                  ? amountColor.withValues(alpha: 0.4)
+                  : amountColor,
+            ),
+          ),
+        ),
+        const SizedBox(width: 2),
+        Container(
+          width: 3,
+          height: 44,
+          decoration: BoxDecoration(
+            color: _caretOn
+                ? AppColors.black.withValues(alpha: 0.85)
+                : Colors.transparent,
+            borderRadius: AppRadius.xxs,
+          ),
+        ),
+      ],
+    ).animate().fadeIn(duration: AppDurations.medium);
+  }
+
+  // ── Category / date chips (real pickers) ─────────────────────
+  Widget _buildChips() {
+    final catColor = AppColors.categoryColor(_category);
+    final isToday = _selectedDate.year == DateTime.now().year &&
+        _selectedDate.month == DateTime.now().month &&
+        _selectedDate.day == DateTime.now().day;
+    final dateLabel =
+        isToday ? 'Today' : DateFormat('d MMM').format(_selectedDate);
+
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        if (_isExpense)
+          _chip(
+            onTap: _showCategoryPicker,
+            leading: Container(
+              width: 22,
+              height: 22,
+              decoration: BoxDecoration(
+                color: AppColors.categoryBg(_category),
+                borderRadius: AppRadius.xs,
+              ),
+              child: Icon(_category.iconFill, size: 13, color: catColor),
+            ),
+            label: _category.label,
+            highlight: _aiSuggested,
+          )
+        else
+          _chip(
+            onTap: () {},
+            leading: PhosphorIcon(PhosphorIcons.wallet(),
+                size: 15, color: AppColors.black),
+            label: 'Income',
+          ),
+        _chip(
+          onTap: _pickDate,
+          leading: PhosphorIcon(PhosphorIcons.calendar(),
+              size: 15, color: AppColors.black),
+          label: dateLabel,
+        ),
+      ],
+    );
+  }
+
+  Widget _chip({
+    required VoidCallback onTap,
+    required Widget leading,
+    required String label,
+    bool highlight = false,
+  }) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+        decoration: const BoxDecoration(
+          color: AppColors.white,
+          borderRadius: AppRadius.full,
+          boxShadow: AppShadows.sm,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            leading,
+            const SizedBox(width: 7),
+            Text(
+              label,
+              style: AppTextStyles.bodyM.copyWith(
+                fontSize: 13.5,
+                fontWeight: FontWeight.w600,
+                color: AppColors.black,
+              ),
+            ),
+            if (highlight) ...[
+              const SizedBox(width: 6),
+              _autoBadge(),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Sparkle + "AUTO" pill shown on the category chip once the AI classifier
+  /// has filled it in — design state 02/03 trust signal (reversible in one tap).
+  Widget _autoBadge() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        borderRadius: AppRadius.xxl,
-        border: Border.all(color: AppColors.gray200),
+        color: AppColors.aiPurple.withValues(alpha: 0.12),
+        borderRadius: AppRadius.full,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _toggleButton('Expense', _isExpense, () {
-            setState(() => _isExpense = true);
-          }),
-          _toggleButton('Income', !_isExpense, () {
-            setState(() => _isExpense = false);
-          }),
+          PhosphorIcon(PhosphorIcons.sparkle(PhosphorIconsStyle.fill),
+              size: 10, color: AppColors.aiPurple),
+          const SizedBox(width: 3),
+          const Text(
+            'AUTO',
+            style: TextStyle(
+              fontSize: 9.5,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.5,
+              color: AppColors.aiPurple,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _toggleButton(String label, bool selected, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: AppDurations.fast,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: BoxDecoration(
-          color: selected ? AppColors.black : Colors.transparent,
-          borderRadius: AppRadius.xlSm,
+  // ── Note field (AI classifier wiring preserved) ──────────────
+  // Design state 01: a "NOTE" field label, a pencil-prefixed input, and a
+  // helper hint that promises the live auto-tag until the AI has tagged it.
+  Widget _buildNoteField() {
+    final showAutoTagHint = _isExpense && !_aiSuggested;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 2, bottom: 8),
+          child: Text('NOTE',
+              style: AppTextStyles.section.copyWith(fontSize: 11)),
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (selected) ...[
-              const Icon(Icons.check, size: 16, color: AppColors.white),
-              const SizedBox(width: 6),
-            ],
-            Text(
-              label,
-              style: AppTextStyles.bodyS.copyWith(
-                fontWeight: FontWeight.w600,
-                color: selected ? AppColors.white : AppColors.gray500,
+        TextField(
+          controller: _noteController,
+          focusNode: _noteFocus,
+          onChanged: _onNoteChanged,
+          textCapitalization: TextCapitalization.sentences,
+          style: AppTextStyles.bodyM.copyWith(color: AppColors.black),
+          decoration: InputDecoration(
+            hintText: 'What was this for?',
+            hintStyle: AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
+            filled: true,
+            fillColor: AppColors.white,
+            border: const OutlineInputBorder(
+              borderRadius: AppRadius.mdLg,
+              borderSide: BorderSide.none,
+            ),
+            isDense: true,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            prefixIcon: Padding(
+              padding: const EdgeInsets.only(left: 14, right: 10),
+              child: PhosphorIcon(PhosphorIcons.pencilSimple(),
+                  size: 18, color: AppColors.gray500),
+            ),
+            prefixIconConstraints:
+                const BoxConstraints(minWidth: 0, minHeight: 0),
+            suffixIcon: _classifying
+                ? const Padding(
+                    padding: EdgeInsets.all(12),
+                    child: SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColors.gray500,
+                      ),
+                    ),
+                  )
+                : null,
+          ),
+        ),
+        if (showAutoTagHint)
+          Padding(
+            padding: const EdgeInsets.only(left: 2, top: 8),
+            child: Text(
+              "Type a note and we'll auto-tag the category.",
+              style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
+            ),
+          ),
+      ],
+    );
+  }
+
+  // ── Income source chips (income mode) ────────────────────────
+  Widget _buildIncomeSources() {
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 8,
+      runSpacing: 8,
+      children: _incomeSources.map((source) {
+        final selected = _incomeSource == source;
+        return GestureDetector(
+          onTap: () => setState(() => _incomeSource = source),
+          child: AnimatedContainer(
+            duration: AppDurations.normal,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: selected ? AppColors.green.withValues(alpha: 0.12) : AppColors.white,
+              borderRadius: AppRadius.full,
+              boxShadow: selected ? null : AppShadows.sm,
+              border: selected
+                  ? Border.all(color: AppColors.green.withValues(alpha: 0.4))
+                  : null,
+            ),
+            child: Text(
+              _incomeSourceLabels[source]!,
+              style: AppTextStyles.bodyM.copyWith(
+                fontSize: 13.5,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                color: selected ? AppColors.green : AppColors.gray500,
               ),
             ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  // ── Split-with row (expense mode) ────────────────────────────
+  Widget _buildSplitRow() {
+    final active = _splitPersonIds.isNotEmpty;
+    return GestureDetector(
+      onTap: _openSplitPicker,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: AppRadius.mdLg,
+          boxShadow: AppShadows.sm,
+          border: active
+              ? Border.all(color: AppColors.black.withValues(alpha: 0.2))
+              : null,
+        ),
+        child: Row(
+          children: [
+            PhosphorIcon(PhosphorIcons.users(),
+                size: 18, color: active ? AppColors.black : AppColors.gray500),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                active ? 'Split ${_splitPersonIds.length + 1} ways' : 'Split with...',
+                style: AppTextStyles.bodyM.copyWith(
+                  color: active ? AppColors.black : AppColors.gray500,
+                  fontWeight: active ? FontWeight.w500 : FontWeight.w400,
+                ),
+              ),
+            ),
+            if (active)
+              GestureDetector(
+                onTap: () => setState(() => _splitPersonIds = []),
+                child: PhosphorIcon(PhosphorIcons.x(),
+                    size: 16, color: AppColors.gray500),
+              )
+            else
+              PhosphorIcon(PhosphorIcons.caretRight(),
+                  size: 14, color: AppColors.gray500),
           ],
         ),
       ),
+    );
+  }
+
+  // ── Custom 3×4 numpad ────────────────────────────────────────
+  Widget _buildKeypad() {
+    const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    return GridView.count(
+      crossAxisCount: 3,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      mainAxisSpacing: 4,
+      crossAxisSpacing: 4,
+      childAspectRatio: 2.0,
+      children: [
+        for (final k in keys) _key(label: k, onTap: () => _onKeyTap(k)),
+        _key(label: '.', onTap: () => _onKeyTap('.')),
+        _key(label: '0', onTap: () => _onKeyTap('0')),
+        _key(
+          onTap: _onBackspace,
+          child: PhosphorIcon(PhosphorIcons.backspace(),
+              size: 24, color: AppColors.black),
+        ),
+      ],
+    );
+  }
+
+  Widget _key({String? label, Widget? child, required VoidCallback onTap}) {
+    return _NumKey(
+      onTap: onTap,
+      child: child ??
+          Text(
+            label!,
+            style: AppTextStyles.numericL.copyWith(
+              fontSize: 25,
+              fontWeight: FontWeight.w600,
+              color: AppColors.black,
+            ),
+          ),
     );
   }
 
@@ -633,9 +758,45 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
           duration: const Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
           shape:
-              RoundedRectangleBorder(borderRadius: AppRadius.sm),
+              const RoundedRectangleBorder(borderRadius: AppRadius.sm),
         ),
       );
     }
+  }
+}
+
+/// Single numpad key — radius-16 cell that tints [AppColors.gray100] while
+/// pressed, mirroring the `.key:active` rule in the CoinFlo Hi-Fi system.
+class _NumKey extends StatefulWidget {
+  const _NumKey({required this.onTap, required this.child});
+
+  final VoidCallback onTap;
+  final Widget child;
+
+  @override
+  State<_NumKey> createState() => _NumKeyState();
+}
+
+class _NumKeyState extends State<_NumKey> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) => setState(() => _pressed = false),
+      onTapCancel: () => setState(() => _pressed = false),
+      onTap: widget.onTap,
+      child: AnimatedContainer(
+        duration: AppDurations.fast,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: _pressed ? AppColors.gray100 : Colors.transparent,
+          borderRadius: AppRadius.mdLg,
+        ),
+        child: widget.child,
+      ),
+    );
   }
 }

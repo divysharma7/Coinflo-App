@@ -33,27 +33,29 @@ class SettingsRow extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: Padding(
         padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md, vertical: 13),
+            horizontal: AppSpacing.md, vertical: 14),
         child: Row(
           children: [
             Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(color: iconBg, shape: BoxShape.circle),
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                  color: iconBg, borderRadius: AppRadius.sm),
               child: Center(
-                  child: PhosphorIcon(icon, color: iconColor, size: 18)),
+                  child: PhosphorIcon(icon, color: iconColor, size: 19)),
             ),
-            const SizedBox(width: AppSpacing.sm),
+            const SizedBox(width: 14),
             Expanded(
               child: Text(label,
-                  style: AppTextStyles.bodyM.copyWith(color: AppColors.black),
+                  style: AppTextStyles.bodyM.copyWith(
+                      color: AppColors.black, fontWeight: FontWeight.w600),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis),
             ),
-            if (trailing != null) ...[trailing!, const SizedBox(width: AppSpacing.xs)],
+            if (trailing != null) ...[trailing!, const SizedBox(width: 14)],
             if (showChevron)
               PhosphorIcon(PhosphorIcons.caretRight(),
-                  color: AppColors.gray500, size: 16),
+                  color: AppColors.gray400, size: 18),
           ],
         ),
       ),

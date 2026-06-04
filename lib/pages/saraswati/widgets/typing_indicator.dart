@@ -36,12 +36,19 @@ class _TypingIndicatorState extends State<TypingIndicator>
         top: AppSpacing.xs,
         bottom: AppSpacing.xs,
       ),
-      child: Container(
-        width: double.infinity,
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Container(
         padding: const EdgeInsets.all(AppSpacing.md),
-        decoration: BoxDecoration(
-          color: AppColors.offWhite,
-          borderRadius: AppRadius.lg,
+        decoration: const BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+            bottomRight: Radius.circular(20),
+            bottomLeft: Radius.circular(6),
+          ),
+          boxShadow: AppShadows.sm,
         ),
         child: AnimatedBuilder(
           animation: _anim,
@@ -70,6 +77,7 @@ class _TypingIndicatorState extends State<TypingIndicator>
             );
           },
         ),
+      ),
       ),
     );
   }
