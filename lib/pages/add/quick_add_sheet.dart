@@ -245,13 +245,17 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                   children: [
                     const SizedBox(height: AppSpacing.lg),
                     Text(
-                      'Amount',
+                      'AMOUNT',
                       style: AppTextStyles.section.copyWith(fontSize: 11),
                     ),
                     const SizedBox(height: 10),
                     _buildAmount(symbol, amountColor),
                     const SizedBox(height: 18),
                     _buildChips(),
+                    if (_isExpense && _aiSuggested) ...[
+                      const SizedBox(height: 10),
+                      _buildTapToChange(),
+                    ],
                     const SizedBox(height: AppSpacing.lg),
                     // Note / merchant field (real AI classifier wiring)
                     _buildNoteField(),
@@ -453,6 +457,29 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
               letterSpacing: 0.5,
               color: AppColors.aiPurple,
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── "tap to change" affordance for an auto-tagged category ───
+  // Design state 03 sub-label — once the classifier has guessed, this centered
+  // tappable hint opens the full searchable picker to correct it.
+  Widget _buildTapToChange() {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: _showCategoryPicker,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          PhosphorIcon(PhosphorIcons.sparkle(PhosphorIconsStyle.fill),
+              size: 12, color: AppColors.aiPurple),
+          const SizedBox(width: 5),
+          Text(
+            'Auto-tagged · tap to change',
+            style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
           ),
         ],
       ),
