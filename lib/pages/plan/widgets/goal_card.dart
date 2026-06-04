@@ -154,7 +154,6 @@ class _GoalCardState extends State<GoalCard>
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: AppTextStyles.bodyM.copyWith(
-                fontSize: 14.5,
                 fontWeight: FontWeight.w700,
                 letterSpacing: -0.2,
                 color: _isCompleted ? _goldDark : AppColors.black,

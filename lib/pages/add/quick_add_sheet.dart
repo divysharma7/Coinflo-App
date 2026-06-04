@@ -471,7 +471,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
         decoration: const BoxDecoration(
           color: AppColors.white,
           borderRadius: AppRadius.full,
@@ -587,11 +587,11 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
             ),
             isDense: true,
             contentPadding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 14,
+              horizontal: AppSpacing.sm,
+              vertical: AppSpacing.sm,
             ),
             prefixIcon: Padding(
-              padding: const EdgeInsets.only(left: 14, right: 10),
+              padding: const EdgeInsets.only(left: AppSpacing.sm, right: AppSpacing.xs),
               child: PhosphorIcon(
                 PhosphorIcons.pencilSimple(),
                 size: 18,
@@ -641,7 +641,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
           onTap: () => setState(() => _incomeSource = source),
           child: AnimatedContainer(
             duration: AppDurations.normal,
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
             decoration: BoxDecoration(
               color: selected
                   ? AppColors.green.withValues(alpha: 0.12)
@@ -672,7 +672,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
     return GestureDetector(
       onTap: _openSplitPicker,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.sm),
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: AppRadius.mdLg,

@@ -502,7 +502,7 @@ class _Field extends StatelessWidget {
           hintStyle: AppTextStyles.bodyM.copyWith(color: AppColors.gray400),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.md, vertical: 15),
+              horizontal: AppSpacing.md, vertical: AppSpacing.md),
         ),
       ),
     );
@@ -523,7 +523,7 @@ class _TypeChip extends StatelessWidget {
         onTap: onTap,
         behavior: HitTestBehavior.opaque,
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 13),
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
           decoration: BoxDecoration(
             color: selected ? AppColors.black : AppColors.white,
             borderRadius: AppRadius.md,

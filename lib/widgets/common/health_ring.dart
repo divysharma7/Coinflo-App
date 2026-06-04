@@ -107,18 +107,16 @@ class _HealthRingState extends State<HealthRing>
                   children: [
                     Text(
                       '${(value * 100).round()}%',
-                      style: const TextStyle(
+                      style: AppTextStyles.numericL.copyWith(
                         color: AppColors.black,
                         fontWeight: FontWeight.bold,
-                        fontSize: 18,
                       ),
                     ),
                     if (widget.label != null)
                       Text(
                         widget.label!,
-                        style: const TextStyle(
+                        style: AppTextStyles.labelS.copyWith(
                           color: AppColors.gray500,
-                          fontSize: 11,
                         ),
                       ),
                   ],

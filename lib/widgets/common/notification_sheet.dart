@@ -45,12 +45,10 @@ class NotificationSheet extends ConsumerWidget {
                   ),
                   GestureDetector(
                     onTap: () => ref.read(repositoryProvider).markAllRead(),
-                    child: const Text(
+                    child: Text(
                       'Mark all read',
-                      style: TextStyle(
+                      style: AppTextStyles.labelM.copyWith(
                         color: AppColors.black,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
@@ -71,14 +69,14 @@ class NotificationSheet extends ConsumerWidget {
               recentAsync.when(
                 data: (notifications) {
                   if (notifications.isEmpty) {
-                    return const Padding(
-                      padding: EdgeInsets.symmetric(vertical: AppSpacing.xl),
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: AppSpacing.xl),
                       child: Center(
                         child: Text(
                           'All quiet — no notifications yet',
-                          style: TextStyle(
+                          style: AppTextStyles.bodyS.copyWith(
                             color: AppColors.gray500,
-                            fontSize: 14,
                           ),
                         ),
                       ),
@@ -129,7 +127,7 @@ class NotificationSheet extends ConsumerWidget {
                   children: [
                     _ToggleRow(
                       icon: PhosphorIcons.bell(),
-                      iconBg: const Color(0x1AF97316), // orangeLight
+                      iconBg: AppColors.orangeLight,
                       iconColor: AppColors.orange,
                       title: 'Budget alerts',
                       subtitle: 'When a category crosses 80%',
@@ -141,7 +139,7 @@ class NotificationSheet extends ConsumerWidget {
                         color: AppColors.gray200, height: 1, indent: 56),
                     _ToggleRow(
                       icon: PhosphorIcons.moon(),
-                      iconBg: const Color(0x1A8B5CF6), // aiPurple 10%
+                      iconBg: AppColors.aiPurpleLight,
                       iconColor: AppColors.aiPurple,
                       title: 'Evening check-in',
                       subtitle:
@@ -169,11 +167,10 @@ class NotificationSheet extends ConsumerWidget {
                                 size: 16,
                               ),
                               const SizedBox(width: AppSpacing.xs),
-                              const Text(
+                              Text(
                                 'Change time',
-                                style: TextStyle(
+                                style: AppTextStyles.bodyS.copyWith(
                                   color: AppColors.gray500,
-                                  fontSize: 13,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -181,9 +178,8 @@ class NotificationSheet extends ConsumerWidget {
                               Text(
                                 _formatTime(
                                     prefs.checkinHour, prefs.checkinMinute),
-                                style: const TextStyle(
+                                style: AppTextStyles.bodyS.copyWith(
                                   color: AppColors.gray400,
-                                  fontSize: 13,
                                 ),
                               ),
                               const SizedBox(width: AppSpacing.xxs),
@@ -311,9 +307,8 @@ class _NotificationRow extends StatelessWidget {
                 children: [
                   Text(
                     notification.title,
-                    style: TextStyle(
+                    style: AppTextStyles.bodyS.copyWith(
                       color: AppColors.black,
-                      fontSize: 14,
                       fontWeight: notification.isRead
                           ? FontWeight.w400
                           : FontWeight.w600,
@@ -322,9 +317,8 @@ class _NotificationRow extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     notification.body,
-                    style: const TextStyle(
+                    style: AppTextStyles.labelM.copyWith(
                       color: AppColors.gray500,
-                      fontSize: 12,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -335,9 +329,8 @@ class _NotificationRow extends StatelessWidget {
             const SizedBox(width: AppSpacing.xs),
             Text(
               _relativeTime(notification.sentAt),
-              style: const TextStyle(
+              style: AppTextStyles.labelS.copyWith(
                 color: AppColors.gray500,
-                fontSize: 11,
               ),
             ),
           ],
@@ -379,11 +372,11 @@ class _NotificationRow extends StatelessWidget {
       case 'transaction':
         return AppColors.gray100;
       case 'checkin':
-        return const Color(0x1A8B5CF6); // aiPurple 10%
+        return AppColors.aiPurpleLight;
       case 'digest':
         return AppColors.catBlueBg;
       case 'subscription':
-        return const Color(0x1AF97316); // orangeLight
+        return AppColors.orangeLight;
       default:
         return AppColors.gray100;
     }
@@ -449,17 +442,15 @@ class _ToggleRow extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: AppTextStyles.bodyM.copyWith(
                     color: AppColors.black,
-                    fontSize: 15,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 Text(
                   subtitle,
-                  style: const TextStyle(
+                  style: AppTextStyles.labelM.copyWith(
                     color: AppColors.gray500,
-                    fontSize: 12,
                   ),
                 ),
               ],

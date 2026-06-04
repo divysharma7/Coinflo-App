@@ -98,7 +98,7 @@ class _PlanHeader extends StatelessWidget {
                 style: AppTextStyles.displayL.copyWith(color: AppColors.black),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
                 decoration: const BoxDecoration(
                   color: AppColors.white,
                   borderRadius: AppRadius.full,
@@ -109,7 +109,6 @@ class _PlanHeader extends StatelessWidget {
                   style: AppTextStyles.bodyS.copyWith(
                     color: AppColors.gray500,
                     fontWeight: FontWeight.w600,
-                    fontSize: 12.5,
                   ),
                 ),
               ),
@@ -274,8 +273,7 @@ class _SectionHeader extends StatelessWidget {
       children: [
         Text(
           title,
-          style: AppTextStyles.headingS.copyWith(
-            fontSize: 15,
+          style: AppTextStyles.bodyM.copyWith(
             fontWeight: FontWeight.w700,
             letterSpacing: -0.3,
             color: AppColors.black,

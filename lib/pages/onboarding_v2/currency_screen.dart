@@ -153,7 +153,7 @@ class _CurrencyScreenState extends State<CurrencyScreen> {
           gradient: const LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [AppColors.white, Color(0xFFFBFBFA)],
+            colors: [AppColors.white, AppColors.offWhiteTint],
           ),
           borderRadius: AppRadius.md,
           boxShadow: AppShadows.sm,
@@ -253,20 +253,12 @@ class _CurrencyScreenState extends State<CurrencyScreen> {
             ? const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFF2A2A2E), AppColors.black],
+                colors: [AppColors.heroGradientTop, AppColors.black],
               )
             : null,
         color: dark ? null : AppColors.gray100,
         borderRadius: AppRadius.sm,
-        boxShadow: dark
-            ? const [
-                BoxShadow(
-                  color: Color(0x800A0A0A),
-                  blurRadius: 14,
-                  offset: Offset(0, 6),
-                ),
-              ]
-            : null,
+        boxShadow: dark ? AppShadows.md : null,
       ),
       child: Text(
         symbol,
@@ -295,7 +287,7 @@ class _CurrencyScreenState extends State<CurrencyScreen> {
               decoration: InputDecoration(
                 isDense: true,
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
                 hintText: 'Search currencies…',
                 hintStyle: AppTextStyles.bodyM.copyWith(
                   color: AppColors.gray400,

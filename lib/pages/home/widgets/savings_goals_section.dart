@@ -57,12 +57,7 @@ class SavingsGoalsSection extends ConsumerWidget {
                         decoration: BoxDecoration(
                           color: AppColors.white,
                           borderRadius: AppRadius.mdLg,
-                          boxShadow: const [
-                            BoxShadow(
-                                color: AppColors.shadow,
-                                blurRadius: 8,
-                                offset: Offset(0, 2)),
-                          ],
+                          boxShadow: AppShadows.sm,
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,

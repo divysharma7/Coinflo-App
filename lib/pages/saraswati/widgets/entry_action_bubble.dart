@@ -146,7 +146,9 @@ class _EntryActionBubbleState extends State<EntryActionBubble>
                       label: action.chipOptions[i],
                       onTap: () => widget.onChipTap(
                           action.fieldToConfirm, action.chipOptions[i]),
-                      delay: Duration(milliseconds: 50 * i),
+                      delay: Duration(
+                          milliseconds:
+                              AppDurations.itemStagger.inMilliseconds * i),
                     ),
                 ],
               ),

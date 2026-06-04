@@ -27,7 +27,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   static const _bg = RadialGradient(
     center: Alignment(0.64, -1.06),
     radius: 1.3,
-    colors: [Color(0xFF2D2D32), Color(0xFF141416), Color(0xFF0A0A0A)],
+    colors: [AppColors.heroGradientTop, AppColors.heroGradientDeep, AppColors.black],
     stops: [0.0, 0.46, 1.0],
   );
 
@@ -309,13 +309,7 @@ class _GetStartedButtonState extends State<_GetStartedButton> {
             decoration: const BoxDecoration(
               color: AppColors.white,
               borderRadius: AppRadius.full,
-              boxShadow: [
-                BoxShadow(
-                  color: Color(0x8C000000),
-                  blurRadius: 30,
-                  offset: Offset(0, 14),
-                ),
-              ],
+              boxShadow: AppShadows.hero,
             ),
             child: Text(
               'Get started',

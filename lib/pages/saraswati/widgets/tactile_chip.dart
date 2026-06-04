@@ -48,8 +48,7 @@ class _TactileChipState extends State<TactileChip> {
           ),
           child: Text(
             widget.label,
-            style: const TextStyle(
-              fontSize: 13,
+            style: AppTextStyles.bodyS.copyWith(
               fontWeight: FontWeight.w500,
               color: AppColors.black,
             ),

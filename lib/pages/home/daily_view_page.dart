@@ -97,7 +97,7 @@ class DailyViewPage extends ConsumerWidget {
                                     const SizedBox(height: 2),
                                     Text(
                                       DateFormat('h:mm a').format(t.happenedAt),
-                                      style: const TextStyle(color: AppColors.gray500, fontSize: 12),
+                                      style: AppTextStyles.labelM.copyWith(color: AppColors.gray500),
                                     ),
                                   ],
                                 ),
@@ -126,7 +126,8 @@ class DailyViewPage extends ConsumerWidget {
               GestureDetector(
                 onTap: () => ref.invalidate(dailyTransactionsProvider(date)),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.lg, vertical: AppSpacing.xs),
                   decoration: BoxDecoration(
                     color: AppColors.black,
                     borderRadius: AppRadius.s,

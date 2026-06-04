@@ -148,7 +148,7 @@ class _TransactionDetailPageState
       fillColor: AppColors.white,
       isDense: true,
       contentPadding:
-          const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.sm),
       border: const OutlineInputBorder(
           borderRadius: AppRadius.mdLg, borderSide: BorderSide.none),
       enabledBorder: const OutlineInputBorder(
@@ -411,7 +411,7 @@ class _TransactionDetailPageState
             const SizedBox(height: AppSpacing.xs),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(18),
+              padding: const EdgeInsets.all(AppSpacing.md),
               decoration: BoxDecoration(
                 color: AppColors.white,
                 borderRadius: AppRadius.xl,
@@ -940,7 +940,7 @@ class _DlRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 15),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,

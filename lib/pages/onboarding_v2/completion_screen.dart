@@ -40,7 +40,7 @@ class _CompletionScreenState extends ConsumerState<CompletionScreen>
   static const _heroGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF2D2D31), AppColors.black],
+    colors: [AppColors.heroGradientTop, AppColors.black],
   );
 
   @override
@@ -178,13 +178,7 @@ class _CompletionScreenState extends ConsumerState<CompletionScreen>
                         decoration: const BoxDecoration(
                           gradient: _heroGradient,
                           borderRadius: AppRadius.lg,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Color(0x8C0A0A0A),
-                              blurRadius: 32,
-                              offset: Offset(0, 16),
-                            ),
-                          ],
+                          boxShadow: AppShadows.hero,
                         ),
                         child: const Icon(
                           Icons.check,

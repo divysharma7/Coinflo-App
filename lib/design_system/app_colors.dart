@@ -31,6 +31,7 @@ class AppColors {
 
   // Semantic — additional
   static const Color aiPurple = Color(0xFF8B5CF6);
+  static const Color aiPurpleLight = Color(0x1A8B5CF6); // aiPurple @10%
   static const Color amber = Color(0xFFF59E0B);
   static const Color gold = Color(0xFFFBBF24);
   static const Color alertRed = Color(0xFFE53935);
@@ -44,6 +45,18 @@ class AppColors {
   // Shadows
   static const Color shadow = Color(0x08000000);
   static const Color shadowMd = Color(0x0D000000);
+
+  // Overlay tint (e.g. slider press overlay)
+  static const Color overlay10 = Color(0x1A0A0A0A); // ~10%
+
+  // Dark hero gradient stops — near-black backgrounds used across
+  // onboarding / auth / profile hero cards. Consolidated from per-screen
+  // values that differed by sub-perceptual amounts.
+  static const Color heroGradientTop = Color(0xFF2A2A2E);
+  static const Color heroGradientMid = Color(0xFF161618);
+  static const Color heroGradientDeep = Color(0xFF141416);
+  static const Color trackGradientTop = Color(0xFF3A3A3A); // progress track fill
+  static const Color offWhiteTint = Color(0xFFFBFBFA); // subtle light gradient stop
 
   // Category pill pairs
   static const Color catPinkBg = Color(0xFFFCE7F3);

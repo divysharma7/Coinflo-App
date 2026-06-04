@@ -80,7 +80,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 GestureDetector(
                   onTap: () => _showProfileSheet(context),
                   child: Container(
-                    padding: const EdgeInsets.all(18),
+                    padding: const EdgeInsets.all(AppSpacing.md),
                     decoration: const BoxDecoration(
                       color: AppColors.white,
                       borderRadius: AppRadius.xl,
@@ -343,7 +343,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   Widget _sectionLabel(String text) {
     return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 10),
+      padding: const EdgeInsets.only(left: AppSpacing.xxs, bottom: AppSpacing.xs),
       child: Text(text,
           style: AppTextStyles.section.copyWith(color: AppColors.gray400)),
     );

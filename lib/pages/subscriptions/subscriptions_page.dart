@@ -268,7 +268,7 @@ class _SubscriptionHero extends StatelessWidget {
                 Text(
                   'Monthly total',
                   style: AppTextStyles.labelM.copyWith(
-                    color: Colors.white.withValues(alpha: 0.6),
+                    color: AppColors.white.withValues(alpha: 0.6),
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -285,7 +285,7 @@ class _SubscriptionHero extends StatelessWidget {
                     '…',
                     style: AppTextStyles.displayXL.copyWith(
                       fontSize: 34,
-                      color: Colors.white.withValues(alpha: 0.6),
+                      color: AppColors.white.withValues(alpha: 0.6),
                     ),
                   ),
                   error: (_, _) => Text(
@@ -308,7 +308,7 @@ class _SubscriptionHero extends StatelessWidget {
               Text(
                 'Next renewal',
                 style: AppTextStyles.labelS.copyWith(
-                  color: Colors.white.withValues(alpha: 0.55),
+                  color: AppColors.white.withValues(alpha: 0.55),
                 ),
               ),
               const SizedBox(height: 6),
@@ -324,9 +324,9 @@ class _SubscriptionHero extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.xs),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: AppSpacing.xxs),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.14),
+                  color: AppColors.white.withValues(alpha: 0.14),
                   borderRadius: AppRadius.full,
                 ),
                 child: Text(
@@ -382,7 +382,7 @@ class _SubscriptionRow extends StatelessWidget {
       onLongPress: onDelete,
       borderRadius: AppRadius.md,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 11),
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
         child: Row(
           children: [
             // mono-tile monogram (46px, rounded-14)
@@ -396,11 +396,11 @@ class _SubscriptionRow extends StatelessWidget {
               ),
               child: Text(
                 monogram,
-                style: const TextStyle(
+                style: AppTextStyles.headingS.copyWith(
                   fontWeight: FontWeight.w800,
-                  fontSize: 17,
                   letterSpacing: -0.5,
-                ).copyWith(color: tileFg),
+                  color: tileFg,
+                ),
               ),
             ),
             const SizedBox(width: 13),
@@ -413,7 +413,6 @@ class _SubscriptionRow extends StatelessWidget {
                   Text(
                     subscription.name,
                     style: AppTextStyles.bodyM.copyWith(
-                      fontSize: 15.5,
                       fontWeight: FontWeight.w600,
                       letterSpacing: -0.2,
                       color: isActive ? AppColors.black : AppColors.gray500,
@@ -440,7 +439,6 @@ class _SubscriptionRow extends StatelessWidget {
                 Text(
                   '$symbol${subscription.amount.toStringAsFixed(0)}',
                   style: AppTextStyles.numericM.copyWith(
-                    fontSize: 15.5,
                     fontWeight: FontWeight.w600,
                     color: isActive ? AppColors.black : AppColors.gray500,
                   ),
@@ -559,8 +557,7 @@ class _AddSubscriptionSheetState extends ConsumerState<_AddSubscriptionSheet> {
                     const SizedBox(width: AppSpacing.xs),
                     Text(
                       'Next billing: ${DateFormat('d MMM yyyy').format(_nextDate)}',
-                      style: const TextStyle(
-                        fontSize: 14,
+                      style: AppTextStyles.bodyS.copyWith(
                         color: AppColors.black,
                       ),
                     ),
@@ -576,14 +573,14 @@ class _AddSubscriptionSheetState extends ConsumerState<_AddSubscriptionSheet> {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.black,
-                  foregroundColor: Colors.white,
+                  foregroundColor: AppColors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: AppRadius.base,
                   ),
                   elevation: 0,
                 ),
                 onPressed: _save,
-                child: const Text('Save', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+                child: Text('Save', style: AppTextStyles.bodyM.copyWith(fontWeight: FontWeight.w600)),
               ),
             ),
             const SizedBox(height: AppSpacing.xs),
@@ -668,9 +665,7 @@ class _SelectorRow extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
+          style: AppTextStyles.labelM.copyWith(
             color: AppColors.gray500,
           ),
         ),
@@ -683,7 +678,7 @@ class _SelectorRow extends StatelessWidget {
               GestureDetector(
                 onTap: () => onSelected(i),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
                   decoration: BoxDecoration(
                     color: i == selected
                         ? AppColors.black.withValues(alpha: 0.1)
@@ -695,8 +690,7 @@ class _SelectorRow extends StatelessWidget {
                   ),
                   child: Text(
                     options[i],
-                    style: TextStyle(
-                      fontSize: 13,
+                    style: AppTextStyles.bodyS.copyWith(
                       fontWeight: i == selected ? FontWeight.w600 : FontWeight.w400,
                       color: i == selected ? AppColors.black : AppColors.gray500,
                     ),

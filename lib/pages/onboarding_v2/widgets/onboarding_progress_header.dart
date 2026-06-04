@@ -20,7 +20,7 @@ class OnboardingProgressHeader extends StatelessWidget {
   final int totalSteps;
 
   static const _trackFill = LinearGradient(
-    colors: [Color(0xFF3A3A3A), AppColors.black],
+    colors: [AppColors.trackGradientTop, AppColors.black],
   );
 
   @override
@@ -73,13 +73,7 @@ class OnboardingProgressHeader extends StatelessWidget {
                       decoration: const BoxDecoration(
                         gradient: _trackFill,
                         borderRadius: AppRadius.full,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Color(0x400A0A0A),
-                            blurRadius: 2,
-                            offset: Offset(0, 1),
-                          ),
-                        ],
+                        boxShadow: AppShadows.sm,
                       ),
                     ),
                   ),

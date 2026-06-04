@@ -103,7 +103,7 @@ class _MonthlyBudgetScreenState extends State<MonthlyBudgetScreen>
       baseOffset: 0,
       extentOffset: _customController.text.length,
     );
-    Future.delayed(const Duration(milliseconds: 50), () {
+    Future.delayed(AppDurations.itemStagger, () {
       if (mounted) _focusNode.requestFocus();
     });
   }
@@ -263,7 +263,7 @@ class _MonthlyBudgetScreenState extends State<MonthlyBudgetScreen>
               activeTrackColor: AppColors.black,
               inactiveTrackColor: AppColors.gray200,
               thumbColor: AppColors.white,
-              overlayColor: const Color(0x1A0A0A0A),
+              overlayColor: AppColors.overlay10,
               thumbShape: const RoundSliderThumbShape(
                 enabledThumbRadius: 13,
                 elevation: 3,

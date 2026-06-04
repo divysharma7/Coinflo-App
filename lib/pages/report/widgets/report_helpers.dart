@@ -26,10 +26,8 @@ String reportFmt(double v) {
 // Card decoration helper
 // ---------------------------------------------------------------------------
 
-BoxDecoration reportCardDecor() => BoxDecoration(
+BoxDecoration reportCardDecor() => const BoxDecoration(
       color: AppColors.white,
       borderRadius: AppRadius.lg,
-      boxShadow: const [
-        BoxShadow(color: AppColors.shadow, blurRadius: 16, offset: Offset(0, 4)),
-      ],
+      boxShadow: AppShadows.lg,
     );

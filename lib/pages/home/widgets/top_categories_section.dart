@@ -33,12 +33,7 @@ class TopCategoriesSection extends ConsumerWidget {
             decoration: BoxDecoration(
               color: AppColors.white,
               borderRadius: AppRadius.lg,
-              boxShadow: const [
-                BoxShadow(
-                    color: AppColors.shadow,
-                    blurRadius: 16,
-                    offset: Offset(0, 4)),
-              ],
+              boxShadow: AppShadows.lg,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

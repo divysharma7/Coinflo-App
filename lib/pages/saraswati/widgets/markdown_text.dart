@@ -29,7 +29,7 @@ class MarkdownText extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Padding(
-                padding: EdgeInsets.only(top: 7),
+                padding: EdgeInsets.only(top: AppSpacing.xs),
                 child: Icon(Icons.circle, size: 5, color: AppColors.black),
               ),
               const SizedBox(width: 8),

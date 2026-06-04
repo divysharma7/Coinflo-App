@@ -34,7 +34,7 @@ class _RecapScreenState extends State<RecapScreen> {
   static const _bg = RadialGradient(
     center: Alignment(0.72, -1.24),
     radius: 1.4,
-    colors: [Color(0xFF2B2B30), Color(0xFF161618), Color(0xFF0A0A0A)],
+    colors: [AppColors.heroGradientTop, AppColors.heroGradientMid, AppColors.black],
     stops: [0.0, 0.46, 1.0],
   );
 

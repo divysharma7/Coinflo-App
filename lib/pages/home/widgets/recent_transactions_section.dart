@@ -87,7 +87,7 @@ class RecentTransactionsSection extends ConsumerWidget {
               final recent = sorted.take(_maxRows).toList();
 
               return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 18),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                 decoration: const BoxDecoration(
                   color: AppColors.white,
                   borderRadius: AppRadius.xl,
@@ -195,7 +195,7 @@ class _TransactionRow extends ConsumerWidget {
           showTransactionActions(context, ref, transaction, symbol),
       behavior: HitTestBehavior.opaque,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 11),
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
         child: Row(
           children: [
             // Category-colored 44px glyph tile.
@@ -220,7 +220,6 @@ class _TransactionRow extends ConsumerWidget {
                   Text(
                     name,
                     style: AppTextStyles.bodyM.copyWith(
-                      fontSize: 15.5,
                       fontWeight: FontWeight.w600,
                       letterSpacing: -0.2,
                       color: AppColors.black,
@@ -231,8 +230,7 @@ class _TransactionRow extends ConsumerWidget {
                   const SizedBox(height: 2),
                   Text(
                     meta,
-                    style: AppTextStyles.bodyS.copyWith(
-                      fontSize: 12.5,
+                    style: AppTextStyles.labelM.copyWith(
                       color: AppColors.gray500,
                     ),
                     maxLines: 1,
@@ -244,8 +242,7 @@ class _TransactionRow extends ConsumerWidget {
             const SizedBox(width: 8),
             Text(
               displayAmount,
-              style: AppTextStyles.numericL.copyWith(
-                fontSize: 15.5,
+              style: AppTextStyles.numericM.copyWith(
                 fontWeight: FontWeight.w600,
                 color: isExpense ? AppColors.black : AppColors.catGreenText,
               ),

@@ -126,7 +126,7 @@ class _SkeletonCard extends StatelessWidget {
                   width: 100,
                   decoration: BoxDecoration(
                     color: color,
-                    borderRadius: BorderRadius.circular(7),
+                    borderRadius: AppRadius.xs,
                   ),
                 ),
               ),
@@ -149,7 +149,7 @@ class _SkeletonCard extends StatelessWidget {
             width: double.infinity,
             decoration: BoxDecoration(
               color: color,
-              borderRadius: BorderRadius.circular(3),
+              borderRadius: AppRadius.xxs,
             ),
           ),
         ],

@@ -36,10 +36,8 @@ class UserBubble extends StatelessWidget {
           ),
           child: Text(
             text,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14.5,
-              fontWeight: FontWeight.w400,
+            style: AppTextStyles.bodyM.copyWith(
+              color: AppColors.white,
               height: 1.46,
             ),
           ),

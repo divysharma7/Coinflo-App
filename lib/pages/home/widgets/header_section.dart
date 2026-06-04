@@ -206,7 +206,6 @@ class _UserAvatar extends StatelessWidget {
           initials,
           style: AppTextStyles.headingS.copyWith(
             color: AppColors.white,
-            fontSize: 16,
             letterSpacing: 0.5,
             fontWeight: FontWeight.w700,
           ),

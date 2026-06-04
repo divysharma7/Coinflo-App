@@ -131,7 +131,7 @@ class _NotificationCard extends StatelessWidget {
         borderRadius: AppRadius.xl,
         boxShadow: AppShadows.sm,
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xxs),
       child: Column(
         children: [
           for (var i = 0; i < items.length; i++) ...[
@@ -154,7 +154,7 @@ class _NotificationRow extends StatelessWidget {
     final style = _styleFor(notif.type);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 14),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -199,7 +199,7 @@ class _NotificationRow extends StatelessWidget {
           // Unread dot
           if (!notif.isRead)
             Container(
-              margin: const EdgeInsets.only(top: 7, left: 8),
+              margin: const EdgeInsets.only(top: AppSpacing.xs, left: AppSpacing.xs),
               width: 8,
               height: 8,
               decoration: const BoxDecoration(

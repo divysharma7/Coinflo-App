@@ -89,13 +89,7 @@ class _InkSwitch extends StatelessWidget {
               decoration: const BoxDecoration(
                 color: AppColors.white,
                 shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Color(0x33000000),
-                    blurRadius: 3,
-                    offset: Offset(0, 1),
-                  ),
-                ],
+                boxShadow: AppShadows.sm,
               ),
             ),
           ),

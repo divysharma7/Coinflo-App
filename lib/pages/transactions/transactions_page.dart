@@ -79,10 +79,10 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
             child: TextField(
               controller: _searchController,
               onChanged: (v) => setState(() => _searchQuery = v.trim()),
-              style: const TextStyle(fontSize: 15, color: AppColors.black),
+              style: AppTextStyles.bodyM.copyWith(color: AppColors.black),
               decoration: InputDecoration(
                 hintText: 'Search transactions…',
-                hintStyle: const TextStyle(fontSize: 15, color: AppColors.gray400),
+                hintStyle: AppTextStyles.bodyM.copyWith(color: AppColors.gray400),
                 prefixIcon: const Icon(Icons.search, size: 18, color: AppColors.gray400),
                 suffixIcon: _searchQuery.isNotEmpty
                     ? IconButton(
@@ -96,7 +96,7 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                     : null,
                 filled: false,
                 isDense: true,
-                contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
                 border: const OutlineInputBorder(
                   borderRadius: AppRadius.md,
                   borderSide: BorderSide.none,
@@ -159,10 +159,8 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                         const SizedBox(width: AppSpacing.xxs),
                         Text(
                           filters.hasAnyFilter ? 'Filtered' : 'Filter',
-                          style: TextStyle(
+                          style: AppTextStyles.labelM.copyWith(
                             color: filters.hasAnyFilter ? AppColors.black : AppColors.gray500,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
                           ),
                         ),
                         if (filters.hasAnyFilter) ...[
@@ -245,7 +243,7 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                       child: Container(
                         constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
                         alignment: Alignment.center,
-                        child: const Text('Clear all', style: TextStyle(color: AppColors.black, fontSize: 12, fontWeight: FontWeight.w500)),
+                        child: Text('Clear all', style: AppTextStyles.labelM.copyWith(color: AppColors.black)),
                       ),
                     ),
                   ),
@@ -496,7 +494,6 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                       Text(
                         t.merchant ?? cat.label,
                         style: AppTextStyles.bodyM.copyWith(
-                          fontSize: 15.5,
                           fontWeight: FontWeight.w600,
                           letterSpacing: -0.2,
                         ),
@@ -511,7 +508,7 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                           Flexible(
                             child: Text(
                               ' · ${DateFormat('h:mm a').format(t.happenedAt)}',
-                              style: const TextStyle(fontSize: 12.5, color: AppColors.gray500),
+                              style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -528,7 +525,6 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                     Text(
                       amountText,
                       style: AppTextStyles.numericM.copyWith(
-                        fontSize: 15.5,
                         fontWeight: FontWeight.w600,
                         letterSpacing: -0.5,
                         color: isSent ? AppColors.black : AppColors.catGreenText,
@@ -648,7 +644,7 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
                   child: Container(
                     constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
                     alignment: Alignment.center,
-                    child: const Text('Clear all', style: TextStyle(color: AppColors.black, fontSize: 12, fontWeight: FontWeight.w500)),
+                    child: Text('Clear all', style: AppTextStyles.labelM.copyWith(color: AppColors.black)),
                   ),
                 ),
               ),
@@ -803,9 +799,8 @@ class _FilterTile extends StatelessWidget {
                 const SizedBox(width: AppSpacing.xs),
                 Text(
                   label,
-                  style: TextStyle(
+                  style: AppTextStyles.bodyS.copyWith(
                     color: selected ? color : AppColors.black,
-                    fontSize: 13,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -850,9 +845,8 @@ class _ChipOption extends StatelessWidget {
           ),
           child: Text(
             label,
-            style: TextStyle(
+            style: AppTextStyles.bodyS.copyWith(
               color: selected ? AppColors.black : AppColors.gray500,
-              fontSize: 13,
               fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
             ),
           ),
@@ -879,7 +873,7 @@ class _ActiveChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(label, style: const TextStyle(color: AppColors.black, fontSize: 11, fontWeight: FontWeight.w500)),
+          Text(label, style: AppTextStyles.labelS.copyWith(color: AppColors.black)),
           const SizedBox(width: AppSpacing.xxs),
           IconButton(
             onPressed: onRemove,

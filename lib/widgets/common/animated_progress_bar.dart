@@ -6,8 +6,8 @@ class AnimatedProgressBar extends StatelessWidget {
   const AnimatedProgressBar({
     super.key,
     required this.value,
-    this.backgroundColor = const Color(0xFFF0F0F0),
-    this.valueColor = Colors.black,
+    this.backgroundColor = AppColors.gray100,
+    this.valueColor = AppColors.black,
     this.minHeight = 6,
     this.borderRadius = 3,
     this.duration = AppDurations.slow,

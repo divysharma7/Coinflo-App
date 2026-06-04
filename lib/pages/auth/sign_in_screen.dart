@@ -218,14 +218,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                          colors: [Color(0xFF2C2C30), AppColors.black],
+                          colors: [AppColors.heroGradientTop, AppColors.black],
                         ),
-                        boxShadow: [
-                          BoxShadow(
-                              color: Color(0x40000000),
-                              blurRadius: 32,
-                              offset: Offset(0, 16)),
-                        ],
+                        boxShadow: AppShadows.hero,
                       ),
                       child: const Icon(
                         Icons.currency_rupee_rounded,

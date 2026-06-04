@@ -48,16 +48,13 @@ class InputBar extends StatelessWidget {
               child: TextField(
                 controller: controller,
                 focusNode: focusNode,
-                style: const TextStyle(
+                style: AppTextStyles.bodyM.copyWith(
                   color: AppColors.black,
-                  fontSize: 15,
                 ),
                 decoration: InputDecoration(
                   hintText: hintText,
-                  hintStyle: const TextStyle(
+                  hintStyle: AppTextStyles.bodyM.copyWith(
                     color: AppColors.gray400,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w400,
                   ),
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(
@@ -87,7 +84,7 @@ class InputBar extends StatelessWidget {
                 child: PhosphorIcon(
                   PhosphorIcons.arrowUp(PhosphorIconsStyle.bold),
                   size: 20,
-                  color: Colors.white,
+                  color: AppColors.white,
                 ),
               ),
             ),

@@ -80,7 +80,6 @@ class BudgetCard extends StatelessWidget {
                   child: Text(
                     category.label,
                     style: AppTextStyles.bodyM.copyWith(
-                      fontSize: 15,
                       fontWeight: FontWeight.w600,
                       letterSpacing: -0.2,
                       color: AppColors.black,
@@ -91,7 +90,6 @@ class BudgetCard extends StatelessWidget {
                 RichText(
                   text: TextSpan(
                     style: AppTextStyles.numericM.copyWith(
-                      fontSize: 13.5,
                       fontWeight: FontWeight.w600,
                       color: isOver ? AppColors.red : AppColors.black,
                     ),
@@ -100,7 +98,6 @@ class BudgetCard extends StatelessWidget {
                       TextSpan(
                         text: '/ $symbol${_grouped(budget.monthlyLimit)}',
                         style: AppTextStyles.numericM.copyWith(
-                          fontSize: 13.5,
                           fontWeight: FontWeight.w600,
                           color: AppColors.gray400,
                         ),

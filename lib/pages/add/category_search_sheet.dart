@@ -90,7 +90,7 @@ class _CategorySearchSheetState extends State<CategorySearchSheet> {
             color: AppColors.gray100,
             borderRadius: AppRadius.mdLg,
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 14),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
           child: Row(
             children: [
               const Icon(Icons.search, size: 20, color: AppColors.gray500),
@@ -108,7 +108,7 @@ class _CategorySearchSheetState extends State<CategorySearchSheet> {
                     hintStyle:
                         AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
                     contentPadding:
-                        const EdgeInsets.symmetric(vertical: 13),
+                        const EdgeInsets.symmetric(vertical: AppSpacing.sm),
                   ),
                 ),
               ),
@@ -163,7 +163,7 @@ class _CategorySearchSheetState extends State<CategorySearchSheet> {
       behavior: HitTestBehavior.opaque,
       onTap: () => _select(cat),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 9),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
         decoration: BoxDecoration(
           color: selected ? AppColors.black : AppColors.white,
           borderRadius: AppRadius.full,

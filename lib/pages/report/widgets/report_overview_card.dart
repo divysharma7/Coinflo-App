@@ -56,7 +56,7 @@ class CategoryDonutCard extends ConsumerWidget {
           final overflow = sorted.skip(_kLegendVisible).toList();
 
           return Container(
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.all(AppSpacing.md),
             decoration: BoxDecoration(
               color: AppColors.white,
               borderRadius: AppRadius.xl,
@@ -158,7 +158,7 @@ class _LegendRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 7),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
       child: Row(
         children: [
           Container(
@@ -259,7 +259,7 @@ class DailySpendCard extends ConsumerWidget {
               peak > 0 ? values.indexWhere((v) => v == peak) : -1;
 
           return Container(
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.all(AppSpacing.md),
             decoration: BoxDecoration(
               color: AppColors.white,
               borderRadius: AppRadius.xl,

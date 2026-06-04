@@ -92,14 +92,9 @@ class _ProfileSheetState extends ConsumerState<ProfileSheet> {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFF2A2A2E), AppColors.black],
+                colors: [AppColors.heroGradientTop, AppColors.black],
               ),
-              boxShadow: [
-                BoxShadow(
-                    color: Color(0x40000000),
-                    blurRadius: 26,
-                    offset: Offset(0, 12)),
-              ],
+              boxShadow: AppShadows.hero,
             ),
             child: Center(
               child: Text(initials,
@@ -151,7 +146,8 @@ class _ProfileSheetState extends ConsumerState<ProfileSheet> {
               borderRadius: AppRadius.xl,
               boxShadow: AppShadows.sm,
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.md, vertical: AppSpacing.xxs),
             child: Column(
               children: [
                 _NavRow(
@@ -271,7 +267,8 @@ class _SyncPill extends StatelessWidget {
     final bg = synced ? AppColors.catGreenBg : AppColors.gray100;
     final fg = synced ? AppColors.catGreenText : AppColors.gray500;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.xs, vertical: AppSpacing.xxs),
       decoration: BoxDecoration(color: bg, borderRadius: AppRadius.pill),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -306,7 +303,7 @@ class _NavRow extends StatelessWidget {
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 14),
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
         child: Row(
           children: [
             Container(

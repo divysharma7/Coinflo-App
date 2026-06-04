@@ -92,7 +92,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
     // Respect reduced-motion preference.
     final mq = WidgetsBinding.instance.platformDispatcher.accessibilityFeatures;
     if (mq.disableAnimations) {
-      await Future<void>.delayed(const Duration(milliseconds: 800));
+      await Future<void>.delayed(AppDurations.xSlow);
       await _navigate();
       return;
     }

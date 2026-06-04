@@ -35,9 +35,7 @@ class EmptyState extends StatelessWidget {
             const SizedBox(height: AppSpacing.md),
             Text(
               message,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w400,
+              style: AppTextStyles.bodyL.copyWith(
                 color: AppColors.gray500,
                 height: 1.6,
               ),
@@ -47,9 +45,8 @@ class EmptyState extends StatelessWidget {
               const SizedBox(height: AppSpacing.xs),
               Text(
                 subtitle!,
-                style: const TextStyle(
+                style: AppTextStyles.labelM.copyWith(
                   color: AppColors.gray500,
-                  fontSize: 12,
                 ),
                 textAlign: TextAlign.center,
               ).animate().fadeIn(delay: AppDurations.base, duration: AppDurations.medium),

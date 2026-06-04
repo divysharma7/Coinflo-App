@@ -92,8 +92,7 @@ class BudgetProgressBar extends ConsumerWidget {
             children: [
               Text(
                 'Spent in $monthName',
-                style: AppTextStyles.bodyS.copyWith(
-                  fontSize: 12.5,
+                style: AppTextStyles.labelM.copyWith(
                   fontWeight: FontWeight.w600,
                   letterSpacing: 0.2,
                   color: AppColors.white.withValues(alpha: 0.6),
@@ -118,8 +117,7 @@ class BudgetProgressBar extends ConsumerWidget {
             children: [
               Text(
                 'of $symbol${formatHomeNumber(budget)} budget',
-                style: AppTextStyles.bodyS.copyWith(
-                  fontSize: 12.5,
+                style: AppTextStyles.labelM.copyWith(
                   fontWeight: FontWeight.w500,
                   color: AppColors.white.withValues(alpha: 0.6),
                 ),
@@ -149,8 +147,7 @@ class BudgetProgressBar extends ConsumerWidget {
           Text(
             '${daysLeft == 1 ? '1 day' : '$daysLeft days'} left'
             ' · $symbol$perDay/day to stay on track',
-            style: AppTextStyles.bodyS.copyWith(
-              fontSize: 11.5,
+            style: AppTextStyles.labelS.copyWith(
               color: AppColors.white.withValues(alpha: 0.45),
             ),
           ),
@@ -180,7 +177,8 @@ class _StatusPill extends StatelessWidget {
         : AppColors.green.withValues(alpha: 0.16);
     final fg = isOver ? AppColors.redLifted : AppColors.greenLifted;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.xs, vertical: AppSpacing.xxs),
       decoration: BoxDecoration(color: bg, borderRadius: AppRadius.full),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -196,7 +194,6 @@ class _StatusPill extends StatelessWidget {
           Text(
             isOver ? 'Over budget' : 'On track',
             style: AppTextStyles.labelS.copyWith(
-              fontSize: 11,
               fontWeight: FontWeight.w600,
               letterSpacing: 0.2,
               color: fg,

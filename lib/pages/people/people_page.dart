@@ -266,7 +266,7 @@ class _SummaryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(13),
+      padding: const EdgeInsets.all(AppSpacing.sm),
       decoration: const BoxDecoration(
         color: AppColors.white,
         borderRadius: AppRadius.lg,
@@ -362,16 +362,10 @@ class _PersonCard extends ConsumerWidget {
       },
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.md),
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: AppColors.white,
           borderRadius: AppRadius.mdLg,
-          boxShadow: const [
-            BoxShadow(
-              color: AppColors.shadow,
-              blurRadius: 8,
-              offset: Offset(0, 2),
-            ),
-          ],
+          boxShadow: AppShadows.sm,
         ),
         child: Row(
           children: [

@@ -100,7 +100,7 @@ class _SettingsReportBugDialogState extends State<SettingsReportBugDialog> {
                     onTap: () => Navigator.pop(context),
                     child: Container(
                       padding:
-                          const EdgeInsets.symmetric(vertical: 14),
+                          const EdgeInsets.symmetric(vertical: AppSpacing.sm),
                       decoration: BoxDecoration(
                         color: AppColors.gray100,
                         borderRadius: AppRadius.base,
@@ -119,7 +119,7 @@ class _SettingsReportBugDialogState extends State<SettingsReportBugDialog> {
                     onTap: _sending ? null : _submit,
                     child: Container(
                       padding:
-                          const EdgeInsets.symmetric(vertical: 14),
+                          const EdgeInsets.symmetric(vertical: AppSpacing.sm),
                       decoration: BoxDecoration(
                         color: AppColors.black,
                         borderRadius: AppRadius.base,

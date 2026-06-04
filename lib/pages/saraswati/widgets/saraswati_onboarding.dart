@@ -3,10 +3,10 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:finance_buddy_app/design_system/design_system.dart';
 
-// ─── Empty State ──────────────────────────────────────────
+// ─── Saraswati Onboarding (suggestion grid empty state) ──────
 
-class EmptyState extends StatelessWidget {
-  const EmptyState({
+class SaraswatiOnboarding extends StatelessWidget {
+  const SaraswatiOnboarding({
     super.key,
     required this.entrySuggestions,
     required this.querySuggestions,
@@ -33,14 +33,14 @@ class EmptyState extends StatelessWidget {
           Container(
             width: 64,
             height: 64,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppColors.black,
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: AppRadius.lg,
             ),
             child: Center(
               child: PhosphorIcon(
                 PhosphorIcons.lightning(PhosphorIconsStyle.fill),
-                color: Colors.white,
+                color: AppColors.white,
                 size: 30,
               ),
             ),
@@ -57,11 +57,10 @@ class EmptyState extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.xs),
 
-          const Text(
+          Text(
             'Ask me anything about your finances, or log expenses by typing naturally.',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
+            style: AppTextStyles.bodyM.copyWith(
               color: AppColors.gray500,
               height: 1.5,
             ),
@@ -77,7 +76,7 @@ class EmptyState extends StatelessWidget {
 
           ...entrySuggestions.map((s) {
             final d = Duration(milliseconds: delay);
-            delay += 80;
+            delay += AppDurations.listStagger.inMilliseconds;
             return Padding(
               padding: const EdgeInsets.only(bottom: AppSpacing.xs),
               child: GestureDetector(
@@ -104,8 +103,7 @@ class EmptyState extends StatelessWidget {
                       Expanded(
                         child: Text(
                           s,
-                          style: const TextStyle(
-                            fontSize: 14,
+                          style: AppTextStyles.bodyM.copyWith(
                             fontWeight: FontWeight.w500,
                             color: AppColors.catGreenText,
                           ),
@@ -131,7 +129,7 @@ class EmptyState extends StatelessWidget {
 
           ...querySuggestions.map((s) {
             final d = Duration(milliseconds: delay);
-            delay += 80;
+            delay += AppDurations.listStagger.inMilliseconds;
             return Padding(
               padding: const EdgeInsets.only(bottom: AppSpacing.xs),
               child: GestureDetector(
@@ -152,9 +150,7 @@ class EmptyState extends StatelessWidget {
                       Expanded(
                         child: Text(
                           s,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
+                          style: AppTextStyles.bodyM.copyWith(
                             color: AppColors.black,
                           ),
                         ),

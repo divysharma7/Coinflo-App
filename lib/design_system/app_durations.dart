@@ -3,6 +3,8 @@ class AppDurations {
 
   static const Duration microStagger = Duration(milliseconds: 20);
   static const Duration stagger = Duration(milliseconds: 40);
+  static const Duration itemStagger = Duration(milliseconds: 50);
+  static const Duration listStagger = Duration(milliseconds: 80);
   static const Duration micro = Duration(milliseconds: 100);
   static const Duration fast = Duration(milliseconds: 150);
   static const Duration normal = Duration(milliseconds: 200);

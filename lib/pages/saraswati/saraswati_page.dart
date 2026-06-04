@@ -9,7 +9,7 @@ import 'package:finance_buddy_app/providers/saraswati_providers.dart';
 import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 
 import 'package:finance_buddy_app/pages/saraswati/widgets/assistant_bubble.dart';
-import 'package:finance_buddy_app/pages/saraswati/widgets/empty_state.dart';
+import 'package:finance_buddy_app/pages/saraswati/widgets/saraswati_onboarding.dart';
 import 'package:finance_buddy_app/pages/saraswati/widgets/entry_action_bubble.dart';
 import 'package:finance_buddy_app/pages/saraswati/widgets/input_bar.dart';
 import 'package:finance_buddy_app/pages/saraswati/widgets/typing_indicator.dart';
@@ -125,14 +125,14 @@ class _SaraswatiPageState extends ConsumerState<SaraswatiPage> {
             Container(
               width: 38,
               height: 38,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.black,
-                borderRadius: BorderRadius.circular(11),
+                borderRadius: AppRadius.sm,
               ),
               child: Center(
                 child: PhosphorIcon(
                   PhosphorIcons.lightning(PhosphorIconsStyle.fill),
-                  color: Colors.white,
+                  color: AppColors.white,
                   size: 20,
                 ),
               ),
@@ -218,7 +218,7 @@ class _SaraswatiPageState extends ConsumerState<SaraswatiPage> {
                       return AssistantBubble(text: msg.text);
                     },
                   )
-                : EmptyState(
+                : SaraswatiOnboarding(
                     entrySuggestions: _entrySuggestions,
                     querySuggestions: _querySuggestions,
                     onSuggestionTap: _send,
