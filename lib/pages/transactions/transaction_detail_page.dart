@@ -133,19 +133,51 @@ class _TransactionDetailPageState
     }
   }
 
-  InputDecoration _inputDecor(String label, {String? prefixText}) {
+  /// Borderless white field surface matching the Add-Expense note field
+  /// (`fillColor: white`, `AppRadius.mdLg`). Section labels are rendered as
+  /// uppercase eyebrows above each field via [_eyebrow], so no floating label.
+  InputDecoration _inputDecor(String hint,
+      {String? prefixText, TextStyle? prefixStyle}) {
     return InputDecoration(
-      labelText: label,
-      labelStyle: AppTextStyles.bodyS.copyWith(color: AppColors.gray600),
+      hintText: hint,
+      hintStyle: AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
       prefixText: prefixText,
-      prefixStyle: AppTextStyles.headingL.copyWith(color: AppColors.gray600),
+      prefixStyle:
+          prefixStyle ?? AppTextStyles.bodyL.copyWith(color: AppColors.black),
       filled: true,
-      fillColor: AppColors.gray100,
-      border: OutlineInputBorder(borderRadius: AppRadius.base, borderSide: BorderSide.none),
-      enabledBorder: OutlineInputBorder(borderRadius: AppRadius.base, borderSide: BorderSide.none),
-      focusedBorder: OutlineInputBorder(borderRadius: AppRadius.base, borderSide: const BorderSide(color: AppColors.black, width: 1.5)),
+      fillColor: AppColors.white,
+      isDense: true,
+      contentPadding:
+          const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      border: const OutlineInputBorder(
+          borderRadius: AppRadius.mdLg, borderSide: BorderSide.none),
+      enabledBorder: const OutlineInputBorder(
+          borderRadius: AppRadius.mdLg, borderSide: BorderSide.none),
+      focusedBorder: const OutlineInputBorder(
+          borderRadius: AppRadius.mdLg,
+          borderSide: BorderSide(color: AppColors.black, width: 1.5)),
     );
   }
+
+  /// Uppercase section eyebrow above a field — `.sec` in the Hi-Fi system.
+  Widget _eyebrow(String text) => Padding(
+        padding: const EdgeInsets.only(left: 2, bottom: 8),
+        child: Text(text, style: AppTextStyles.section.copyWith(fontSize: 11)),
+      );
+
+  /// White picker surface (category / date / time) — shadowed card matching
+  /// the Add-Expense chips & split row, replacing the old flat gray boxes.
+  Widget _pickerCard({required Widget child}) => Container(
+        constraints: const BoxConstraints(minHeight: 52),
+        padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+        decoration: const BoxDecoration(
+          color: AppColors.white,
+          borderRadius: AppRadius.mdLg,
+          boxShadow: AppShadows.sm,
+        ),
+        child: child,
+      );
 
   @override
   void dispose() {
@@ -168,8 +200,8 @@ class _TransactionDetailPageState
         leading: _editing
             ? TextButton(
                 onPressed: _cancelEdit,
-                child: const Text('Cancel',
-                    style: TextStyle(color: AppColors.gray500)),
+                child: Text('Cancel',
+                    style: AppTextStyles.bodyL.copyWith(color: AppColors.gray500)),
               )
             : Center(
                 child: _HeaderIconButton(
@@ -179,10 +211,8 @@ class _TransactionDetailPageState
                 ),
               ),
         centerTitle: true,
-        title: _editing
-            ? const Text('Edit')
-            : Text('Details',
-                style: AppTextStyles.headingS.copyWith(color: AppColors.black)),
+        title: Text(_editing ? 'Edit' : 'Details',
+            style: AppTextStyles.headingS.copyWith(color: AppColors.black)),
         actions: [
           if (!_editing)
             txnAsync.whenOrNull(
@@ -655,67 +685,55 @@ class _TransactionDetailPageState
   // ─── Edit Mode ─────────────────────────────────────
 
   Widget _buildEditMode(SpendlerTransaction t) {
+    final amountStyle = AppTextStyles.numericL.copyWith(
+      fontSize: 28,
+      fontWeight: FontWeight.w700,
+      letterSpacing: -0.5,
+      color: AppColors.black,
+    );
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Type toggle
-          Theme(
-            data: Theme.of(context).copyWith(
-              segmentedButtonTheme: SegmentedButtonThemeData(
-                style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.resolveWith((states) {
-                    if (states.contains(WidgetState.selected)) return AppColors.black;
-                    return AppColors.white;
-                  }),
-                  foregroundColor: WidgetStateProperty.resolveWith((states) {
-                    if (states.contains(WidgetState.selected)) return AppColors.white;
-                    return AppColors.black;
-                  }),
-                  side: WidgetStateProperty.all(const BorderSide(color: AppColors.black)),
-                  shape: WidgetStateProperty.all(RoundedRectangleBorder(borderRadius: AppRadius.full)),
-                ),
-              ),
-            ),
-            child: SegmentedButton<bool>(
-              segments: const [
-                ButtonSegment(value: true, label: Text('Expense')),
-                ButtonSegment(value: false, label: Text('Income')),
-              ],
-              selected: {_isExpense},
-              showSelectedIcon: false,
-              onSelectionChanged: (v) => setState(() {
-                _isExpense = v.first;
-                _hasChanges = true;
-              }),
-            ),
+          // Type toggle — design-system pill segmented control
+          AppSegmentedControl(
+            segments: const ['Expense', 'Income'],
+            selectedIndex: _isExpense ? 0 : 1,
+            onChanged: (i) => setState(() {
+              _isExpense = i == 0;
+              _hasChanges = true;
+            }),
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: AppSpacing.xl),
 
           // Amount
+          _eyebrow('AMOUNT'),
           TextField(
             controller: _amountCtrl,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            style: AppTextStyles.headingL,
+            style: amountStyle,
             cursorColor: AppColors.black,
-            decoration: _inputDecor('Amount', prefixText: '$_sym '),
+            decoration: _inputDecor('0',
+                prefixText: '$_sym ', prefixStyle: amountStyle),
             onChanged: (_) => _hasChanges = true,
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.lg),
 
           // Merchant
+          _eyebrow('MERCHANT'),
           TextField(
             controller: _merchantCtrl,
             textCapitalization: TextCapitalization.words,
             style: AppTextStyles.bodyL.copyWith(color: AppColors.black),
             cursorColor: AppColors.black,
-            decoration: _inputDecor('Merchant'),
+            decoration: _inputDecor('Where was this?'),
             onChanged: (_) => _hasChanges = true,
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.lg),
 
           // Category picker
+          _eyebrow('CATEGORY'),
           Semantics(
             button: true,
             label: 'Category: ${_category.label}. Tap to change.',
@@ -723,52 +741,61 @@ class _TransactionDetailPageState
             child: ExcludeSemantics(
               child: PressableCard(
                 onTap: _pickCategory,
-                child: Container(
-                  constraints: const BoxConstraints(minHeight: 48),
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
-                  decoration: BoxDecoration(
-                    color: AppColors.gray100,
-                    borderRadius: AppRadius.base,
-                  ),
+                child: _pickerCard(
                   child: Row(
                     children: [
-                      Icon(_category.iconFill, color: AppColors.categoryColor(_category), size: 20),
+                      Container(
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          color: AppColors.categoryBg(_category),
+                          borderRadius: AppRadius.xs,
+                        ),
+                        child: Icon(_category.iconFill,
+                            color: AppColors.categoryColor(_category),
+                            size: 17),
+                      ),
                       const SizedBox(width: AppSpacing.sm),
-                      Text(_category.label, style: AppTextStyles.bodyL.copyWith(color: AppColors.black)),
+                      Text(_category.label,
+                          style: AppTextStyles.bodyL
+                              .copyWith(color: AppColors.black)),
                       const Spacer(),
-                      PhosphorIcon(PhosphorIcons.caretDown(), color: AppColors.gray500, size: 16),
+                      PhosphorIcon(PhosphorIcons.caretDown(),
+                          color: AppColors.gray500, size: 16),
                     ],
                   ),
                 ),
               ),
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.lg),
 
           // Date + Time row
+          _eyebrow('WHEN'),
           Row(
             children: [
               Expanded(
                 child: Semantics(
                   button: true,
-                  label: 'Date: ${DateFormat('d MMM yyyy').format(_date)}. Tap to change.',
+                  label:
+                      'Date: ${DateFormat('d MMM yyyy').format(_date)}. Tap to change.',
                   onTap: () => _pickDate(),
                   child: ExcludeSemantics(
                     child: PressableCard(
                       onTap: () => _pickDate(),
-                      child: Container(
-                        constraints: const BoxConstraints(minHeight: 48),
-                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
-                        decoration: BoxDecoration(
-                          color: AppColors.gray100,
-                          borderRadius: AppRadius.base,
-                        ),
+                      child: _pickerCard(
                         child: Row(
                           children: [
-                            PhosphorIcon(PhosphorIcons.calendar(), color: AppColors.gray500, size: 18),
+                            PhosphorIcon(PhosphorIcons.calendar(),
+                                color: AppColors.gray500, size: 18),
                             const SizedBox(width: AppSpacing.xs),
-                            Text(DateFormat('d MMM yyyy').format(_date),
-                                style: AppTextStyles.bodyM.copyWith(color: AppColors.black)),
+                            Flexible(
+                              child: Text(
+                                  DateFormat('d MMM yyyy').format(_date),
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AppTextStyles.bodyM
+                                      .copyWith(color: AppColors.black)),
+                            ),
                           ],
                         ),
                       ),
@@ -785,19 +812,18 @@ class _TransactionDetailPageState
                   child: ExcludeSemantics(
                     child: PressableCard(
                       onTap: () => _pickTime(),
-                      child: Container(
-                        constraints: const BoxConstraints(minHeight: 48),
-                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
-                        decoration: BoxDecoration(
-                          color: AppColors.gray100,
-                          borderRadius: AppRadius.base,
-                        ),
+                      child: _pickerCard(
                         child: Row(
                           children: [
-                            PhosphorIcon(PhosphorIcons.clock(), color: AppColors.gray500, size: 18),
+                            PhosphorIcon(PhosphorIcons.clock(),
+                                color: AppColors.gray500, size: 18),
                             const SizedBox(width: AppSpacing.xs),
-                            Text(_time.format(context),
-                                style: AppTextStyles.bodyM.copyWith(color: AppColors.black)),
+                            Flexible(
+                              child: Text(_time.format(context),
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AppTextStyles.bodyM
+                                      .copyWith(color: AppColors.black)),
+                            ),
                           ],
                         ),
                       ),
@@ -807,33 +833,27 @@ class _TransactionDetailPageState
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.lg),
 
           // Note
+          _eyebrow('NOTE (OPTIONAL)'),
           TextField(
             controller: _noteCtrl,
-            style: const TextStyle(color: AppColors.black),
+            style: AppTextStyles.bodyM.copyWith(color: AppColors.black),
             cursorColor: AppColors.black,
             maxLength: 200,
-            decoration: _inputDecor('Note (optional)'),
+            maxLines: 3,
+            minLines: 1,
+            decoration: _inputDecor('Add a note'),
             onChanged: (_) => _hasChanges = true,
           ),
 
           const SizedBox(height: AppSpacing.xl),
 
-          // Save button (H9: use FilledButton, not NeoPOPButton)
-          SizedBox(
-            width: double.infinity,
-            height: 52,
-            child: FilledButton(
-              onPressed: () => _saveChanges(t.id),
-              style: FilledButton.styleFrom(
-                backgroundColor: AppColors.black,
-                foregroundColor: AppColors.white,
-                shape: RoundedRectangleBorder(borderRadius: AppRadius.base),
-              ),
-              child: const Text('Save Changes'),
-            ),
+          // Save button — design-system pill (AppButton)
+          AppButton(
+            label: 'Save Changes',
+            onTap: () => _saveChanges(t.id),
           ),
         ],
       ),
@@ -846,6 +866,7 @@ class _TransactionDetailPageState
       initialDate: _date,
       firstDate: DateTime(2020),
       lastDate: DateTime.now(),
+      builder: monoPickerBuilder,
     );
     if (picked != null && mounted) {
       setState(() {
@@ -859,6 +880,7 @@ class _TransactionDetailPageState
     final picked = await showTimePicker(
       context: context,
       initialTime: _time,
+      builder: monoPickerBuilder,
     );
     if (picked != null && mounted) {
       setState(() {

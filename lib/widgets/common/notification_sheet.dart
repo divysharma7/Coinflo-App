@@ -249,19 +249,7 @@ class NotificationSheet extends ConsumerWidget {
       context: context,
       initialTime:
           TimeOfDay(hour: prefs.checkinHour, minute: prefs.checkinMinute),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            timePickerTheme: const TimePickerThemeData(
-              backgroundColor: AppColors.white,
-              hourMinuteTextColor: AppColors.black,
-              dialHandColor: AppColors.black,
-              dialBackgroundColor: AppColors.white,
-            ),
-          ),
-          child: child!,
-        );
-      },
+      builder: monoPickerBuilder,
     );
     if (picked != null) {
       await ref
