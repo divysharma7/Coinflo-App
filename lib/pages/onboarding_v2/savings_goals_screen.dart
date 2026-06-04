@@ -8,8 +8,26 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:finance_buddy_app/constants/goal_icons.dart';
 import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/models/savings_goal_model.dart';
+import 'package:finance_buddy_app/pages/onboarding_v2/widgets/onboarding_progress_header.dart';
 import 'package:finance_buddy_app/widgets/add_goal_sheet.dart';
+import 'package:finance_buddy_app/widgets/common/animations.dart';
 import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
+
+/// Quick-start goal suggestions — tapping one pre-fills the add sheet.
+class _GoalTemplate {
+  const _GoalTemplate(this.name, this.iconLabel);
+  final String name;
+  final String iconLabel; // matches a kGoalIcons label
+}
+
+const List<_GoalTemplate> _kGoalTemplates = [
+  _GoalTemplate('Emergency Fund', 'Other'),
+  _GoalTemplate('Trip', 'Travel'),
+  _GoalTemplate('New Phone', 'Phone'),
+  _GoalTemplate('Car', 'Vehicle'),
+  _GoalTemplate('Home', 'Home'),
+  _GoalTemplate('Wedding', 'Wedding'),
+];
 
 class SavingsGoalsScreen extends StatefulWidget {
   const SavingsGoalsScreen({super.key});
@@ -45,13 +63,13 @@ class _SavingsGoalsScreenState extends State<SavingsGoalsScreen>
         curve: const Interval(0, 0.6, curve: Curves.easeOutCubic),
       ),
     );
-    _titleSlide = Tween<Offset>(
-      begin: const Offset(0, 0.05),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _enterController,
-      curve: const Interval(0, 0.6, curve: Curves.easeOutCubic),
-    ));
+    _titleSlide = Tween<Offset>(begin: const Offset(0, 0.05), end: Offset.zero)
+        .animate(
+          CurvedAnimation(
+            parent: _enterController,
+            curve: const Interval(0, 0.6, curve: Curves.easeOutCubic),
+          ),
+        );
     _contentFade = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(
         parent: _enterController,
@@ -69,13 +87,17 @@ class _SavingsGoalsScreenState extends State<SavingsGoalsScreen>
 
   Future<void> _loadSavedData() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     final savedJson = prefs.getString('savings_goals');
     final List<SavingsGoalModel> restored = [];
     if (savedJson != null) {
       try {
         final List<dynamic> decoded = jsonDecode(savedJson) as List<dynamic>;
-        restored.addAll(decoded
-            .map((e) => SavingsGoalModel.fromJson(e as Map<String, dynamic>)));
+        restored.addAll(
+          decoded.map(
+            (e) => SavingsGoalModel.fromJson(e as Map<String, dynamic>),
+          ),
+        );
       } on FormatException catch (_) {
         // Ignore malformed JSON.
       }
@@ -90,10 +112,14 @@ class _SavingsGoalsScreenState extends State<SavingsGoalsScreen>
     });
   }
 
-  void _openAddSheet() {
+  void _openAddSheet({String? name, String? iconLabel}) {
     showSpendlerSheet<void>(
       context: context,
-      builder: (_) => AddGoalSheet(onSave: _addGoal),
+      builder: (_) => AddGoalSheet(
+        onSave: _addGoal,
+        initialName: name,
+        initialIconLabel: iconLabel,
+      ),
     );
   }
 
@@ -121,7 +147,7 @@ class _SavingsGoalsScreenState extends State<SavingsGoalsScreen>
     final prefs = await SharedPreferences.getInstance();
     final encoded = jsonEncode(_goals.map((g) => g.toJson()).toList());
     await prefs.setString('savings_goals', encoded);
-    if (mounted) await context.push('/onboarding/step8');
+    if (mounted) await context.push('/onboarding/reminders');
   }
 
   @override
@@ -132,14 +158,13 @@ class _SavingsGoalsScreenState extends State<SavingsGoalsScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Progress indicator (step 8 — but spec says progress indicator "step 8")
-            Padding(
-              padding: const EdgeInsets.only(
+            const Padding(
+              padding: EdgeInsets.only(
                 top: AppSpacing.md,
                 left: AppSpacing.lg,
                 right: AppSpacing.lg,
               ),
-              child: _buildProgressIndicator(),
+              child: OnboardingProgressHeader(step: 5),
             ),
 
             // Back button
@@ -160,15 +185,17 @@ class _SavingsGoalsScreenState extends State<SavingsGoalsScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Savings goals',
-                        style: AppTextStyles.headingL
-                            .copyWith(color: AppColors.black),
+                        'What are you saving for?',
+                        style: AppTextStyles.headingL.copyWith(
+                          color: AppColors.black,
+                        ),
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
-                        'What are you saving for? Add your goals.',
-                        style: AppTextStyles.bodyM
-                            .copyWith(color: AppColors.gray500),
+                        'Optional. Pick a goal to stay motivated — or make your own.',
+                        style: AppTextStyles.bodyM.copyWith(
+                          color: AppColors.gray500,
+                        ),
                       ),
                     ],
                   ),
@@ -183,10 +210,14 @@ class _SavingsGoalsScreenState extends State<SavingsGoalsScreen>
               child: FadeTransition(
                 opacity: _contentFade,
                 child: SingleChildScrollView(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.lg,
+                  ),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      _buildTemplates(),
+                      const SizedBox(height: AppSpacing.md),
                       AnimatedList(
                         key: _listKey,
                         initialItemCount: _goals.length,
@@ -194,8 +225,10 @@ class _SavingsGoalsScreenState extends State<SavingsGoalsScreen>
                         physics: const NeverScrollableScrollPhysics(),
                         itemBuilder: (context, index, animation) {
                           return _buildGoalRow(
-                              _goals[index], animation,
-                              index: index);
+                            _goals[index],
+                            animation,
+                            index: index,
+                          );
                         },
                       ),
                       // Add goal button
@@ -223,20 +256,44 @@ class _SavingsGoalsScreenState extends State<SavingsGoalsScreen>
     );
   }
 
-  Widget _buildProgressIndicator() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(8, (index) {
-        return Container(
-          width: 24,
-          height: 3,
-          margin: EdgeInsets.only(right: index < 7 ? AppSpacing.xs : 0),
-          decoration: BoxDecoration(
-            color: index < 8 ? AppColors.black : AppColors.gray200,
-            borderRadius: AppRadius.full,
+  Widget _buildTemplates() {
+    return Wrap(
+      spacing: AppSpacing.xs,
+      runSpacing: AppSpacing.xs,
+      children: _kGoalTemplates.map((t) {
+        final icon = kGoalIcons.firstWhere(
+          (g) => g.label == t.iconLabel,
+          orElse: () => kGoalIcons.last,
+        );
+        return PressableCard(
+          onTap: () => _openAddSheet(name: t.name, iconLabel: t.iconLabel),
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.sm,
+              vertical: 9,
+            ),
+            decoration: const BoxDecoration(
+              color: AppColors.white,
+              borderRadius: AppRadius.full,
+              boxShadow: AppShadows.sm,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon.icon, size: 15, color: AppColors.black),
+                const SizedBox(width: AppSpacing.xs),
+                Text(
+                  t.name,
+                  style: AppTextStyles.bodyS.copyWith(
+                    color: AppColors.black,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
           ),
         );
-      }),
+      }).toList(),
     );
   }
 
@@ -281,8 +338,7 @@ class _SavingsGoalsScreenState extends State<SavingsGoalsScreen>
                     Row(
                       children: [
                         Expanded(
-                          child: Text(goal.name,
-                              style: AppTextStyles.headingS),
+                          child: Text(goal.name, style: AppTextStyles.headingS),
                         ),
                         HealthBadge.fromGoalHealth(goal.health),
                       ],
@@ -290,8 +346,9 @@ class _SavingsGoalsScreenState extends State<SavingsGoalsScreen>
                     const SizedBox(height: AppSpacing.xxs),
                     Text(
                       '$_currencySymbol${_formatter.format(goal.savedAmount)} of $_currencySymbol${_formatter.format(goal.targetAmount)}',
-                      style: AppTextStyles.bodyS
-                          .copyWith(color: AppColors.gray500),
+                      style: AppTextStyles.bodyS.copyWith(
+                        color: AppColors.gray500,
+                      ),
                     ),
                   ],
                 ),
@@ -300,17 +357,31 @@ class _SavingsGoalsScreenState extends State<SavingsGoalsScreen>
               if (index != null)
                 Padding(
                   padding: const EdgeInsets.only(left: AppSpacing.xs),
-                  child: GestureDetector(
-                    onTap: () => _deleteGoal(index),
-                    child: Container(
-                      width: 32,
-                      height: 32,
-                      decoration: const BoxDecoration(
-                        color: AppColors.gray100,
-                        shape: BoxShape.circle,
+                  child: Semantics(
+                    button: true,
+                    label: 'Delete goal',
+                    child: GestureDetector(
+                      onTap: () => _deleteGoal(index),
+                      behavior: HitTestBehavior.opaque,
+                      child: SizedBox(
+                        width: 44,
+                        height: 44,
+                        child: Center(
+                          child: Container(
+                            width: 32,
+                            height: 32,
+                            decoration: const BoxDecoration(
+                              color: AppColors.gray100,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.delete_outline,
+                              size: 16,
+                              color: AppColors.gray500,
+                            ),
+                          ),
+                        ),
                       ),
-                      child: const Icon(Icons.delete_outline,
-                          size: 16, color: AppColors.gray500),
                     ),
                   ),
                 ),
@@ -323,8 +394,7 @@ class _SavingsGoalsScreenState extends State<SavingsGoalsScreen>
             child: LinearProgressIndicator(
               value: goal.progress,
               backgroundColor: AppColors.gray100,
-              valueColor:
-                  AlwaysStoppedAnimation(_progressColor(goal)),
+              valueColor: AlwaysStoppedAnimation(_progressColor(goal)),
               minHeight: 4,
             ),
           ),
@@ -333,8 +403,7 @@ class _SavingsGoalsScreenState extends State<SavingsGoalsScreen>
             alignment: Alignment.centerLeft,
             child: Text(
               '$_currencySymbol${_formatter.format(goal.monthlyTarget)}/mo · ${goal.monthsRemaining} months left',
-              style:
-                  AppTextStyles.labelS.copyWith(color: AppColors.gray500),
+              style: AppTextStyles.labelS.copyWith(color: AppColors.gray500),
             ),
           ),
         ],
@@ -345,10 +414,7 @@ class _SavingsGoalsScreenState extends State<SavingsGoalsScreen>
       position: Tween<Offset>(
         begin: const Offset(0, 0.1),
         end: Offset.zero,
-      ).animate(CurvedAnimation(
-        parent: animation,
-        curve: Curves.easeOutCubic,
-      )),
+      ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic)),
       child: FadeTransition(opacity: animation, child: row),
     );
   }
@@ -367,7 +433,7 @@ class _SavingsGoalsScreenState extends State<SavingsGoalsScreen>
   }
 
   Widget _buildAddButton() {
-    return GestureDetector(
+    return PressableCard(
       onTap: _openAddSheet,
       child: Container(
         width: double.infinity,

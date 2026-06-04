@@ -31,8 +31,7 @@ class _CategoryBudgetsScreenState extends State<CategoryBudgetsScreen>
   late final Animation<Offset> _titleSlide;
   late final Animation<double> _contentFade;
 
-  int get _totalAllocated =>
-      _budgets.fold(0, (sum, b) => sum + b.monthlyLimit);
+  int get _totalAllocated => _budgets.fold(0, (sum, b) => sum + b.monthlyLimit);
   bool get _isOverAllocated => _totalAllocated > _totalMonthlyBudget;
 
   List<CategoryGroup> get _availableGroups => CategoryGroup.values
@@ -56,13 +55,13 @@ class _CategoryBudgetsScreenState extends State<CategoryBudgetsScreen>
         curve: const Interval(0, 0.6, curve: Curves.easeOutCubic),
       ),
     );
-    _titleSlide = Tween<Offset>(
-      begin: const Offset(0, 0.05),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _enterController,
-      curve: const Interval(0, 0.6, curve: Curves.easeOutCubic),
-    ));
+    _titleSlide = Tween<Offset>(begin: const Offset(0, 0.05), end: Offset.zero)
+        .animate(
+          CurvedAnimation(
+            parent: _enterController,
+            curve: const Interval(0, 0.6, curve: Curves.easeOutCubic),
+          ),
+        );
     _contentFade = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(
         parent: _enterController,
@@ -80,19 +79,27 @@ class _CategoryBudgetsScreenState extends State<CategoryBudgetsScreen>
 
   Future<void> _loadData() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     final savedJson = prefs.getString('category_budgets');
     final List<CategoryBudgetModel> restored = [];
     if (savedJson != null) {
       try {
         final List<dynamic> decoded = jsonDecode(savedJson) as List<dynamic>;
-        restored.addAll(decoded
-            .map((e) => CategoryBudgetModel.fromJson(e as Map<String, dynamic>)));
+        restored.addAll(
+          decoded.map(
+            (e) => CategoryBudgetModel.fromJson(e as Map<String, dynamic>),
+          ),
+        );
       } on FormatException catch (_) {
         // Ignore malformed JSON.
       }
     }
     setState(() {
-      _totalMonthlyBudget = (prefs.getDouble('monthly_budget') ?? prefs.getInt('monthly_budget') ?? 5000).toInt();
+      _totalMonthlyBudget =
+          (prefs.getDouble('monthly_budget') ??
+                  prefs.getInt('monthly_budget') ??
+                  5000)
+              .toInt();
       _currencySymbol = prefs.getString('currency_symbol') ?? '₹';
       if (restored.isNotEmpty) {
         _budgets
@@ -149,11 +156,12 @@ class _CategoryBudgetsScreenState extends State<CategoryBudgetsScreen>
     );
   }
 
+  // Reached as an optional sub-page from the Budget screen — save and return.
   Future<void> _onContinue() async {
     final prefs = await SharedPreferences.getInstance();
     final encoded = jsonEncode(_budgets.map((b) => b.toJson()).toList());
     await prefs.setString('category_budgets', encoded);
-    if (mounted) await context.push('/onboarding/step5');
+    if (mounted) context.pop();
   }
 
   @override
@@ -165,17 +173,7 @@ class _CategoryBudgetsScreenState extends State<CategoryBudgetsScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Progress indicator
-            Padding(
-              padding: const EdgeInsets.only(
-                top: AppSpacing.md,
-                left: AppSpacing.lg,
-                right: AppSpacing.lg,
-              ),
-              child: _buildProgressIndicator(),
-            ),
-
-            // Back button
+            // Back button (this is an optional sub-page, no setup progress bar)
             AppBackButton(onTap: () => context.pop()),
 
             // Title + subtitle
@@ -194,14 +192,16 @@ class _CategoryBudgetsScreenState extends State<CategoryBudgetsScreen>
                     children: [
                       Text(
                         'Category Budgets',
-                        style: AppTextStyles.headingL
-                            .copyWith(color: AppColors.black),
+                        style: AppTextStyles.headingL.copyWith(
+                          color: AppColors.black,
+                        ),
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
                         'Set spending limits per category group. Optional — add more later.',
-                        style: AppTextStyles.bodyM
-                            .copyWith(color: AppColors.gray500),
+                        style: AppTextStyles.bodyM.copyWith(
+                          color: AppColors.gray500,
+                        ),
                       ),
                     ],
                   ),
@@ -215,8 +215,7 @@ class _CategoryBudgetsScreenState extends State<CategoryBudgetsScreen>
             FadeTransition(
               opacity: _contentFade,
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                 child: _buildAllocationBar(),
               ),
             ),
@@ -228,8 +227,9 @@ class _CategoryBudgetsScreenState extends State<CategoryBudgetsScreen>
               child: FadeTransition(
                 opacity: _contentFade,
                 child: SingleChildScrollView(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.lg,
+                  ),
                   child: Column(
                     children: [
                       // Budget list
@@ -240,16 +240,17 @@ class _CategoryBudgetsScreenState extends State<CategoryBudgetsScreen>
                         physics: const NeverScrollableScrollPhysics(),
                         itemBuilder: (context, index, animation) {
                           return _buildBudgetRow(
-                              _budgets[index], animation,
-                              index: index);
+                            _budgets[index],
+                            animation,
+                            index: index,
+                          );
                         },
                       ),
 
                       // Add button
                       if (_availableGroups.isNotEmpty)
                         Padding(
-                          padding:
-                              const EdgeInsets.only(top: AppSpacing.md),
+                          padding: const EdgeInsets.only(top: AppSpacing.md),
                           child: _buildAddButton(),
                         ),
 
@@ -276,28 +277,10 @@ class _CategoryBudgetsScreenState extends State<CategoryBudgetsScreen>
     );
   }
 
-  Widget _buildProgressIndicator() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(8, (index) {
-        return Container(
-          width: 24,
-          height: 3,
-          margin: EdgeInsets.only(right: index < 7 ? AppSpacing.xs : 0),
-          decoration: BoxDecoration(
-            color: index < 4 ? AppColors.black : AppColors.gray200,
-            borderRadius: AppRadius.full,
-          ),
-        );
-      }),
-    );
-  }
-
   Widget _buildAllocationBar() {
-    final progress =
-        _totalMonthlyBudget > 0
-            ? (_totalAllocated / _totalMonthlyBudget).clamp(0.0, 1.0)
-            : 0.0;
+    final progress = _totalMonthlyBudget > 0
+        ? (_totalAllocated / _totalMonthlyBudget).clamp(0.0, 1.0)
+        : 0.0;
 
     return Column(
       children: [
@@ -313,8 +296,7 @@ class _CategoryBudgetsScreenState extends State<CategoryBudgetsScreen>
               child: Text(
                 '$_currencySymbol${_formatter.format(_totalAllocated)} allocated of $_currencySymbol${_formatter.format(_totalMonthlyBudget)} monthly budget',
                 style: AppTextStyles.bodyS.copyWith(
-                  color:
-                      _isOverAllocated ? AppColors.red : AppColors.gray500,
+                  color: _isOverAllocated ? AppColors.red : AppColors.gray500,
                 ),
               ),
             ),
@@ -334,7 +316,7 @@ class _CategoryBudgetsScreenState extends State<CategoryBudgetsScreen>
                 valueColor: AlwaysStoppedAnimation(
                   _isOverAllocated ? AppColors.red : AppColors.black,
                 ),
-                minHeight: 2,
+                minHeight: 4,
               ),
             );
           },
@@ -381,40 +363,38 @@ class _CategoryBudgetsScreenState extends State<CategoryBudgetsScreen>
                 Text(budget.group.label, style: AppTextStyles.headingS),
                 Text(
                   '$_currencySymbol${_formatter.format(budget.monthlyLimit)}/mo',
-                  style:
-                      AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
+                  style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
                 ),
               ],
             ),
           ),
-          // Edit button
-          GestureDetector(
-            onTap: () => _openEditSheet(budget),
-            child: Container(
-              width: 32,
-              height: 32,
-              decoration: const BoxDecoration(
-                color: AppColors.gray100,
-                shape: BoxShape.circle,
+          // Edit button — 44x44 hit area around a 32px visual circle
+          Semantics(
+            button: true,
+            label: 'Edit ${budget.group.label} budget',
+            child: GestureDetector(
+              onTap: () => _openEditSheet(budget),
+              behavior: HitTestBehavior.opaque,
+              child: const SizedBox(
+                width: 44,
+                height: 44,
+                child: Center(child: _IconCircle(icon: Icons.edit_outlined)),
               ),
-              child: const Icon(Icons.edit_outlined,
-                  size: 16, color: AppColors.gray500),
             ),
           ),
-          const SizedBox(width: AppSpacing.xs),
-          // Delete button
+          // Delete button — 44x44 hit area around a 32px visual circle
           if (index != null)
-            GestureDetector(
-              onTap: () => _deleteBudget(index),
-              child: Container(
-                width: 32,
-                height: 32,
-                decoration: const BoxDecoration(
-                  color: AppColors.gray100,
-                  shape: BoxShape.circle,
+            Semantics(
+              button: true,
+              label: 'Delete ${budget.group.label} budget',
+              child: GestureDetector(
+                onTap: () => _deleteBudget(index),
+                behavior: HitTestBehavior.opaque,
+                child: const SizedBox(
+                  width: 44,
+                  height: 44,
+                  child: Center(child: _IconCircle(icon: Icons.delete_outline)),
                 ),
-                child: const Icon(Icons.delete_outline,
-                    size: 16, color: AppColors.gray500),
               ),
             ),
         ],
@@ -425,38 +405,60 @@ class _CategoryBudgetsScreenState extends State<CategoryBudgetsScreen>
       position: Tween<Offset>(
         begin: const Offset(0, 0.1),
         end: Offset.zero,
-      ).animate(CurvedAnimation(
-        parent: animation,
-        curve: Curves.easeOutCubic,
-      )),
+      ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic)),
       child: FadeTransition(opacity: animation, child: row),
     );
   }
 
   Widget _buildAddButton() {
-    return GestureDetector(
-      onTap: _openAddSheet,
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.sm,
-        ),
-        decoration: BoxDecoration(
-          border: Border.all(color: AppColors.gray200, width: 1.5),
-          borderRadius: AppRadius.full,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.add, size: 16, color: AppColors.gray500),
-            const SizedBox(width: AppSpacing.xs),
-            Text(
-              'Add category budget',
-              style: AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
-            ),
-          ],
+    return Semantics(
+      button: true,
+      label: 'Add category budget',
+      child: GestureDetector(
+        onTap: _openAddSheet,
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: AppSpacing.sm,
+          ),
+          decoration: BoxDecoration(
+            border: Border.all(color: AppColors.gray200, width: 1.5),
+            borderRadius: AppRadius.full,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.add, size: 16, color: AppColors.gray500),
+              const SizedBox(width: AppSpacing.xs),
+              Text(
+                'Add category budget',
+                style: AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
+              ),
+            ],
+          ),
         ),
       ),
+    );
+  }
+}
+
+/// 32px gray circle holding a 16px icon — the visual for the edit/delete row
+/// affordances, wrapped in a larger 44x44 hit area by callers.
+class _IconCircle extends StatelessWidget {
+  const _IconCircle({required this.icon});
+
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 32,
+      height: 32,
+      decoration: const BoxDecoration(
+        color: AppColors.gray100,
+        shape: BoxShape.circle,
+      ),
+      child: Icon(icon, size: 16, color: AppColors.gray500),
     );
   }
 }

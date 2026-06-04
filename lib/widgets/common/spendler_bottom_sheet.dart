@@ -11,12 +11,13 @@ Future<T?> showSpendlerSheet<T>({
   required WidgetBuilder builder,
   bool isScrollControlled = true,
   bool isDismissible = true,
+  Color backgroundColor = AppColors.white,
 }) {
   return showModalBottomSheet<T>(
     context: context,
     isScrollControlled: isScrollControlled,
     isDismissible: isDismissible,
-    backgroundColor: AppColors.white,
+    backgroundColor: backgroundColor,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
     ),

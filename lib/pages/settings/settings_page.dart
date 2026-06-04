@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 import 'package:finance_buddy_app/core/enums.dart';
 import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
@@ -178,7 +177,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         iconBg: AppColors.gray100,
                         iconColor: AppColors.gray600,
                         label: 'Accounts',
-                        onTap: () => _showAccountsSheet(),
+                        onTap: () => context.push('/accounts'),
                       ),
                       const SettingsDivider(),
                       SettingsRow(
@@ -357,131 +356,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     return (parts.first[0] + parts.last[0]).toUpperCase();
   }
 
-  // ─── Accounts Sheet ─────────────────────────────────────
-
-  void _showAccountsSheet() async {
-    final prefs = await SharedPreferences.getInstance();
-    final currencyCode = prefs.getString('currency_code') ?? 'inr';
-    final acctCurrency = Currency.values.firstWhere(
-      (c) => c.name == currencyCode,
-      orElse: () => Currency.inr,
-    );
-    final accountsJson = prefs.getString('accounts');
-    List<dynamic> accounts = [];
-    if (accountsJson != null) {
-      try {
-        accounts = List<dynamic>.from(jsonDecode(accountsJson) as List);
-      } on FormatException catch (e) {
-        debugPrint('Malformed accounts JSON: $e');
-      }
-    }
-
-    if (!mounted) return;
-    await showSpendlerSheet<void>(
-      context: context,
-      isScrollControlled: false,
-      builder: (_) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Center(
-                  child: SizedBox(height: AppSpacing.md),
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Accounts',
-                        style: AppTextStyles.headingS
-                            .copyWith(color: AppColors.black)),
-                    Text('${accounts.length} accounts',
-                        style: AppTextStyles.bodyS
-                            .copyWith(color: AppColors.gray500)),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                if (accounts.isEmpty)
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: AppSpacing.xl),
-                      child: Text('No accounts configured.',
-                          style: AppTextStyles.bodyM
-                              .copyWith(color: AppColors.gray500)),
-                    ),
-                  )
-                else
-                  ...accounts.map((a) {
-                    final account = a as Map<String, dynamic>;
-                    final name = account['name'] as String? ?? '';
-                    final type = account['type'] as String? ?? '';
-                    final balance =
-                        (account['openingBalance'] as num?)?.toDouble() ??
-                            0;
-                    return Container(
-                      margin:
-                          const EdgeInsets.only(bottom: AppSpacing.xs),
-                      padding: const EdgeInsets.all(AppSpacing.md),
-                      decoration: BoxDecoration(
-                        color: AppColors.offWhite,
-                        borderRadius: AppRadius.base,
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: AppColors.white,
-                              borderRadius: AppRadius.sm,
-                            ),
-                            child: Icon(
-                              type == 'upi'
-                                  ? PhosphorIcons.deviceMobile()
-                                  : PhosphorIcons.wallet(),
-                              size: 20,
-                              color: AppColors.gray600,
-                            ),
-                          ),
-                          const SizedBox(width: AppSpacing.sm),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment:
-                                  CrossAxisAlignment.start,
-                              children: [
-                                Text(name,
-                                    style: AppTextStyles.bodyM.copyWith(
-                                        color: AppColors.black,
-                                        fontWeight: FontWeight.w600)),
-                                Text(
-                                    type.toUpperCase(),
-                                    style: AppTextStyles.labelS.copyWith(
-                                        color: AppColors.gray500)),
-                              ],
-                            ),
-                          ),
-                          Text(
-                            '${acctCurrency.symbol}${balance.toStringAsFixed(0)}',
-                            style: AppTextStyles.numericL
-                                .copyWith(color: AppColors.black),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
-                const SizedBox(height: AppSpacing.md),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   // ─── Categories Sheet ──────────────────────────────────
 
   void _showCategoriesSheet() {
@@ -637,7 +511,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 Navigator.pop(ctx);
                 final authService = ref.read(authServiceProvider);
                 await authService.signOut();
-                if (mounted) context.go('/onboarding/step2');
+                if (mounted) context.go('/onboarding/welcome');
               },
               child: Text('Log Out',
                   style: AppTextStyles.bodyM.copyWith(
@@ -682,7 +556,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   await authService.clearLocalAuth();
                   final prefs = await SharedPreferences.getInstance();
                   await prefs.clear();
-                  if (mounted) context.go('/onboarding/step2');
+                  if (mounted) context.go('/onboarding/welcome');
                 } on Exception {
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(

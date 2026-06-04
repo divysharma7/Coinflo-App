@@ -14,6 +14,10 @@ abstract class TransactionRepository {
   Future<SpendlerTransaction?> getById(int id);
   Future<List<SpendlerTransaction>> getTransactionsForDay(DateTime day);
   Future<List<SpendlerTransaction>> getTransactionsForMonth(DateTime month);
+
+  /// Reactive variant of [getTransactionsForMonth] — emits a fresh list
+  /// whenever the underlying table changes (e.g. a transaction is added).
+  Stream<List<SpendlerTransaction>> watchTransactionsForMonth(DateTime month);
   Future<int> getUnconfirmedCount();
   Future<int> insertTransaction(SpendlerTransactionsCompanion entry);
   Future<void> confirmTransaction(int id);

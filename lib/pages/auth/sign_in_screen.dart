@@ -144,6 +144,15 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     }
   }
 
+  /// Local-first escape hatch: skip cloud sign-in and use the app on-device.
+  /// Returning users (already onboarded) go straight home; otherwise onboard.
+  Future<void> _continueLocally() async {
+    final prefs = await SharedPreferences.getInstance();
+    final onboarded = prefs.getBool('onboarding_completed') ?? false;
+    if (!mounted) return;
+    context.go(onboarded ? '/home' : '/onboarding/welcome');
+  }
+
   String _friendlyAuthError(String code) {
     switch (code) {
       case 'user-not-found':
@@ -200,18 +209,28 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   children: [
                     const SizedBox(height: AppSpacing.xxl),
 
-                    // Icon
+                    // Brand icon — gradient coin
                     Container(
                       width: 80,
                       height: 80,
                       decoration: const BoxDecoration(
-                        color: AppColors.black,
-                        borderRadius: AppRadius.xl,
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Color(0xFF2C2C30), AppColors.black],
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                              color: Color(0x40000000),
+                              blurRadius: 32,
+                              offset: Offset(0, 16)),
+                        ],
                       ),
                       child: const Icon(
-                        Icons.login,
+                        Icons.currency_rupee_rounded,
                         color: AppColors.white,
-                        size: 40,
+                        size: 36,
                       ),
                     ),
 
@@ -264,6 +283,23 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       ),
                     ),
 
+                    const SizedBox(height: AppSpacing.sm),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: GestureDetector(
+                        onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Password reset is coming soon.')),
+                        ),
+                        child: Text(
+                          'Forgot password?',
+                          style: AppTextStyles.bodyS.copyWith(
+                              color: AppColors.gray500,
+                              fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ),
+
                     // Error message
                     if (_errorMessage != null) ...[
                       const SizedBox(height: AppSpacing.sm),
@@ -309,27 +345,35 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                     ),
             ),
 
-            // Navigate to onboarding / account creation
-            GestureDetector(
-              onTap: () => context.go('/onboarding/step2'),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-                child: Text.rich(
-                  TextSpan(
-                    text: "Don't have an account? ",
-                    style:
-                        AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
-                    children: [
-                      TextSpan(
-                        text: 'Start fresh',
-                        style: AppTextStyles.bodyS.copyWith(
-                          color: AppColors.black,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
+            // "or" divider
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.lg, AppSpacing.xs, AppSpacing.lg, AppSpacing.sm),
+              child: Row(
+                children: [
+                  const Expanded(
+                      child: Divider(color: AppColors.gray200, height: 1)),
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                    child: Text('or',
+                        style: AppTextStyles.labelM
+                            .copyWith(color: AppColors.gray400)),
                   ),
-                ),
+                  const Expanded(
+                      child: Divider(color: AppColors.gray200, height: 1)),
+                ],
+              ),
+            ),
+
+            // Local-first escape hatch
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.sm),
+              child: AppButton(
+                variant: AppButtonVariant.ghost,
+                label: 'Continue on this device',
+                onTap: _continueLocally,
               ),
             ),
 

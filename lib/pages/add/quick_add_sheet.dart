@@ -46,7 +46,11 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
   List<int> _splitPersonIds = [];
 
   static const List<String> _incomeSources = [
-    'salary', 'freelance', 'refund', 'gift', 'other',
+    'salary',
+    'freelance',
+    'refund',
+    'gift',
+    'other',
   ];
 
   static const Map<String, String> _incomeSourceLabels = {
@@ -57,10 +61,21 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
     'other': 'Other',
   };
 
+  /// True while the NOTE field is focused — i.e. the system keyboard is up.
+  /// The custom numpad and the system keyboard are mutually exclusive (the
+  /// design's hybrid model), so the numpad hides whenever this is true and the
+  /// amount collapses to a compact summary row.
+  bool get _noteEditing => _noteFocus.hasFocus;
+
   @override
   void initState() {
     super.initState();
     _amountController.addListener(() => setState(() {}));
+    // Rebuild on note focus changes so we can swap the custom numpad for the
+    // system keyboard (and back) and collapse/expand the amount.
+    _noteFocus.addListener(() {
+      if (mounted) setState(() {});
+    });
     _caretTimer = Timer.periodic(const Duration(milliseconds: 550), (_) {
       if (mounted) setState(() => _caretOn = !_caretOn);
     });
@@ -113,7 +128,9 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
     _debounce = Timer(AppDurations.debounce, () async {
       final classifier = ref.read(categoryClassifierProvider);
       final result = await classifier.classify(text.trim());
-      if (mounted && result != null && _noteController.text.trim() == text.trim()) {
+      if (mounted &&
+          result != null &&
+          _noteController.text.trim() == text.trim()) {
         setState(() {
           _category = result;
           _aiSuggested = true;
@@ -153,7 +170,6 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
     }
   }
 
-
   @override
   void dispose() {
     _debounce?.cancel();
@@ -171,138 +187,150 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
     final currency = currencyAsync.valueOrNull ?? 'inr';
     final symbol = currencySymbol(currency);
     final amountColor = _isExpense ? AppColors.amountNeutral : AppColors.green;
-    final bottomPad = MediaQuery.of(context).viewInsets.bottom;
 
-    return Padding(
-      padding: EdgeInsets.only(bottom: bottomPad),
-      child: Container(
-        height: MediaQuery.of(context).size.height * 0.9,
-        decoration: const BoxDecoration(
-          color: AppColors.offWhite,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 22),
-        child: Column(
-          children: [
-            // Handle
-            Container(
-              width: 38,
-              height: 5,
-              margin: const EdgeInsets.fromLTRB(0, 12, 0, 6),
-              decoration: const BoxDecoration(
-                color: AppColors.gray300,
-                borderRadius: AppRadius.xs,
-              ),
-            ),
-
-            // Header — "New expense" + circular close button
-            Padding(
-              padding: const EdgeInsets.only(top: 6, bottom: 2),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    _isExpense ? 'New expense' : 'New income',
-                    style: AppTextStyles.headingM.copyWith(
-                      fontSize: 19,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -0.4,
-                    ),
+    // The sheet chrome — drag handle, offWhite rounded surface, horizontal
+    // padding and the keyboard inset — is provided by showSpendlerSheet. This
+    // widget only lays out the content, capped at 90% height. mainAxisSize.min
+    // lets the sheet shrink to its content in note mode so the focused note
+    // sits directly above the system keyboard (no double inset, no double sheet).
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.9,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Header — "New expense" + circular close button
+          Padding(
+            padding: const EdgeInsets.only(top: 6, bottom: 2),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  _isExpense ? 'New expense' : 'New income',
+                  style: AppTextStyles.headingM.copyWith(
+                    fontSize: 19,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.4,
                   ),
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
-                      width: 34,
-                      height: 34,
-                      decoration: const BoxDecoration(
-                        color: AppColors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: AppShadows.sm,
-                      ),
-                      child: const Icon(Icons.close,
-                          size: 18, color: AppColors.black),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 14),
-
-            // Expense / Income segmented control
-            AppSegmentedControl(
-              segments: const ['Expense', 'Income'],
-              selectedIndex: _isExpense ? 0 : 1,
-              onChanged: (i) => setState(() => _isExpense = i == 0),
-            ),
-
-            // Centered amount display + chips
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: AppSpacing.lg),
-                    Text(
-                      'AMOUNT',
-                      style: AppTextStyles.section.copyWith(fontSize: 11),
-                    ),
-                    const SizedBox(height: 10),
-                    _buildAmount(symbol, amountColor),
-                    const SizedBox(height: 18),
-                    _buildChips(),
-                    if (_isExpense && _aiSuggested) ...[
-                      const SizedBox(height: 10),
-                      _buildTapToChange(),
-                    ],
-                    const SizedBox(height: AppSpacing.lg),
-                    // Note / merchant field (real AI classifier wiring)
-                    _buildNoteField(),
-                    if (!_isExpense) ...[
-                      const SizedBox(height: AppSpacing.md),
-                      _buildIncomeSources(),
-                    ],
-                    if (_isExpense) ...[
-                      const SizedBox(height: AppSpacing.sm),
-                      _buildSplitRow(),
-                    ],
-                  ],
                 ),
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    width: 34,
+                    height: 34,
+                    decoration: const BoxDecoration(
+                      color: AppColors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: AppShadows.sm,
+                    ),
+                    child: const Icon(
+                      Icons.close,
+                      size: 18,
+                      color: AppColors.black,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 14),
+
+          // Expense / Income segmented control
+          AppSegmentedControl(
+            segments: const ['Expense', 'Income'],
+            selectedIndex: _isExpense ? 0 : 1,
+            onChanged: (i) => setState(() => _isExpense = i == 0),
+          ),
+
+          // Content. In amount mode: big amount + chips + note + split, with
+          // the custom numpad below. In note mode (system keyboard up): the
+          // amount collapses to a compact row and the numpad is hidden so the
+          // two keyboards never stack.
+          Flexible(
+            child: SingleChildScrollView(
+              child: Column(
+                children: _noteEditing
+                    ? [
+                        const SizedBox(height: AppSpacing.md),
+                        _buildCompactAmount(symbol, amountColor),
+                        const SizedBox(height: AppSpacing.lg),
+                        _buildNoteField(),
+                        if (_isExpense && _aiSuggested) ...[
+                          const SizedBox(height: 10),
+                          _buildTapToChange(),
+                        ],
+                      ]
+                    : [
+                        const SizedBox(height: AppSpacing.lg),
+                        Text(
+                          'AMOUNT',
+                          style: AppTextStyles.section.copyWith(fontSize: 11),
+                        ),
+                        const SizedBox(height: 10),
+                        // Tapping the amount drops the system keyboard and
+                        // brings the numpad back.
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () => _noteFocus.unfocus(),
+                          child: _buildAmount(symbol, amountColor),
+                        ),
+                        const SizedBox(height: 18),
+                        _buildChips(),
+                        if (_isExpense && _aiSuggested) ...[
+                          const SizedBox(height: 10),
+                          _buildTapToChange(),
+                        ],
+                        const SizedBox(height: AppSpacing.lg),
+                        // Note / merchant field (real AI classifier wiring)
+                        _buildNoteField(),
+                        if (!_isExpense) ...[
+                          const SizedBox(height: AppSpacing.md),
+                          _buildIncomeSources(),
+                        ],
+                        if (_isExpense) ...[
+                          const SizedBox(height: AppSpacing.sm),
+                          _buildSplitRow(),
+                        ],
+                      ],
               ),
             ),
+          ),
 
-            // Custom numpad
-            _buildKeypad(),
-            const SizedBox(height: 14),
+          // Custom numpad — amount mode only (hidden while the system
+          // keyboard is up for the note).
+          if (!_noteEditing) ...[_buildKeypad(), const SizedBox(height: 14)],
 
-            // Primary "Add expense" ink pill — normal-height (no flex)
-            SizedBox(
-              width: double.infinity,
-              height: 54,
-              child: _saving
-                  ? Container(
-                      alignment: Alignment.center,
-                      decoration: const BoxDecoration(
-                        color: AppColors.black,
-                        borderRadius: AppRadius.full,
-                      ),
-                      child: const SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(
-                            color: AppColors.white, strokeWidth: 2.5),
-                      ),
-                    )
-                  : AppButton(
-                      label: _isExpense ? 'Add expense' : 'Add income',
-                      onTap: _save,
-                      disabled: _amountController.text.isEmpty,
+          // Primary "Add expense" ink pill — normal-height (no flex)
+          SizedBox(
+            width: double.infinity,
+            height: 54,
+            child: _saving
+                ? Container(
+                    alignment: Alignment.center,
+                    decoration: const BoxDecoration(
+                      color: AppColors.black,
+                      borderRadius: AppRadius.full,
                     ),
-            ),
-            SizedBox(height: 26 + MediaQuery.of(context).padding.bottom),
-          ],
-        ),
+                    child: const SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                        color: AppColors.white,
+                        strokeWidth: 2.5,
+                      ),
+                    ),
+                  )
+                : AppButton(
+                    label: _isExpense ? 'Add expense' : 'Add income',
+                    onTap: _save,
+                    disabled: _amountController.text.isEmpty,
+                  ),
+          ),
+          SizedBox(height: 8 + MediaQuery.of(context).viewPadding.bottom),
+        ],
       ),
     );
   }
@@ -349,14 +377,46 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
     ).animate().fadeIn(duration: AppDurations.medium);
   }
 
+  // ── Compact amount summary (note mode) ───────────────────────
+  // Design state 02 — while the system keyboard is up for the note, the big
+  // amount collapses to one line so the note + auto-tag + Add button fit above
+  // the keyboard. Tap it to drop the keyboard and return to the numpad.
+  Widget _buildCompactAmount(String symbol, Color amountColor) {
+    final text = _amountController.text;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => _noteFocus.unfocus(),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            _isExpense ? 'Expense' : 'Income',
+            style: AppTextStyles.section.copyWith(fontSize: 11),
+          ),
+          Text(
+            '$symbol${text.isEmpty ? '0' : text}',
+            style: AppTextStyles.numericL.copyWith(
+              fontSize: 26,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -1,
+              color: amountColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   // ── Category / date chips (real pickers) ─────────────────────
   Widget _buildChips() {
     final catColor = AppColors.categoryColor(_category);
-    final isToday = _selectedDate.year == DateTime.now().year &&
+    final isToday =
+        _selectedDate.year == DateTime.now().year &&
         _selectedDate.month == DateTime.now().month &&
         _selectedDate.day == DateTime.now().day;
-    final dateLabel =
-        isToday ? 'Today' : DateFormat('d MMM').format(_selectedDate);
+    final dateLabel = isToday
+        ? 'Today'
+        : DateFormat('d MMM').format(_selectedDate);
 
     return Wrap(
       alignment: WrapAlignment.center,
@@ -381,14 +441,20 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
         else
           _chip(
             onTap: () {},
-            leading: PhosphorIcon(PhosphorIcons.wallet(),
-                size: 15, color: AppColors.black),
+            leading: PhosphorIcon(
+              PhosphorIcons.wallet(),
+              size: 15,
+              color: AppColors.black,
+            ),
             label: 'Income',
           ),
         _chip(
           onTap: _pickDate,
-          leading: PhosphorIcon(PhosphorIcons.calendar(),
-              size: 15, color: AppColors.black),
+          leading: PhosphorIcon(
+            PhosphorIcons.calendar(),
+            size: 15,
+            color: AppColors.black,
+          ),
           label: dateLabel,
         ),
       ],
@@ -424,10 +490,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                 color: AppColors.black,
               ),
             ),
-            if (highlight) ...[
-              const SizedBox(width: 6),
-              _autoBadge(),
-            ],
+            if (highlight) ...[const SizedBox(width: 6), _autoBadge()],
           ],
         ),
       ),
@@ -446,8 +509,11 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          PhosphorIcon(PhosphorIcons.sparkle(PhosphorIconsStyle.fill),
-              size: 10, color: AppColors.aiPurple),
+          PhosphorIcon(
+            PhosphorIcons.sparkle(PhosphorIconsStyle.fill),
+            size: 10,
+            color: AppColors.aiPurple,
+          ),
           const SizedBox(width: 3),
           const Text(
             'AUTO',
@@ -474,8 +540,11 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          PhosphorIcon(PhosphorIcons.sparkle(PhosphorIconsStyle.fill),
-              size: 12, color: AppColors.aiPurple),
+          PhosphorIcon(
+            PhosphorIcons.sparkle(PhosphorIconsStyle.fill),
+            size: 12,
+            color: AppColors.aiPurple,
+          ),
           const SizedBox(width: 5),
           Text(
             'Auto-tagged · tap to change',
@@ -496,8 +565,10 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 2, bottom: 8),
-          child: Text('NOTE',
-              style: AppTextStyles.section.copyWith(fontSize: 11)),
+          child: Text(
+            'NOTE',
+            style: AppTextStyles.section.copyWith(fontSize: 11),
+          ),
         ),
         TextField(
           controller: _noteController,
@@ -515,15 +586,22 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
               borderSide: BorderSide.none,
             ),
             isDense: true,
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 14,
+            ),
             prefixIcon: Padding(
               padding: const EdgeInsets.only(left: 14, right: 10),
-              child: PhosphorIcon(PhosphorIcons.pencilSimple(),
-                  size: 18, color: AppColors.gray500),
+              child: PhosphorIcon(
+                PhosphorIcons.pencilSimple(),
+                size: 18,
+                color: AppColors.gray500,
+              ),
             ),
-            prefixIconConstraints:
-                const BoxConstraints(minWidth: 0, minHeight: 0),
+            prefixIconConstraints: const BoxConstraints(
+              minWidth: 0,
+              minHeight: 0,
+            ),
             suffixIcon: _classifying
                 ? const Padding(
                     padding: EdgeInsets.all(12),
@@ -565,7 +643,9 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
             duration: AppDurations.normal,
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: selected ? AppColors.green.withValues(alpha: 0.12) : AppColors.white,
+              color: selected
+                  ? AppColors.green.withValues(alpha: 0.12)
+                  : AppColors.white,
               borderRadius: AppRadius.full,
               boxShadow: selected ? null : AppShadows.sm,
               border: selected
@@ -603,12 +683,17 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
         ),
         child: Row(
           children: [
-            PhosphorIcon(PhosphorIcons.users(),
-                size: 18, color: active ? AppColors.black : AppColors.gray500),
+            PhosphorIcon(
+              PhosphorIcons.users(),
+              size: 18,
+              color: active ? AppColors.black : AppColors.gray500,
+            ),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                active ? 'Split ${_splitPersonIds.length + 1} ways' : 'Split with...',
+                active
+                    ? 'Split ${_splitPersonIds.length + 1} ways'
+                    : 'Split with...',
                 style: AppTextStyles.bodyM.copyWith(
                   color: active ? AppColors.black : AppColors.gray500,
                   fontWeight: active ? FontWeight.w500 : FontWeight.w400,
@@ -618,37 +703,68 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
             if (active)
               GestureDetector(
                 onTap: () => setState(() => _splitPersonIds = []),
-                child: PhosphorIcon(PhosphorIcons.x(),
-                    size: 16, color: AppColors.gray500),
+                child: PhosphorIcon(
+                  PhosphorIcons.x(),
+                  size: 16,
+                  color: AppColors.gray500,
+                ),
               )
             else
-              PhosphorIcon(PhosphorIcons.caretRight(),
-                  size: 14, color: AppColors.gray500),
+              PhosphorIcon(
+                PhosphorIcons.caretRight(),
+                size: 14,
+                color: AppColors.gray500,
+              ),
           ],
         ),
       ),
     );
   }
 
-  // ── Custom 3×4 numpad ────────────────────────────────────────
+  // ── Custom numpad — 3 cols × 4 rows, 56px keys, 4px gaps (design .keypad) ──
   Widget _buildKeypad() {
-    const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
-    return GridView.count(
-      crossAxisCount: 3,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 4,
-      crossAxisSpacing: 4,
-      childAspectRatio: 2.0,
+    Widget rowOf(List<Widget> cells) => Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        children: [
+          Expanded(child: cells[0]),
+          const SizedBox(width: 4),
+          Expanded(child: cells[1]),
+          const SizedBox(width: 4),
+          Expanded(child: cells[2]),
+        ],
+      ),
+    );
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        for (final k in keys) _key(label: k, onTap: () => _onKeyTap(k)),
-        _key(label: '.', onTap: () => _onKeyTap('.')),
-        _key(label: '0', onTap: () => _onKeyTap('0')),
-        _key(
-          onTap: _onBackspace,
-          child: PhosphorIcon(PhosphorIcons.backspace(),
-              size: 24, color: AppColors.black),
-        ),
+        rowOf([
+          _key(label: '1', onTap: () => _onKeyTap('1')),
+          _key(label: '2', onTap: () => _onKeyTap('2')),
+          _key(label: '3', onTap: () => _onKeyTap('3')),
+        ]),
+        rowOf([
+          _key(label: '4', onTap: () => _onKeyTap('4')),
+          _key(label: '5', onTap: () => _onKeyTap('5')),
+          _key(label: '6', onTap: () => _onKeyTap('6')),
+        ]),
+        rowOf([
+          _key(label: '7', onTap: () => _onKeyTap('7')),
+          _key(label: '8', onTap: () => _onKeyTap('8')),
+          _key(label: '9', onTap: () => _onKeyTap('9')),
+        ]),
+        rowOf([
+          _key(label: '.', onTap: () => _onKeyTap('.')),
+          _key(label: '0', onTap: () => _onKeyTap('0')),
+          _key(
+            onTap: _onBackspace,
+            child: PhosphorIcon(
+              PhosphorIcons.backspace(),
+              size: 24,
+              color: AppColors.black,
+            ),
+          ),
+        ]),
       ],
     );
   }
@@ -656,7 +772,8 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
   Widget _key({String? label, Widget? child, required VoidCallback onTap}) {
     return _NumKey(
       onTap: onTap,
-      child: child ??
+      child:
+          child ??
           Text(
             label!,
             style: AppTextStyles.numericL.copyWith(
@@ -667,7 +784,6 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
           ),
     );
   }
-
 
   Future<void> _openSplitPicker() async {
     final result = await showSpendlerSheet<SplitPickerResult>(
@@ -699,7 +815,8 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
 
       if (duplicate && mounted) {
         final symbol = currencySymbol(
-            ref.read(selectedCurrencyProvider).valueOrNull ?? 'inr');
+          ref.read(selectedCurrencyProvider).valueOrNull ?? 'inr',
+        );
         final confirmed = await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
@@ -741,31 +858,37 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
         : amount;
 
     final txnId = await repo.insertTransaction(
-          SpendlerTransactionsCompanion.insert(
-            amount: _isExpense ? -amount : amount,
-            category: _isExpense ? _category.name : 'income',
-            merchant: drift.Value(merchant),
-            note: drift.Value(merchant),
-            happenedAt: drift.Value(_selectedDate),
-            source: const drift.Value('manual'),
-            status: const drift.Value('confirmed'),
-            incomeSource: _isExpense
-                ? const drift.Value(null)
-                : drift.Value(_incomeSource),
-          ),
-        );
+      SpendlerTransactionsCompanion.insert(
+        amount: _isExpense ? -amount : amount,
+        category: _isExpense ? _category.name : 'income',
+        merchant: drift.Value(merchant),
+        note: drift.Value(merchant),
+        happenedAt: drift.Value(_selectedDate),
+        source: const drift.Value('manual'),
+        status: const drift.Value('confirmed'),
+        incomeSource: _isExpense
+            ? const drift.Value(null)
+            : drift.Value(_incomeSource),
+      ),
+    );
 
     if (hasSplit) {
       await repo.createSplits(txnId, splits);
       await repo.markSplit(
-          txnId, _splitPersonIds.length + 1, userShare, amount - userShare);
+        txnId,
+        _splitPersonIds.length + 1,
+        userShare,
+        amount - userShare,
+      );
     }
 
     // ── Spending alerts (fire-and-forget) ────────────────
-    unawaited(SpendingAlertService.instance.checkBudgetAlerts(
-      repo,
-      NotificationService(),
-    ));
+    unawaited(
+      SpendingAlertService.instance.checkBudgetAlerts(
+        repo,
+        NotificationService(),
+      ),
+    );
 
     // Refresh FutureProvider data (StreamProviders auto-update via Drift)
     ref.invalidate(todaySpendingProvider);
@@ -784,8 +907,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
           ),
           duration: const Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
-          shape:
-              const RoundedRectangleBorder(borderRadius: AppRadius.sm),
+          shape: const RoundedRectangleBorder(borderRadius: AppRadius.sm),
         ),
       );
     }
@@ -817,6 +939,7 @@ class _NumKeyState extends State<_NumKey> {
       onTap: widget.onTap,
       child: AnimatedContainer(
         duration: AppDurations.fast,
+        height: 56,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: _pressed ? AppColors.gray100 : Colors.transparent,

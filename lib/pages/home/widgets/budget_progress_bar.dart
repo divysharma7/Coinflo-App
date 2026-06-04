@@ -1,4 +1,3 @@
-import 'package:finance_buddy_app/widgets/common/error_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -6,21 +5,27 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/utils/currency_utils.dart';
+import 'package:finance_buddy_app/widgets/common/error_card.dart';
 
 import 'home_format_helpers.dart';
 
+/// Zone 2 — dark budget hero. Shows spend vs. budget with a status pill,
+/// progress bar and per-day-to-stay-on-track footer. Tapping the card opens
+/// the Plan/budget tab. When no budget is set, shows a light prompt card.
 class BudgetProgressBar extends ConsumerWidget {
   const BudgetProgressBar({super.key});
+
+  /// Index of the Plan tab in the shell `IndexedStack`.
+  static const int _planTabIndex = 2;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final expense = ref.watch(monthlyExpenseProvider);
-    final budgetAsync = ref.watch(monthlyBudgetProvider);
-    final currencyAsync = ref.watch(selectedCurrencyProvider);
+    final budgetVal = ref.watch(monthlyBudgetProvider).valueOrNull;
+    final symbol =
+        currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
     final month = ref.watch(selectedMonthProvider);
-    final symbol = currencySymbol(currencyAsync.valueOrNull ?? 'inr');
 
-    final budgetVal = budgetAsync.valueOrNull;
     final now = DateTime.now();
     final monthName = _monthName(month.month);
     final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
@@ -30,90 +35,29 @@ class BudgetProgressBar extends ConsumerWidget {
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-          AppSpacing.lg, AppSpacing.md + 4, AppSpacing.lg, AppSpacing.xs),
+        AppSpacing.lg,
+        AppSpacing.md + 4,
+        AppSpacing.lg,
+        AppSpacing.xs,
+      ),
       child: expense.when(
         data: (spent) {
           if (budgetVal == null || budgetVal <= 0) {
             return GestureDetector(
-              onTap: () => ref.read(selectedTabProvider.notifier).state = 2,
-              child: _noBudgetCard(context, ref),
+              onTap: () =>
+                  ref.read(selectedTabProvider.notifier).state = _planTabIndex,
+              child: const _NoBudgetCard(),
             );
           }
-          final pct = (spent / budgetVal).clamp(0.0, 1.0);
-          final remaining = (budgetVal - spent).clamp(0.0, double.infinity);
-          final isOver = spent > budgetVal;
-          // Per-day budget left to stay on track.
-          final perDay = daysLeft > 0
-              ? formatHomeNumber(remaining / daysLeft)
-              : formatHomeNumber(remaining);
-
           return GestureDetector(
-            onTap: () => ref.read(selectedTabProvider.notifier).state = 2,
-            child: DarkHeroCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Label + status pill
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Spent in $monthName',
-                          style: AppTextStyles.bodyS.copyWith(
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.2,
-                            color: AppColors.white.withValues(alpha: 0.6),
-                          )),
-                      _statusPill(isOver),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  // Big mono hero amount
-                  Text('$symbol${formatHomeNumber(spent)}',
-                      style: AppTextStyles.displayXL.copyWith(
-                        color: AppColors.white,
-                        letterSpacing: -1.6,
-                      )),
-                  const SizedBox(height: AppSpacing.md + 2),
-                  // of budget · left
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('of $symbol${formatHomeNumber(budgetVal)} budget',
-                          style: AppTextStyles.bodyS.copyWith(
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.white.withValues(alpha: 0.6),
-                          )),
-                      Text('$symbol${formatHomeNumber(remaining)} left',
-                          style: AppTextStyles.numericM.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.white,
-                          )),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.xs),
-                  // White progress bar on white-16 track
-                  ClipRRect(
-                    borderRadius: AppRadius.full,
-                    child: LinearProgressIndicator(
-                      value: pct,
-                      minHeight: 8,
-                      backgroundColor: AppColors.white.withValues(alpha: 0.16),
-                      valueColor: const AlwaysStoppedAnimation(AppColors.white),
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  // Days left · per-day to stay on track
-                  Text(
-                    '$daysLeft days left · $symbol$perDay/day to stay on track',
-                    style: AppTextStyles.bodyS.copyWith(
-                      fontSize: 11.5,
-                      color: AppColors.white.withValues(alpha: 0.45),
-                    ),
-                  ),
-                ],
-              ),
+            onTap: () =>
+                ref.read(selectedTabProvider.notifier).state = _planTabIndex,
+            child: _buildHero(
+              symbol: symbol,
+              monthName: monthName,
+              spent: spent,
+              budget: budgetVal,
+              daysLeft: daysLeft,
             ),
           );
         },
@@ -123,28 +67,93 @@ class BudgetProgressBar extends ConsumerWidget {
     );
   }
 
-  Widget _statusPill(bool isOver) {
-    final bg = isOver
-        ? AppColors.red.withValues(alpha: 0.16)
-        : AppColors.green.withValues(alpha: 0.16);
-    final fg = isOver ? const Color(0xFFFCA5A5) : const Color(0xFF4ADE80);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(color: bg, borderRadius: AppRadius.full),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+  Widget _buildHero({
+    required String symbol,
+    required String monthName,
+    required double spent,
+    required double budget,
+    required int daysLeft,
+  }) {
+    final pct = (spent / budget).clamp(0.0, 1.0);
+    final remaining = (budget - spent).clamp(0.0, double.infinity);
+    final isOver = spent > budget;
+    // Per-day budget left to stay on track.
+    final perDay = daysLeft > 0
+        ? formatHomeNumber(remaining / daysLeft)
+        : formatHomeNumber(remaining);
+
+    return DarkHeroCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(isOver ? PhosphorIcons.warning(PhosphorIconsStyle.bold)
-              : PhosphorIcons.check(PhosphorIconsStyle.bold),
-              size: 12, color: fg),
-          const SizedBox(width: 5),
-          Text(isOver ? 'Over budget' : 'On track',
-              style: AppTextStyles.labelS.copyWith(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.2,
-                color: fg,
-              )),
+          // Label + status pill.
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Spent in $monthName',
+                style: AppTextStyles.bodyS.copyWith(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.2,
+                  color: AppColors.white.withValues(alpha: 0.6),
+                ),
+              ),
+              _StatusPill(isOver: isOver),
+            ],
+          ),
+          const SizedBox(height: 6),
+          // Big mono hero amount.
+          Text(
+            '$symbol${formatHomeNumber(spent)}',
+            style: AppTextStyles.displayXL.copyWith(
+              color: AppColors.white,
+              letterSpacing: -1.6,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.md + 2),
+          // of <budget> · <remaining> left.
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'of $symbol${formatHomeNumber(budget)} budget',
+                style: AppTextStyles.bodyS.copyWith(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.white.withValues(alpha: 0.6),
+                ),
+              ),
+              Text(
+                '$symbol${formatHomeNumber(remaining)} left',
+                style: AppTextStyles.numericM.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.white,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          // White progress bar on white-16 track.
+          ClipRRect(
+            borderRadius: AppRadius.full,
+            child: LinearProgressIndicator(
+              value: pct,
+              minHeight: 8,
+              backgroundColor: AppColors.white.withValues(alpha: 0.16),
+              valueColor: const AlwaysStoppedAnimation(AppColors.white),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          // Days left · per-day to stay on track.
+          Text(
+            '${daysLeft == 1 ? '1 day' : '$daysLeft days'} left'
+            ' · $symbol$perDay/day to stay on track',
+            style: AppTextStyles.bodyS.copyWith(
+              fontSize: 11.5,
+              color: AppColors.white.withValues(alpha: 0.45),
+            ),
+          ),
         ],
       ),
     );
@@ -153,12 +162,58 @@ class BudgetProgressBar extends ConsumerWidget {
   String _monthName(int month) {
     const names = [
       'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      'July', 'August', 'September', 'October', 'November', 'December',
     ];
     return names[(month - 1) % 12];
   }
+}
 
-  Widget _noBudgetCard(BuildContext context, WidgetRef ref) {
+/// Green "On track" / red "Over budget" pill shown in the hero top row.
+class _StatusPill extends StatelessWidget {
+  const _StatusPill({required this.isOver});
+  final bool isOver;
+
+  @override
+  Widget build(BuildContext context) {
+    final bg = isOver
+        ? AppColors.red.withValues(alpha: 0.16)
+        : AppColors.green.withValues(alpha: 0.16);
+    final fg = isOver ? AppColors.redLifted : AppColors.greenLifted;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(color: bg, borderRadius: AppRadius.full),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            isOver
+                ? PhosphorIcons.warning(PhosphorIconsStyle.bold)
+                : PhosphorIcons.check(PhosphorIconsStyle.bold),
+            size: 12,
+            color: fg,
+          ),
+          const SizedBox(width: 5),
+          Text(
+            isOver ? 'Over budget' : 'On track',
+            style: AppTextStyles.labelS.copyWith(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.2,
+              color: fg,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Light prompt shown when no monthly budget has been set yet.
+class _NoBudgetCard extends StatelessWidget {
+  const _NoBudgetCard();
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: const BoxDecoration(
@@ -175,23 +230,35 @@ class BudgetProgressBar extends ConsumerWidget {
               color: AppColors.gray100,
               borderRadius: AppRadius.md,
             ),
-            child: Icon(PhosphorIcons.target(), size: 22, color: AppColors.gray500),
+            child: Icon(
+              PhosphorIcons.target(),
+              size: 22,
+              color: AppColors.gray500,
+            ),
           ),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Set a monthly budget',
-                    style: AppTextStyles.bodyM
-                        .copyWith(fontWeight: FontWeight.w600)),
-                Text('Track your spending against a limit',
-                    style: AppTextStyles.bodyS
-                        .copyWith(color: AppColors.gray500)),
+                Text(
+                  'Set a monthly budget',
+                  style: AppTextStyles.bodyM
+                      .copyWith(fontWeight: FontWeight.w600),
+                ),
+                Text(
+                  'Track your spending against a limit',
+                  style:
+                      AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
+                ),
               ],
             ),
           ),
-          Icon(PhosphorIcons.caretRight(), size: 18, color: AppColors.gray500),
+          Icon(
+            PhosphorIcons.caretRight(),
+            size: 18,
+            color: AppColors.gray500,
+          ),
         ],
       ),
     );

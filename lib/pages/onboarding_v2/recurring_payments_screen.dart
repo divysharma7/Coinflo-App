@@ -59,13 +59,13 @@ class _RecurringPaymentsScreenState extends State<RecurringPaymentsScreen>
         curve: const Interval(0, 0.6, curve: Curves.easeOutCubic),
       ),
     );
-    _titleSlide = Tween<Offset>(
-      begin: const Offset(0, 0.05),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _enterController,
-      curve: const Interval(0, 0.6, curve: Curves.easeOutCubic),
-    ));
+    _titleSlide = Tween<Offset>(begin: const Offset(0, 0.05), end: Offset.zero)
+        .animate(
+          CurvedAnimation(
+            parent: _enterController,
+            curve: const Interval(0, 0.6, curve: Curves.easeOutCubic),
+          ),
+        );
     _contentFade = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(
         parent: _enterController,
@@ -88,9 +88,11 @@ class _RecurringPaymentsScreenState extends State<RecurringPaymentsScreen>
     if (savedJson != null) {
       try {
         final List<dynamic> decoded = jsonDecode(savedJson) as List<dynamic>;
-        restored.addAll(decoded
-            .map((e) =>
-                RecurringPaymentModel.fromJson(e as Map<String, dynamic>)));
+        restored.addAll(
+          decoded.map(
+            (e) => RecurringPaymentModel.fromJson(e as Map<String, dynamic>),
+          ),
+        );
       } on FormatException catch (_) {
         // Ignore malformed JSON.
       }
@@ -190,14 +192,16 @@ class _RecurringPaymentsScreenState extends State<RecurringPaymentsScreen>
                     children: [
                       Text(
                         'Recurring payments',
-                        style: AppTextStyles.headingL
-                            .copyWith(color: AppColors.black),
+                        style: AppTextStyles.headingL.copyWith(
+                          color: AppColors.black,
+                        ),
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
                         'Add subscriptions and bills you pay regularly.',
-                        style: AppTextStyles.bodyM
-                            .copyWith(color: AppColors.gray500),
+                        style: AppTextStyles.bodyM.copyWith(
+                          color: AppColors.gray500,
+                        ),
                       ),
                     ],
                   ),
@@ -212,17 +216,16 @@ class _RecurringPaymentsScreenState extends State<RecurringPaymentsScreen>
               child: FadeTransition(
                 opacity: _contentFade,
                 child: SingleChildScrollView(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.lg,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Preset chips
-                      if (_availablePresets.isNotEmpty &&
-                          _payments.length < 5)
+                      if (_availablePresets.isNotEmpty && _payments.length < 5)
                         Padding(
-                          padding:
-                              const EdgeInsets.only(bottom: AppSpacing.lg),
+                          padding: const EdgeInsets.only(bottom: AppSpacing.lg),
                           child: Wrap(
                             spacing: AppSpacing.xs,
                             runSpacing: AppSpacing.xs,
@@ -240,8 +243,10 @@ class _RecurringPaymentsScreenState extends State<RecurringPaymentsScreen>
                         physics: const NeverScrollableScrollPhysics(),
                         itemBuilder: (context, index, animation) {
                           return _buildPaymentRow(
-                              _payments[index], animation,
-                              index: index);
+                            _payments[index],
+                            animation,
+                            index: index,
+                          );
                         },
                       ),
 
@@ -341,8 +346,11 @@ class _RecurringPaymentsScreenState extends State<RecurringPaymentsScreen>
               color: payment.categoryColor.withValues(alpha: 0.12),
               borderRadius: AppRadius.sm,
             ),
-            child: Icon(payment.categoryIcon,
-                size: 22, color: payment.categoryColor),
+            child: Icon(
+              payment.categoryIcon,
+              size: 22,
+              color: payment.categoryColor,
+            ),
           ),
           const SizedBox(width: AppSpacing.md),
           // Name, category, amount
@@ -353,8 +361,7 @@ class _RecurringPaymentsScreenState extends State<RecurringPaymentsScreen>
                 Row(
                   children: [
                     Expanded(
-                      child: Text(payment.name,
-                          style: AppTextStyles.headingS),
+                      child: Text(payment.name, style: AppTextStyles.headingS),
                     ),
                     HealthBadge.fromPaymentHealth(payment.health),
                   ],
@@ -362,8 +369,7 @@ class _RecurringPaymentsScreenState extends State<RecurringPaymentsScreen>
                 const SizedBox(height: AppSpacing.xxs),
                 Text(
                   '$_currencySymbol${_formatter.format(payment.amount)}${payment.frequencyLabel} · Due ${payment.dueDayOfMonth}${_daySuffix(payment.dueDayOfMonth)}',
-                  style:
-                      AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
+                  style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
                 ),
               ],
             ),
@@ -381,8 +387,11 @@ class _RecurringPaymentsScreenState extends State<RecurringPaymentsScreen>
                     color: AppColors.gray100,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.delete_outline,
-                      size: 16, color: AppColors.gray500),
+                  child: const Icon(
+                    Icons.delete_outline,
+                    size: 16,
+                    color: AppColors.gray500,
+                  ),
                 ),
               ),
             ),
@@ -394,10 +403,7 @@ class _RecurringPaymentsScreenState extends State<RecurringPaymentsScreen>
       position: Tween<Offset>(
         begin: const Offset(0, 0.1),
         end: Offset.zero,
-      ).animate(CurvedAnimation(
-        parent: animation,
-        curve: Curves.easeOutCubic,
-      )),
+      ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic)),
       child: FadeTransition(opacity: animation, child: row),
     );
   }

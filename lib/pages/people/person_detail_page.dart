@@ -126,65 +126,83 @@ class PersonDetailPage extends ConsumerWidget {
                       ],
                       const SizedBox(height: AppSpacing.lg),
 
-                      // Balance card
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(AppSpacing.lg),
-                        decoration: BoxDecoration(
-                          color: AppColors.white,
-                          borderRadius: AppRadius.mdLg,
-                          boxShadow: AppShadows.sm,
-                        ),
-                        child: balanceAsync.when(
-                          data: (balance) {
-                            final isPositive = balance > 0;
-                            final isZero = balance == 0;
-                            return Column(
-                              children: [
-                                Text(
-                                  isZero
-                                      ? 'SETTLED UP'
-                                      : isPositive
-                                          ? 'OWES YOU'
-                                          : 'YOU OWE',
-                                  style: AppTextStyles.labelM.copyWith(
-                                      color: AppColors.gray500),
-                                ),
-                                const SizedBox(height: AppSpacing.xs),
-                                AnimatedAmount(
-                                  value: balance.abs(),
-                                  prefix: sym,
-                                  style: AppTextStyles.headingL.copyWith(
-                                    color: isZero
-                                        ? AppColors.gray500
-                                        : isPositive
-                                            ? AppColors.green
-                                            : AppColors.orange,
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                          loading: () => const SizedBox(height: 48),
-                          error: (_, __) => const ErrorCard(),
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-
-                      // Record expense button (always visible)
+                      // Big net-balance block
                       balanceAsync.when(
                         data: (balance) {
-                          return AppButton(
-                            label: 'Record expense',
-                            onTap: () => showSpendlerSheet<void>(
-                              context: context,
-                              builder: (_) => ExpenseSheet(
-                                person: person,
-                                balance: balance,
+                          final isZero = balance == 0;
+                          final isPositive = balance > 0;
+                          final first = person.name
+                              .trim()
+                              .split(RegExp(r'\s+'))
+                              .first;
+                          return Column(
+                            children: [
+                              Text(
+                                isZero
+                                    ? 'All settled up'
+                                    : isPositive
+                                        ? '$first owes you'
+                                        : 'You owe $first',
+                                style: AppTextStyles.bodyM
+                                    .copyWith(color: AppColors.gray500),
                               ),
-                            ),
+                              const SizedBox(height: AppSpacing.xs),
+                              AnimatedAmount(
+                                value: balance.abs(),
+                                prefix: sym,
+                                style: AppTextStyles.displayXL.copyWith(
+                                  color: isZero
+                                      ? AppColors.gray500
+                                      : isPositive
+                                          ? AppColors.catGreenText
+                                          : AppColors.black,
+                                ),
+                              ),
+                            ],
                           );
                         },
+                        loading: () => const SizedBox(height: 56),
+                        error: (_, __) => const ErrorCard(),
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+
+                      // Settle up + Remind
+                      balanceAsync.when(
+                        data: (balance) => Row(
+                          children: [
+                            Expanded(
+                              child: AppButton(
+                                label: balance == 0
+                                    ? 'Record expense'
+                                    : 'Settle up',
+                                onTap: () => showSpendlerSheet<void>(
+                                  context: context,
+                                  builder: (_) => ExpenseSheet(
+                                    person: person,
+                                    balance: balance,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: AppSpacing.sm),
+                            Expanded(
+                              child: AppButton(
+                                variant: AppButtonVariant.ghost,
+                                label: 'Remind',
+                                onTap: () {
+                                  final first = person.name
+                                      .trim()
+                                      .split(RegExp(r'\s+'))
+                                      .first;
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(SnackBar(
+                                          content:
+                                              Text('Reminder ready for $first.')));
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
                         loading: () => const SizedBox.shrink(),
                         error: (_, __) => const SizedBox.shrink(),
                       ),
@@ -221,11 +239,20 @@ class PersonDetailPage extends ConsumerWidget {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('HISTORY',
-                                  style: AppTextStyles.labelM
-                                      .copyWith(color: AppColors.gray500)),
+                              Text('SHARED EXPENSES',
+                                  style: AppTextStyles.section
+                                      .copyWith(color: AppColors.gray400)),
                               const SizedBox(height: AppSpacing.sm),
-                              ...txns.map((t) {
+                              Container(
+                                decoration: const BoxDecoration(
+                                  color: AppColors.white,
+                                  borderRadius: AppRadius.xl,
+                                  boxShadow: AppShadows.sm,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 14, vertical: 4),
+                                child: Column(
+                                  children: txns.map((t) {
                                 final cat = TransactionCategory.values.firstWhere(
                                   (c) => c.name == t.category,
                                   orElse: () => TransactionCategory.other,
@@ -283,7 +310,9 @@ class PersonDetailPage extends ConsumerWidget {
                                     ),
                                   ),
                                 );
-                              }),
+                              }).toList(),
+                                ),
+                              ),
                             ],
                           );
                         },

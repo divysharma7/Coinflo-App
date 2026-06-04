@@ -62,6 +62,17 @@ class LocalTransactionRepository implements TransactionRepository {
   }
 
   @override
+  Stream<List<SpendlerTransaction>> watchTransactionsForMonth(DateTime month) {
+    final monthStart = DateTime(month.year, month.month);
+    final monthEnd = DateTime(month.year, month.month + 1);
+    return (db.select(db.spendlerTransactions)
+          ..where((t) => t.happenedAt.isBiggerOrEqualValue(monthStart) &
+              t.happenedAt.isSmallerThanValue(monthEnd))
+          ..orderBy([(t) => OrderingTerm.desc(t.happenedAt)]))
+        .watch();
+  }
+
+  @override
   Future<int> getUnconfirmedCount() async {
     final result = await (db.select(db.spendlerTransactions)
           ..where((t) => t.status.equals('unconfirmed')))

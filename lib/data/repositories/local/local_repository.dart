@@ -64,6 +64,10 @@ class LocalRepository extends BaseRepository {
       _txnRepo.getTransactionsForMonth(month);
 
   @override
+  Stream<List<SpendlerTransaction>> watchTransactionsForMonth(DateTime month) =>
+      _txnRepo.watchTransactionsForMonth(month);
+
+  @override
   Future<int> getUnconfirmedCount() => _txnRepo.getUnconfirmedCount();
 
   @override

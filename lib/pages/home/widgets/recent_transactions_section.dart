@@ -1,55 +1,77 @@
-import 'package:finance_buddy_app/widgets/common/error_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
-import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/core/enums.dart';
 import 'package:finance_buddy_app/data/db.dart';
+import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/utils/currency_utils.dart';
+import 'package:finance_buddy_app/widgets/common/error_card.dart';
 import 'package:finance_buddy_app/widgets/common/transaction_actions.dart';
 
 import 'home_format_helpers.dart';
 
+/// Zone 4 — recent activity: a header with a "See all" link (→ /transactions)
+/// and a white card listing up to 5 latest transactions, newest first.
 class RecentTransactionsSection extends ConsumerWidget {
   const RecentTransactionsSection({super.key});
 
+  static const int _maxRows = 5;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final txnsAsync = ref.watch(monthlyTransactionsForHomeProvider);
-    final currencyAsync = ref.watch(selectedCurrencyProvider);
-    final symbol = currencySymbol(currencyAsync.valueOrNull ?? 'inr');
+    // Recent activity shows the genuinely LATEST transactions across all time
+    // (spec: "latest 4–5 transactions"), not just the selected month — so a
+    // transaction added in a different month still appears here. The budget
+    // hero and stat tiles stay month-scoped; only this list is all-time.
+    final txnsAsync = ref.watch(allTransactionsProvider);
+    final symbol =
+        currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-          AppSpacing.lg, AppSpacing.md + 6, AppSpacing.lg, 0),
+        AppSpacing.lg,
+        AppSpacing.md + 6,
+        AppSpacing.lg,
+        0,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Section header (ink, w700, not uppercase) + See all ›
+          // Section header (ink, w700) + See all ›.
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Recent activity',
-                  style: AppTextStyles.headingS.copyWith(
-                      color: AppColors.black,
-                      fontSize: 17,
-                      letterSpacing: -0.3)),
+              Text(
+                'Recent activity',
+                style: AppTextStyles.headingS.copyWith(
+                  color: AppColors.black,
+                  fontSize: 17,
+                  letterSpacing: -0.3,
+                ),
+              ),
               GestureDetector(
-                onTap: () => ref.read(selectedTabProvider.notifier).state = 1,
+                onTap: () => context.push('/transactions'),
+                behavior: HitTestBehavior.opaque,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('See all',
-                        style: AppTextStyles.bodyS.copyWith(
-                            color: AppColors.gray500,
-                            fontWeight: FontWeight.w600)),
+                    Text(
+                      'See all',
+                      style: AppTextStyles.bodyS.copyWith(
+                        color: AppColors.gray500,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                     const SizedBox(width: 2),
-                    Icon(PhosphorIcons.caretRight(PhosphorIconsStyle.bold),
-                        size: 13, color: AppColors.gray500),
+                    Icon(
+                      PhosphorIcons.caretRight(PhosphorIconsStyle.bold),
+                      size: 13,
+                      color: AppColors.gray500,
+                    ),
                   ],
                 ),
               ),
@@ -58,11 +80,11 @@ class RecentTransactionsSection extends ConsumerWidget {
           const SizedBox(height: AppSpacing.sm),
           txnsAsync.when(
             data: (txns) {
-              if (txns.isEmpty) return _buildEmptyState();
+              if (txns.isEmpty) return const _EmptyState();
 
               final sorted = List<SpendlerTransaction>.from(txns)
                 ..sort((a, b) => b.happenedAt.compareTo(a.happenedAt));
-              final recent = sorted.take(5).toList();
+              final recent = sorted.take(_maxRows).toList();
 
               return Container(
                 padding: const EdgeInsets.symmetric(horizontal: 18),
@@ -72,26 +94,25 @@ class RecentTransactionsSection extends ConsumerWidget {
                   boxShadow: AppShadows.sm,
                 ),
                 child: Column(
-                  children: recent.asMap().entries.map((e) {
-                    final isLast = e.key == recent.length - 1;
-                    return Column(
-                      children: [
-                        _TransactionRow(transaction: e.value, symbol: symbol),
-                        if (!isLast)
-                          const Divider(
-                              height: 1,
-                              thickness: 1,
-                              color: AppColors.gray100),
-                      ],
-                    );
-                  }).toList(),
+                  children: [
+                    for (var i = 0; i < recent.length; i++) ...[
+                      _TransactionRow(transaction: recent[i], symbol: symbol),
+                      if (i != recent.length - 1)
+                        const Divider(
+                          height: 1,
+                          thickness: 1,
+                          color: AppColors.gray100,
+                        ),
+                    ],
+                  ],
                 ),
               );
             },
             loading: () => const Padding(
               padding: EdgeInsets.symmetric(vertical: AppSpacing.xxl),
               child: Center(
-                  child: CircularProgressIndicator(color: AppColors.black)),
+                child: CircularProgressIndicator(color: AppColors.black),
+              ),
             ),
             error: (_, _) => const ErrorCard(),
           ),
@@ -99,8 +120,14 @@ class RecentTransactionsSection extends ConsumerWidget {
       ),
     );
   }
+}
 
-  Widget _buildEmptyState() {
+/// Empty state shown when there are no transactions for the period.
+class _EmptyState extends StatelessWidget {
+  const _EmptyState();
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.xxl),
       decoration: const BoxDecoration(
@@ -118,15 +145,22 @@ class RecentTransactionsSection extends ConsumerWidget {
                 color: AppColors.gray100,
                 borderRadius: AppRadius.md,
               ),
-              child: Icon(PhosphorIcons.receipt(),
-                  size: 24, color: AppColors.gray300),
+              child: Icon(
+                PhosphorIcons.receipt(),
+                size: 24,
+                color: AppColors.gray300,
+              ),
             ),
             const SizedBox(height: AppSpacing.md),
-            Text('Nothing here yet',
-                style: AppTextStyles.bodyM.copyWith(color: AppColors.gray500)),
+            Text(
+              'Nothing here yet',
+              style: AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
+            ),
             const SizedBox(height: AppSpacing.xxs),
-            Text('Tap + to log your first spend',
-                style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500)),
+            Text(
+              'Tap + to log your first spend',
+              style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
+            ),
           ],
         ),
       ),
@@ -152,17 +186,19 @@ class _TransactionRow extends ConsumerWidget {
     final displayAmount =
         '${isExpense ? '−' : '+'}$symbol${formatHomeNumber(transaction.amount.abs())}';
 
-    final name = transaction.note ?? transaction.merchant ?? cat.label;
+    final name = transaction.merchant ?? transaction.note ?? cat.label;
     final meta = '${cat.label} · ${_timeLabel(transaction.happenedAt)}';
 
     return GestureDetector(
       onTap: () => context.push('/transaction/${transaction.id}'),
-      onLongPress: () => showTransactionActions(context, ref, transaction, symbol),
+      onLongPress: () =>
+          showTransactionActions(context, ref, transaction, symbol),
       behavior: HitTestBehavior.opaque,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 11),
         child: Row(
           children: [
+            // Category-colored 44px glyph tile.
             Container(
               width: 44,
               height: 44,
@@ -170,37 +206,50 @@ class _TransactionRow extends ConsumerWidget {
                 color: AppColors.categoryBg(cat),
                 borderRadius: AppRadius.md,
               ),
-              child: Icon(cat.iconFill,
-                  size: 22, color: AppColors.categoryColor(cat)),
+              child: Icon(
+                cat.iconFill,
+                size: 22,
+                color: AppColors.categoryColor(cat),
+              ),
             ),
             const SizedBox(width: 13),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(name,
-                      style: AppTextStyles.bodyM.copyWith(
-                          fontSize: 15.5,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: -0.2,
-                          color: AppColors.black),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis),
+                  Text(
+                    name,
+                    style: AppTextStyles.bodyM.copyWith(
+                      fontSize: 15.5,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.2,
+                      color: AppColors.black,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   const SizedBox(height: 2),
-                  Text(meta,
-                      style: AppTextStyles.bodyS.copyWith(
-                          fontSize: 12.5, color: AppColors.gray500),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis),
+                  Text(
+                    meta,
+                    style: AppTextStyles.bodyS.copyWith(
+                      fontSize: 12.5,
+                      color: AppColors.gray500,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ],
               ),
             ),
             const SizedBox(width: 8),
-            Text(displayAmount,
-                style: AppTextStyles.numericL.copyWith(
-                    fontSize: 15.5,
-                    fontWeight: FontWeight.w600,
-                    color: isExpense ? AppColors.black : AppColors.catGreenText)),
+            Text(
+              displayAmount,
+              style: AppTextStyles.numericL.copyWith(
+                fontSize: 15.5,
+                fontWeight: FontWeight.w600,
+                color: isExpense ? AppColors.black : AppColors.catGreenText,
+              ),
+            ),
           ],
         ),
       ),

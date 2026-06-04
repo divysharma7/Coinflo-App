@@ -1,13 +1,16 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/models/account_model.dart';
+import 'package:finance_buddy_app/pages/onboarding_v2/widgets/onboarding_progress_header.dart';
 import 'package:finance_buddy_app/utils/account_logo_resolver.dart';
+import 'package:finance_buddy_app/widgets/common/animations.dart';
 
 class AddAccountsScreen extends StatefulWidget {
   const AddAccountsScreen({super.key});
@@ -54,13 +57,13 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
         curve: const Interval(0, 0.6, curve: Curves.easeOutCubic),
       ),
     );
-    _titleSlide = Tween<Offset>(
-      begin: const Offset(0, 0.05),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _enterController,
-      curve: const Interval(0, 0.6, curve: Curves.easeOutCubic),
-    ));
+    _titleSlide = Tween<Offset>(begin: const Offset(0, 0.05), end: Offset.zero)
+        .animate(
+          CurvedAnimation(
+            parent: _enterController,
+            curve: const Interval(0, 0.6, curve: Curves.easeOutCubic),
+          ),
+        );
 
     _listFade = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(
@@ -68,13 +71,13 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
         curve: const Interval(0.2, 0.8, curve: Curves.easeOut),
       ),
     );
-    _listSlide = Tween<Offset>(
-      begin: const Offset(0, 0.05),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _enterController,
-      curve: const Interval(0.2, 0.8, curve: Curves.easeOutCubic),
-    ));
+    _listSlide = Tween<Offset>(begin: const Offset(0, 0.05), end: Offset.zero)
+        .animate(
+          CurvedAnimation(
+            parent: _enterController,
+            curve: const Interval(0.2, 0.8, curve: Curves.easeOutCubic),
+          ),
+        );
 
     _formFade = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(
@@ -82,13 +85,13 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
         curve: const Interval(0.4, 1.0, curve: Curves.easeOut),
       ),
     );
-    _formSlide = Tween<Offset>(
-      begin: const Offset(0, 0.05),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _enterController,
-      curve: const Interval(0.4, 1.0, curve: Curves.easeOutCubic),
-    ));
+    _formSlide = Tween<Offset>(begin: const Offset(0, 0.05), end: Offset.zero)
+        .animate(
+          CurvedAnimation(
+            parent: _enterController,
+            curve: const Interval(0.4, 1.0, curve: Curves.easeOutCubic),
+          ),
+        );
 
     _enterController.forward();
   }
@@ -103,6 +106,7 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
 
   Future<void> _loadSavedData() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     final symbol = prefs.getString('currency_symbol') ?? '₹';
     final savedJson = prefs.getString('accounts');
     if (savedJson != null) {
@@ -171,12 +175,11 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
     }
 
     final prefs = await SharedPreferences.getInstance();
-    final encoded =
-        jsonEncode(_accounts.map((a) => a.toJson()).toList());
+    final encoded = jsonEncode(_accounts.map((a) => a.toJson()).toList());
     await prefs.setString('accounts', encoded);
 
     if (mounted) {
-      await context.push('/onboarding/step3');
+      await context.push('/onboarding/categories');
     }
   }
 
@@ -190,13 +193,13 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Progress indicator
-            Padding(
-              padding: const EdgeInsets.only(
+            const Padding(
+              padding: EdgeInsets.only(
                 top: AppSpacing.md,
                 left: AppSpacing.lg,
                 right: AppSpacing.lg,
               ),
-              child: _buildProgressIndicator(),
+              child: OnboardingProgressHeader(step: 2),
             ),
 
             // Back button
@@ -218,14 +221,16 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
                     children: [
                       Text(
                         'Add your accounts',
-                        style: AppTextStyles.headingL
-                            .copyWith(color: AppColors.black),
+                        style: AppTextStyles.headingL.copyWith(
+                          color: AppColors.black,
+                        ),
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
                         'Where do you keep your money? Add at least one account.',
-                        style: AppTextStyles.bodyM
-                            .copyWith(color: AppColors.gray500),
+                        style: AppTextStyles.bodyM.copyWith(
+                          color: AppColors.gray500,
+                        ),
                       ),
                     ],
                   ),
@@ -238,8 +243,7 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
             // Scrollable content
             Expanded(
               child: SingleChildScrollView(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                 child: Column(
                   children: [
                     // Accounts list
@@ -284,23 +288,6 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
     );
   }
 
-  Widget _buildProgressIndicator() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(8, (index) {
-        return Container(
-          width: 24,
-          height: 3,
-          margin: EdgeInsets.only(right: index < 7 ? AppSpacing.xs : 0),
-          decoration: BoxDecoration(
-            color: index < 2 ? AppColors.black : AppColors.gray200,
-            borderRadius: AppRadius.full,
-          ),
-        );
-      }),
-    );
-  }
-
   Widget _buildAccountsList() {
     return AnimatedList(
       key: _listKey,
@@ -342,8 +329,9 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
                 ),
                 Text(
                   account.type == AccountType.cash ? 'Cash' : 'UPI',
-                  style:
-                      AppTextStyles.labelS.copyWith(color: AppColors.gray500),
+                  style: AppTextStyles.labelS.copyWith(
+                    color: AppColors.gray500,
+                  ),
                 ),
               ],
             ),
@@ -351,8 +339,7 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
           if (account.openingBalance > 0)
             Text(
               '$_currencySymbol${account.openingBalance.toStringAsFixed(0)}',
-              style:
-                  AppTextStyles.numericM.copyWith(color: AppColors.gray500),
+              style: AppTextStyles.numericM.copyWith(color: AppColors.gray500),
             ),
         ],
       ),
@@ -362,10 +349,7 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
       position: Tween<Offset>(
         begin: const Offset(0, 0.1),
         end: Offset.zero,
-      ).animate(CurvedAnimation(
-        parent: animation,
-        curve: Curves.easeOutCubic,
-      )),
+      ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic)),
       child: FadeTransition(opacity: animation, child: row),
     );
 
@@ -383,11 +367,21 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
           color: AppColors.red,
           borderRadius: AppRadius.xl,
         ),
-        child:
-            const Icon(Icons.delete_outline, color: AppColors.white, size: 22),
+        child: const Icon(
+          Icons.delete_outline,
+          color: AppColors.white,
+          size: 22,
+        ),
       ),
       onDismissed: (_) => _removeAccount(index),
-      child: animatedRow,
+      // Non-swipe delete path for Switch Access / screen-reader users.
+      child: Semantics(
+        customSemanticsActions: {
+          const CustomSemanticsAction(label: 'Delete account'): () =>
+              _removeAccount(index),
+        },
+        child: animatedRow,
+      ),
     );
   }
 
@@ -409,8 +403,7 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
             children: [
               Text(
                 'ACCOUNT NAME',
-                style:
-                    AppTextStyles.labelM.copyWith(color: AppColors.gray500),
+                style: AppTextStyles.labelM.copyWith(color: AppColors.gray500),
               ),
               const Spacer(),
               // Live logo preview
@@ -425,8 +418,7 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
                           width: 28,
                           height: 28,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) =>
-                              const SizedBox.shrink(),
+                          errorBuilder: (_, _, _) => const SizedBox.shrink(),
                         ),
                       )
                     : const SizedBox.shrink(key: ValueKey('no_logo')),
@@ -440,8 +432,7 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
             textCapitalization: TextCapitalization.words,
             decoration: InputDecoration(
               hintText: 'e.g. HDFC Bank, Paytm...',
-              hintStyle:
-                  AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
+              hintStyle: AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
               border: InputBorder.none,
               isDense: true,
               contentPadding: EdgeInsets.zero,
@@ -461,8 +452,7 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
               // Cash pill — disabled
               Container(
                 height: 36,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                 decoration: const BoxDecoration(
                   color: AppColors.gray100,
                   borderRadius: AppRadius.full,
@@ -470,16 +460,14 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
                 alignment: Alignment.center,
                 child: Text(
                   'Cash',
-                  style:
-                      AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
+                  style: AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
                 ),
               ),
               const SizedBox(width: AppSpacing.xs),
               // UPI pill — always selected
               Container(
                 height: 36,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                 decoration: const BoxDecoration(
                   color: AppColors.black,
                   borderRadius: AppRadius.full,
@@ -487,8 +475,7 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
                 alignment: Alignment.center,
                 child: Text(
                   'UPI',
-                  style:
-                      AppTextStyles.bodyM.copyWith(color: AppColors.white),
+                  style: AppTextStyles.bodyM.copyWith(color: AppColors.white),
                 ),
               ),
             ],
@@ -505,15 +492,14 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
           TextField(
             controller: _balanceController,
             style: AppTextStyles.bodyM.copyWith(color: AppColors.black),
-            keyboardType:
-                const TextInputType.numberWithOptions(decimal: true),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: InputDecoration(
               hintText: 'e.g. $_currencySymbol 24,000',
-              hintStyle:
-                  AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
+              hintStyle: AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
               prefixText: '$_currencySymbol ',
-              prefixStyle:
-                  AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
+              prefixStyle: AppTextStyles.bodyM.copyWith(
+                color: AppColors.gray500,
+              ),
               border: InputBorder.none,
               isDense: true,
               contentPadding: EdgeInsets.zero,
@@ -523,20 +509,25 @@ class _AddAccountsScreenState extends State<AddAccountsScreen>
           // Add button — only visible when name has content
           if (_formHasName) ...[
             const SizedBox(height: AppSpacing.lg),
-            GestureDetector(
-              onTap: _addAccount,
-              child: Container(
-                width: double.infinity,
-                height: 44,
-                decoration: const BoxDecoration(
-                  color: AppColors.gray100,
-                  borderRadius: AppRadius.full,
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  'Add Account',
-                  style: AppTextStyles.headingS
-                      .copyWith(color: AppColors.gray600),
+            Semantics(
+              button: true,
+              label: 'Add account',
+              child: PressableCard(
+                onTap: _addAccount,
+                child: Container(
+                  width: double.infinity,
+                  height: 44,
+                  decoration: const BoxDecoration(
+                    color: AppColors.gray100,
+                    borderRadius: AppRadius.full,
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Add Account',
+                    style: AppTextStyles.headingS.copyWith(
+                      color: AppColors.gray600,
+                    ),
+                  ),
                 ),
               ),
             ),

@@ -4,14 +4,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:finance_buddy_app/services/auth/auth_service.dart';
 import 'package:finance_buddy_app/pages/splash/splash_page.dart';
+import 'package:finance_buddy_app/pages/onboarding_v2/welcome_screen.dart';
+import 'package:finance_buddy_app/pages/onboarding_v2/currency_screen.dart';
 import 'package:finance_buddy_app/pages/onboarding_v2/add_accounts_screen.dart';
+import 'package:finance_buddy_app/pages/onboarding_v2/categories_overview_screen.dart';
 import 'package:finance_buddy_app/pages/onboarding_v2/monthly_budget_screen.dart';
 import 'package:finance_buddy_app/pages/onboarding_v2/category_budgets_screen.dart';
-import 'package:finance_buddy_app/pages/onboarding_v2/categories_overview_screen.dart';
-import 'package:finance_buddy_app/pages/onboarding_v2/track_income_screen.dart';
 import 'package:finance_buddy_app/pages/onboarding_v2/savings_goals_screen.dart';
-import 'package:finance_buddy_app/pages/onboarding_v2/recurring_payments_screen.dart';
 import 'package:finance_buddy_app/pages/onboarding_v2/stay_on_track_screen.dart';
+import 'package:finance_buddy_app/pages/onboarding_v2/recap_screen.dart';
 import 'package:finance_buddy_app/pages/onboarding_v2/completion_screen.dart';
 import 'package:finance_buddy_app/pages/auth/sign_in_screen.dart';
 import 'package:finance_buddy_app/pages/shell_page.dart';
@@ -23,7 +24,10 @@ import 'package:finance_buddy_app/pages/people/person_detail_page.dart';
 import 'package:finance_buddy_app/pages/groups/groups_page.dart';
 import 'package:finance_buddy_app/pages/groups/group_detail_page.dart';
 import 'package:finance_buddy_app/pages/subscriptions/subscriptions_page.dart';
+import 'package:finance_buddy_app/pages/accounts/accounts_page.dart';
+import 'package:finance_buddy_app/pages/notifications/notifications_page.dart';
 import 'package:finance_buddy_app/pages/transactions/transaction_detail_page.dart';
+import 'package:finance_buddy_app/pages/transactions/transactions_page.dart';
 import 'package:finance_buddy_app/pages/home/daily_view_page.dart';
 import 'package:finance_buddy_app/pages/transactions/attachment_viewer_page.dart';
 
@@ -40,17 +44,18 @@ final routerProvider = Provider<GoRouter>((ref) {
         return null;
       }
 
-      // Check if user is authenticated
-      final authService = AuthService();
-      final isReturning = await authService.isReturningUser();
-      if (!isReturning) return '/sign-in';
-
-      // Check if onboarding is completed
+      // Local-first gate: a completed onboarding (via account creation OR the
+      // "Maybe later" skip) is enough to use the app — no account required.
       final prefs = await SharedPreferences.getInstance();
       final onboarded = prefs.getBool('onboarding_completed') ?? false;
-      if (!onboarded) return '/onboarding/step2';
+      if (onboarded) return null;
 
-      return null;
+      // Returning users (with a stored auth token) can proceed as well.
+      final authService = AuthService();
+      if (await authService.isReturningUser()) return null;
+
+      // Otherwise, start at the welcome screen.
+      return '/onboarding/welcome';
     },
     routes: [
       // ─── Splash ───────────────────────────────────────
@@ -59,39 +64,45 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const SplashPage(),
       ),
 
-      // ─── Onboarding flow ─────────────────────────────
-      // step1 (currency selection) removed — locked to INR for v1
+      // ─── Onboarding flow (re-sequenced) ──────────────
+      // Welcome → Currency → Accounts → Categories → Budget(opt) →
+      // Goals(opt) → Reminders → Recap → Create account(opt)
       GoRoute(
-        path: '/onboarding/step2',
+        path: '/onboarding/welcome',
+        builder: (context, state) => const WelcomeScreen(),
+      ),
+      GoRoute(
+        path: '/onboarding/currency',
+        builder: (context, state) => const CurrencyScreen(),
+      ),
+      GoRoute(
+        path: '/onboarding/accounts',
         builder: (context, state) => const AddAccountsScreen(),
       ),
       GoRoute(
-        path: '/onboarding/step3',
-        builder: (context, state) => const MonthlyBudgetScreen(),
-      ),
-      GoRoute(
-        path: '/onboarding/step4',
-        builder: (context, state) => const CategoryBudgetsScreen(),
-      ),
-      GoRoute(
-        path: '/onboarding/step5',
+        path: '/onboarding/categories',
         builder: (context, state) => const CategoriesOverviewScreen(),
       ),
       GoRoute(
-        path: '/onboarding/step6',
-        builder: (context, state) => const TrackIncomeScreen(),
+        path: '/onboarding/budget',
+        builder: (context, state) => const MonthlyBudgetScreen(),
+      ),
+      // Optional sub-page reached from the Budget screen (pops back).
+      GoRoute(
+        path: '/onboarding/budget/categories',
+        builder: (context, state) => const CategoryBudgetsScreen(),
       ),
       GoRoute(
-        path: '/onboarding/step7',
+        path: '/onboarding/goals',
         builder: (context, state) => const SavingsGoalsScreen(),
       ),
       GoRoute(
-        path: '/onboarding/step8',
-        builder: (context, state) => const RecurringPaymentsScreen(),
+        path: '/onboarding/reminders',
+        builder: (context, state) => const StayOnTrackScreen(),
       ),
       GoRoute(
-        path: '/onboarding/step9',
-        builder: (context, state) => const StayOnTrackScreen(),
+        path: '/onboarding/recap',
+        builder: (context, state) => const RecapScreen(),
       ),
       GoRoute(
         path: '/onboarding/complete',
@@ -140,8 +151,20 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/settings/excel-import',
         builder: (context, state) => const ExcelImportPage(),
       ),
+      GoRoute(
+        path: '/accounts',
+        builder: (context, state) => const AccountsPage(),
+      ),
+      GoRoute(
+        path: '/notifications',
+        builder: (context, state) => const NotificationsPage(),
+      ),
 
       // ─── Transaction pages ─────────────────────────────
+      GoRoute(
+        path: '/transactions',
+        builder: (context, state) => const TransactionsPage(),
+      ),
       GoRoute(
         path: '/transaction/:id',
         builder: (context, state) {

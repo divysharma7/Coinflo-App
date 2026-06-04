@@ -39,13 +39,13 @@ class _TrackIncomeScreenState extends State<TrackIncomeScreen>
         curve: const Interval(0, 0.6, curve: Curves.easeOutCubic),
       ),
     );
-    _titleSlide = Tween<Offset>(
-      begin: const Offset(0, 0.05),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _enterController,
-      curve: const Interval(0, 0.6, curve: Curves.easeOutCubic),
-    ));
+    _titleSlide = Tween<Offset>(begin: const Offset(0, 0.05), end: Offset.zero)
+        .animate(
+          CurvedAnimation(
+            parent: _enterController,
+            curve: const Interval(0, 0.6, curve: Curves.easeOutCubic),
+          ),
+        );
 
     _yesCardFade = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(
@@ -53,13 +53,13 @@ class _TrackIncomeScreenState extends State<TrackIncomeScreen>
         curve: const Interval(0.2, 0.8, curve: Curves.easeOutCubic),
       ),
     );
-    _yesCardSlide = Tween<Offset>(
-      begin: const Offset(0, 0.05),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _enterController,
-      curve: const Interval(0.2, 0.8, curve: Curves.easeOutCubic),
-    ));
+    _yesCardSlide =
+        Tween<Offset>(begin: const Offset(0, 0.05), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _enterController,
+            curve: const Interval(0.2, 0.8, curve: Curves.easeOutCubic),
+          ),
+        );
 
     _noCardFade = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(
@@ -67,13 +67,13 @@ class _TrackIncomeScreenState extends State<TrackIncomeScreen>
         curve: const Interval(0.4, 1.0, curve: Curves.easeOutCubic),
       ),
     );
-    _noCardSlide = Tween<Offset>(
-      begin: const Offset(0, 0.05),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _enterController,
-      curve: const Interval(0.4, 1.0, curve: Curves.easeOutCubic),
-    ));
+    _noCardSlide = Tween<Offset>(begin: const Offset(0, 0.05), end: Offset.zero)
+        .animate(
+          CurvedAnimation(
+            parent: _enterController,
+            curve: const Interval(0.4, 1.0, curve: Curves.easeOutCubic),
+          ),
+        );
 
     _enterController.forward();
   }
@@ -135,14 +135,16 @@ class _TrackIncomeScreenState extends State<TrackIncomeScreen>
                     children: [
                       Text(
                         'Track your income too?',
-                        style: AppTextStyles.headingL
-                            .copyWith(color: AppColors.black),
+                        style: AppTextStyles.headingL.copyWith(
+                          color: AppColors.black,
+                        ),
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
                         'Do you want to track both income and expenses, or just expenses?',
-                        style: AppTextStyles.bodyM
-                            .copyWith(color: AppColors.gray500),
+                        style: AppTextStyles.bodyM.copyWith(
+                          color: AppColors.gray500,
+                        ),
                       ),
                     ],
                   ),
@@ -153,8 +155,7 @@ class _TrackIncomeScreenState extends State<TrackIncomeScreen>
             // Option cards centered
             Expanded(
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -167,10 +168,8 @@ class _TrackIncomeScreenState extends State<TrackIncomeScreen>
                           isSelected: _trackIncome,
                           icon: Icons.trending_up,
                           title: 'Yes, track income & expenses',
-                          subtitle:
-                              'See the full picture of your money flow',
-                          onTap: () =>
-                              setState(() => _trackIncome = true),
+                          subtitle: 'See the full picture of your money flow',
+                          onTap: () => setState(() => _trackIncome = true),
                         ),
                       ),
                     ),
@@ -186,10 +185,8 @@ class _TrackIncomeScreenState extends State<TrackIncomeScreen>
                           isSelected: !_trackIncome,
                           icon: Icons.trending_down,
                           title: 'No, just expenses',
-                          subtitle:
-                              'Focus only on tracking what you spend',
-                          onTap: () =>
-                              setState(() => _trackIncome = false),
+                          subtitle: 'Focus only on tracking what you spend',
+                          onTap: () => setState(() => _trackIncome = false),
                         ),
                       ),
                     ),
@@ -285,8 +282,9 @@ class _TrackIncomeScreenState extends State<TrackIncomeScreen>
                   const SizedBox(height: AppSpacing.xxs),
                   Text(
                     subtitle,
-                    style: AppTextStyles.bodyS
-                        .copyWith(color: AppColors.gray500),
+                    style: AppTextStyles.bodyS.copyWith(
+                      color: AppColors.gray500,
+                    ),
                   ),
                 ],
               ),

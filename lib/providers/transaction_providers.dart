@@ -190,12 +190,14 @@ final weeklyTotalSpentProvider =
 
 // ─── Home screen providers ────────────────────────────
 
-/// All transactions for the selected month (home page).
+/// All transactions for the selected month (home page). Reactive: re-emits
+/// whenever a transaction is added/edited/deleted so the dashboard, stat tiles
+/// and recent-activity list refresh without an app restart.
 final monthlyTransactionsForHomeProvider =
-    FutureProvider.autoDispose<List<SpendlerTransaction>>((ref) {
+    StreamProvider.autoDispose<List<SpendlerTransaction>>((ref) {
   final repo = ref.watch(repositoryProvider);
   final month = ref.watch(selectedMonthProvider);
-  return repo.getTransactionsForMonth(month);
+  return repo.watchTransactionsForMonth(month);
 });
 
 /// Current all-time balance (sum of all amounts).

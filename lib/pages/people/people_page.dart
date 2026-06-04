@@ -140,6 +140,13 @@ class _PeoplePageState extends ConsumerState<PeoplePage> {
           ),
           const SizedBox(height: AppSpacing.md),
 
+          // You're owed / You owe summary tiles
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+            child: _BalanceSummary(symbol: sym),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+
           // Person list
           Expanded(
             child: personsAsync.when(
@@ -174,16 +181,24 @@ class _PeoplePageState extends ConsumerState<PeoplePage> {
                 }
 
                 return ListView.builder(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.lg),
-                  itemCount: filtered.length,
-                  itemBuilder: (_, i) => Padding(
-                    padding:
-                        const EdgeInsets.only(bottom: AppSpacing.sm),
-                    child: _PersonCard(person: filtered[i], symbol: sym),
-                  ).animate().fadeIn(
-                      delay: AppDurations.stagger * i,
-                      duration: AppDurations.medium),
+                  padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.xxxl),
+                  itemCount: filtered.length + 1,
+                  itemBuilder: (_, i) {
+                    // Trailing Groups jump-off after the people list.
+                    if (i == filtered.length) {
+                      return const Padding(
+                        padding: EdgeInsets.only(top: AppSpacing.xs),
+                        child: _GroupsRow(),
+                      );
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                      child: _PersonCard(person: filtered[i], symbol: sym),
+                    ).animate().fadeIn(
+                        delay: AppDurations.stagger * i,
+                        duration: AppDurations.medium);
+                  },
                 );
               },
               loading: () => const Center(
@@ -193,6 +208,124 @@ class _PeoplePageState extends ConsumerState<PeoplePage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ─── Balance summary tiles ────────────────────────────────
+
+class _BalanceSummary extends ConsumerWidget {
+  const _BalanceSummary({required this.symbol});
+  final String symbol;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final personsAsync = ref.watch(allPersonsProvider);
+    double owed = 0;
+    double owe = 0;
+    final persons = personsAsync.valueOrNull ?? const <Person>[];
+    for (final p in persons) {
+      final b = ref.watch(personBalanceProvider(p.id)).valueOrNull ?? 0;
+      if (b > 0) {
+        owed += b;
+      } else if (b < 0) {
+        owe += -b;
+      }
+    }
+
+    return Row(
+      children: [
+        Expanded(
+          child: _SummaryTile(
+            label: "You're owed",
+            amount: '+$symbol${owed.toStringAsFixed(0)}',
+            color: AppColors.catGreenText,
+          ),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        Expanded(
+          child: _SummaryTile(
+            label: 'You owe',
+            amount: owe == 0 ? '$symbol 0' : '-$symbol${owe.toStringAsFixed(0)}',
+            color: AppColors.black,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SummaryTile extends StatelessWidget {
+  const _SummaryTile(
+      {required this.label, required this.amount, required this.color});
+  final String label;
+  final String amount;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(13),
+      decoration: const BoxDecoration(
+        color: AppColors.white,
+        borderRadius: AppRadius.lg,
+        boxShadow: AppShadows.sm,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label,
+              style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500)),
+          const SizedBox(height: 4),
+          Text(amount,
+              style: AppTextStyles.numericL
+                  .copyWith(color: color, fontWeight: FontWeight.w700)),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Groups jump-off row ──────────────────────────────────
+
+class _GroupsRow extends ConsumerWidget {
+  const _GroupsRow();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final count = ref.watch(allGroupsProvider).valueOrNull?.length ?? 0;
+    return GestureDetector(
+      onTap: () => context.push('/groups'),
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md, vertical: 15),
+        decoration: const BoxDecoration(
+          color: AppColors.white,
+          borderRadius: AppRadius.md,
+          boxShadow: AppShadows.sm,
+        ),
+        child: Row(
+          children: [
+            PhosphorIcon(PhosphorIcons.usersThree(),
+                size: 20, color: AppColors.black),
+            const SizedBox(width: 13),
+            Expanded(
+              child: Text('Groups',
+                  style: AppTextStyles.bodyM.copyWith(
+                      color: AppColors.black, fontWeight: FontWeight.w600)),
+            ),
+            if (count > 0) ...[
+              Text('$count',
+                  style:
+                      AppTextStyles.bodyM.copyWith(color: AppColors.gray400)),
+              const SizedBox(width: 8),
+            ],
+            PhosphorIcon(PhosphorIcons.caretRight(),
+                size: 18, color: AppColors.gray300),
+          ],
+        ),
       ),
     );
   }
@@ -261,7 +394,7 @@ class _PersonCard extends ConsumerWidget {
             ),
             const SizedBox(width: AppSpacing.sm),
 
-            // Name + tag
+            // Name + balance-direction meta
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -272,13 +405,21 @@ class _PersonCard extends ConsumerWidget {
                           fontWeight: FontWeight.w600),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis),
-                  if (person.tag != null)
-                    Text(
-                      person.tag![0].toUpperCase() +
-                          person.tag!.substring(1),
-                      style: AppTextStyles.bodyS
-                          .copyWith(color: AppColors.gray500),
+                  Text(
+                    balanceAsync.maybeWhen(
+                      data: (b) => b > 0
+                          ? 'owes you'
+                          : b < 0
+                              ? 'you owe'
+                              : 'all settled',
+                      orElse: () => person.tag != null
+                          ? person.tag![0].toUpperCase() +
+                              person.tag!.substring(1)
+                          : '',
                     ),
+                    style: AppTextStyles.bodyS
+                        .copyWith(color: AppColors.gray500),
+                  ),
                 ],
               ),
             ),
@@ -287,18 +428,28 @@ class _PersonCard extends ConsumerWidget {
             balanceAsync.when(
               data: (balance) {
                 if (balance == 0) {
-                  return Text('Settled',
-                      style: AppTextStyles.bodyS.copyWith(
-                          color: AppColors.green,
-                          fontWeight: FontWeight.w500));
+                  return Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                        color: AppColors.catGreenBg,
+                        borderRadius: AppRadius.pill),
+                    child: Text('Settled',
+                        style: AppTextStyles.labelS.copyWith(
+                            color: AppColors.catGreenText,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.2)),
+                  );
                 }
                 final isPositive = balance > 0;
                 return AnimatedAmount(
                   value: balance.abs(),
                   prefix: isPositive ? '+$symbol' : '-$symbol',
                   style: AppTextStyles.numericM.copyWith(
-                    color:
-                        isPositive ? AppColors.green : AppColors.orange,
+                    color: isPositive
+                        ? AppColors.catGreenText
+                        : AppColors.black,
+                    fontWeight: FontWeight.w600,
                   ),
                 );
               },

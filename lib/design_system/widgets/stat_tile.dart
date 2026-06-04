@@ -31,7 +31,14 @@ class StatTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: dark ? AppColors.black : AppColors.white,
         borderRadius: AppRadius.lg,
-        boxShadow: AppShadows.sm,
+        // A white card on the off-white Home background barely reads with a soft
+        // shadow alone on real devices ("cards are missing"). Pair the `md`
+        // elevation with a hairline border so the light tile unmistakably reads
+        // as a card; the dark variant is already high-contrast.
+        boxShadow: dark ? AppShadows.sm : AppShadows.md,
+        border: dark
+            ? null
+            : Border.all(color: AppColors.gray100, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,7 +52,16 @@ class StatTile extends StatelessWidget {
                   : AppColors.gray100,
               borderRadius: AppRadius.s,
             ),
-            child: Center(child: SizedBox(width: 16, height: 16, child: icon)),
+            // Constrain the icon to 16px. Callers pass an unsized `Icon()`,
+            // which otherwise paints at the 24px Material default and overflows
+            // this 30px chip ("icons floating outside"). A tight SizedBox does
+            // NOT scale a glyph, so set the size via IconTheme instead.
+            child: Center(
+              child: IconTheme.merge(
+                data: const IconThemeData(size: 16),
+                child: icon,
+              ),
+            ),
           ),
           const SizedBox(height: 11),
           Text(

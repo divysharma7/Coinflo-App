@@ -5,6 +5,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:finance_buddy_app/design_system/design_system.dart';
+import 'package:finance_buddy_app/pages/onboarding_v2/widgets/onboarding_progress_header.dart';
 
 class StayOnTrackScreen extends StatefulWidget {
   const StayOnTrackScreen({super.key});
@@ -41,13 +42,13 @@ class _StayOnTrackScreenState extends State<StayOnTrackScreen>
         curve: const Interval(0, 0.6, curve: Curves.easeOutCubic),
       ),
     );
-    _titleSlide = Tween<Offset>(
-      begin: const Offset(0, 0.05),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _enterController,
-      curve: const Interval(0, 0.6, curve: Curves.easeOutCubic),
-    ));
+    _titleSlide = Tween<Offset>(begin: const Offset(0, 0.05), end: Offset.zero)
+        .animate(
+          CurvedAnimation(
+            parent: _enterController,
+            curve: const Interval(0, 0.6, curve: Curves.easeOutCubic),
+          ),
+        );
     _contentFade = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(
         parent: _enterController,
@@ -65,6 +66,7 @@ class _StayOnTrackScreenState extends State<StayOnTrackScreen>
 
   Future<void> _loadSavedData() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     final savedNotif = prefs.getBool('notifications_enabled');
     final savedDaily = prefs.getBool('daily_reminder_enabled');
     final savedWeekly = prefs.getBool('weekly_report_enabled');
@@ -126,7 +128,7 @@ class _StayOnTrackScreenState extends State<StayOnTrackScreen>
     await prefs.setBool('daily_reminder_enabled', _dailyReminderEnabled);
     await prefs.setBool('weekly_report_enabled', _weeklyReportEnabled);
 
-    if (mounted) await context.push('/onboarding/complete');
+    if (mounted) await context.push('/onboarding/recap');
   }
 
   @override
@@ -138,13 +140,13 @@ class _StayOnTrackScreenState extends State<StayOnTrackScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Progress indicator (all filled)
-            Padding(
-              padding: const EdgeInsets.only(
+            const Padding(
+              padding: EdgeInsets.only(
                 top: AppSpacing.md,
                 left: AppSpacing.lg,
                 right: AppSpacing.lg,
               ),
-              child: _buildProgressIndicator(),
+              child: OnboardingProgressHeader(step: 6),
             ),
 
             // Back button
@@ -166,14 +168,16 @@ class _StayOnTrackScreenState extends State<StayOnTrackScreen>
                     children: [
                       Text(
                         'Stay on track',
-                        style: AppTextStyles.headingL
-                            .copyWith(color: AppColors.black),
+                        style: AppTextStyles.headingL.copyWith(
+                          color: AppColors.black,
+                        ),
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
-                        'Set up reminders to help you stay consistent.',
-                        style: AppTextStyles.bodyM
-                            .copyWith(color: AppColors.gray500),
+                        'Gentle nudges so you never forget to log.',
+                        style: AppTextStyles.bodyM.copyWith(
+                          color: AppColors.gray500,
+                        ),
                       ),
                     ],
                   ),
@@ -188,14 +192,15 @@ class _StayOnTrackScreenState extends State<StayOnTrackScreen>
               child: FadeTransition(
                 opacity: _contentFade,
                 child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.lg,
+                  ),
                   child: Column(
                     children: [
                       _buildToggleRow(
                         icon: Icons.notifications_outlined,
                         title: 'Notifications',
-                        subtitle: 'Enable push notifications',
+                        subtitle: 'Spending alerts & budget warnings',
                         value: _notificationsEnabled,
                         onChanged: _onNotificationToggle,
                         enabled: true,
@@ -203,8 +208,8 @@ class _StayOnTrackScreenState extends State<StayOnTrackScreen>
                       const SizedBox(height: AppSpacing.sm),
                       _buildToggleRow(
                         icon: Icons.access_time_outlined,
-                        title: 'Daily Reminder',
-                        subtitle: 'Remind me to log expenses every evening',
+                        title: 'Daily reminder',
+                        subtitle: 'Log expenses every evening',
                         value: _dailyReminderEnabled,
                         onChanged: (v) =>
                             setState(() => _dailyReminderEnabled = v),
@@ -213,9 +218,8 @@ class _StayOnTrackScreenState extends State<StayOnTrackScreen>
                       const SizedBox(height: AppSpacing.sm),
                       _buildToggleRow(
                         icon: Icons.bar_chart_outlined,
-                        title: 'Weekly Report',
-                        subtitle:
-                            'Get a summary of your spending each week',
+                        title: 'Weekly report',
+                        subtitle: 'A Sunday summary of your week',
                         value: _weeklyReportEnabled,
                         onChanged: (v) =>
                             setState(() => _weeklyReportEnabled = v),
@@ -240,23 +244,6 @@ class _StayOnTrackScreenState extends State<StayOnTrackScreen>
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildProgressIndicator() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(8, (index) {
-        return Container(
-          width: 24,
-          height: 3,
-          margin: EdgeInsets.only(right: index < 7 ? AppSpacing.xs : 0),
-          decoration: const BoxDecoration(
-            color: AppColors.black,
-            borderRadius: AppRadius.full,
-          ),
-        );
-      }),
     );
   }
 
@@ -300,8 +287,9 @@ class _StayOnTrackScreenState extends State<StayOnTrackScreen>
                   const SizedBox(height: AppSpacing.xxs),
                   Text(
                     subtitle,
-                    style: AppTextStyles.bodyS
-                        .copyWith(color: AppColors.gray500),
+                    style: AppTextStyles.bodyS.copyWith(
+                      color: AppColors.gray500,
+                    ),
                   ),
                 ],
               ),

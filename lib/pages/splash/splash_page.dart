@@ -111,12 +111,29 @@ class _SplashPageState extends ConsumerState<SplashPage>
 
     final prefs = await SharedPreferences.getInstance();
     await markFirstLaunchIfNeeded(prefs);
-    final firebaseUid = FirebaseAuth.instance.currentUser?.uid;
 
-    final isReturning = await ref.read(isReturningUserProvider.future);
+    String? firebaseUid;
+    try {
+      firebaseUid = FirebaseAuth.instance.currentUser?.uid;
+    } on Exception catch (_) {
+      firebaseUid = null;
+    }
+
+    // Secure-storage / keystore reads can stall or throw on some devices and
+    // emulators — never let the splash hang on them; fall back to "not
+    // returning" so the user still reaches onboarding/home.
+    bool isReturning = false;
+    try {
+      isReturning = await ref
+          .read(isReturningUserProvider.future)
+          .timeout(const Duration(seconds: 3), onTimeout: () => false);
+    } on Exception catch (_) {
+      isReturning = false;
+    }
+
     final onboardingDone = await resolveOnboardingStatus(prefs, firebaseUid);
     if (!mounted) return;
-    context.go((isReturning || onboardingDone) ? '/home' : '/onboarding/step2');
+    context.go((isReturning || onboardingDone) ? '/home' : '/onboarding/welcome');
   }
 
   @override

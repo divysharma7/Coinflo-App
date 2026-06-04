@@ -8,9 +8,20 @@ import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/models/savings_goal_model.dart';
 
 class AddGoalSheet extends StatefulWidget {
-  const AddGoalSheet({super.key, required this.onSave});
+  const AddGoalSheet({
+    super.key,
+    required this.onSave,
+    this.initialName,
+    this.initialIconLabel,
+  });
 
   final ValueChanged<SavingsGoalModel> onSave;
+
+  /// Optional template name to pre-fill (e.g. tapped a "Trip" suggestion).
+  final String? initialName;
+
+  /// Optional `GoalIcon.label` to pre-select.
+  final String? initialIconLabel;
 
   @override
   State<AddGoalSheet> createState() => _AddGoalSheetState();
@@ -32,6 +43,13 @@ class _AddGoalSheetState extends State<AddGoalSheet> {
   void initState() {
     super.initState();
     _loadCurrencySymbol();
+    if (widget.initialName != null) {
+      _nameController.text = widget.initialName!;
+    }
+    if (widget.initialIconLabel != null) {
+      final idx = kGoalIcons.indexWhere((g) => g.label == widget.initialIconLabel);
+      if (idx != -1) _selectedIconIndex = idx;
+    }
   }
 
   @override

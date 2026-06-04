@@ -20,6 +20,10 @@ class AppColors {
   // Semantic
   static const Color green = Color(0xFF22C55E);
   static const Color red = Color(0xFFEF4444);
+  // Lighter shades for legible fg on dark / low-opacity tinted surfaces
+  // (e.g. the status pill text + icon on the dark hero card).
+  static const Color greenLifted = Color(0xFF4ADE80);
+  static const Color redLifted = Color(0xFFFCA5A5);
 
   /// Neutral charcoal for amount entry — avoids the "error" feel of red.
   static const Color amountNeutral = Color(0xFF3A3A3A);

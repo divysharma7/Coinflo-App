@@ -15,9 +15,9 @@ class ShellPage extends ConsumerWidget {
   const ShellPage({super.key});
 
   static const _pages = [
-    HomePage(),     // 0
-    ReportPage(),   // 1
-    PlanPage(),     // 2
+    HomePage(), // 0
+    ReportPage(), // 1
+    PlanPage(), // 2
     SettingsPage(), // 3
   ];
 
@@ -35,13 +35,12 @@ class ShellPage extends ConsumerWidget {
     final isDarkHeader = safeIndex == 0 || safeIndex == 2;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: isDarkHeader ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+      value: isDarkHeader
+          ? SystemUiOverlayStyle.light
+          : SystemUiOverlayStyle.dark,
       child: Scaffold(
         backgroundColor: AppColors.offWhite,
-        body: IndexedStack(
-          index: safeIndex,
-          children: _pages,
-        ),
+        body: IndexedStack(index: safeIndex, children: _pages),
         floatingActionButton: SizedBox(
           width: 56,
           height: 56,
@@ -54,12 +53,10 @@ class ShellPage extends ConsumerWidget {
             child: const Icon(Icons.add, size: 28),
           ),
         ),
-        floatingActionButtonLocation:
-            FloatingActionButtonLocation.centerDocked,
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         bottomNavigationBar: AppBottomTabBar(
           currentIndex: safeIndex,
-          onTap: (i) =>
-              ref.read(selectedTabProvider.notifier).state = i,
+          onTap: (i) => ref.read(selectedTabProvider.notifier).state = i,
         ),
       ),
     );
@@ -68,6 +65,7 @@ class ShellPage extends ConsumerWidget {
   void _onFabPressed(BuildContext context) {
     showSpendlerSheet<void>(
       context: context,
+      backgroundColor: AppColors.offWhite,
       builder: (_) => const QuickAddSheet(),
     );
   }

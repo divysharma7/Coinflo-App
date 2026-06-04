@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:finance_buddy_app/constants/app_categories.dart';
 import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/models/category_budget_model.dart';
+import 'package:finance_buddy_app/pages/onboarding_v2/widgets/onboarding_progress_header.dart';
 
 class CategoriesOverviewScreen extends StatefulWidget {
   const CategoriesOverviewScreen({super.key});
@@ -32,13 +33,13 @@ class _CategoriesOverviewScreenState extends State<CategoriesOverviewScreen>
         curve: const Interval(0, 0.4, curve: Curves.easeOutCubic),
       ),
     );
-    _titleSlide = Tween<Offset>(
-      begin: const Offset(0, 0.05),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _enterController,
-      curve: const Interval(0, 0.4, curve: Curves.easeOutCubic),
-    ));
+    _titleSlide = Tween<Offset>(begin: const Offset(0, 0.05), end: Offset.zero)
+        .animate(
+          CurvedAnimation(
+            parent: _enterController,
+            curve: const Interval(0, 0.4, curve: Curves.easeOutCubic),
+          ),
+        );
     _enterController.forward();
   }
 
@@ -49,7 +50,7 @@ class _CategoriesOverviewScreenState extends State<CategoriesOverviewScreen>
   }
 
   Future<void> _onContinue() async {
-    if (mounted) await context.push('/onboarding/step6');
+    if (mounted) await context.push('/onboarding/budget');
   }
 
   @override
@@ -62,13 +63,13 @@ class _CategoriesOverviewScreenState extends State<CategoriesOverviewScreen>
         child: Column(
           children: [
             // Progress indicator
-            Padding(
-              padding: const EdgeInsets.only(
+            const Padding(
+              padding: EdgeInsets.only(
                 top: AppSpacing.md,
                 left: AppSpacing.lg,
                 right: AppSpacing.lg,
               ),
-              child: _buildProgressIndicator(),
+              child: OnboardingProgressHeader(step: 3),
             ),
 
             // Back button
@@ -96,14 +97,16 @@ class _CategoriesOverviewScreenState extends State<CategoriesOverviewScreen>
                             children: [
                               Text(
                                 'We\'ve got you covered',
-                                style: AppTextStyles.headingL
-                                    .copyWith(color: AppColors.black),
+                                style: AppTextStyles.headingL.copyWith(
+                                  color: AppColors.black,
+                                ),
                               ),
                               const SizedBox(height: AppSpacing.xs),
                               Text(
                                 '40 categories are already set up for you. Add more if you need something specific.',
-                                style: AppTextStyles.bodyM
-                                    .copyWith(color: AppColors.gray500),
+                                style: AppTextStyles.bodyM.copyWith(
+                                  color: AppColors.gray500,
+                                ),
                               ),
                             ],
                           ),
@@ -114,14 +117,11 @@ class _CategoriesOverviewScreenState extends State<CategoriesOverviewScreen>
 
                   // Category groups
                   SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final group = groups[index];
-                        final categories = kAllCategories[group] ?? [];
-                        return _buildGroupSection(group, categories, index);
-                      },
-                      childCount: groups.length,
-                    ),
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final group = groups[index];
+                      final categories = kAllCategories[group] ?? [];
+                      return _buildGroupSection(group, categories, index);
+                    }, childCount: groups.length),
                   ),
 
                   // Bottom padding
@@ -140,23 +140,6 @@ class _CategoriesOverviewScreenState extends State<CategoriesOverviewScreen>
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildProgressIndicator() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(8, (index) {
-        return Container(
-          width: 24,
-          height: 3,
-          margin: EdgeInsets.only(right: index < 7 ? AppSpacing.xs : 0),
-          decoration: BoxDecoration(
-            color: index < 5 ? AppColors.black : AppColors.gray200,
-            borderRadius: AppRadius.full,
-          ),
-        );
-      }),
     );
   }
 
@@ -201,8 +184,9 @@ class _CategoriesOverviewScreenState extends State<CategoriesOverviewScreen>
                 const SizedBox(width: AppSpacing.xs),
                 Text(
                   group.label.toUpperCase(),
-                  style: AppTextStyles.labelM
-                      .copyWith(color: AppColors.gray500),
+                  style: AppTextStyles.labelM.copyWith(
+                    color: AppColors.gray500,
+                  ),
                 ),
               ],
             ),
@@ -224,12 +208,12 @@ class _CategoriesOverviewScreenState extends State<CategoriesOverviewScreen>
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.sm,
-        vertical: AppSpacing.xs,
+        vertical: 9,
       ),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColors.white,
         borderRadius: AppRadius.full,
-        border: Border.all(color: AppColors.gray200, width: 1),
+        boxShadow: AppShadows.sm,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -238,7 +222,10 @@ class _CategoriesOverviewScreenState extends State<CategoriesOverviewScreen>
           const SizedBox(width: AppSpacing.xxs),
           Text(
             category.name,
-            style: AppTextStyles.bodyS.copyWith(color: AppColors.black),
+            style: AppTextStyles.bodyS.copyWith(
+              color: AppColors.black,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),
