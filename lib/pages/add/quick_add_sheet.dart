@@ -17,7 +17,6 @@ import 'package:finance_buddy_app/data/repositories/split_repository.dart';
 import 'package:finance_buddy_app/pages/add/category_search_sheet.dart';
 import 'package:finance_buddy_app/pages/add/split_picker_sheet.dart';
 import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:finance_buddy_app/utils/currency_utils.dart';
 
 class QuickAddSheet extends ConsumerStatefulWidget {
@@ -36,12 +35,9 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
   bool _isExpense = true;
   bool _aiSuggested = false;
   bool _classifying = false;
-  bool _hasTyped = false;
   bool _saving = false;
-  bool _caretOn = true;
   DateTime _selectedDate = DateTime.now();
   Timer? _debounce;
-  Timer? _caretTimer;
   String _incomeSource = 'salary';
   List<int> _splitPersonIds = [];
 
@@ -76,9 +72,6 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
     _noteFocus.addListener(() {
       if (mounted) setState(() {});
     });
-    _caretTimer = Timer.periodic(const Duration(milliseconds: 550), (_) {
-      if (mounted) setState(() => _caretOn = !_caretOn);
-    });
   }
 
   /// Custom-numpad input handler. Mutates [_amountController] through the same
@@ -112,11 +105,30 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
     _amountController.text = current.substring(0, current.length - 1);
   }
 
+  /// Long-press the backspace key to clear the whole amount (fast correction).
+  void _onClearAmount() {
+    if (_amountController.text.isEmpty) return;
+    HapticFeedback.mediumImpact();
+    _amountController.clear();
+  }
+
+  /// Groups the integer part of the in-progress amount for the active currency
+  /// locale (e.g. 1,00,000 for INR) while preserving the decimal portion and any
+  /// trailing dot the user is mid-typing. The raw controller value is untouched
+  /// so parsing/saving stays exact.
+  String _formatAmount(String raw, String currency) {
+    if (raw.isEmpty) return '0';
+    final dotIndex = raw.indexOf('.');
+    final intPart = dotIndex == -1 ? raw : raw.substring(0, dotIndex);
+    final decPart = dotIndex == -1 ? '' : raw.substring(dotIndex);
+    final intValue = int.tryParse(intPart) ?? 0;
+    final grouped =
+        NumberFormat.decimalPattern(localeFor(currency)).format(intValue);
+    return '$grouped$decPart';
+  }
+
   void _onNoteChanged(String text) {
     _debounce?.cancel();
-    if (!_hasTyped && text.trim().isNotEmpty) {
-      setState(() => _hasTyped = true);
-    }
     if (text.trim().length < 3) {
       setState(() {
         _aiSuggested = false;
@@ -164,6 +176,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
       initialDate: _selectedDate,
       firstDate: DateTime(2020),
       lastDate: DateTime.now(),
+      builder: monoPickerBuilder,
     );
     if (picked != null) {
       setState(() => _selectedDate = picked);
@@ -173,7 +186,6 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
   @override
   void dispose() {
     _debounce?.cancel();
-    _caretTimer?.cancel();
     _amountController.dispose();
     _amountFocus.dispose();
     _noteController.dispose();
@@ -187,20 +199,26 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
     final currency = currencyAsync.valueOrNull ?? 'inr';
     final symbol = currencySymbol(currency);
     final amountColor = _isExpense ? AppColors.amountNeutral : AppColors.green;
+    // Whether the system keyboard is up (note focused). showSpendlerSheet already
+    // pads the content by viewInsets.bottom, so we must NOT add the nav-bar
+    // viewPadding on top of that or it double-counts and overflows by ~24px.
+    final keyboardUp = MediaQuery.viewInsetsOf(context).bottom > 0;
+    final amountValue = double.tryParse(_amountController.text) ?? 0;
 
-    // The sheet chrome — drag handle, offWhite rounded surface, horizontal
-    // padding and the keyboard inset — is provided by showSpendlerSheet. This
-    // widget only lays out the content, capped at 90% height. mainAxisSize.min
-    // lets the sheet shrink to its content in note mode so the focused note
-    // sits directly above the system keyboard (no double inset, no double sheet).
+    // ONE stable layout — no tree-swap on note focus. The amount, chips and note
+    // keep their positions; only the custom numpad is removed while the system
+    // keyboard is up so the two input methods never stack. Everything between the
+    // header and the Add button scrolls, so a shrunk viewport (keyboard up) can
+    // never overflow — it simply scrolls, and the focused note auto-scrolls into
+    // view. The sheet chrome + keyboard-inset padding come from showSpendlerSheet.
     return ConstrainedBox(
       constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.9,
+        maxHeight: MediaQuery.sizeOf(context).height * 0.9,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Header — "New expense" + circular close button
+          // Header — title + circular close button (≥44px hit target)
           Padding(
             padding: const EdgeInsets.only(top: 6, bottom: 2),
             child: Row(
@@ -214,24 +232,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                     letterSpacing: -0.4,
                   ),
                 ),
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => Navigator.pop(context),
-                  child: Container(
-                    width: 34,
-                    height: 34,
-                    decoration: const BoxDecoration(
-                      color: AppColors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: AppShadows.sm,
-                    ),
-                    child: const Icon(
-                      Icons.close,
-                      size: 18,
-                      color: AppColors.black,
-                    ),
-                  ),
-                ),
+                _CloseButton(onTap: () => Navigator.pop(context)),
               ],
             ),
           ),
@@ -245,62 +246,52 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
             onChanged: (i) => setState(() => _isExpense = i == 0),
           ),
 
-          // Content. In amount mode: big amount + chips + note + split, with
-          // the custom numpad below. In note mode (system keyboard up): the
-          // amount collapses to a compact row and the numpad is hidden so the
-          // two keyboards never stack.
+          // Scrollable content — stable across amount/note modes.
           Flexible(
             child: SingleChildScrollView(
               child: Column(
-                children: _noteEditing
-                    ? [
-                        const SizedBox(height: AppSpacing.md),
-                        _buildCompactAmount(symbol, amountColor),
-                        const SizedBox(height: AppSpacing.lg),
-                        _buildNoteField(),
-                        if (_isExpense && _aiSuggested) ...[
-                          const SizedBox(height: 10),
-                          _buildTapToChange(),
-                        ],
-                      ]
-                    : [
-                        const SizedBox(height: AppSpacing.lg),
-                        Text(
-                          'AMOUNT',
-                          style: AppTextStyles.section.copyWith(fontSize: 11),
-                        ),
-                        const SizedBox(height: 10),
-                        // Tapping the amount drops the system keyboard and
-                        // brings the numpad back.
-                        GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () => _noteFocus.unfocus(),
-                          child: _buildAmount(symbol, amountColor),
-                        ),
-                        const SizedBox(height: 18),
-                        _buildChips(),
-                        if (_isExpense && _aiSuggested) ...[
-                          const SizedBox(height: 10),
-                          _buildTapToChange(),
-                        ],
-                        const SizedBox(height: AppSpacing.lg),
-                        // Note / merchant field (real AI classifier wiring)
-                        _buildNoteField(),
-                        if (!_isExpense) ...[
-                          const SizedBox(height: AppSpacing.md),
-                          _buildIncomeSources(),
-                        ],
-                        if (_isExpense) ...[
-                          const SizedBox(height: AppSpacing.sm),
-                          _buildSplitRow(),
-                        ],
-                      ],
+                children: [
+                  const SizedBox(height: AppSpacing.lg),
+                  Text(
+                    'AMOUNT',
+                    style: AppTextStyles.section.copyWith(fontSize: 11),
+                  ),
+                  const SizedBox(height: 10),
+                  // Tapping the amount drops the system keyboard (if up) and
+                  // brings the numpad back.
+                  Semantics(
+                    button: true,
+                    label:
+                        'Amount $symbol${_formatAmount(_amountController.text, currency)}, tap to edit',
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => _noteFocus.unfocus(),
+                      child: _buildAmount(symbol, amountColor, currency),
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  // Category + date chips stay visible even while the note is
+                  // focused, so the live auto-tag is always confirmable.
+                  _buildChips(),
+                  const SizedBox(height: AppSpacing.lg),
+                  // Note / merchant field (real AI classifier wiring)
+                  _buildNoteField(),
+                  if (!_isExpense) ...[
+                    const SizedBox(height: AppSpacing.md),
+                    _buildIncomeSources(),
+                  ],
+                  if (_isExpense) ...[
+                    const SizedBox(height: AppSpacing.sm),
+                    _buildSplitRow(),
+                  ],
+                  const SizedBox(height: AppSpacing.sm),
+                ],
               ),
             ),
           ),
 
           // Custom numpad — amount mode only (hidden while the system
-          // keyboard is up for the note).
+          // keyboard is up for the note so the two never stack).
           if (!_noteEditing) ...[_buildKeypad(), const SizedBox(height: 14)],
 
           // Primary "Add expense" ink pill — normal-height (no flex)
@@ -326,17 +317,20 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
                 : AppButton(
                     label: _isExpense ? 'Add expense' : 'Add income',
                     onTap: _save,
-                    disabled: _amountController.text.isEmpty,
+                    disabled: amountValue <= 0,
                   ),
           ),
-          SizedBox(height: 8 + MediaQuery.of(context).viewPadding.bottom),
+          SizedBox(
+            height: 8 +
+                (keyboardUp ? 0.0 : MediaQuery.viewPaddingOf(context).bottom),
+          ),
         ],
       ),
     );
   }
 
   // ── Big centered amount with blinking ink caret ──────────────
-  Widget _buildAmount(String symbol, Color amountColor) {
+  Widget _buildAmount(String symbol, Color amountColor, String currency) {
     final text = _amountController.text;
     final amountStyle = AppTextStyles.displayXL.copyWith(
       fontSize: 52,
@@ -352,7 +346,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
         Text(symbol, style: amountStyle),
         Flexible(
           child: Text(
-            text.isEmpty ? '0' : text,
+            _formatAmount(text, currency),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: amountStyle.copyWith(
@@ -363,47 +357,8 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
           ),
         ),
         const SizedBox(width: 2),
-        Container(
-          width: 3,
-          height: 44,
-          decoration: BoxDecoration(
-            color: _caretOn
-                ? AppColors.black.withValues(alpha: 0.85)
-                : Colors.transparent,
-            borderRadius: AppRadius.xxs,
-          ),
-        ),
+        const _BlinkingCaret(),
       ],
-    ).animate().fadeIn(duration: AppDurations.medium);
-  }
-
-  // ── Compact amount summary (note mode) ───────────────────────
-  // Design state 02 — while the system keyboard is up for the note, the big
-  // amount collapses to one line so the note + auto-tag + Add button fit above
-  // the keyboard. Tap it to drop the keyboard and return to the numpad.
-  Widget _buildCompactAmount(String symbol, Color amountColor) {
-    final text = _amountController.text;
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => _noteFocus.unfocus(),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            _isExpense ? 'Expense' : 'Income',
-            style: AppTextStyles.section.copyWith(fontSize: 11),
-          ),
-          Text(
-            '$symbol${text.isEmpty ? '0' : text}',
-            style: AppTextStyles.numericL.copyWith(
-              fontSize: 26,
-              fontWeight: FontWeight.w700,
-              letterSpacing: -1,
-              color: amountColor,
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -423,6 +378,8 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
       spacing: 8,
       runSpacing: 8,
       children: [
+        // Category chip — expense only. Income has a single fixed category, so
+        // no dead, non-functional chip is shown for it.
         if (_isExpense)
           _chip(
             onTap: _showCategoryPicker,
@@ -437,16 +394,8 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
             ),
             label: _category.label,
             highlight: _aiSuggested,
-          )
-        else
-          _chip(
-            onTap: () {},
-            leading: PhosphorIcon(
-              PhosphorIcons.wallet(),
-              size: 15,
-              color: AppColors.black,
-            ),
-            label: 'Income',
+            semanticLabel:
+                'Category ${_category.label}${_aiSuggested ? ', auto-tagged' : ''}, tap to change',
           ),
         _chip(
           onTap: _pickDate,
@@ -456,6 +405,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
             color: AppColors.black,
           ),
           label: dateLabel,
+          semanticLabel: 'Date $dateLabel, tap to change',
         ),
       ],
     );
@@ -466,32 +416,38 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
     required Widget leading,
     required String label,
     bool highlight = false,
+    String? semanticLabel,
   }) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
-        decoration: const BoxDecoration(
-          color: AppColors.white,
-          borderRadius: AppRadius.full,
-          boxShadow: AppShadows.sm,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            leading,
-            const SizedBox(width: 7),
-            Text(
-              label,
-              style: AppTextStyles.bodyM.copyWith(
-                fontSize: 13.5,
-                fontWeight: FontWeight.w600,
-                color: AppColors.black,
+    return Semantics(
+      button: true,
+      label: semanticLabel ?? label,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+          decoration: const BoxDecoration(
+            color: AppColors.white,
+            borderRadius: AppRadius.full,
+            boxShadow: AppShadows.sm,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              leading,
+              const SizedBox(width: 7),
+              Text(
+                label,
+                style: AppTextStyles.bodyM.copyWith(
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.black,
+                ),
               ),
-            ),
-            if (highlight) ...[const SizedBox(width: 6), _autoBadge()],
-          ],
+              if (highlight) ...[const SizedBox(width: 6), _autoBadge()],
+            ],
+          ),
         ),
       ),
     );
@@ -529,32 +485,6 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
     );
   }
 
-  // ── "tap to change" affordance for an auto-tagged category ───
-  // Design state 03 sub-label — once the classifier has guessed, this centered
-  // tappable hint opens the full searchable picker to correct it.
-  Widget _buildTapToChange() {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: _showCategoryPicker,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          PhosphorIcon(
-            PhosphorIcons.sparkle(PhosphorIconsStyle.fill),
-            size: 12,
-            color: AppColors.aiPurple,
-          ),
-          const SizedBox(width: 5),
-          Text(
-            'Auto-tagged · tap to change',
-            style: AppTextStyles.bodyS.copyWith(color: AppColors.gray500),
-          ),
-        ],
-      ),
-    );
-  }
-
   // ── Note field (AI classifier wiring preserved) ──────────────
   // Design state 01: a "NOTE" field label, a pencil-prefixed input, and a
   // helper hint that promises the live auto-tag until the AI has tagged it.
@@ -574,6 +504,8 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
           controller: _noteController,
           focusNode: _noteFocus,
           onChanged: _onNoteChanged,
+          onSubmitted: (_) => _noteFocus.unfocus(),
+          textInputAction: TextInputAction.done,
           textCapitalization: TextCapitalization.sentences,
           style: AppTextStyles.bodyM.copyWith(color: AppColors.black),
           decoration: InputDecoration(
@@ -754,10 +686,16 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
           _key(label: '9', onTap: () => _onKeyTap('9')),
         ]),
         rowOf([
-          _key(label: '.', onTap: () => _onKeyTap('.')),
+          _key(
+            label: '.',
+            onTap: () => _onKeyTap('.'),
+            semanticLabel: 'decimal point',
+          ),
           _key(label: '0', onTap: () => _onKeyTap('0')),
           _key(
             onTap: _onBackspace,
+            onLongPress: _onClearAmount,
+            semanticLabel: 'backspace, long press to clear',
             child: PhosphorIcon(
               PhosphorIcons.backspace(),
               size: 24,
@@ -769,9 +707,17 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
     );
   }
 
-  Widget _key({String? label, Widget? child, required VoidCallback onTap}) {
+  Widget _key({
+    String? label,
+    Widget? child,
+    required VoidCallback onTap,
+    VoidCallback? onLongPress,
+    String? semanticLabel,
+  }) {
     return _NumKey(
       onTap: onTap,
+      onLongPress: onLongPress,
+      semanticLabel: semanticLabel ?? label,
       child:
           child ??
           Text(
@@ -861,7 +807,10 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
       amount: _isExpense ? -amount : amount,
       category: _isExpense ? _category.name : 'income',
       merchant: drift.Value(merchant),
-      note: drift.Value(merchant),
+      // The single free-text field is the merchant/description shown on tiles;
+      // `note` stays null (a separate note can be added later from the detail
+      // view) so the same string is never stored in two columns.
+      note: const drift.Value(null),
       happenedAt: drift.Value(_selectedDate),
       source: const drift.Value('manual'),
       status: const drift.Value('confirmed'),
@@ -920,9 +869,16 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
 /// Single numpad key — radius-16 cell that tints [AppColors.gray100] while
 /// pressed, mirroring the `.key:active` rule in the CoinFlo Hi-Fi system.
 class _NumKey extends StatefulWidget {
-  const _NumKey({required this.onTap, required this.child});
+  const _NumKey({
+    required this.onTap,
+    required this.child,
+    this.onLongPress,
+    this.semanticLabel,
+  });
 
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
+  final String? semanticLabel;
   final Widget child;
 
   @override
@@ -934,21 +890,107 @@ class _NumKeyState extends State<_NumKey> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTapDown: (_) => setState(() => _pressed = true),
-      onTapUp: (_) => setState(() => _pressed = false),
-      onTapCancel: () => setState(() => _pressed = false),
-      onTap: widget.onTap,
-      child: AnimatedContainer(
-        duration: AppDurations.fast,
-        height: 56,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: _pressed ? AppColors.gray100 : Colors.transparent,
-          borderRadius: AppRadius.mdLg,
+    return Semantics(
+      button: true,
+      label: widget.semanticLabel,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTapDown: (_) => setState(() => _pressed = true),
+        onTapUp: (_) => setState(() => _pressed = false),
+        onTapCancel: () => setState(() => _pressed = false),
+        onTap: widget.onTap,
+        onLongPress: widget.onLongPress,
+        child: AnimatedContainer(
+          duration: AppDurations.fast,
+          height: 56,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: _pressed ? AppColors.gray100 : Colors.transparent,
+            borderRadius: AppRadius.mdLg,
+          ),
+          child: widget.child,
         ),
-        child: widget.child,
+      ),
+    );
+  }
+}
+
+/// Self-contained blinking ink caret. Owns its own 550ms timer so the parent
+/// sheet no longer rebuilds twice a second just to toggle the caret (the rest of
+/// the form — amount, chips, numpad — stays still between keystrokes).
+class _BlinkingCaret extends StatefulWidget {
+  const _BlinkingCaret();
+
+  @override
+  State<_BlinkingCaret> createState() => _BlinkingCaretState();
+}
+
+class _BlinkingCaretState extends State<_BlinkingCaret> {
+  bool _on = true;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(milliseconds: 550), (_) {
+      if (mounted) setState(() => _on = !_on);
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ExcludeSemantics(
+      child: Container(
+        width: 3,
+        height: 44,
+        decoration: BoxDecoration(
+          color: _on
+              ? AppColors.black.withValues(alpha: 0.85)
+              : Colors.transparent,
+          borderRadius: AppRadius.xxs,
+        ),
+      ),
+    );
+  }
+}
+
+/// Circular close button — 34px visual puck inside a ≥44px hit target, labelled
+/// for screen readers.
+class _CloseButton extends StatelessWidget {
+  const _CloseButton({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: 'Close',
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: SizedBox(
+          width: 44,
+          height: 44,
+          child: Center(
+            child: Container(
+              width: 34,
+              height: 34,
+              decoration: const BoxDecoration(
+                color: AppColors.white,
+                shape: BoxShape.circle,
+                boxShadow: AppShadows.sm,
+              ),
+              child: const Icon(Icons.close, size: 18, color: AppColors.black),
+            ),
+          ),
+        ),
       ),
     );
   }
