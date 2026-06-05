@@ -10,28 +10,28 @@
 
 <p align="center">
   A premium personal finance app built with Flutter — track spending, set budgets,<br/>
-  split bills, save toward goals, and get AI-powered insights.<br/>
-  All your data stays local-first with optional Firebase cloud backup.
+  split bills with people, save toward goals, and ask an on-device AI assistant.<br/>
+  Local-first: your data lives in an on-device SQLite database.
 </p>
 
 <p align="center">
-  <b>Local-first</b> &nbsp;·&nbsp; <b>AI-categorized</b> &nbsp;·&nbsp; <b>Multi-currency</b> &nbsp;·&nbsp; <b>Beautiful UI</b>
+  <b>Local-first</b> &nbsp;·&nbsp; <b>AI-categorized</b> &nbsp;·&nbsp; <b>Bill splitting</b> &nbsp;·&nbsp; <b>Beautiful UI</b>
 </p>
 
 <div align="center">
 
-[![Flutter](https://img.shields.io/badge/Flutter-3.11-02569B?style=flat-square&logo=flutter&logoColor=white)](https://flutter.dev/)
+[![Flutter](https://img.shields.io/badge/Flutter-3.41-02569B?style=flat-square&logo=flutter&logoColor=white)](https://flutter.dev/)
 [![Dart](https://img.shields.io/badge/Dart-3.11-0175C2?style=flat-square&logo=dart&logoColor=white)](https://dart.dev/)
 [![Firebase](https://img.shields.io/badge/Firebase-Auth%20%2B%20Firestore-FFCA28?style=flat-square&logo=firebase&logoColor=black)](https://firebase.google.com/)
 [![License](https://img.shields.io/badge/license-MIT-5B5BD6?style=flat-square)](LICENSE)
-[![Release](https://img.shields.io/github/v/release/divysharma7/finance_buddy_app?style=flat-square&color=22C55E&label=latest)](https://github.com/divysharma7/finance_buddy_app/releases/latest)
+[![Release](https://img.shields.io/github/v/release/divysharma7/Coinflo-App?style=flat-square&color=22C55E&label=latest)](https://github.com/divysharma7/Coinflo-App/releases/latest)
 
 </div>
 
 <br/>
 
 <p align="center">
-  <a href="https://github.com/divysharma7/finance_buddy_app/releases/latest"><strong>Download APK</strong></a> &nbsp;·&nbsp;
+  <a href="https://github.com/divysharma7/Coinflo-App/releases/latest"><strong>Download APK</strong></a> &nbsp;·&nbsp;
   <a href="#features"><strong>Features</strong></a> &nbsp;·&nbsp;
   <a href="#screenshots"><strong>Screenshots</strong></a> &nbsp;·&nbsp;
   <a href="#architecture"><strong>Architecture</strong></a> &nbsp;·&nbsp;
@@ -51,11 +51,12 @@
     <td width="50%" valign="top">
       <h3>Expense Tracking</h3>
       <ul>
-        <li>Quick-add with custom numpad and cursor editing</li>
-        <li>AI-powered category classification (Gemini)</li>
-        <li>Duplicate transaction detection</li>
-        <li>Split bills with friends (equal or custom)</li>
-        <li>Confirm/edit/delete transactions</li>
+        <li>Fast quick-add: custom numpad with live grouped amount (₹1,00,000)</li>
+        <li>AI category auto-tagging (Gemini) from the note you type</li>
+        <li>Grouped, searchable category picker</li>
+        <li>Split with people — equal split, add people inline</li>
+        <li>Duplicate detection, edit/delete, receipt photo attachments</li>
+        <li>Accessible: screen-reader labels + 44px touch targets</li>
       </ul>
     </td>
     <td width="50%" valign="top">
@@ -65,7 +66,7 @@
         <li>Per-category budget limits</li>
         <li>Savings goals with contribution tracking</li>
         <li>Budget alerts when nearing limits</li>
-        <li>Plan page with unified budget + goals view</li>
+        <li>Unified Plan tab (budget + goals in one view)</li>
       </ul>
     </td>
   </tr>
@@ -74,39 +75,40 @@
       <h3>Reports &amp; Analytics</h3>
       <ul>
         <li>Donut chart with category breakdown</li>
-        <li>Daily spend bar chart with week navigation</li>
+        <li>Daily-spend bar chart with week navigation</li>
         <li>Spending projection &amp; streaks</li>
         <li>Budget vs actual comparison</li>
-        <li>CSV export</li>
+        <li>CSV / Excel import &amp; export</li>
       </ul>
     </td>
     <td width="50%" valign="top">
-      <h3>People &amp; Family</h3>
+      <h3>People &amp; Debts</h3>
       <ul>
-        <li>Friends with debt tracking (who owes whom)</li>
+        <li>People with debt tracking (who owes whom)</li>
+        <li>Groups for shared/recurring splits</li>
         <li>Settlement flow with multiple methods</li>
-        <li>Family inflows &amp; outflows</li>
-        <li>Investment tracking (MF, stocks, FD)</li>
+        <li>Family inflows &amp; investment tracking (MF, stocks, FD)</li>
       </ul>
     </td>
   </tr>
   <tr>
     <td width="50%" valign="top">
-      <h3>Smart Features</h3>
+      <h3>Saraswati AI Assistant</h3>
       <ul>
-        <li>Penny AI assistant (ask about your spending)</li>
-        <li>15 currencies with auto-detection from locale</li>
-        <li>Subscription tracking with billing reminders</li>
-        <li>Local notifications &amp; spending alerts</li>
+        <li>Ask about your spending in natural language</li>
+        <li>4-tier intent pipeline routes each message</li>
+        <li>Add transactions &amp; get insights from chat</li>
+        <li>On-device data — only the prompt leaves the device</li>
       </ul>
     </td>
     <td width="50%" valign="top">
       <h3>Premium UX</h3>
       <ul>
-        <li>3-phase splash animation (coin spin, rocket, fade)</li>
-        <li>Staggered list entrances across all screens</li>
-        <li>Lottie micro-interactions (confetti, checkmarks)</li>
-        <li>Dark header with adaptive status bar icons</li>
+        <li>Animated splash + staggered list entrances</li>
+        <li>Lottie micro-interactions</li>
+        <li>Custom monochrome design system + tokens</li>
+        <li>Dark header with adaptive status-bar icons</li>
+        <li>Local notifications &amp; spending alerts</li>
       </ul>
     </td>
   </tr>
@@ -122,32 +124,35 @@
 
 <p align="center">
   <b>Local-first</b> — all data lives in an on-device SQLite database via Drift.<br/>
-  Firebase is optional — used only for auth + cloud backup of settings.
+  Firebase is optional — used only for auth + cloud hydration of settings/onboarding.
 </p>
 
 ```
 lib/
  ├── core/              # Enums, constants, router
  ├── data/
- │   ├── db.dart        # Drift database (12 tables)
- │   └── repositories/  # Repository pattern (budget, goal, transaction, etc.)
+ │   ├── db.dart        # Drift database (20 tables · schema v14)
+ │   └── repositories/  # Repository pattern (abstract + local Drift impls)
  ├── design_system/     # AppColors, AppTextStyles, AppSpacing, AppRadius, widgets
- ├── models/            # Data models (AccountModel, SavingsGoalModel, etc.)
  ├── pages/             # Feature-first screens
- │   ├── add/           # Quick-add sheet
+ │   ├── accounts/      # Accounts (cash, bank, card, wallet)
+ │   ├── add/           # Quick-add sheet · category picker · split picker
+ │   ├── auth/          # Sign in / local-first auth gate
+ │   ├── groups/        # Shared groups for splitting
  │   ├── home/          # Home + daily view
- │   ├── onboarding_v2/ # 8-step onboarding flow
- │   ├── penny/         # AI assistant
- │   ├── people/        # Friends + family
+ │   ├── onboarding_v2/ # Multi-step onboarding flow
+ │   ├── people/        # People + debts
  │   ├── plan/          # Budgets + savings goals
  │   ├── report/        # Analytics + charts
+ │   ├── saraswati/     # Saraswati AI assistant
  │   ├── settings/      # Profile, currency, preferences
  │   ├── splash/        # Animated splash screen
  │   ├── subscriptions/ # Recurring subscriptions
- │   └── transactions/  # Transaction list + detail + split
- ├── providers/         # Riverpod providers
- ├── services/          # Firebase, AI, notifications, export
- └── widgets/           # Shared components (animations, charts, etc.)
+ │   └── transactions/  # Transaction list + detail + split flow
+ ├── providers/         # Riverpod providers (barrel: providers.dart)
+ ├── services/          # ai · saraswati · categorization · split · export ·
+ │                      #   migration · notifications · firestore · attachments
+ └── widgets/           # Shared components (sheets, cards, charts, buttons)
 ```
 
 <br/>
@@ -158,17 +163,20 @@ lib/
 
 | Layer | Technology |
 |-------|-----------|
-| **Framework** | Flutter 3.11 + Dart 3.11 |
-| **State** | Riverpod (FutureProvider, StreamProvider) |
-| **Database** | Drift (SQLite) — 12 tables |
-| **Auth** | Firebase Auth (email/password) |
-| **Cloud Sync** | Cloud Firestore (settings + onboarding data) |
-| **AI** | Firebase AI (Gemini) for category classification |
-| **Charts** | fl_chart (pie, bar) |
+| **Framework** | Flutter 3.41 + Dart 3.11 |
+| **State** | Riverpod (StreamProvider, FutureProvider, `.family`) |
+| **Database** | Drift (SQLite) — 20 tables, schema v14 |
+| **Auth** | Firebase Auth (email/password) — optional |
+| **Cloud Sync** | Cloud Firestore (settings + onboarding hydration) |
+| **AI** | Firebase AI (Gemini) — category classification + Saraswati assistant |
+| **Charts** | fl_chart (donut, bar) |
 | **Animations** | flutter_animate + Lottie + custom AnimationControllers |
-| **Navigation** | go_router |
+| **Navigation** | go_router (single `/home` shell, `IndexedStack` tabs) |
 | **Icons** | Phosphor Icons |
-| **Notifications** | flutter_local_notifications |
+| **Type** | Schibsted Grotesk + JetBrains Mono |
+| **Notifications** | flutter_local_notifications + timezone |
+| **Crash reporting** | Firebase Crashlytics |
+| **Import / Export** | excel · csv · file_picker · share_plus |
 
 </div>
 
@@ -182,22 +190,22 @@ lib/
 
 <h3>Prerequisites</h3>
 
-- Flutter SDK 3.11+
+- Flutter SDK 3.41+ (Dart 3.11+)
 - Android Studio / VS Code
-- A Firebase project (for auth + Firestore)
+- A Firebase project (for optional auth + Firestore)
 
 <h3>Setup</h3>
 
 ```bash
 # Clone the repo
-git clone https://github.com/divysharma7/finance_buddy_app.git
-cd finance_buddy_app
+git clone https://github.com/divysharma7/Coinflo-App.git
+cd Coinflo-App
 
 # Install dependencies
 flutter pub get
 
 # Generate Drift database code
-dart run build_runner build
+dart run build_runner build --delete-conflicting-outputs
 
 # Run the app
 flutter run
@@ -218,6 +226,18 @@ flutter build apk --release
 # Output: build/app/outputs/flutter-apk/app-release.apk
 ```
 
+> **Signing:** the release build currently uses the Flutter **debug** signing config
+> (`android/app/build.gradle.kts`). The APK is sideload-installable but **not**
+> Play Store–uploadable until a release keystore + `android/key.properties` are added.
+
+<h3>Useful Commands</h3>
+
+```bash
+flutter analyze lib/                                       # Lint check
+flutter test                                              # Run tests
+dart run build_runner build --delete-conflicting-outputs  # Drift codegen
+```
+
 <br/>
 
 ---
@@ -229,23 +249,24 @@ flutter build apk --release
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  ONBOARDING                                                  │
-│  Currency → Accounts → Budget → Categories → Goals →         │
-│  Recurring → Completion (email + password)                   │
-│       ↓                    ↓                                 │
-│  SharedPreferences    Firebase Auth + Firestore              │
+│  Welcome → Currency → Income → Accounts → Budget →           │
+│  Categories → Goals → Recurring → Recap → Done               │
+│       ↓                          ↓                           │
+│  SharedPreferences        Firebase Auth + Firestore (opt.)   │
 │       ↓                                                      │
-│  Drift Database (local SQLite)                               │
+│  Drift Database (on-device SQLite)                           │
 └─────────────────────────────────────────────────────────────┘
                           ↓
 ┌─────────────────────────────────────────────────────────────┐
 │  APP RUNTIME                                                 │
-│  Riverpod Providers ← Drift streams (reactive)              │
+│  Riverpod providers ← Drift streams (reactive)              │
 │       ↓                                                      │
-│  Home · Report · Plan · Settings · Transactions              │
+│  Home · Report · Plan · Settings  (4-tab IndexedStack)       │
+│  + People · Transactions · Saraswati  (nested routes)        │
 └─────────────────────────────────────────────────────────────┘
                           ↓
 ┌─────────────────────────────────────────────────────────────┐
-│  RETURNING USER (sign-in)                                    │
+│  RETURNING USER (optional sign-in)                           │
 │  Firebase Auth → Firestore hydration → SharedPreferences     │
 │       → Drift Database → UI refreshes instantly              │
 └─────────────────────────────────────────────────────────────┘
@@ -265,8 +286,8 @@ flutter build apk --release
 
 <p align="center">
   <a href="mailto:divysharma029@gmail.com"><b>Contact</b></a> &nbsp;·&nbsp;
-  <a href="https://github.com/divysharma7/finance_buddy_app/issues"><b>Report Bug</b></a> &nbsp;·&nbsp;
-  <a href="https://github.com/divysharma7/finance_buddy_app/releases"><b>Releases</b></a>
+  <a href="https://github.com/divysharma7/Coinflo-App/issues"><b>Report Bug</b></a> &nbsp;·&nbsp;
+  <a href="https://github.com/divysharma7/Coinflo-App/releases"><b>Releases</b></a>
 </p>
 
 <br/>
