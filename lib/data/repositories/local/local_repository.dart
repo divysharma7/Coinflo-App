@@ -99,6 +99,10 @@ class LocalRepository extends BaseRepository {
       _txnRepo.getCategoryTotalsForMonth(month);
 
   @override
+  Stream<Map<String, double>> watchCategoryTotalsForMonth(DateTime month) =>
+      _txnRepo.watchCategoryTotalsForMonth(month);
+
+  @override
   Future<List<double>> getWeeklySpendingTrend(int weekCount) =>
       _txnRepo.getWeeklySpendingTrend(weekCount);
 
@@ -356,6 +360,37 @@ class LocalRepository extends BaseRepository {
       _splitRepo.watchTransactionsForPerson(personId);
 
   // ─── Cross-cutting ────────────────────────────────
+
+  @override
+  Future<int> insertTransactionWithSplits(
+    SpendlerTransactionsCompanion entry,
+    List<SplitEntry> splits, {
+    required int splitCount,
+    required double splitMyShare,
+    required double splitPendingAmount,
+  }) {
+    return db.transaction(() async {
+      final id = await _txnRepo.insertTransaction(entry);
+      await _splitRepo.createSplits(id, splits);
+      await _txnRepo.markSplit(id, splitCount, splitMyShare, splitPendingAmount);
+      return id;
+    });
+  }
+
+  @override
+  Future<int> insertTransactionAndSplits(
+    SpendlerTransactionsCompanion entry,
+    List<SplitEntry> splits,
+  ) {
+    return db.transaction(() async {
+      final id = await _txnRepo.insertTransaction(entry);
+      await _splitRepo.createSplits(id, splits);
+      return id;
+    });
+  }
+
+  @override
+  Future<void> wipeAllData() => db.wipeAllData();
 
   @override
   Future<void> clearAll() async {

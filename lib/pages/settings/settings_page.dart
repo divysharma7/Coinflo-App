@@ -9,6 +9,8 @@ import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/providers/onboarding_provider.dart';
 import 'package:finance_buddy_app/providers/auth_provider.dart';
 import 'package:finance_buddy_app/pages/settings/profile_sheet.dart';
+import 'package:finance_buddy_app/services/firestore/firestore_service.dart';
+import 'package:finance_buddy_app/utils/currency_utils.dart';
 import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 import 'package:finance_buddy_app/pages/settings/widgets/settings_row.dart';
 import 'package:finance_buddy_app/pages/settings/widgets/settings_toggle_row.dart';
@@ -58,7 +60,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final trackIncome = trackIncomeAsync.valueOrNull ?? true;
     final budget = budgetAsync.valueOrNull;
 
-    const currency = Currency.inr;
+    final currencyCode =
+        ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr';
+    final currencySym = currencySymbol(currencyCode);
 
     return Scaffold(
       backgroundColor: AppColors.offWhite,
@@ -157,11 +161,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         iconColor: AppColors.gray600,
                         label: 'Currency',
                         trailing: Text(
-                          '${currency.code} (${currency.symbol})',
+                          '${currencyCode.toUpperCase()} ($currencySym)',
                           style: AppTextStyles.bodyS
                               .copyWith(color: AppColors.gray500),
                         ),
-                        showChevron: false,
+                        onTap: () => _showCurrencyPicker(currencyCode),
                       ),
                       const SettingsDivider(),
                       SettingsRow(
@@ -202,7 +206,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         iconColor: AppColors.gray600,
                         label: 'Monthly Budget',
                         trailing: Text(
-                          budget != null ? '${currency.symbol}${budget.toStringAsFixed(0)}' : 'Not set',
+                          budget != null ? '$currencySym${budget.toStringAsFixed(0)}' : 'Not set',
                           style: AppTextStyles.bodyS
                               .copyWith(color: AppColors.gray500),
                         ),
@@ -477,6 +481,58 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     );
   }
 
+  // ─── Currency ──────────────────────────────────────────
+
+  void _showCurrencyPicker(String currentCode) {
+    const options = [
+      ('inr', 'Indian Rupee'),
+      ('usd', 'US Dollar'),
+      ('eur', 'Euro'),
+      ('gbp', 'British Pound'),
+      ('jpy', 'Japanese Yen'),
+    ];
+    showSpendlerSheet<void>(
+      context: context,
+      builder: (ctx) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.lg),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Currency',
+                  style:
+                      AppTextStyles.headingS.copyWith(color: AppColors.black)),
+              const SizedBox(height: AppSpacing.md),
+              for (final (code, name) in options)
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Text(
+                    currencySymbol(code),
+                    style: AppTextStyles.headingS
+                        .copyWith(color: AppColors.black),
+                  ),
+                  title: Text(name, style: AppTextStyles.bodyM),
+                  trailing: code == currentCode
+                      ? const Icon(Icons.check, color: AppColors.black)
+                      : null,
+                  onTap: () async {
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.setString('currency_code', code);
+                    await prefs.setString(
+                        'currency_symbol', currencySymbol(code));
+                    ref.invalidate(selectedCurrencyProvider);
+                    if (mounted) Navigator.pop(context);
+                  },
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   // ─── Help & Support ────────────────────────────────────
 
   void _showHelpSheet() {
@@ -551,9 +607,21 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   final authService = ref.read(authServiceProvider);
                   final user = authService.currentUser;
                   if (user != null) {
+                    final uid = user.uid;
+                    // Delete the cloud Firestore tree while still
+                    // authenticated (security rules gate on request.auth.uid),
+                    // then delete the auth user itself.
+                    try {
+                      await FirestoreService().deleteUserData(uid);
+                    } on Exception {
+                      // Non-fatal: continue with auth + local deletion.
+                    }
                     await user.delete();
                   }
                   await authService.clearLocalAuth();
+                  // Wipe the on-device database (transactions, people, splits…)
+                  // and all cached preferences so nothing survives the delete.
+                  await ref.read(repositoryProvider).wipeAllData();
                   final prefs = await SharedPreferences.getInstance();
                   await prefs.clear();
                   if (mounted) context.go('/onboarding/welcome');

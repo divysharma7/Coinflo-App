@@ -80,18 +80,23 @@ class _CategoriesOverviewScreenState extends State<CategoriesOverviewScreen>
               child: CustomScrollView(
                 slivers: [
                   // Title block
+                  // The slide transform lives *inside* the Padding so the
+                  // SliverToBoxAdapter's direct child (the Padding) keeps a
+                  // stable layout. A SlideTransition at the sliver-child
+                  // boundary desyncs paint/layout offsets (see plan_page.dart);
+                  // animating already-laid-out content instead is sliver-safe.
                   SliverToBoxAdapter(
-                    child: SlideTransition(
-                      position: _titleSlide,
-                      child: FadeTransition(
-                        opacity: _titleFade,
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                            left: AppSpacing.lg,
-                            right: AppSpacing.lg,
-                            top: AppSpacing.lg,
-                            bottom: AppSpacing.xl,
-                          ),
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        left: AppSpacing.lg,
+                        right: AppSpacing.lg,
+                        top: AppSpacing.lg,
+                        bottom: AppSpacing.xl,
+                      ),
+                      child: SlideTransition(
+                        position: _titleSlide,
+                        child: FadeTransition(
+                          opacity: _titleFade,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [

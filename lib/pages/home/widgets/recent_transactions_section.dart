@@ -28,8 +28,8 @@ class RecentTransactionsSection extends ConsumerWidget {
     // transaction added in a different month still appears here. The budget
     // hero and stat tiles stay month-scoped; only this list is all-time.
     final txnsAsync = ref.watch(allTransactionsProvider);
-    final symbol =
-        currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
+    final code = ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr';
+    final symbol = currencySymbol(code);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -96,7 +96,7 @@ class RecentTransactionsSection extends ConsumerWidget {
                 child: Column(
                   children: [
                     for (var i = 0; i < recent.length; i++) ...[
-                      _TransactionRow(transaction: recent[i], symbol: symbol),
+                      _TransactionRow(transaction: recent[i], symbol: symbol, currencyCode: code),
                       if (i != recent.length - 1)
                         const Divider(
                           height: 1,
@@ -171,10 +171,14 @@ class _EmptyState extends StatelessWidget {
 // ─── Transaction Row ──────────────────────────────────────
 
 class _TransactionRow extends ConsumerWidget {
-  const _TransactionRow({required this.transaction, required this.symbol});
+  const _TransactionRow(
+      {required this.transaction,
+      required this.symbol,
+      required this.currencyCode});
 
   final SpendlerTransaction transaction;
   final String symbol;
+  final String currencyCode;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -184,7 +188,7 @@ class _TransactionRow extends ConsumerWidget {
     );
     final isExpense = transaction.amount < 0;
     final displayAmount =
-        '${isExpense ? '−' : '+'}$symbol${formatHomeNumber(transaction.amount.abs())}';
+        '${isExpense ? '−' : '+'}$symbol${formatHomeNumber(transaction.amount.abs(), currencyCode: currencyCode)}';
 
     final name = transaction.merchant ?? transaction.note ?? cat.label;
     final meta = '${cat.label} · ${_timeLabel(transaction.happenedAt)}';

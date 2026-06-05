@@ -43,7 +43,8 @@ class QuickStatsRow extends ConsumerWidget {
 
     String money(num v) => '$symbol${formatHomeNumber(v.toDouble())}';
 
-    return Padding(
+    return Container(
+      height: 140,
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.lg,
         AppSpacing.sm,

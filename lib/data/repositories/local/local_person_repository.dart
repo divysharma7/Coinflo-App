@@ -42,7 +42,8 @@ class LocalPersonRepository implements PersonRepository {
 
   @override
   Future<void> deletePerson(int id) {
-    return (db.delete(db.persons)..where((p) => p.id.equals(id))).go();
+    return (db.update(db.persons)..where((p) => p.id.equals(id)))
+        .write(PersonsCompanion(archivedAt: Value(DateTime.now())));
   }
 
   @override

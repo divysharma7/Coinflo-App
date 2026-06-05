@@ -70,17 +70,23 @@ class _CompletionScreenState extends ConsumerState<CompletionScreen>
     super.dispose();
   }
 
-  /// Marks onboarding complete locally and mirrors prefs data into Drift so the
+  /// Mirrors prefs data into Drift and marks onboarding complete locally so
   /// Plan/Home pages see the user's budgets and goals. Shared by both the
   /// create-account path and the "Maybe later" path.
+  ///
+  /// Drift syncs run FIRST. If either fails this method rethrows so the caller
+  /// can show an error and allow retry — `onboarding_completed` is only written
+  /// after both syncs succeed.
   Future<void> _finishLocally({String? email}) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('onboarding_completed', true);
     if (email != null) await prefs.setString('user_email', email);
 
     final repo = ref.read(repositoryProvider);
+    // These propagate on failure — do NOT set the flag until both succeed.
     await _syncBudgetsToDrift(prefs, repo);
     await _syncGoalsToDrift(prefs, repo);
+
+    await prefs.setBool('onboarding_completed', true);
 
     ref.invalidate(monthlyBudgetProvider);
     ref.invalidate(selectedCurrencyProvider);
@@ -90,7 +96,21 @@ class _CompletionScreenState extends ConsumerState<CompletionScreen>
   }
 
   Future<void> _onMaybeLater() async {
-    await _finishLocally();
+    try {
+      await _finishLocally();
+    } on Exception catch (e) {
+      debugPrint('onboarding finish failed: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Something went wrong saving your data. Please try again.',
+            ),
+          ),
+        );
+      }
+      return; // Leave the screen open so the user can retry.
+    }
     if (mounted) context.go('/home');
   }
 
@@ -344,54 +364,50 @@ class _CompletionScreenState extends ConsumerState<CompletionScreen>
   }
 
   /// Insert onboarding category budgets from SharedPreferences into Drift.
+  ///
+  /// Throws on failure so the caller can abort before marking onboarding done.
   Future<void> _syncBudgetsToDrift(
     SharedPreferences prefs,
     BaseRepository repo,
   ) async {
     final json = prefs.getString('category_budgets');
     if (json == null) return;
-    try {
-      final list = (jsonDecode(json) as List).cast<Map<String, dynamic>>();
-      for (final b in list) {
-        final category = b['group'] as String? ?? '';
-        final limit = (b['monthlyLimit'] as num?)?.toDouble() ?? 0;
-        if (category.isEmpty || limit <= 0) continue;
-        await repo.insertBudget(
-          CategoryBudgetsCompanion(
-            category: drift.Value(category),
-            monthlyLimit: drift.Value(limit),
-          ),
-        );
-      }
-    } on Exception catch (e) {
-      debugPrint('Budget sync to Drift failed: $e');
+    final list = (jsonDecode(json) as List).cast<Map<String, dynamic>>();
+    for (final b in list) {
+      final category = b['group'] as String? ?? '';
+      final limit = (b['monthlyLimit'] as num?)?.toDouble() ?? 0;
+      if (category.isEmpty || limit <= 0) continue;
+      await repo.insertBudget(
+        CategoryBudgetsCompanion(
+          category: drift.Value(category),
+          monthlyLimit: drift.Value(limit),
+        ),
+      );
     }
   }
 
   /// Insert onboarding savings goals from SharedPreferences into Drift.
+  ///
+  /// Throws on failure so the caller can abort before marking onboarding done.
   Future<void> _syncGoalsToDrift(
     SharedPreferences prefs,
     BaseRepository repo,
   ) async {
     final json = prefs.getString('savings_goals');
     if (json == null) return;
-    try {
-      final list = (jsonDecode(json) as List).cast<Map<String, dynamic>>();
-      for (final g in list) {
-        final name = g['name'] as String? ?? '';
-        final target = (g['targetAmount'] as num?)?.toDouble() ?? 0;
-        final icon = g['iconAsset'] as String? ?? 'star';
-        if (name.isEmpty || target <= 0) continue;
-        await repo.insertGoal(
-          SavingsGoalsCompanion(
-            name: drift.Value(name),
-            targetAmount: drift.Value(target),
-            iconName: drift.Value(icon),
-          ),
-        );
-      }
-    } on Exception catch (e) {
-      debugPrint('Goals sync to Drift failed: $e');
+    final list = (jsonDecode(json) as List).cast<Map<String, dynamic>>();
+    for (final g in list) {
+      final name = g['name'] as String? ?? '';
+      final target = (g['targetAmount'] as num?)?.toDouble() ?? 0;
+      final icon = g['iconAsset'] as String? ?? 'star';
+      if (name.isEmpty || target <= 0) continue;
+      await repo.insertGoal(
+        SavingsGoalsCompanion(
+          name: drift.Value(name),
+          targetAmount: drift.Value(target),
+          iconName: drift.Value(icon),
+        ),
+      );
     }
   }
 }

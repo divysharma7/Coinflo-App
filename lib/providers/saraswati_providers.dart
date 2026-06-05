@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:firebase_ai/firebase_ai.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:finance_buddy_app/providers/database_providers.dart';
+import 'package:finance_buddy_app/services/saraswati/saraswati_history_repository.dart';
 import 'package:finance_buddy_app/providers/transaction_providers.dart';
 import 'package:finance_buddy_app/providers/plan_providers.dart';
 import 'package:finance_buddy_app/services/saraswati/cache/intent_cache_repository.dart';
@@ -54,6 +58,11 @@ final _intentExecutorProvider = Provider<IntentExecutor>((ref) {
 final _intentCacheProvider = Provider<IntentCacheRepository>((ref) {
   final db = ref.watch(databaseProvider);
   return IntentCacheRepository(db);
+});
+
+/// Persistent chat-history store backed by the app database.
+final saraswatiHistoryProvider = Provider<SaraswatiHistoryRepository>((ref) {
+  return SaraswatiHistoryRepository(ref.watch(databaseProvider));
 });
 
 /// Gemini model configured for intent classification.
@@ -193,13 +202,50 @@ class SaraswatiChatNotifier extends StateNotifier<List<SaraswatiMessage>> {
     this._router,
     this._entryExecutor,
     this._financialContext,
-  ) : super([_welcomeMessage]);
+    this._history,
+  ) : super([_welcomeMessage]) {
+    _loadHistory();
+  }
 
   final SaraswatiService _service;
   final SaraswatiEntryService _entryService;
   final SaraswatiRouter _router;
   final EntryExecutor _entryExecutor;
   final String _financialContext;
+  final SaraswatiHistoryRepository _history;
+
+  /// Hydrate persisted conversation (≤7 days old) on first build. Only applies
+  /// if the user hasn't already started a new message in the meantime.
+  Future<void> _loadHistory() async {
+    try {
+      final rows = await _history.loadRecent();
+      if (rows.isEmpty || state.length != 1) return;
+      state = [
+        _welcomeMessage,
+        ...rows.map((r) => SaraswatiMessage(
+              text: r.content,
+              isUser: r.isUser,
+              timestamp: r.createdAt,
+            )),
+      ];
+    } on Exception catch (e) {
+      debugPrint('Saraswati history load failed: $e');
+    }
+  }
+
+  /// Snapshot the current conversation (excluding the static welcome) to disk.
+  /// Entry actions are transient and intentionally not persisted.
+  Future<void> _persist() async {
+    try {
+      await _history.replaceAll([
+        for (final m in state)
+          if (!identical(m, _welcomeMessage))
+            (content: m.text, isUser: m.isUser, createdAt: m.timestamp),
+      ]);
+    } on Exception catch (e) {
+      debugPrint('Saraswati history persist failed: $e');
+    }
+  }
 
   static final _welcomeMessage = SaraswatiMessage(
     text: "Hey, I'm Saraswati! I live inside your transaction data "
@@ -251,6 +297,7 @@ class SaraswatiChatNotifier extends StateNotifier<List<SaraswatiMessage>> {
       ];
     } finally {
       _isProcessing = false;
+      unawaited(_persist());
     }
   }
 
@@ -328,6 +375,7 @@ class SaraswatiChatNotifier extends StateNotifier<List<SaraswatiMessage>> {
       ];
     } finally {
       _isProcessing = false;
+      unawaited(_persist());
     }
   }
 
@@ -372,6 +420,7 @@ class SaraswatiChatNotifier extends StateNotifier<List<SaraswatiMessage>> {
       ];
     } finally {
       _isProcessing = false;
+      unawaited(_persist());
     }
   }
 
@@ -379,6 +428,7 @@ class SaraswatiChatNotifier extends StateNotifier<List<SaraswatiMessage>> {
     state = [_welcomeMessage];
     _isProcessing = false;
     _lastCommittedTxnId = null;
+    unawaited(_history.clear());
   }
 
   // ─── Private ──────────────────────────────────────────
@@ -462,12 +512,14 @@ final saraswatiChatProvider =
   final router = ref.watch(saraswatiRouterProvider);
   final entryExecutor = ref.watch(_entryExecutorProvider);
   final context = ref.watch(saraswatiFinancialContextProvider);
+  final history = ref.watch(saraswatiHistoryProvider);
   return SaraswatiChatNotifier(
     service,
     entryService,
     router,
     entryExecutor,
     context,
+    history,
   );
 });
 

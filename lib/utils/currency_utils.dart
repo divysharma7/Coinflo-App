@@ -1,3 +1,21 @@
+/// Maps a currency code to its preferred locale for number formatting.
+String localeFor(String code) {
+  switch (code.toLowerCase()) {
+    case 'inr':
+      return 'en_IN';
+    case 'usd':
+      return 'en_US';
+    case 'eur':
+      return 'en_IE';
+    case 'gbp':
+      return 'en_GB';
+    case 'jpy':
+      return 'ja_JP';
+    default:
+      return 'en_US';
+  }
+}
+
 /// Shared currency symbol resolver used across the app.
 String currencySymbol(String code) {
   switch (code.toLowerCase()) {

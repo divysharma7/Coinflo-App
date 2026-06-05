@@ -9470,6 +9470,306 @@ class TransactionSplitsCompanion extends UpdateCompanion<TransactionSplit> {
   }
 }
 
+class $SaraswatiMessagesTable extends SaraswatiMessages
+    with TableInfo<$SaraswatiMessagesTable, SaraswatiMessageRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SaraswatiMessagesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _contentMeta = const VerificationMeta(
+    'content',
+  );
+  @override
+  late final GeneratedColumn<String> content = GeneratedColumn<String>(
+    'content',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _isUserMeta = const VerificationMeta('isUser');
+  @override
+  late final GeneratedColumn<bool> isUser = GeneratedColumn<bool>(
+    'is_user',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_user" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, content, isUser, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'saraswati_messages';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SaraswatiMessageRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('content')) {
+      context.handle(
+        _contentMeta,
+        content.isAcceptableOrUnknown(data['content']!, _contentMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_contentMeta);
+    }
+    if (data.containsKey('is_user')) {
+      context.handle(
+        _isUserMeta,
+        isUser.isAcceptableOrUnknown(data['is_user']!, _isUserMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_isUserMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SaraswatiMessageRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SaraswatiMessageRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      content: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}content'],
+      )!,
+      isUser: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_user'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $SaraswatiMessagesTable createAlias(String alias) {
+    return $SaraswatiMessagesTable(attachedDatabase, alias);
+  }
+}
+
+class SaraswatiMessageRow extends DataClass
+    implements Insertable<SaraswatiMessageRow> {
+  final int id;
+  final String content;
+  final bool isUser;
+  final DateTime createdAt;
+  const SaraswatiMessageRow({
+    required this.id,
+    required this.content,
+    required this.isUser,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['content'] = Variable<String>(content);
+    map['is_user'] = Variable<bool>(isUser);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  SaraswatiMessagesCompanion toCompanion(bool nullToAbsent) {
+    return SaraswatiMessagesCompanion(
+      id: Value(id),
+      content: Value(content),
+      isUser: Value(isUser),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory SaraswatiMessageRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SaraswatiMessageRow(
+      id: serializer.fromJson<int>(json['id']),
+      content: serializer.fromJson<String>(json['content']),
+      isUser: serializer.fromJson<bool>(json['isUser']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'content': serializer.toJson<String>(content),
+      'isUser': serializer.toJson<bool>(isUser),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  SaraswatiMessageRow copyWith({
+    int? id,
+    String? content,
+    bool? isUser,
+    DateTime? createdAt,
+  }) => SaraswatiMessageRow(
+    id: id ?? this.id,
+    content: content ?? this.content,
+    isUser: isUser ?? this.isUser,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  SaraswatiMessageRow copyWithCompanion(SaraswatiMessagesCompanion data) {
+    return SaraswatiMessageRow(
+      id: data.id.present ? data.id.value : this.id,
+      content: data.content.present ? data.content.value : this.content,
+      isUser: data.isUser.present ? data.isUser.value : this.isUser,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SaraswatiMessageRow(')
+          ..write('id: $id, ')
+          ..write('content: $content, ')
+          ..write('isUser: $isUser, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, content, isUser, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SaraswatiMessageRow &&
+          other.id == this.id &&
+          other.content == this.content &&
+          other.isUser == this.isUser &&
+          other.createdAt == this.createdAt);
+}
+
+class SaraswatiMessagesCompanion extends UpdateCompanion<SaraswatiMessageRow> {
+  final Value<int> id;
+  final Value<String> content;
+  final Value<bool> isUser;
+  final Value<DateTime> createdAt;
+  const SaraswatiMessagesCompanion({
+    this.id = const Value.absent(),
+    this.content = const Value.absent(),
+    this.isUser = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  SaraswatiMessagesCompanion.insert({
+    this.id = const Value.absent(),
+    required String content,
+    required bool isUser,
+    this.createdAt = const Value.absent(),
+  }) : content = Value(content),
+       isUser = Value(isUser);
+  static Insertable<SaraswatiMessageRow> custom({
+    Expression<int>? id,
+    Expression<String>? content,
+    Expression<bool>? isUser,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (content != null) 'content': content,
+      if (isUser != null) 'is_user': isUser,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  SaraswatiMessagesCompanion copyWith({
+    Value<int>? id,
+    Value<String>? content,
+    Value<bool>? isUser,
+    Value<DateTime>? createdAt,
+  }) {
+    return SaraswatiMessagesCompanion(
+      id: id ?? this.id,
+      content: content ?? this.content,
+      isUser: isUser ?? this.isUser,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (content.present) {
+      map['content'] = Variable<String>(content.value);
+    }
+    if (isUser.present) {
+      map['is_user'] = Variable<bool>(isUser.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SaraswatiMessagesCompanion(')
+          ..write('id: $id, ')
+          ..write('content: $content, ')
+          ..write('isUser: $isUser, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$SpendlerDatabase extends GeneratedDatabase {
   _$SpendlerDatabase(QueryExecutor e) : super(e);
   $SpendlerDatabaseManager get managers => $SpendlerDatabaseManager(this);
@@ -9503,6 +9803,8 @@ abstract class _$SpendlerDatabase extends GeneratedDatabase {
   late final $GroupMembersTable groupMembers = $GroupMembersTable(this);
   late final $TransactionSplitsTable transactionSplits =
       $TransactionSplitsTable(this);
+  late final $SaraswatiMessagesTable saraswatiMessages =
+      $SaraswatiMessagesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -9527,6 +9829,7 @@ abstract class _$SpendlerDatabase extends GeneratedDatabase {
     groups,
     groupMembers,
     transactionSplits,
+    saraswatiMessages,
   ];
 }
 
@@ -14438,6 +14741,194 @@ typedef $$TransactionSplitsTableProcessedTableManager =
       TransactionSplit,
       PrefetchHooks Function()
     >;
+typedef $$SaraswatiMessagesTableCreateCompanionBuilder =
+    SaraswatiMessagesCompanion Function({
+      Value<int> id,
+      required String content,
+      required bool isUser,
+      Value<DateTime> createdAt,
+    });
+typedef $$SaraswatiMessagesTableUpdateCompanionBuilder =
+    SaraswatiMessagesCompanion Function({
+      Value<int> id,
+      Value<String> content,
+      Value<bool> isUser,
+      Value<DateTime> createdAt,
+    });
+
+class $$SaraswatiMessagesTableFilterComposer
+    extends Composer<_$SpendlerDatabase, $SaraswatiMessagesTable> {
+  $$SaraswatiMessagesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isUser => $composableBuilder(
+    column: $table.isUser,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SaraswatiMessagesTableOrderingComposer
+    extends Composer<_$SpendlerDatabase, $SaraswatiMessagesTable> {
+  $$SaraswatiMessagesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isUser => $composableBuilder(
+    column: $table.isUser,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SaraswatiMessagesTableAnnotationComposer
+    extends Composer<_$SpendlerDatabase, $SaraswatiMessagesTable> {
+  $$SaraswatiMessagesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get content =>
+      $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<bool> get isUser =>
+      $composableBuilder(column: $table.isUser, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$SaraswatiMessagesTableTableManager
+    extends
+        RootTableManager<
+          _$SpendlerDatabase,
+          $SaraswatiMessagesTable,
+          SaraswatiMessageRow,
+          $$SaraswatiMessagesTableFilterComposer,
+          $$SaraswatiMessagesTableOrderingComposer,
+          $$SaraswatiMessagesTableAnnotationComposer,
+          $$SaraswatiMessagesTableCreateCompanionBuilder,
+          $$SaraswatiMessagesTableUpdateCompanionBuilder,
+          (
+            SaraswatiMessageRow,
+            BaseReferences<
+              _$SpendlerDatabase,
+              $SaraswatiMessagesTable,
+              SaraswatiMessageRow
+            >,
+          ),
+          SaraswatiMessageRow,
+          PrefetchHooks Function()
+        > {
+  $$SaraswatiMessagesTableTableManager(
+    _$SpendlerDatabase db,
+    $SaraswatiMessagesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SaraswatiMessagesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SaraswatiMessagesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SaraswatiMessagesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> content = const Value.absent(),
+                Value<bool> isUser = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => SaraswatiMessagesCompanion(
+                id: id,
+                content: content,
+                isUser: isUser,
+                createdAt: createdAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String content,
+                required bool isUser,
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => SaraswatiMessagesCompanion.insert(
+                id: id,
+                content: content,
+                isUser: isUser,
+                createdAt: createdAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SaraswatiMessagesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SpendlerDatabase,
+      $SaraswatiMessagesTable,
+      SaraswatiMessageRow,
+      $$SaraswatiMessagesTableFilterComposer,
+      $$SaraswatiMessagesTableOrderingComposer,
+      $$SaraswatiMessagesTableAnnotationComposer,
+      $$SaraswatiMessagesTableCreateCompanionBuilder,
+      $$SaraswatiMessagesTableUpdateCompanionBuilder,
+      (
+        SaraswatiMessageRow,
+        BaseReferences<
+          _$SpendlerDatabase,
+          $SaraswatiMessagesTable,
+          SaraswatiMessageRow
+        >,
+      ),
+      SaraswatiMessageRow,
+      PrefetchHooks Function()
+    >;
 
 class $SpendlerDatabaseManager {
   final _$SpendlerDatabase _db;
@@ -14480,4 +14971,6 @@ class $SpendlerDatabaseManager {
       $$GroupMembersTableTableManager(_db, _db.groupMembers);
   $$TransactionSplitsTableTableManager get transactionSplits =>
       $$TransactionSplitsTableTableManager(_db, _db.transactionSplits);
+  $$SaraswatiMessagesTableTableManager get saraswatiMessages =>
+      $$SaraswatiMessagesTableTableManager(_db, _db.saraswatiMessages);
 }

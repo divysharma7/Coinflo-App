@@ -151,6 +151,25 @@ class LocalTransactionRepository implements TransactionRepository {
   }
 
   @override
+  Stream<Map<String, double>> watchCategoryTotalsForMonth(DateTime month) {
+    final monthStart = DateTime(month.year, month.month);
+    final monthEnd = DateTime(month.year, month.month + 1);
+    return (db.select(db.spendlerTransactions)
+          ..where((t) =>
+              t.happenedAt.isBiggerOrEqualValue(monthStart) &
+              t.happenedAt.isSmallerThanValue(monthEnd) &
+              t.amount.isSmallerThanValue(0)))
+        .watch()
+        .map((txns) {
+      final totals = <String, double>{};
+      for (final t in txns) {
+        totals[t.category] = (totals[t.category] ?? 0) + t.amount.abs();
+      }
+      return totals;
+    });
+  }
+
+  @override
   Future<List<double>> getWeeklySpendingTrend(int weekCount) async {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);

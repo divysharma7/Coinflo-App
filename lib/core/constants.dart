@@ -18,4 +18,10 @@ class AppConstants {
   static const int eveningCheckinMinute = 0;
   static const int sundayDigestHour = 19;
   static const int sundayDigestMinute = 0;
+
+  // Subscription renewal reminders
+  /// How many days before a subscription's billing date to remind (default).
+  static const int subscriptionWarningDaysDefault = 3;
+  /// Hour of day (local) at which subscription reminders fire.
+  static const int subscriptionReminderHour = 9;
 }

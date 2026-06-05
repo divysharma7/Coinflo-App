@@ -94,12 +94,20 @@ class NotificationScheduler {
     ));
   }
 
-  /// Check active subscriptions and fire a notification for any whose
-  /// [nextBillingDate] is tomorrow.
-  Future<void> checkUpcomingSubscriptions() async {
+  /// Schedule a renewal reminder for every active subscription, [warningDays]
+  /// before its [nextBillingDate].
+  ///
+  /// Uses [NotificationService.scheduleOneTime] (zonedSchedule) so the reminder
+  /// fires on the right day even if the app isn't open \u2014 replacing the old
+  /// behaviour that only fired when the app happened to be running the day
+  /// before. The matching in-app bell row is inserted once we're inside the
+  /// reminder window, de-duplicated so repeated app opens don't spam the bell.
+  Future<void> checkUpcomingSubscriptions({
+    int warningDays = AppConstants.subscriptionWarningDaysDefault,
+  }) async {
     final subs = await _repository.watchActiveSubscriptions().first;
     final now = DateTime.now();
-    final tomorrow = DateTime(now.year, now.month, now.day + 1);
+    final today = DateTime(now.year, now.month, now.day);
 
     final currencyFmt = NumberFormat.currency(
       locale: 'en_IN',
@@ -107,27 +115,64 @@ class NotificationScheduler {
       decimalDigits: 0,
     );
 
-    for (var i = 0; i < subs.length; i++) {
-      final sub = subs[i];
+    for (final sub in subs) {
+      final notifId = _notifSubscriptionBase + sub.id;
+      // Always clear any stale schedule first so date/amount edits re-register.
+      await _notifService.cancel(notifId);
+
       final billingDay = DateTime(
         sub.nextBillingDate.year,
         sub.nextBillingDate.month,
         sub.nextBillingDate.day,
       );
+      if (billingDay.isBefore(today)) continue; // already past
 
-      if (billingDay == tomorrow) {
-        final title = 'Upcoming Bill';
-        final body =
-            '${sub.name} bill of ${currencyFmt.format(sub.amount)} is due tomorrow';
-        final notifId = _notifSubscriptionBase + sub.id;
+      final reminderDay = billingDay.subtract(Duration(days: warningDays));
+      // If the reminder window has already opened, fire today; otherwise on the
+      // reminder day. Either way the OS owns the schedule.
+      final fireDay = reminderDay.isBefore(today) ? today : reminderDay;
+      final fireAt = DateTime(
+        fireDay.year,
+        fireDay.month,
+        fireDay.day,
+        AppConstants.subscriptionReminderHour,
+      );
 
-        await _notifService.show(notifId, title, body);
-        await _repository.insertNotification(AppNotificationsCompanion.insert(
-          type: 'subscription',
-          title: title,
-          body: body,
-        ));
+      final daysAway = billingDay.difference(today).inDays;
+      final whenPhrase = daysAway <= 0
+          ? 'today'
+          : daysAway == 1
+              ? 'tomorrow'
+              : 'in $daysAway days';
+      const title = 'Upcoming Bill';
+      final body =
+          '${sub.name} bill of ${currencyFmt.format(sub.amount)} is due $whenPhrase';
+
+      await _notifService.scheduleOneTime(notifId, title, body, fireAt);
+
+      // Reflect in the in-app bell once inside the reminder window, but skip if
+      // an identical subscription notification already exists recently.
+      if (!today.isBefore(reminderDay)) {
+        final recent = await _repository.watchRecent(warningDays + 1).first;
+        final alreadyLogged = recent
+            .any((n) => n.type == 'subscription' && n.body == body);
+        if (!alreadyLogged) {
+          await _repository.insertNotification(AppNotificationsCompanion.insert(
+            type: 'subscription',
+            title: title,
+            body: body,
+          ));
+        }
       }
+    }
+  }
+
+  /// Cancel every scheduled subscription reminder. Called when the user turns
+  /// subscription alerts off so already-registered OS notifications stop firing.
+  Future<void> cancelSubscriptionReminders() async {
+    final subs = await _repository.watchActiveSubscriptions().first;
+    for (final sub in subs) {
+      await _notifService.cancel(_notifSubscriptionBase + sub.id);
     }
   }
 
@@ -138,9 +183,10 @@ class NotificationScheduler {
   Future<void> setupAll({
     int checkinHour = AppConstants.eveningCheckinHour,
     int checkinMinute = AppConstants.eveningCheckinMinute,
+    int subscriptionWarningDays = AppConstants.subscriptionWarningDaysDefault,
   }) async {
     await scheduleEveningCheckin(hour: checkinHour, minute: checkinMinute);
     await scheduleSundayDigest();
-    await checkUpcomingSubscriptions();
+    await checkUpcomingSubscriptions(warningDays: subscriptionWarningDays);
   }
 }

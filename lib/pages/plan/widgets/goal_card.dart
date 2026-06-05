@@ -233,6 +233,30 @@ class _GoalCardState extends State<GoalCard>
     return card;
   }
 
+  void _confirmDelete(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Goal'),
+        content: Text('Delete "${widget.goal.name}"? This cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              widget.onDelete();
+            },
+            child: const Text('Delete',
+                style: TextStyle(color: AppColors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showOptionsSheet(BuildContext context) {
     showSpendlerSheet<void>(
       context: context,
@@ -263,7 +287,7 @@ class _GoalCardState extends State<GoalCard>
               title: const Text('Delete Goal', style: TextStyle(color: AppColors.red)),
               onTap: () {
                 Navigator.pop(ctx);
-                widget.onDelete();
+                _confirmDelete(context);
               },
             ),
             const SizedBox(height: AppSpacing.md),

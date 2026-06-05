@@ -280,48 +280,50 @@ class _ExpenseSheetState extends ConsumerState<ExpenseSheet> {
         //     txn: payerPersonId = null
         //     split: personId = person.id (person's share) → term 1 fires: +amount
         final theyOweUser = widget.balance > 0;
-        final txnId = await repo.insertTransaction(SpendlerTransactionsCompanion(
-          amount: drift.Value(theyOweUser ? amount : -amount),
-          category: const drift.Value('settlement'),
-          txnType: drift.Value(theyOweUser ? 'income' : 'expense'),
-          payerPersonId: theyOweUser
-              ? drift.Value(widget.person.id)
-              : const drift.Value.absent(),
-          source: const drift.Value('manual'),
-          status: const drift.Value('confirmed'),
-          note: note.isNotEmpty
-              ? drift.Value(note)
-              : drift.Value('Settlement with ${widget.person.name}'),
-        ));
-
-        await repo.createSplits(txnId, [
-          SplitEntry(
-            personId: theyOweUser ? null : widget.person.id,
-            shareAmount: amount,
+        await repo.insertTransactionAndSplits(
+          SpendlerTransactionsCompanion(
+            amount: drift.Value(theyOweUser ? amount : -amount),
+            category: const drift.Value('settlement'),
+            txnType: drift.Value(theyOweUser ? 'income' : 'expense'),
+            payerPersonId: theyOweUser
+                ? drift.Value(widget.person.id)
+                : const drift.Value.absent(),
+            source: const drift.Value('manual'),
+            status: const drift.Value('confirmed'),
+            note: note.isNotEmpty
+                ? drift.Value(note)
+                : drift.Value('Settlement with ${widget.person.name}'),
           ),
-        ]);
+          [
+            SplitEntry(
+              personId: theyOweUser ? null : widget.person.id,
+              shareAmount: amount,
+            ),
+          ],
+        );
       } else {
         // Regular expense path.
-        final txnId = await repo.insertTransaction(SpendlerTransactionsCompanion(
-          amount: drift.Value(amount),
-          category: const drift.Value('debt'),
-          txnType: const drift.Value('expense'),
-          payerPersonId: _userPaid
-              ? const drift.Value.absent()
-              : drift.Value(widget.person.id),
-          source: const drift.Value('manual'),
-          status: const drift.Value('confirmed'),
-          note: note.isNotEmpty
-              ? drift.Value('$note — with ${widget.person.name}')
-              : drift.Value('Expense with ${widget.person.name}'),
-        ));
-
-        await repo.createSplits(txnId, [
-          SplitEntry(
-            personId: _userPaid ? widget.person.id : null,
-            shareAmount: amount,
+        await repo.insertTransactionAndSplits(
+          SpendlerTransactionsCompanion(
+            amount: drift.Value(amount),
+            category: const drift.Value('debt'),
+            txnType: const drift.Value('expense'),
+            payerPersonId: _userPaid
+                ? const drift.Value.absent()
+                : drift.Value(widget.person.id),
+            source: const drift.Value('manual'),
+            status: const drift.Value('confirmed'),
+            note: note.isNotEmpty
+                ? drift.Value('$note — with ${widget.person.name}')
+                : drift.Value('Expense with ${widget.person.name}'),
           ),
-        ]);
+          [
+            SplitEntry(
+              personId: _userPaid ? widget.person.id : null,
+              shareAmount: amount,
+            ),
+          ],
+        );
       }
     } finally {
       if (mounted) setState(() => _saving = false);

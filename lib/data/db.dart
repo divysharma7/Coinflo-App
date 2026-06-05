@@ -250,6 +250,21 @@ class TransactionSplits extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
+// ============================================================
+// SARASWATI CHAT HISTORY (added in v14)
+// ============================================================
+// Persists the in-app assistant conversation so it survives app restarts.
+// Rows older than 7 days are purged on load (see SaraswatiHistoryRepository).
+// DataClassName avoids colliding with the in-memory `SaraswatiMessage` model.
+
+@DataClassName('SaraswatiMessageRow')
+class SaraswatiMessages extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get content => text()();
+  BoolColumn get isUser => boolean()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
 // ─── Database ─────────────────────────────────────────
 
 @DriftDatabase(tables: [
@@ -272,6 +287,7 @@ class TransactionSplits extends Table {
   Groups,
   GroupMembers,
   TransactionSplits,
+  SaraswatiMessages,
 ])
 class SpendlerDatabase extends _$SpendlerDatabase {
   SpendlerDatabase() : super(_openConnection());
@@ -281,7 +297,7 @@ class SpendlerDatabase extends _$SpendlerDatabase {
 
   // TODO: Rename DB file from spendler.sqlite → coinflo.sqlite in a separate migration PR.
   @override
-  int get schemaVersion => 13;
+  int get schemaVersion => 14;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -322,31 +338,38 @@ class SpendlerDatabase extends _$SpendlerDatabase {
             await m.createTable(importBatches);
 
             // New columns on SpendlerTransactions
-            await m.addColumn(
+            await _addColumnIfAbsent(
+              m,
               spendlerTransactions,
               spendlerTransactions.rawHash,
             );
-            await m.addColumn(
+            await _addColumnIfAbsent(
+              m,
               spendlerTransactions,
               spendlerTransactions.merchantToken,
             );
-            await m.addColumn(
+            await _addColumnIfAbsent(
+              m,
               spendlerTransactions,
               spendlerTransactions.categorizationSource,
             );
-            await m.addColumn(
+            await _addColumnIfAbsent(
+              m,
               spendlerTransactions,
               spendlerTransactions.categorizationConfidence,
             );
-            await m.addColumn(
+            await _addColumnIfAbsent(
+              m,
               spendlerTransactions,
               spendlerTransactions.importBatchId,
             );
-            await m.addColumn(
+            await _addColumnIfAbsent(
+              m,
               spendlerTransactions,
               spendlerTransactions.isAnomaly,
             );
-            await m.addColumn(
+            await _addColumnIfAbsent(
+              m,
               spendlerTransactions,
               spendlerTransactions.isRecurring,
             );
@@ -356,21 +379,25 @@ class SpendlerDatabase extends _$SpendlerDatabase {
           }
           if (from < 8) {
             // P3.2: Income source field
-            await m.addColumn(
+            await _addColumnIfAbsent(
+              m,
               spendlerTransactions,
               spendlerTransactions.incomeSource,
             );
             // P3.4: Attachment path field
-            await m.addColumn(
+            await _addColumnIfAbsent(
+              m,
               spendlerTransactions,
               spendlerTransactions.attachmentPath,
             );
             // P3.3: Split status + amountCleared
-            await m.addColumn(
+            await _addColumnIfAbsent(
+              m,
               friendSplits,
               friendSplits.status,
             );
-            await m.addColumn(
+            await _addColumnIfAbsent(
+              m,
               friendSplits,
               friendSplits.amountCleared,
             );
@@ -403,23 +430,28 @@ class SpendlerDatabase extends _$SpendlerDatabase {
             await m.createTable(transactionSplits);
 
             // People & Debts: new columns on SpendlerTransactions
-            await m.addColumn(
+            await _addColumnIfAbsent(
+              m,
               spendlerTransactions,
               spendlerTransactions.txnType,
             );
-            await m.addColumn(
+            await _addColumnIfAbsent(
+              m,
               spendlerTransactions,
               spendlerTransactions.payerPersonId,
             );
-            await m.addColumn(
+            await _addColumnIfAbsent(
+              m,
               spendlerTransactions,
               spendlerTransactions.counterpartyPersonId,
             );
-            await m.addColumn(
+            await _addColumnIfAbsent(
+              m,
               spendlerTransactions,
               spendlerTransactions.settlementDirection,
             );
-            await m.addColumn(
+            await _addColumnIfAbsent(
+              m,
               spendlerTransactions,
               spendlerTransactions.groupId,
             );
@@ -440,11 +472,13 @@ class SpendlerDatabase extends _$SpendlerDatabase {
           }
           if (from < 13) {
             // Saraswati entry pipeline: audit columns on transactions
-            await m.addColumn(
+            await _addColumnIfAbsent(
+              m,
               spendlerTransactions,
               spendlerTransactions.rawInput,
             );
-            await m.addColumn(
+            await _addColumnIfAbsent(
+              m,
               spendlerTransactions,
               spendlerTransactions.extractionMeta,
             );
@@ -453,8 +487,46 @@ class SpendlerDatabase extends _$SpendlerDatabase {
             await customStatement(kCreateEntryCacheIndex);
             await customStatement(kCreateUserDefaultsTable);
           }
+          if (from < 14) {
+            // Saraswati persistent chat history
+            await m.createTable(saraswatiMessages);
+          }
         },
       );
+
+  /// Deletes every row from every table atomically.
+  Future<void> wipeAllData() async {
+    await transaction(() async {
+      for (final table in allTables) {
+        await delete(table).go();
+      }
+    });
+  }
+
+  /// Returns the set of column names currently present in [tableName].
+  Future<Set<String>> _existingColumns(String tableName) async {
+    final rows = await customSelect('PRAGMA table_info("$tableName")').get();
+    return rows.map((r) => r.read<String>('name')).toSet();
+  }
+
+  /// Adds [column] to [table] only when it is not already present.
+  ///
+  /// Keeps `onUpgrade` idempotent for databases whose persisted
+  /// `schemaVersion` drifted behind their actual column set (a common dev
+  /// state, since the table classes always define every column, so an earlier
+  /// `onCreate` can create a column while stamping an older version). Without
+  /// this guard the re-run `ALTER TABLE ... ADD COLUMN` throws
+  /// `duplicate column name` and the database never opens.
+  Future<void> _addColumnIfAbsent(
+    Migrator m,
+    TableInfo<Table, dynamic> table,
+    GeneratedColumn column,
+  ) async {
+    final existing = await _existingColumns(table.actualTableName);
+    if (!existing.contains(column.$name)) {
+      await m.addColumn(table, column);
+    }
+  }
 
   Future<void> _createV7Indexes(Migrator m) async {
     await m.createIndex(Index('spendler_transactions',

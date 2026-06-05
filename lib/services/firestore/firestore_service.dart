@@ -184,4 +184,27 @@ class FirestoreService {
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }
+
+  /// Permanently delete the user's entire Firestore tree — profile document
+  /// plus every onboarding subcollection. MUST be called while the user is
+  /// still authenticated (security rules gate on request.auth.uid == uid),
+  /// i.e. BEFORE FirebaseAuth user.delete().
+  Future<void> deleteUserData(String uid) async {
+    const subcollections = [
+      'accounts',
+      'categoryBudgets',
+      'savingsGoals',
+      'recurringPayments',
+    ];
+    final batch = _db.batch();
+    for (final sub in subcollections) {
+      final snap = await _userDoc(uid).collection(sub).get();
+      for (final doc in snap.docs) {
+        batch.delete(doc.reference);
+      }
+    }
+    batch.delete(_userDoc(uid));
+    await batch.commit();
+    if (kDebugMode) debugPrint('Firestore: deleted all data for $uid');
+  }
 }

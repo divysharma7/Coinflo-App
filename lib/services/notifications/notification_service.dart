@@ -76,6 +76,31 @@ class NotificationService {
     );
   }
 
+  /// Schedule a one-time notification at an absolute local date/time.
+  ///
+  /// Used for subscription renewal reminders so they fire on the right day even
+  /// if the app isn't open. No-op when [when] is already in the past.
+  Future<void> scheduleOneTime(
+    int id,
+    String title,
+    String body,
+    DateTime when,
+  ) async {
+    final scheduledDate = tz.TZDateTime.from(when, tz.local);
+    if (!scheduledDate.isAfter(tz.TZDateTime.now(tz.local))) return;
+
+    await _plugin.zonedSchedule(
+      id,
+      title,
+      body,
+      scheduledDate,
+      _notificationDetails,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+    );
+  }
+
   /// Schedule a weekly notification (e.g., every Sunday).
   Future<void> scheduleWeeklyReminder(
     int id,

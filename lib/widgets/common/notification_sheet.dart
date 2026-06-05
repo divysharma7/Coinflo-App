@@ -212,12 +212,65 @@ class NotificationSheet extends ConsumerWidget {
                       iconBg: AppColors.catGreenBg,
                       iconColor: AppColors.catGreenText,
                       title: 'Subscription reminders',
-                      subtitle: 'Day before a bill is due',
+                      subtitle:
+                          '${prefs.subscriptionWarningDays} day${prefs.subscriptionWarningDays == 1 ? '' : 's'} before a bill is due',
                       value: prefs.subscriptionAlerts,
                       onChanged: (v) => ref
                           .read(notifPrefsProvider.notifier)
                           .setSubscriptionAlerts(v),
                     ),
+                    // Inline warning-days stepper — only when toggle is ON
+                    if (prefs.subscriptionAlerts)
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          left: 56,
+                          right: AppSpacing.md,
+                          bottom: AppSpacing.sm,
+                        ),
+                        child: Row(
+                          children: [
+                            PhosphorIcon(
+                              PhosphorIcons.bellRinging(),
+                              color: AppColors.gray400,
+                              size: 16,
+                            ),
+                            const SizedBox(width: AppSpacing.xs),
+                            Text(
+                              'Remind me',
+                              style: AppTextStyles.bodyS.copyWith(
+                                color: AppColors.gray500,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const Spacer(),
+                            _StepperButton(
+                              icon: PhosphorIcons.minus(),
+                              onTap: () => ref
+                                  .read(notifPrefsProvider.notifier)
+                                  .setSubscriptionWarningDays(
+                                      prefs.subscriptionWarningDays - 1),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.sm),
+                              child: Text(
+                                '${prefs.subscriptionWarningDays}d',
+                                style: AppTextStyles.bodyS.copyWith(
+                                  color: AppColors.black,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            _StepperButton(
+                              icon: PhosphorIcons.plus(),
+                              onTap: () => ref
+                                  .read(notifPrefsProvider.notifier)
+                                  .setSubscriptionWarningDays(
+                                      prefs.subscriptionWarningDays + 1),
+                            ),
+                          ],
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -347,6 +400,10 @@ class _NotificationRow extends StatelessWidget {
         return PhosphorIcons.moon();
       case 'digest':
         return PhosphorIcons.calendarCheck();
+      case 'subscription':
+        return PhosphorIcons.creditCard();
+      case 'budget':
+        return PhosphorIcons.warning();
       default:
         return PhosphorIcons.bell();
     }
@@ -362,6 +419,8 @@ class _NotificationRow extends StatelessWidget {
         return AppColors.catBlueText;
       case 'subscription':
         return AppColors.orange;
+      case 'budget':
+        return AppColors.orange;
       default:
         return AppColors.gray500;
     }
@@ -376,6 +435,8 @@ class _NotificationRow extends StatelessWidget {
       case 'digest':
         return AppColors.catBlueBg;
       case 'subscription':
+        return AppColors.orangeLight;
+      case 'budget':
         return AppColors.orangeLight;
       default:
         return AppColors.gray100;
@@ -465,6 +526,32 @@ class _ToggleRow extends StatelessWidget {
             inactiveThumbColor: AppColors.gray500,
           ),
         ],
+      ),
+    );
+  }
+}
+
+// --- Small +/- stepper button (subscription warning days) ---
+
+class _StepperButton extends StatelessWidget {
+  const _StepperButton({required this.icon, required this.onTap});
+
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 28,
+        height: 28,
+        decoration: const BoxDecoration(
+          color: AppColors.offWhite,
+          shape: BoxShape.circle,
+        ),
+        alignment: Alignment.center,
+        child: PhosphorIcon(icon, color: AppColors.black, size: 14),
       ),
     );
   }

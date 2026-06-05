@@ -27,6 +27,11 @@ abstract class TransactionRepository {
   Future<void> settleSplit(int id);
   Future<List<SpendlerTransaction>> getUnsettledSplits();
   Future<Map<String, double>> getCategoryTotalsForMonth(DateTime month);
+
+  /// Reactive variant of [getCategoryTotalsForMonth] — emits fresh category
+  /// totals whenever the underlying table changes (add/edit/delete), so report
+  /// aggregates stay live regardless of which screen triggered the write.
+  Stream<Map<String, double>> watchCategoryTotalsForMonth(DateTime month);
   Future<List<double>> getWeeklySpendingTrend(int weekCount);
   Future<double> getTotalSpentForWeek(DateTime weekStart);
   Future<void> confirmAllUnconfirmed();

@@ -40,6 +40,7 @@ class NotifPrefs {
   final bool subscriptionAlerts;
   final int checkinHour;
   final int checkinMinute;
+  final int subscriptionWarningDays;
 
   const NotifPrefs({
     this.txnAlerts = true,
@@ -48,6 +49,7 @@ class NotifPrefs {
     this.subscriptionAlerts = true,
     this.checkinHour = 21,
     this.checkinMinute = 0,
+    this.subscriptionWarningDays = AppConstants.subscriptionWarningDaysDefault,
   });
 
   NotifPrefs copyWith({
@@ -57,6 +59,7 @@ class NotifPrefs {
     bool? subscriptionAlerts,
     int? checkinHour,
     int? checkinMinute,
+    int? subscriptionWarningDays,
   }) {
     return NotifPrefs(
       txnAlerts: txnAlerts ?? this.txnAlerts,
@@ -65,6 +68,8 @@ class NotifPrefs {
       subscriptionAlerts: subscriptionAlerts ?? this.subscriptionAlerts,
       checkinHour: checkinHour ?? this.checkinHour,
       checkinMinute: checkinMinute ?? this.checkinMinute,
+      subscriptionWarningDays:
+          subscriptionWarningDays ?? this.subscriptionWarningDays,
     );
   }
 }
@@ -85,6 +90,8 @@ class NotifPrefsNotifier extends StateNotifier<NotifPrefs> {
       subscriptionAlerts: prefs.getBool('notif_subscription') ?? true,
       checkinHour: prefs.getInt('notif_hour') ?? 21,
       checkinMinute: prefs.getInt('notif_minute') ?? 0,
+      subscriptionWarningDays: prefs.getInt('notif_sub_days') ??
+          AppConstants.subscriptionWarningDaysDefault,
     );
   }
 
@@ -121,6 +128,13 @@ class NotifPrefsNotifier extends StateNotifier<NotifPrefs> {
     await prefs.setInt('notif_hour', hour);
     await prefs.setInt('notif_minute', minute);
   }
+
+  Future<void> setSubscriptionWarningDays(int days) async {
+    final clamped = days.clamp(1, 14);
+    state = state.copyWith(subscriptionWarningDays: clamped);
+    await (await SharedPreferences.getInstance())
+        .setInt('notif_sub_days', clamped);
+  }
 }
 
 final notifPrefsProvider =
@@ -147,6 +161,11 @@ final notifSchedulerProvider = FutureProvider<void>((ref) async {
     await scheduler.scheduleSundayDigest();
   }
   if (prefs.subscriptionAlerts) {
-    await scheduler.checkUpcomingSubscriptions();
+    await scheduler.checkUpcomingSubscriptions(
+      warningDays: prefs.subscriptionWarningDays,
+    );
+  } else {
+    // Toggle is off → tear down any reminders that were already registered.
+    await scheduler.cancelSubscriptionReminders();
   }
 });

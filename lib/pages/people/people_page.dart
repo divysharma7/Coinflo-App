@@ -26,6 +26,7 @@ class PeoplePage extends ConsumerStatefulWidget {
 class _PeoplePageState extends ConsumerState<PeoplePage> {
   String _activeTag = 'All';
   String _searchQuery = '';
+  bool _hasAnimated = false;
 
   @override
   Widget build(BuildContext context) {
@@ -180,6 +181,14 @@ class _PeoplePageState extends ConsumerState<PeoplePage> {
                   );
                 }
 
+                // H8: Only animate on first data load — same gate as TransactionsPage.
+                final shouldAnimate = !_hasAnimated;
+                if (shouldAnimate) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) setState(() => _hasAnimated = true);
+                  });
+                }
+
                 return ListView.builder(
                   padding: const EdgeInsets.fromLTRB(
                       AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.xxxl),
@@ -192,11 +201,15 @@ class _PeoplePageState extends ConsumerState<PeoplePage> {
                         child: _GroupsRow(),
                       );
                     }
+                    final delay = shouldAnimate
+                        ? AppDurations.stagger * i
+                        : Duration.zero;
                     return Padding(
+                      key: ValueKey(filtered[i].id),
                       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                       child: _PersonCard(person: filtered[i], symbol: sym),
                     ).animate().fadeIn(
-                        delay: AppDurations.stagger * i,
+                        delay: delay,
                         duration: AppDurations.medium);
                   },
                 );

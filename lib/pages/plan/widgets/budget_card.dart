@@ -156,12 +156,40 @@ class BudgetCard extends StatelessWidget {
               title: const Text('Delete Budget', style: TextStyle(color: AppColors.red)),
               onTap: () {
                 Navigator.pop(ctx);
-                onDelete();
+                _confirmDelete(context);
               },
             ),
             const SizedBox(height: AppSpacing.md),
           ],
         ),
+      ),
+    );
+  }
+
+  void _confirmDelete(BuildContext context) {
+    final category = TransactionCategory.values.firstWhere(
+      (c) => c.name == budget.category,
+      orElse: () => TransactionCategory.other,
+    );
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Budget'),
+        content: Text('${category.label}? This cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              onDelete();
+            },
+            child: Text('Delete',
+                style: TextStyle(color: AppColors.red)),
+          ),
+        ],
       ),
     );
   }

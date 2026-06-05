@@ -3,15 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'dart:convert';
-
-import 'package:drift/drift.dart' as drift;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/design_system/design_system.dart';
-import 'package:finance_buddy_app/main.dart' show firebaseInitialized;
 import 'package:finance_buddy_app/providers/auth_provider.dart';
-import 'package:finance_buddy_app/providers/providers.dart';
 
 class SignInScreen extends ConsumerStatefulWidget {
   const SignInScreen({super.key});
@@ -68,20 +62,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
         return;
       }
 
-      // Hydrate local data from Firestore
-      if (firebaseInitialized) {
-        final firestoreService = ref.read(firestoreServiceProvider);
-        await firestoreService.hydrateLocalFromFirestore(user.uid);
-      }
-
-      // Returning user has already onboarded — set the flag so router allows /home
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('onboarding_completed', true);
-
-      // Sync hydrated budgets & goals from SharedPreferences into Drift
-      await _syncOnboardingDataToDrift();
-
-      if (mounted) context.go('/home');
+      // Hand off to the branded hydration screen, which downloads Firestore
+      // data, dedupes it into Drift, and shows a proper loading/error state.
+      if (mounted) context.go('/hydration', extra: user.uid);
     } on FirebaseAuthException catch (e) {
       if (mounted) {
         setState(() {
@@ -95,51 +78,6 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
           _errorMessage = 'Something went wrong. Please try again.';
           _isLoading = false;
         });
-      }
-    }
-  }
-
-  Future<void> _syncOnboardingDataToDrift() async {
-    final prefs = await SharedPreferences.getInstance();
-    final repo = ref.read(repositoryProvider);
-
-    // Sync category budgets
-    final budgetsJson = prefs.getString('category_budgets');
-    if (budgetsJson != null) {
-      try {
-        final list = (jsonDecode(budgetsJson) as List).cast<Map<String, dynamic>>();
-        for (final b in list) {
-          final category = b['group'] as String? ?? '';
-          final limit = (b['monthlyLimit'] as num?)?.toDouble() ?? 0;
-          if (category.isEmpty || limit <= 0) continue;
-          await repo.insertBudget(CategoryBudgetsCompanion(
-            category: drift.Value(category),
-            monthlyLimit: drift.Value(limit),
-          ));
-        }
-      } on Exception catch (e) {
-        debugPrint('Budget sync to Drift failed: $e');
-      }
-    }
-
-    // Sync savings goals
-    final goalsJson = prefs.getString('savings_goals');
-    if (goalsJson != null) {
-      try {
-        final list = (jsonDecode(goalsJson) as List).cast<Map<String, dynamic>>();
-        for (final g in list) {
-          final name = g['name'] as String? ?? '';
-          final target = (g['targetAmount'] as num?)?.toDouble() ?? 0;
-          final icon = g['iconAsset'] as String? ?? 'star';
-          if (name.isEmpty || target <= 0) continue;
-          await repo.insertGoal(SavingsGoalsCompanion(
-            name: drift.Value(name),
-            targetAmount: drift.Value(target),
-            iconName: drift.Value(icon),
-          ));
-        }
-      } on Exception catch (e) {
-        debugPrint('Goals sync to Drift failed: $e');
       }
     }
   }
@@ -265,16 +203,19 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       hint: 'Password',
                       icon: Icons.lock_outline,
                       obscure: _obscurePassword,
-                      suffixIcon: GestureDetector(
-                        onTap: () =>
+                      suffixIcon: IconButton(
+                        onPressed: () =>
                             setState(() => _obscurePassword = !_obscurePassword),
-                        child: Icon(
+                        icon: Icon(
                           _obscurePassword
                               ? Icons.visibility_off_outlined
                               : Icons.visibility_outlined,
                           color: AppColors.gray500,
                           size: 20,
                         ),
+                        tooltip: _obscurePassword
+                            ? 'Show password'
+                            : 'Hide password',
                       ),
                     ),
 
@@ -387,25 +328,29 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     bool obscure = false,
     Widget? suffixIcon,
   }) {
-    return Container(
-      height: 52,
-      decoration: const BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppRadius.md,
-        boxShadow: AppShadows.sm,
-      ),
-      child: TextField(
-        controller: controller,
-        obscureText: obscure,
-        keyboardType: keyboardType,
-        style: AppTextStyles.bodyM.copyWith(color: AppColors.black),
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
-          prefixIcon: Icon(icon, color: AppColors.gray500, size: 20),
-          suffixIcon: suffixIcon,
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 16),
+    return Semantics(
+      textField: true,
+      label: hint,
+      child: Container(
+        height: 52,
+        decoration: const BoxDecoration(
+          color: AppColors.white,
+          borderRadius: AppRadius.md,
+          boxShadow: AppShadows.sm,
+        ),
+        child: TextField(
+          controller: controller,
+          obscureText: obscure,
+          keyboardType: keyboardType,
+          style: AppTextStyles.bodyM.copyWith(color: AppColors.black),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: AppTextStyles.bodyM.copyWith(color: AppColors.gray500),
+            prefixIcon: Icon(icon, color: AppColors.gray500, size: 20),
+            suffixIcon: suffixIcon,
+            border: InputBorder.none,
+            contentPadding: const EdgeInsets.symmetric(vertical: 16),
+          ),
         ),
       ),
     );

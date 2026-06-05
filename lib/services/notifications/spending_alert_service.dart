@@ -1,3 +1,4 @@
+import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/data/repositories/base_repository.dart';
 import 'package:finance_buddy_app/services/notifications/notification_service.dart';
 
@@ -28,13 +29,26 @@ class SpendingAlertService {
         final pct = spent / budget.monthlyLimit;
         if (pct >= 0.80) {
           final displayPct = (pct * 100).round();
-          // Use a stable id per category so we don't spam repeated alerts.
+          final catLabel = _prettyCategoryName(budget.category);
+          const title = 'Budget alert';
+          final body = '$catLabel spending is at $displayPct% of your budget';
+          // Use a stable id per category so we don't spam repeated OS alerts.
           final notifId = 'budget_${budget.category}'.hashCode;
-          await notifService.show(
-            notifId,
-            'Budget alert',
-            '${_prettyCategoryName(budget.category)} spending is at $displayPct% of your budget',
+          await notifService.show(notifId, title, body);
+
+          // Mirror into the in-app bell so budget alerts appear in history like
+          // every other alert type — de-duplicated per category per day.
+          final recent = await repo.watchRecent(1).first;
+          final alreadyLogged = recent.any(
+            (n) => n.type == 'budget' && n.body.startsWith(catLabel),
           );
+          if (!alreadyLogged) {
+            await repo.insertNotification(AppNotificationsCompanion.insert(
+              type: 'budget',
+              title: title,
+              body: body,
+            ));
+          }
         }
       }
     } on Exception catch (_) {

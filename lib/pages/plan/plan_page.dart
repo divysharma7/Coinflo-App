@@ -7,7 +7,6 @@ import 'package:finance_buddy_app/design_system/design_system.dart';
 import 'package:finance_buddy_app/data/db.dart';
 import 'package:finance_buddy_app/providers/providers.dart';
 import 'package:finance_buddy_app/widgets/common/animations.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:finance_buddy_app/utils/currency_utils.dart';
 import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 import 'package:finance_buddy_app/pages/plan/widgets/budget_card.dart';
@@ -52,14 +51,21 @@ class PlanPage extends ConsumerWidget {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const SizedBox(height: AppSpacing.lg),
-                const _MonthlyBudgetCard()
-                    .animate().fadeIn(duration: AppDurations.slow).slideY(begin: 0.05, duration: AppDurations.slow),
+                // NOTE: these sections are intentionally NOT wrapped in
+                // `flutter_animate` (`.animate().fadeIn().slideY()`). A slide
+                // transform at a sliver-child boundary desyncs the sliver's
+                // paint offset from its layout offset. Because the Plan tab is
+                // laid out offstage inside the shell `IndexedStack` at startup,
+                // that desync makes the viewport read a null sliver geometry
+                // (`RenderViewportBase._paintContents` / `layoutChildSequence`)
+                // and crashes the frame. Entrance motion lives *inside* the
+                // sections via `StaggeredItem`, which animates already-laid-out
+                // box content and is sliver-safe.
+                const _MonthlyBudgetCard(),
                 const SizedBox(height: AppSpacing.xxl),
-                const _BudgetsSection()
-                    .animate().fadeIn(delay: 80.ms, duration: AppDurations.slow).slideY(begin: 0.05, delay: 80.ms, duration: AppDurations.slow),
+                const _BudgetsSection(),
                 const SizedBox(height: AppSpacing.xxl),
-                const _GoalsSection()
-                    .animate().fadeIn(delay: 160.ms, duration: AppDurations.slow).slideY(begin: 0.05, delay: 160.ms, duration: AppDurations.slow),
+                const _GoalsSection(),
                 const SizedBox(height: AppSpacing.xxxl),
               ]),
             ),

@@ -19,12 +19,15 @@ import 'package:finance_buddy_app/utils/currency_utils.dart';
 // Provider: transactions for a specific category within a month
 // ---------------------------------------------------------------------------
 
-final _categoryMonthTransactionsProvider = FutureProvider.autoDispose
+// StreamProvider backed by Drift `watch()` so this drill-down list refreshes
+// live after an edit/delete made from the TxnDetail push route. (ISSUE 11)
+final _categoryMonthTransactionsProvider = StreamProvider.autoDispose
     .family<List<SpendlerTransaction>, ({String category, DateTime month})>(
-  (ref, params) async {
+  (ref, params) {
     final repo = ref.watch(repositoryProvider);
-    final all = await repo.getTransactionsForMonth(params.month);
-    return all.where((t) => t.category == params.category).toList();
+    return repo.watchTransactionsForMonth(params.month).map(
+          (all) => all.where((t) => t.category == params.category).toList(),
+        );
   },
 );
 

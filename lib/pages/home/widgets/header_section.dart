@@ -61,6 +61,10 @@ class HeaderSection extends ConsumerWidget {
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
+          // Ask Saraswati — AI assistant entry point (reachable from any tab's
+          // Home, not just Settings).
+          const _SaraswatiButton(),
+          const SizedBox(width: AppSpacing.sm),
           // Notifications bell with an unread dot.
           _NotificationBell(hasUnread: ref.watch(hasUnreadNotifProvider)),
           const SizedBox(width: AppSpacing.sm),
@@ -133,6 +137,34 @@ class HeaderSection extends ConsumerWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _SaraswatiButton extends StatelessWidget {
+  const _SaraswatiButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.push('/settings/saraswati'),
+      behavior: HitTestBehavior.opaque,
+      child: Tooltip(
+        message: 'Ask Saraswati',
+        child: Container(
+          width: 46,
+          height: 46,
+          decoration: const BoxDecoration(
+            color: AppColors.white,
+            shape: BoxShape.circle,
+            boxShadow: AppShadows.sm,
+          ),
+          child: Center(
+            child: PhosphorIcon(PhosphorIcons.sparkle(),
+                color: AppColors.aiPurple, size: 20),
+          ),
+        ),
+      ),
     );
   }
 }

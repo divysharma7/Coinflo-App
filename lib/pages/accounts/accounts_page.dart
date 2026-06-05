@@ -71,9 +71,18 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
   }
 
   Future<void> _removeAccount(AccountModel account) async {
+    final previous = List<AccountModel>.of(_accounts);
     setState(() =>
         _accounts = _accounts.where((a) => a.id != account.id).toList());
-    await _persist();
+    try {
+      await _persist();
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _accounts = previous);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Couldn't remove account")),
+      );
+    }
   }
 
   double get _total =>

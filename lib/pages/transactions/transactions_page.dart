@@ -56,7 +56,7 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
     // M9: Hoist currency symbol — resolve once per build, not per tile
     final sym = currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
 
-    return Column(
+    return Scaffold(body: Column(
       children: [
         SizedBox(height: MediaQuery.paddingOf(context).top + AppSpacing.md),
 
@@ -283,102 +283,33 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                 });
               }
 
-              final items = <Widget>[];
+              // Build a lightweight list of data-descriptors (specs) so that
+              // ListView.builder stays truly virtual — widgets are only created
+              // for on-screen rows, not for the entire dataset up front.
+              final specs = <_RowSpec>[];
 
-              // "N transactions" count (grotesk w700)
-              items.add(Padding(
-                padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.xs, AppSpacing.lg, 0),
-                child: Text(
-                  '${filtered.length} transaction${filtered.length == 1 ? '' : 's'}',
-                  style: AppTextStyles.bodyM.copyWith(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.3,
-                  ),
-                ),
-              ));
+              // "N transactions" count header.
+              specs.add(_CountHeaderSpec(filtered.length));
 
-              // Confirm All
+              // "Confirm All" action row (only when ≥2 unconfirmed).
               if (unconfirmed.length >= 2) {
-                items.add(Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
-                  child: NeoPOPButton(
-                    label: 'Confirm All (${unconfirmed.length})',
-                    onTap: () async {
-                      final didConfirm = await showDialog<bool>(
-                        context: context,
-                        builder: (_) => AlertDialog(
-                          title: Text(
-                            'Confirm all ${unconfirmed.length} unconfirmed transactions?',
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, false),
-                              child: const Text('Cancel'),
-                            ),
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, true),
-                              child: const Text('Confirm'),
-                            ),
-                          ],
-                        ),
-                      );
-                      if (didConfirm == true) {
-                        await HapticFeedback.mediumImpact();
-                        final repo = ref.read(repositoryProvider);
-                        await repo.confirmAllUnconfirmed();
-                        await HapticFeedback.heavyImpact();
-                      }
-                    },
-                  ),
-                ));
+                specs.add(_ConfirmAllSpec(unconfirmed.length));
               }
 
-              var tileIndex = 0;
-
-              // Wraps a list of transaction rows in a white card, inserting
-              // hairline dividers between rows (matches the Hi-Fi `.card`).
-              Widget cardFor(List<SpendlerTransaction> group, {bool unconfirmed = false}) {
-                final rows = <Widget>[];
-                for (var i = 0; i < group.length; i++) {
-                  final tile = _buildTile(context, group[i], sym, isUnconfirmed: unconfirmed);
-                  rows.add(shouldAnimate
-                      ? StaggeredItem(index: tileIndex, child: tile)
-                      : tile);
-                  if (tileIndex < 20) tileIndex++;
-                  if (i < group.length - 1) {
-                    rows.add(const Divider(
-                      height: 1, thickness: 1, color: AppColors.gray100,
-                      indent: AppSpacing.sm, endIndent: AppSpacing.sm,
-                    ));
-                  }
-                }
-                return Padding(
-                  padding: const EdgeInsets.fromLTRB(AppSpacing.lg, 0, AppSpacing.lg, 0),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: AppRadius.xl,
-                      boxShadow: AppShadows.sm,
-                    ),
-                    child: Column(children: rows),
-                  ),
-                );
-              }
-
-              Widget sectionEyebrow(String label) => Padding(
-                    padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
-                    child: Semantics(
-                      header: true,
-                      child: Text(label, style: AppTextStyles.section),
-                    ),
-                  );
+              // Pre-compute the starting tileIndex for each card so that the
+              // animation-stagger counters remain identical to the old eager path.
+              var tileIndexCursor = 0;
 
               // Unconfirmed transactions — own section + white card.
               if (unconfirmed.isNotEmpty) {
-                items.add(sectionEyebrow('Unconfirmed'));
-                items.add(cardFor(unconfirmed, unconfirmed: true));
+                specs.add(const _EyebrowSpec('Unconfirmed'));
+                specs.add(_DayCardSpec(
+                  day: null,
+                  group: unconfirmed,
+                  isUnconfirmed: true,
+                  startTileIndex: tileIndexCursor,
+                ));
+                tileIndexCursor = (tileIndexCursor + unconfirmed.length).clamp(0, 20);
               }
 
               // Confirmed transactions — grouped by day, one white card per day.
@@ -390,11 +321,18 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                 }
                 final days = byDay.keys.toList()..sort((a, b) => b.compareTo(a));
                 for (final day in days) {
-                  items.add(sectionEyebrow(_dayLabel(day)));
-                  items.add(cardFor(byDay[day]!));
+                  specs.add(_EyebrowSpec(_dayLabel(day)));
+                  final group = byDay[day]!;
+                  specs.add(_DayCardSpec(
+                    day: day,
+                    group: group,
+                    isUnconfirmed: false,
+                    startTileIndex: tileIndexCursor,
+                  ));
+                  tileIndexCursor = (tileIndexCursor + group.length).clamp(0, 20);
                 }
               }
-              items.add(const SizedBox(height: 80));
+              specs.add(const _FooterSpec());
 
               return RefreshIndicator(
                 color: AppColors.black,
@@ -404,8 +342,13 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                   ref.invalidate(filteredTransactionsProvider);
                 },
                 child: ListView.builder(
-                  itemCount: items.length,
-                  itemBuilder: (context, index) => items[index],
+                  itemCount: specs.length,
+                  itemBuilder: (ctx, i) => _buildRow(
+                    ctx,
+                    specs[i],
+                    sym,
+                    shouldAnimate: shouldAnimate,
+                  ),
                 ),
               );
             },
@@ -436,7 +379,111 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
           ),
         ),
       ],
-    );
+    ),);
+  }
+
+  /// Renders one lazy [_RowSpec]. Only on-screen rows are built, so the
+  /// per-day white cards (and their tiles) are constructed on demand rather
+  /// than eagerly for the whole dataset.
+  Widget _buildRow(
+    BuildContext context,
+    _RowSpec spec,
+    String sym, {
+    required bool shouldAnimate,
+  }) {
+    switch (spec) {
+      case _CountHeaderSpec(:final count):
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg, AppSpacing.xs, AppSpacing.lg, 0),
+          child: Text(
+            '$count transaction${count == 1 ? '' : 's'}',
+            style: AppTextStyles.bodyM.copyWith(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.3,
+            ),
+          ),
+        );
+      case _ConfirmAllSpec(:final count):
+        return Padding(
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
+          child: NeoPOPButton(
+            label: 'Confirm All ($count)',
+            onTap: () async {
+              final didConfirm = await showDialog<bool>(
+                context: context,
+                builder: (_) => AlertDialog(
+                  title: Text('Confirm all $count unconfirmed transactions?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text('Confirm'),
+                    ),
+                  ],
+                ),
+              );
+              if (didConfirm == true) {
+                await HapticFeedback.mediumImpact();
+                final repo = ref.read(repositoryProvider);
+                await repo.confirmAllUnconfirmed();
+                await HapticFeedback.heavyImpact();
+              }
+            },
+          ),
+        );
+      case _EyebrowSpec(:final label):
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
+          child: Semantics(
+            header: true,
+            child: Text(label, style: AppTextStyles.section),
+          ),
+        );
+      case _DayCardSpec(
+          :final group,
+          :final isUnconfirmed,
+          :final startTileIndex
+        ):
+        final rows = <Widget>[];
+        for (var i = 0; i < group.length; i++) {
+          final tile =
+              _buildTile(context, group[i], sym, isUnconfirmed: isUnconfirmed);
+          final idx = (startTileIndex + i).clamp(0, 20);
+          rows.add(
+              shouldAnimate ? StaggeredItem(index: idx, child: tile) : tile);
+          if (i < group.length - 1) {
+            rows.add(const Divider(
+              height: 1,
+              thickness: 1,
+              color: AppColors.gray100,
+              indent: AppSpacing.sm,
+              endIndent: AppSpacing.sm,
+            ));
+          }
+        }
+        return Padding(
+          padding:
+              const EdgeInsets.fromLTRB(AppSpacing.lg, 0, AppSpacing.lg, 0),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: AppRadius.xl,
+              boxShadow: AppShadows.sm,
+            ),
+            child: Column(children: rows),
+          ),
+        );
+      case _FooterSpec():
+        return const SizedBox(height: 80);
+    }
   }
 
   Widget _buildTile(BuildContext context, SpendlerTransaction t, String sym, {bool isUnconfirmed = false}) {
@@ -599,6 +646,46 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
         return '';
     }
   }
+}
+
+// ─────────────────────────────────────────────────────
+// Lazy row descriptors — keep ListView.builder truly virtual
+// ─────────────────────────────────────────────────────
+
+sealed class _RowSpec {
+  const _RowSpec();
+}
+
+class _CountHeaderSpec extends _RowSpec {
+  const _CountHeaderSpec(this.count);
+  final int count;
+}
+
+class _ConfirmAllSpec extends _RowSpec {
+  const _ConfirmAllSpec(this.count);
+  final int count;
+}
+
+class _EyebrowSpec extends _RowSpec {
+  const _EyebrowSpec(this.label);
+  final String label;
+}
+
+class _DayCardSpec extends _RowSpec {
+  const _DayCardSpec({
+    required this.day,
+    required this.group,
+    required this.isUnconfirmed,
+    required this.startTileIndex,
+  });
+  final DateTime? day;
+  final List<SpendlerTransaction> group;
+  final bool isUnconfirmed;
+  final int startTileIndex;
+}
+
+class _FooterSpec extends _RowSpec {
+  const _FooterSpec();
 }
 
 // ─────────────────────────────────────────────────────

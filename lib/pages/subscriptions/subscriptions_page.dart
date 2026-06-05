@@ -12,11 +12,18 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:finance_buddy_app/utils/currency_utils.dart';
 import 'package:finance_buddy_app/widgets/common/spendler_bottom_sheet.dart';
 
-class SubscriptionsPage extends ConsumerWidget {
+class SubscriptionsPage extends ConsumerStatefulWidget {
   const SubscriptionsPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SubscriptionsPage> createState() => _SubscriptionsPageState();
+}
+
+class _SubscriptionsPageState extends ConsumerState<SubscriptionsPage> {
+  bool _hasAnimatedInitial = false;
+
+  @override
+  Widget build(BuildContext context) {
     final subsAsync = ref.watch(allSubscriptionsProvider);
     final monthlyTotal = ref.watch(subscriptionMonthlyTotalProvider);
     final sym = currencySymbol(ref.watch(selectedCurrencyProvider).valueOrNull ?? 'inr');
@@ -33,11 +40,11 @@ class SubscriptionsPage extends ConsumerWidget {
               children: [
                 _PushedHeader(
                   onBack: () => Navigator.of(context).maybePop(),
-                  onAdd: () => _showAddSheet(context, ref),
+                  onAdd: () => _showAddSheet(context),
                 ),
                 Expanded(
                   child: subsAsync.when(
-                    data: (subs) => _buildList(context, ref, subs, monthlyTotal, sym),
+                    data: (subs) => _buildList(subs, monthlyTotal, sym),
                     loading: () => const Center(
                       child: CircularProgressIndicator(color: AppColors.black),
                     ),
@@ -56,8 +63,6 @@ class SubscriptionsPage extends ConsumerWidget {
   }
 
   Widget _buildList(
-    BuildContext context,
-    WidgetRef ref,
     List<Subscription> subs,
     AsyncValue<double> monthlyTotal,
     String sym,
@@ -72,6 +77,14 @@ class SubscriptionsPage extends ConsumerWidget {
 
     final activeSubs = subs.where((s) => s.isActive).toList();
     final nextRenewal = _nextRenewal(activeSubs);
+
+    // Only animate on first data load — skip on toggle/delete/refresh rebuilds.
+    final shouldAnimate = !_hasAnimatedInitial;
+    if (shouldAnimate) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() => _hasAnimatedInitial = true);
+      });
+    }
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(
@@ -111,17 +124,30 @@ class SubscriptionsPage extends ConsumerWidget {
             children: [
               for (int i = 0; i < subs.length; i++) ...[
                 if (i > 0) const Divider(height: 1, thickness: 1, color: AppColors.gray100),
-                _SubscriptionRow(
-                  subscription: subs[i],
-                  symbol: sym,
-                  onToggle: () {
-                    ref.read(repositoryProvider).toggleSubscriptionActive(
-                        subs[i].id, !subs[i].isActive);
-                  },
-                  onDelete: () => _confirmDelete(context, ref, subs[i]),
-                ).animate()
-                    .fadeIn(delay: AppDurations.stagger * i, duration: AppDurations.medium)
-                    .slideX(begin: 0.05, delay: AppDurations.stagger * i, duration: AppDurations.medium),
+                if (shouldAnimate)
+                  _SubscriptionRow(
+                    key: ValueKey(subs[i].id),
+                    subscription: subs[i],
+                    symbol: sym,
+                    onToggle: () {
+                      ref.read(repositoryProvider).toggleSubscriptionActive(
+                          subs[i].id, !subs[i].isActive);
+                    },
+                    onDelete: () => _confirmDelete(subs[i]),
+                  ).animate()
+                      .fadeIn(delay: AppDurations.stagger * i, duration: AppDurations.medium)
+                      .slideX(begin: 0.05, delay: AppDurations.stagger * i, duration: AppDurations.medium)
+                else
+                  _SubscriptionRow(
+                    key: ValueKey(subs[i].id),
+                    subscription: subs[i],
+                    symbol: sym,
+                    onToggle: () {
+                      ref.read(repositoryProvider).toggleSubscriptionActive(
+                          subs[i].id, !subs[i].isActive);
+                    },
+                    onDelete: () => _confirmDelete(subs[i]),
+                  ),
               ],
             ],
           ),
@@ -138,7 +164,7 @@ class SubscriptionsPage extends ConsumerWidget {
     return sorted.first;
   }
 
-  void _confirmDelete(BuildContext context, WidgetRef ref, Subscription sub) {
+  void _confirmDelete(Subscription sub) {
     showDialog<void>(
       context: context,
       builder: (_) => AlertDialog(
@@ -161,7 +187,7 @@ class SubscriptionsPage extends ConsumerWidget {
     );
   }
 
-  void _showAddSheet(BuildContext context, WidgetRef ref) {
+  void _showAddSheet(BuildContext context) {
     showSpendlerSheet<void>(
       context: context,
       builder: (_) => const _AddSubscriptionSheet(),
@@ -346,6 +372,7 @@ class _SubscriptionHero extends StatelessWidget {
 
 class _SubscriptionRow extends StatelessWidget {
   const _SubscriptionRow({
+    super.key,
     required this.subscription,
     required this.onToggle,
     required this.onDelete,

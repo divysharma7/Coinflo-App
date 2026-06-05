@@ -857,29 +857,32 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> {
         ? splits.firstWhere((s) => s.personId == null).shareAmount
         : amount;
 
-    final txnId = await repo.insertTransaction(
-      SpendlerTransactionsCompanion.insert(
-        amount: _isExpense ? -amount : amount,
-        category: _isExpense ? _category.name : 'income',
-        merchant: drift.Value(merchant),
-        note: drift.Value(merchant),
-        happenedAt: drift.Value(_selectedDate),
-        source: const drift.Value('manual'),
-        status: const drift.Value('confirmed'),
-        incomeSource: _isExpense
-            ? const drift.Value(null)
-            : drift.Value(_incomeSource),
-      ),
+    final companion = SpendlerTransactionsCompanion.insert(
+      amount: _isExpense ? -amount : amount,
+      category: _isExpense ? _category.name : 'income',
+      merchant: drift.Value(merchant),
+      note: drift.Value(merchant),
+      happenedAt: drift.Value(_selectedDate),
+      source: const drift.Value('manual'),
+      status: const drift.Value('confirmed'),
+      incomeSource: _isExpense
+          ? const drift.Value(null)
+          : drift.Value(_incomeSource),
     );
 
+    // Atomic: a split expense persists the transaction, its splits, and the
+    // split-metadata columns in a single db.transaction so a crash can never
+    // orphan splits or leave the full amount leaking into category totals.
     if (hasSplit) {
-      await repo.createSplits(txnId, splits);
-      await repo.markSplit(
-        txnId,
-        _splitPersonIds.length + 1,
-        userShare,
-        amount - userShare,
+      await repo.insertTransactionWithSplits(
+        companion,
+        splits,
+        splitCount: _splitPersonIds.length + 1,
+        splitMyShare: userShare,
+        splitPendingAmount: amount - userShare,
       );
+    } else {
+      await repo.insertTransaction(companion);
     }
 
     // ── Spending alerts (fire-and-forget) ────────────────

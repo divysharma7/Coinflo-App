@@ -67,6 +67,12 @@ class SpendlerApp extends StatelessWidget {
               ),
             ),
             darkTheme: ThemeData.light(useMaterial3: true),
+            // Clamp OS font scaling so 1.5–2x accessibility settings don't
+            // overflow fixed-height components (buttons, nav rows, chips).
+            builder: (context, child) => MediaQuery.withClampedTextScaling(
+              maxScaleFactor: 1.3,
+              child: child!,
+            ),
             routerConfig: router,
           );
         },
